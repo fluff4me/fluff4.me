@@ -1,0 +1,38 @@
+name: Build beta
+
+on:
+  workflow_call:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-beta:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: npm ci --force
+
+      - name: Build
+        env:
+          ENVIRONMENT: beta
+          URL_ORIGIN: https://fluff4.me/beta/
+          BUILD_NUMBER: ${{ github.run_number }}
+          BUILD_SHA: ${{ github.sha }}
+        run: npm run build
+
+      - name: Prepare for GitHub Pages
+        if: success()
+        uses: crazy-max/ghaction-github-pages@v4
+        with:
+          target_branch: build-beta
+          build_dir: docs
+          jekyll: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

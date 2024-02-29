@@ -1,2 +1,2 @@
-# fluff4.me-issues
-Bug reporting, improvements, and milestones for fluff4.me
+# fluff4.me
+The safe place for trans (and other queer friends) webnovels!

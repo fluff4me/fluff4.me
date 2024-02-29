@@ -1,0 +1,81 @@
+:root {
+	font-family: $font-sans-serif, sans-serif;
+	font-weight: 400;
+	letter-spacing: 0.02em;
+}
+
+html {
+	overflow-x: hidden;
+	background: color(background-2);
+	background-size: cover;
+	background-position: center;
+}
+
+body {
+	margin: 0;
+}
+
+button {
+	font: inherit;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.logo {
+	background: url("./image/logo.png");
+	aspect-ratio: 1/1;
+	background-size: cover;
+}
+
+html .hidden {
+	display: none;
+}
+
+:root:not(.api-down) .show-if-api-down {
+	display: none;
+}
+
+:root:not(.show-extra-info) .show-if-extra-info {
+	display: none;
+}
+
+:root.show-extra-info .show-if-not-extra-info {
+	display: none;
+}
+
+.warning-text {
+	color: color(bad);
+}
+
+.small-text {
+	font-size: 11px;
+	opacity: 0.5;
+}
+
+h3 {
+	font-family: $font-title;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	margin: 0;
+	margin-bottom: -10px;
+}
+
+h3 + p {
+	opacity: 0.7;
+	margin-top: 10px;
+}
+
+h3 + p + p {
+	margin-top: -12px;
+}
+
+.enum-icon {
+	height: 1em;
+	margin: 0 .2em;
+	position: relative;
+	top: 2.3px;
+}
+
+.var {
+	font-weight: bold;
+}
