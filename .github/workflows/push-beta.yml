@@ -1,0 +1,18 @@
+name: Push beta
+
+on:
+  push:
+    branches: [ beta ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-beta:
+    uses: ./.github/workflows/build-beta.yml
+    secrets: inherit
+
+  deploy:
+    needs: build-beta
+    uses: ./.github/workflows/deploy.yml  
+    secrets: inherit

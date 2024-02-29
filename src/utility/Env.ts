@@ -1,0 +1,18 @@
+
+export interface IEnvironment {
+	ENVIRONMENT: "dev" | "beta" | "prod";
+	BUILD_NUMBER?: string;
+	BUILD_SHA?: string;
+}
+
+interface Env extends Readonly<IEnvironment> { }
+class Env {
+	public async load () {
+		const origin = location.origin;
+		const root = location.pathname.startsWith("/beta/") ? "/beta/" : "/";
+		Object.assign(this, await fetch(origin + root + "env.json").then(response => response.json()));
+		document.documentElement.classList.add(`environment-${this.ENVIRONMENT}`);
+	}
+}
+
+export default new Env;
