@@ -1,6 +1,7 @@
 
 export interface IEnvironment {
 	ENVIRONMENT: "dev" | "beta" | "prod";
+	API_ORIGIN: string;
 	BUILD_NUMBER?: string;
 	BUILD_SHA?: string;
 }

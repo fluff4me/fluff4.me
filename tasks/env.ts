@@ -17,6 +17,7 @@ function optional<KEY extends keyof IEnvironment> (key: KEY) {
 let environment: IEnvironment | undefined;
 export default Task("env", _ => {
 	environment ??= {
+		API_ORIGIN: env("API_ORIGIN"),
 		ENVIRONMENT: env("ENVIRONMENT", "prod"),
 		BUILD_NUMBER: optional("BUILD_NUMBER"),
 		BUILD_SHA: optional("BUILD_SHA"),
