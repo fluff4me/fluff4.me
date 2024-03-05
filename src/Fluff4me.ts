@@ -38,13 +38,21 @@ export default class Fluff4me {
 
 		// ViewManager.showByHash(URL.path ?? URL.hash);
 
-		async function openOAuthPopup () {
-			const redirect = encodeURIComponent(`${Env.API_ORIGIN}auth/discord/callback`);
-			await popup(`https://discord.com/oauth2/authorize?client_id=611683072173277191&response_type=code&redirect_uri=${redirect}&scope=identify`, 600, 900);
+		type OAuthService = (redirectUri: string) => string;
+
+		const OAUTH_SERVICE_REGISTRY: Record<string, OAuthService> = {
+			discord: redirect => `https://discord.com/oauth2/authorize?client_id=611683072173277191&response_type=code&redirect_uri=${redirect}&scope=identify`,
+			github: redirect => `https://github.com/login/oauth/authorize?client_id=63576c6eadf592fe3690&redirect_uri=${redirect}&scope=read:user&allow_signup=false`,
+		};
+
+		async function openOAuthPopup (serviceName: string) {
+			const redirect = encodeURIComponent(`${Env.API_ORIGIN}auth/${serviceName}/callback`);
+			await popup(OAUTH_SERVICE_REGISTRY[serviceName](redirect), 600, 900);
 			console.log("closed");
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		document.getElementById("discord")?.addEventListener("click", openOAuthPopup);
+		for (const service of Object.keys(OAUTH_SERVICE_REGISTRY))
+			document.getElementById(service)
+				?.addEventListener("click", () => void openOAuthPopup(service));
 	}
 }
