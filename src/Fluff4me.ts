@@ -2,6 +2,15 @@ import UiEventBus from "ui/UiEventBus";
 import Env from "utility/Env";
 import popup from "utility/Popup";
 
+if (location.pathname.startsWith("/auth/")) {
+	if (location.pathname.endsWith("/error")) {
+		const params = new URLSearchParams(location.search);
+		localStorage.setItem("Popup-Error-Code", params.get("code") ?? "500");
+		localStorage.setItem("Popup-Error-Message", params.get("message") ?? "Internal Server Error");
+	}
+	window.close();
+}
+
 void screen?.orientation?.lock?.("portrait-primary").catch(() => { });
 
 export default class Fluff4me {
@@ -38,21 +47,58 @@ export default class Fluff4me {
 
 		// ViewManager.showByHash(URL.path ?? URL.hash);
 
+		await Session.refresh();
+
+		const stateToken = Session.getStateToken();
+
 		type OAuthService = (redirectUri: string) => string;
 
 		const OAUTH_SERVICE_REGISTRY: Record<string, OAuthService> = {
-			discord: redirect => `https://discord.com/oauth2/authorize?client_id=611683072173277191&response_type=code&redirect_uri=${redirect}&scope=identify`,
-			github: redirect => `https://github.com/login/oauth/authorize?client_id=63576c6eadf592fe3690&redirect_uri=${redirect}&scope=read:user&allow_signup=false`,
+			discord: redirect => `https://discord.com/oauth2/authorize?client_id=611683072173277191&state=${stateToken}&response_type=code&redirect_uri=${redirect}&scope=identify`,
+			github: redirect => `https://github.com/login/oauth/authorize?client_id=63576c6eadf592fe3690&state=${stateToken}&redirect_uri=${redirect}&scope=read:user&allow_signup=false`,
 		};
 
 		async function openOAuthPopup (serviceName: string) {
 			const redirect = encodeURIComponent(`${Env.API_ORIGIN}auth/${serviceName}/callback`);
-			await popup(OAUTH_SERVICE_REGISTRY[serviceName](redirect), 600, 900);
-			console.log("closed");
+			const success = await popup(OAUTH_SERVICE_REGISTRY[serviceName](redirect), 600, 900)
+				.then(() => true).catch(err => { console.warn(err); return false; });
+
+			if (success)
+				await Session.refresh();
 		}
 
 		for (const service of Object.keys(OAUTH_SERVICE_REGISTRY))
 			document.getElementById(service)
 				?.addEventListener("click", () => void openOAuthPopup(service));
+	}
+}
+
+namespace Session {
+	export async function refresh () {
+		const headers: HeadersInit = {};
+		let sessionToken = localStorage.getItem("Session-Token");
+		if (sessionToken)
+			headers["Session-Token"] = sessionToken;
+		const response = await fetch(`${Env.API_ORIGIN}session`, { headers });
+		sessionToken = response.headers.get("Session-Token");
+		if (sessionToken)
+			localStorage.setItem("Session-Token", sessionToken);
+		const stateToken = response.headers.get("State-Token");
+		if (stateToken)
+			localStorage.setItem("State-Token", stateToken);
+
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const session = await response.json().catch(() => ({}));
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		localStorage.setItem("Session-Auth-Services", JSON.stringify(session?.data?.authServices ?? {}));
+	}
+
+	export function getStateToken () {
+		return localStorage.getItem("State-Token");
+	}
+
+	export function getAuthServices () {
+		const authServicesString = localStorage.getItem("Session-Auth-Services");
+		return authServicesString && JSON.parse(authServicesString) || {};
 	}
 }
