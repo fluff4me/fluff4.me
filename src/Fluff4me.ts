@@ -70,10 +70,32 @@ export default class Fluff4me {
 		for (const service of Object.keys(OAUTH_SERVICE_REGISTRY))
 			document.getElementById(service)
 				?.addEventListener("click", () => void openOAuthPopup(service));
+
+		const signupbutton = document.createElement("button");
+		signupbutton.textContent = "Sign Up";
+		document.body.append(signupbutton);
+		signupbutton.addEventListener("click", async () => {
+			await fetch(`${Env.API_ORIGIN}author/create`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					...Session.headers(),
+				},
+				body: JSON.stringify({
+					vanity: "chiri",
+				}),
+			});
+		});
 	}
 }
 
 namespace Session {
+	export function headers () {
+		return Object.fromEntries(Object.entries({
+			"Session-Token": localStorage.getItem("Session-Token"),
+		}).filter(([, value]) => value !== null && value !== undefined));
+	}
+
 	export async function refresh () {
 		const headers: HeadersInit = {};
 		let sessionToken = localStorage.getItem("Session-Token");
