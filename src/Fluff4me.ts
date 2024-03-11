@@ -74,6 +74,7 @@ export default class Fluff4me {
 		const signupbutton = document.createElement("button");
 		signupbutton.textContent = "Sign Up";
 		document.body.append(signupbutton);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		signupbutton.addEventListener("click", async () => {
 			await fetch(`${Env.API_ORIGIN}author/create`, {
 				method: "POST",
@@ -82,6 +83,7 @@ export default class Fluff4me {
 					...Session.headers(),
 				},
 				body: JSON.stringify({
+					name: "Chiri Vulpes",
 					vanity: "chiri",
 				}),
 			});
