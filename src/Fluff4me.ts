@@ -85,6 +85,19 @@ export default class Fluff4me {
 				}),
 			});
 		});
+
+		const viewprofilebutton = document.createElement("button");
+		viewprofilebutton.textContent = "View Profile";
+		document.body.append(viewprofilebutton);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		viewprofilebutton.addEventListener("click", async () => {
+			const response = await fetch(`${Env.API_ORIGIN}author/get/chiri`, {
+				headers: Session.headers(),
+			}).then(response => response.json());
+			console.log(response);
+		});
+
+
 	}
 }
 
@@ -92,7 +105,7 @@ namespace Session {
 	export function headers () {
 		return Object.fromEntries(Object.entries({
 			"Session-Token": localStorage.getItem("Session-Token"),
-		}).filter(([, value]) => value !== null && value !== undefined));
+		}).filter(([, value]) => value !== null && value !== undefined)) as HeadersInit;
 	}
 
 	export async function refresh () {
