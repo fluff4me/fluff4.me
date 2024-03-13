@@ -58,11 +58,10 @@ export default class Fluff4me {
 
 		async function openOAuthPopup (serviceName: string) {
 			const redirect = encodeURIComponent(`${Env.API_ORIGIN}auth/${serviceName}/callback`);
-			const success = await popup(OAUTH_SERVICE_REGISTRY[serviceName](redirect), 600, 900)
+			await popup(OAUTH_SERVICE_REGISTRY[serviceName](redirect), 600, 900)
 				.then(() => true).catch(err => { console.warn(err); return false; });
 
-			if (success)
-				await Session.refresh();
+			await Session.refresh();
 		}
 
 		for (const service of Object.keys(OAUTH_SERVICE_REGISTRY))
