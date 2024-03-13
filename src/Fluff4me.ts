@@ -49,13 +49,11 @@ export default class Fluff4me {
 
 		await Session.refresh();
 
-		const stateToken = Session.getStateToken();
-
 		type OAuthService = (redirectUri: string) => string;
 
 		const OAUTH_SERVICE_REGISTRY: Record<string, OAuthService> = {
-			discord: redirect => `https://discord.com/oauth2/authorize?client_id=611683072173277191&state=${stateToken}&response_type=code&redirect_uri=${redirect}&scope=identify`,
-			github: redirect => `https://github.com/login/oauth/authorize?client_id=63576c6eadf592fe3690&state=${stateToken}&redirect_uri=${redirect}&scope=read:user&allow_signup=false`,
+			discord: redirect => `https://discord.com/oauth2/authorize?client_id=611683072173277191&state=${Session.getStateToken()}&response_type=code&redirect_uri=${redirect}&scope=identify`,
+			github: redirect => `https://github.com/login/oauth/authorize?client_id=63576c6eadf592fe3690&state=${Session.getStateToken()}&redirect_uri=${redirect}&scope=read:user&allow_signup=false`,
 		};
 
 		async function openOAuthPopup (serviceName: string) {
