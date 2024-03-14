@@ -52,21 +52,40 @@ export default class Fluff4me {
 		type OAuthService = (redirectUri: string) => string;
 
 		const OAUTH_SERVICE_REGISTRY: Record<string, OAuthService> = {
-			discord: redirect => `https://discord.com/oauth2/authorize?client_id=611683072173277191&state=${Session.getStateToken()}&response_type=code&redirect_uri=${redirect}&scope=identify`,
-			github: redirect => `https://github.com/login/oauth/authorize?client_id=63576c6eadf592fe3690&state=${Session.getStateToken()}&redirect_uri=${redirect}&scope=read:user&allow_signup=false`,
+			Discord: redirect => `https://discord.com/oauth2/authorize?client_id=611683072173277191&state=${Session.getStateToken()}&response_type=code&redirect_uri=${redirect}&scope=identify`,
+			GitHub: redirect => `https://github.com/login/oauth/authorize?client_id=63576c6eadf592fe3690&state=${Session.getStateToken()}&redirect_uri=${redirect}&scope=read:user&allow_signup=false`,
 		};
 
 		async function openOAuthPopup (serviceName: string) {
-			const redirect = encodeURIComponent(`${Env.API_ORIGIN}auth/${serviceName}/callback`);
+			const redirect = encodeURIComponent(`${Env.API_ORIGIN}auth/${serviceName.toLowerCase()}/callback`);
 			await popup(OAUTH_SERVICE_REGISTRY[serviceName](redirect), 600, 900)
 				.then(() => true).catch(err => { console.warn(err); return false; });
 
 			await Session.refresh();
 		}
 
-		for (const service of Object.keys(OAUTH_SERVICE_REGISTRY))
-			document.getElementById(service)
+		for (const service of Object.keys(OAUTH_SERVICE_REGISTRY)) {
+			document.getElementById(service.toLowerCase())
 				?.addEventListener("click", () => void openOAuthPopup(service));
+
+			const unoauthbutton = document.createElement("button");
+			unoauthbutton.textContent = `UnOAuth ${service}`;
+			document.body.append(unoauthbutton);
+			// eslint-disable-next-line @typescript-eslint/no-misused-promises
+			unoauthbutton.addEventListener("click", async () => {
+				const id = Session.getAuthServices()[service.toLowerCase()]?.[0]?.id;
+				if (id === undefined)
+					return;
+				await fetch(`${Env.API_ORIGIN}auth/remove`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						...Session.headers(),
+					},
+					body: JSON.stringify({ id }),
+				});
+			});
+		}
 
 		const signupbutton = document.createElement("button");
 		signupbutton.textContent = "Sign Up";
@@ -106,6 +125,7 @@ export default class Fluff4me {
 			await fetch(`${Env.API_ORIGIN}author/update`, {
 				method: "POST",
 				headers: {
+					"Content-Type": "application/json",
 					...Session.headers(),
 				},
 				body: JSON.stringify({
