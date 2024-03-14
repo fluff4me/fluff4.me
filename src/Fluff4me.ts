@@ -91,10 +91,30 @@ export default class Fluff4me {
 		document.body.append(viewprofilebutton);
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		viewprofilebutton.addEventListener("click", async () => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const response = await fetch(`${Env.API_ORIGIN}author/get/chiri`, {
 				headers: Session.headers(),
 			}).then(response => response.json());
 			console.log(response);
+		});
+
+		const updateAuthorButton = document.createElement("button");
+		updateAuthorButton.textContent = "Update Author";
+		document.body.append(updateAuthorButton);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		updateAuthorButton.addEventListener("click", async () => {
+			await fetch(`${Env.API_ORIGIN}author/update`, {
+				method: "POST",
+				headers: {
+					...Session.headers(),
+				},
+				body: JSON.stringify({
+					name: "Lumina Mystere",
+					description: "if this shows up i did a thing successfully",
+					support_link: "https://youlovetosee.it",
+					support_message: "pls give me money",
+				}),
+			});
 		});
 
 
