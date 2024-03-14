@@ -103,6 +103,8 @@ export default class Fluff4me {
 					vanity: "chiri",
 				}),
 			});
+
+			await Session.refresh();
 		});
 
 		const viewprofilebutton = document.createElement("button");
