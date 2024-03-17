@@ -26,6 +26,7 @@ jobs:
 
       - name: Build
         env:
+          API_ORIGIN: https://api.fluff4.me/
           URL_ORIGIN: https://fluff4.me/
           BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
           BUILD_SHA: ${{ github.sha }}
