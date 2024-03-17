@@ -73,6 +73,7 @@ export default class Fluff4me {
 			document.body.append(unoauthbutton);
 			// eslint-disable-next-line @typescript-eslint/no-misused-promises
 			unoauthbutton.addEventListener("click", async () => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 				const id = Session.getAuthServices()[service.toLowerCase()]?.[0]?.id;
 				if (id === undefined)
 					return;
@@ -82,6 +83,7 @@ export default class Fluff4me {
 						"Content-Type": "application/json",
 						...Session.headers(),
 					},
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 					body: JSON.stringify({ id }),
 				});
 			});
@@ -105,6 +107,20 @@ export default class Fluff4me {
 			});
 
 			await Session.refresh();
+		});
+
+		const resetSessionButton = document.createElement("button");
+		resetSessionButton.textContent = "Clear Session";
+		document.body.append(resetSessionButton);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		resetSessionButton.addEventListener("click", async () => {
+			await Session.refresh(await fetch(`${Env.API_ORIGIN}session/reset`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					...Session.headers(),
+				},
+			}));
 		});
 
 		const viewprofilebutton = document.createElement("button");
@@ -150,12 +166,12 @@ namespace Session {
 		}).filter(([, value]) => value !== null && value !== undefined)) as HeadersInit;
 	}
 
-	export async function refresh () {
+	export async function refresh (response?: Response) {
 		const headers: HeadersInit = {};
 		let sessionToken = localStorage.getItem("Session-Token");
 		if (sessionToken)
 			headers["Session-Token"] = sessionToken;
-		const response = await fetch(`${Env.API_ORIGIN}session`, { headers });
+		response ??= await fetch(`${Env.API_ORIGIN}session`, { headers });
 		sessionToken = response.headers.get("Session-Token");
 		if (sessionToken)
 			localStorage.setItem("Session-Token", sessionToken);
