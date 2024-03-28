@@ -49,22 +49,15 @@ export default class Fluff4me {
 
 		await Session.refresh();
 
-		type OAuthService = (redirectUri: string) => string;
-
-		const OAUTH_SERVICE_REGISTRY: Record<string, OAuthService> = {
-			Discord: redirect => `https://discord.com/oauth2/authorize?client_id=611683072173277191&state=${Session.getStateToken()}&response_type=code&redirect_uri=${redirect}&scope=identify`,
-			GitHub: redirect => `https://github.com/login/oauth/authorize?client_id=63576c6eadf592fe3690&state=${Session.getStateToken()}&redirect_uri=${redirect}&scope=read:user&allow_signup=false`,
-		};
-
 		async function openOAuthPopup (serviceName: string) {
-			const redirect = encodeURIComponent(`${Env.API_ORIGIN}auth/${serviceName.toLowerCase()}/callback`);
-			await popup(OAUTH_SERVICE_REGISTRY[serviceName](redirect), 600, 900)
+			await popup(`${Env.API_ORIGIN}auth/${serviceName.toLowerCase()}/begin`, 600, 900)
 				.then(() => true).catch(err => { console.warn(err); return false; });
 
 			await Session.refresh();
 		}
 
-		for (const service of Object.keys(OAUTH_SERVICE_REGISTRY)) {
+		// TODO fetch services from a new auth API
+		for (const service of ["GitHub", "Discord"]) {
 			document.getElementById(service.toLowerCase())
 				?.addEventListener("click", () => void openOAuthPopup(service));
 
@@ -79,9 +72,9 @@ export default class Fluff4me {
 					return;
 				await fetch(`${Env.API_ORIGIN}auth/remove`, {
 					method: "POST",
+					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
-						...Session.headers(),
 					},
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 					body: JSON.stringify({ id }),
@@ -96,9 +89,9 @@ export default class Fluff4me {
 		signupbutton.addEventListener("click", async () => {
 			await fetch(`${Env.API_ORIGIN}author/create`, {
 				method: "POST",
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
-					...Session.headers(),
 				},
 				body: JSON.stringify({
 					name: "Chiri Vulpes",
@@ -116,9 +109,9 @@ export default class Fluff4me {
 		resetSessionButton.addEventListener("click", async () => {
 			await Session.refresh(await fetch(`${Env.API_ORIGIN}session/reset`, {
 				method: "POST",
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
-					...Session.headers(),
 				},
 			}));
 		});
@@ -130,7 +123,7 @@ export default class Fluff4me {
 		viewprofilebutton.addEventListener("click", async () => {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const response = await fetch(`${Env.API_ORIGIN}author/get/chiri`, {
-				headers: Session.headers(),
+				credentials: "include",
 			}).then(response => response.json());
 			console.log(response);
 		});
@@ -142,9 +135,9 @@ export default class Fluff4me {
 		updateAuthorButton.addEventListener("click", async () => {
 			await fetch(`${Env.API_ORIGIN}author/update`, {
 				method: "POST",
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
-					...Session.headers(),
 				},
 				body: JSON.stringify({
 					name: "Lumina Mystere",
@@ -160,21 +153,9 @@ export default class Fluff4me {
 }
 
 namespace Session {
-	export function headers () {
-		return Object.fromEntries(Object.entries({
-			"Session-Token": localStorage.getItem("Session-Token"),
-		}).filter(([, value]) => value !== null && value !== undefined)) as HeadersInit;
-	}
-
 	export async function refresh (response?: Response) {
 		const headers: HeadersInit = {};
-		let sessionToken = localStorage.getItem("Session-Token");
-		if (sessionToken)
-			headers["Session-Token"] = sessionToken;
-		response ??= await fetch(`${Env.API_ORIGIN}session`, { headers });
-		sessionToken = response.headers.get("Session-Token");
-		if (sessionToken)
-			localStorage.setItem("Session-Token", sessionToken);
+		response ??= await fetch(`${Env.API_ORIGIN}session`, { headers, credentials: "include" });
 		const stateToken = response.headers.get("State-Token");
 		if (stateToken)
 			localStorage.setItem("State-Token", stateToken);
