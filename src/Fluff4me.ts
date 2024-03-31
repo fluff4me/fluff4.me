@@ -74,6 +74,7 @@ export default class Fluff4me {
 					method: "POST",
 					credentials: "include",
 					headers: {
+						"Accept": "application/json",
 						"Content-Type": "application/json",
 					},
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -92,6 +93,7 @@ export default class Fluff4me {
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
+					"Accept": "application/json",
 				},
 				body: JSON.stringify({
 					name: "Chiri Vulpes",
@@ -111,6 +113,7 @@ export default class Fluff4me {
 				method: "POST",
 				credentials: "include",
 				headers: {
+					"Accept": "application/json",
 					"Content-Type": "application/json",
 				},
 			}));
@@ -137,6 +140,7 @@ export default class Fluff4me {
 				method: "POST",
 				credentials: "include",
 				headers: {
+					"Accept": "application/json",
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
@@ -154,7 +158,9 @@ export default class Fluff4me {
 
 namespace Session {
 	export async function refresh (response?: Response) {
-		const headers: HeadersInit = {};
+		const headers: HeadersInit = {
+			"Accept": "application/json",
+		};
 		response ??= await fetch(`${Env.API_ORIGIN}session`, { headers, credentials: "include" });
 		const stateToken = response.headers.get("State-Token");
 		if (stateToken)
