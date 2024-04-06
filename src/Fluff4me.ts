@@ -104,6 +104,26 @@ export default class Fluff4me {
 			await Session.refresh();
 		});
 
+		const signupbuttontwo = document.createElement("button");
+		signupbuttontwo.textContent = "Sign Up 2";
+		document.body.append(signupbuttontwo);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		signupbuttontwo.addEventListener("click", async () => {
+			await fetch(`${Env.API_ORIGIN}author/create`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: "Lumina Mystere",
+					vanity: "lumina",
+				}),
+			});
+
+			await Session.refresh();
+		});
+
 		const resetSessionButton = document.createElement("button");
 		resetSessionButton.textContent = "Clear Session";
 		document.body.append(resetSessionButton);
@@ -125,7 +145,7 @@ export default class Fluff4me {
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		viewprofilebutton.addEventListener("click", async () => {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			const response = await fetch(`${Env.API_ORIGIN}author/get/chiri`, {
+			const response = await fetch(`${Env.API_ORIGIN}author/chiri/get`, {
 				credentials: "include",
 			}).then(response => response.json());
 			console.log(response);
@@ -143,11 +163,80 @@ export default class Fluff4me {
 					"Accept": "application/json",
 					"Content-Type": "application/json",
 				},
+				// body: JSON.stringify({
+				// 	name: "Lumina Mystere",
+				// 	description: "if this shows up i did a thing successfully",
+				// 	support_link: "https://youlovetosee.it",
+				// 	support_message: "pls give me money",
+				// }),
+			});
+		});
+
+		const createWorkButton = document.createElement("button");
+		createWorkButton.textContent = "Create Work";
+		document.body.append(createWorkButton);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		createWorkButton.addEventListener("click", async () => {
+			await fetch(`${Env.API_ORIGIN}work/create`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
 				body: JSON.stringify({
-					name: "Lumina Mystere",
-					description: "if this shows up i did a thing successfully",
-					support_link: "https://youlovetosee.it",
-					support_message: "pls give me money",
+					name: "Test Work",
+					description: "woo look a story",
+					vanity: "a-fancy-story",
+				}),
+			});
+		});
+
+		const viewWorkButton = document.createElement("button");
+		viewWorkButton.textContent = "View Test Work";
+		document.body.append(viewWorkButton);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		viewWorkButton.addEventListener("click", async () => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			const response = await fetch(`${Env.API_ORIGIN}work/a-fancy-story/get`, {
+				credentials: "include",
+			}).then(response => response.json());
+			console.log(response);
+		});
+
+		const updateWorkButton = document.createElement("button");
+		updateWorkButton.textContent = "Update Test Work";
+		document.body.append(updateWorkButton);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		updateWorkButton.addEventListener("click", async () => {
+			await fetch(`${Env.API_ORIGIN}work/a-fancy-story/get`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: "Updated Test Work",
+					description: "if this shows up i did a second thing successfully",
+					visibility: "Public",
+				}),
+			});
+		});
+
+		const deleteWorkButton = document.createElement("button");
+		deleteWorkButton.textContent = "Delete Work";
+		document.body.append(deleteWorkButton);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		deleteWorkButton.addEventListener("click", async () => {
+			await fetch(`${Env.API_ORIGIN}work/a-fancy-story/delete`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: "Updated Test Work",
+					description: "if this shows up i did a second thing successfully",
+					visibility: "Public",
 				}),
 			});
 		});
