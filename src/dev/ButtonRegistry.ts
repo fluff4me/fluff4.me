@@ -51,14 +51,16 @@ export const BUTTON_REGISTRY = {
 	clearSession: {
 		name: "Clear Session",
 		async execute () {
-			await Session.refresh(await fetch(`${Env.API_ORIGIN}session/reset`, {
+			await fetch(`${Env.API_ORIGIN}session/reset`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
 					"Accept": "application/json",
 					"Content-Type": "application/json",
 				},
-			}));
+			});
+
+			await Session.refresh();
 		},
 	},
 
