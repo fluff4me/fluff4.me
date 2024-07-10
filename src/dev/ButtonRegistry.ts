@@ -48,6 +48,16 @@ export const BUTTON_REGISTRY = {
 		},
 	},
 
+	viewAuthor: {
+		name: "View Author",
+		async execute (vanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}author/${vanity}/get`, {
+				credentials: "include",
+			}).then(response => response.json());
+			console.log(response);
+		},
+	},
+
 	clearSession: {
 		name: "Clear Session",
 		async execute () {
