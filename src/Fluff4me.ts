@@ -122,6 +122,13 @@ export default class Fluff4me {
 		}));
 
 		document.body.append(createButton({
+			name: "View Profile 1",
+			async execute () {
+				await BUTTON_REGISTRY.viewAuthor.execute("somanystories");
+			},
+		}));
+
+		document.body.append(createButton({
 			name: "Create Profile 2",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("single story author", "justonestory");
@@ -130,6 +137,13 @@ export default class Fluff4me {
 				await BUTTON_REGISTRY.createChapter.execute("big story 2", "middle of a long story", "bigstory", "Public");
 				await BUTTON_REGISTRY.createChapter.execute("big story 3", "still the middle of a long story", "bigstory", "Public");
 				await BUTTON_REGISTRY.follow.execute("work", "debut");
+			},
+		}));
+
+		document.body.append(createButton({
+			name: "View Profile 2",
+			async execute () {
+				await BUTTON_REGISTRY.viewAuthor.execute("justonestory");
 			},
 		}));
 
@@ -143,6 +157,13 @@ export default class Fluff4me {
 				await BUTTON_REGISTRY.follow.execute("work", "sequel");
 				await BUTTON_REGISTRY.follow.execute("work", "wip");
 				await BUTTON_REGISTRY.follow.execute("work", "bigstory");
+			},
+		}));
+
+		document.body.append(createButton({
+			name: "View Profile 3",
+			async execute () {
+				await BUTTON_REGISTRY.viewAuthor.execute("ifollowpeople");
 			},
 		}));
 
