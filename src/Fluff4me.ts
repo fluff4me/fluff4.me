@@ -213,14 +213,15 @@ export default class Fluff4me {
 				for (let i = 0; i < 30; i++) {
 					await BUTTON_REGISTRY.follow.execute("work", `teststory${i}`);
 				}
-				await BUTTON_REGISTRY.getAllFollows.execute("work", 0);
-				await BUTTON_REGISTRY.getAllFollows.execute("work", 1);
+
 			},
 		}));
 
 		testButtons.append(createButton({
-			name: "Get all follows testing",
+			name: "Follows testing",
 			async execute () {
+				await BUTTON_REGISTRY.getAllFollows.execute("work", 0);
+				await BUTTON_REGISTRY.getAllFollows.execute("work", 1);
 				await BUTTON_REGISTRY.getAllFollowsMerged.execute(0);
 				await BUTTON_REGISTRY.getAllFollowsMerged.execute(1);
 			},
