@@ -234,8 +234,8 @@ export const BUTTON_REGISTRY = {
 
 	getAllFollows: {
 		name: "Get All Follows",
-		async execute (type: string) {
-			const response = await fetch(`${Env.API_ORIGIN}following/${type}`, {
+		async execute (type: string, page: number = 0) {
+			const response = await fetch(`${Env.API_ORIGIN}following/${type}?page=${page}`, {
 				credentials: "include",
 			}).then(response => response.json());
 			console.log(response);
@@ -244,8 +244,8 @@ export const BUTTON_REGISTRY = {
 
 	getAllFollowsMerged: {
 		name: "Get All Follows Merged",
-		async execute () {
-			const response = await fetch(`${Env.API_ORIGIN}following`, {
+		async execute (page: number = 0) {
+			const response = await fetch(`${Env.API_ORIGIN}following?page=${page}`, {
 				credentials: "include",
 			}).then(response => response.json());
 			console.log(response);

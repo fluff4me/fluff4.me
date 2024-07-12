@@ -171,6 +171,61 @@ export default class Fluff4me {
 			},
 		}));
 
+		const testButtons = document.createElement("div");
+		document.body.append(testButtons);
+
+		testButtons.append(createButton({
+			name: "Test Following Private Works",
+			async execute () {
+				await BUTTON_REGISTRY.createWork.execute("private from start", "aaaaaaa", "story1", "Ongoing", "Private");
+				await BUTTON_REGISTRY.createChapter.execute("aaaaa", "aaaaaaa", "story1", "Private");
+				await BUTTON_REGISTRY.follow.execute("work", "story1");
+				await BUTTON_REGISTRY.getFollow.execute("work", "story1");
+				await BUTTON_REGISTRY.getAllFollows.execute("work");
+				await BUTTON_REGISTRY.getAllFollowsMerged.execute();
+			},
+		}));
+
+		testButtons.append(createButton({
+			name: "Test Following Works Made Private",
+			async execute () {
+				await BUTTON_REGISTRY.createWork.execute("made private later", "bbbbbbbb", "story2", "Ongoing", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("bbbbbb", "bbbbbbbb", "story2", "Public");
+				await BUTTON_REGISTRY.follow.execute("work", "story2");
+				await BUTTON_REGISTRY.getFollow.execute("work", "story2");
+				await BUTTON_REGISTRY.getAllFollows.execute("work");
+				await BUTTON_REGISTRY.getAllFollowsMerged.execute();
+				await BUTTON_REGISTRY.updateWork.execute("story2", undefined, undefined, undefined, undefined, "Private");
+				await BUTTON_REGISTRY.viewWork.execute("story2");
+				await BUTTON_REGISTRY.getFollow.execute("work", "story2");
+				await BUTTON_REGISTRY.getAllFollows.execute("work");
+				await BUTTON_REGISTRY.getAllFollowsMerged.execute();
+
+			},
+		}));
+
+		testButtons.append(createButton({
+			name: "Create 40 works",
+			async execute () {
+				for (let i = 0; i < 30; i++) {
+					await BUTTON_REGISTRY.createWork.execute(`test story ${i}`, "aaaaaaaaa", `teststory${i}`, "Ongoing", "Public");
+				}
+				for (let i = 0; i < 30; i++) {
+					await BUTTON_REGISTRY.follow.execute("work", `teststory${i}`);
+				}
+				await BUTTON_REGISTRY.getAllFollows.execute("work", 0);
+				await BUTTON_REGISTRY.getAllFollows.execute("work", 1);
+			},
+		}));
+
+		testButtons.append(createButton({
+			name: "Get all follows testing",
+			async execute () {
+				await BUTTON_REGISTRY.getAllFollowsMerged.execute(0);
+				await BUTTON_REGISTRY.getAllFollowsMerged.execute(1);
+			},
+		}));
+
 	}
 }
 
