@@ -71,7 +71,8 @@ export default class Fluff4me {
 			return button;
 		};
 
-
+		const oauthDiv = document.createElement("div");
+		document.body.append(oauthDiv);
 
 		const OAuthServices = await fetch(`${Env.API_ORIGIN}auth/services`, {})
 			.then(response => response.json());
@@ -79,7 +80,7 @@ export default class Fluff4me {
 		for (const service of Object.values(OAuthServices.data) as any[]) {
 			const oauthButton = document.createElement("button");
 			oauthButton.textContent = `OAuth ${service.name}`;
-			document.body.append(oauthButton);
+			oauthDiv.append(oauthButton);
 			oauthButton.addEventListener("click", async () => {
 				await popup(service.url_begin, 600, 900)
 					.then(() => true).catch(err => { console.warn(err); return false; });
@@ -88,7 +89,7 @@ export default class Fluff4me {
 
 			const unoauthbutton = document.createElement("button");
 			unoauthbutton.textContent = `UnOAuth ${service.name}`;
-			document.body.append(unoauthbutton);
+			oauthDiv.append(unoauthbutton);
 			unoauthbutton.addEventListener("click", async () => {
 				const id = Session.getAuthServices()[service.id]?.[0]?.id;
 				if (id === undefined)
@@ -106,9 +107,12 @@ export default class Fluff4me {
 		}
 
 		// document.body.append(createButton(BUTTON_REGISTRY.createAuthor, "test author 1", "hi-im-an-author"));
-		document.body.append(createButton(BUTTON_REGISTRY.clearSession));
+		oauthDiv.append(createButton(BUTTON_REGISTRY.clearSession));
 
-		document.body.append(createButton({
+		const profileButtons = document.createElement("div");
+		document.body.append(profileButtons);
+
+		profileButtons.append(createButton({
 			name: "Create Profile 1",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("prolific author", "somanystories");
@@ -121,14 +125,14 @@ export default class Fluff4me {
 			},
 		}));
 
-		document.body.append(createButton({
+		profileButtons.append(createButton({
 			name: "View Profile 1",
 			async execute () {
 				await BUTTON_REGISTRY.viewAuthor.execute("somanystories");
 			},
 		}));
 
-		document.body.append(createButton({
+		profileButtons.append(createButton({
 			name: "Create Profile 2",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("single story author", "justonestory");
@@ -140,14 +144,14 @@ export default class Fluff4me {
 			},
 		}));
 
-		document.body.append(createButton({
+		profileButtons.append(createButton({
 			name: "View Profile 2",
 			async execute () {
 				await BUTTON_REGISTRY.viewAuthor.execute("justonestory");
 			},
 		}));
 
-		document.body.append(createButton({
+		profileButtons.append(createButton({
 			name: "Create Profile 3",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("prolific follower", "ifollowpeople");
@@ -160,7 +164,7 @@ export default class Fluff4me {
 			},
 		}));
 
-		document.body.append(createButton({
+		profileButtons.append(createButton({
 			name: "View Profile 3",
 			async execute () {
 				await BUTTON_REGISTRY.viewAuthor.execute("ifollowpeople");
