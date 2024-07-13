@@ -227,6 +227,17 @@ export default class Fluff4me {
 			},
 		}));
 
+		testButtons.append(createButton({
+			name: "Spam Create Follow Work Test",
+			async execute () {
+				await BUTTON_REGISTRY.createAuthor.execute("spam create works", "manyworks");
+				for (let i = 0; i < 30; i++) {
+					await BUTTON_REGISTRY.createWork.execute(`rapid story ${i}`, "aaaaaaaaa", `rapidstory${i}`, "Ongoing", "Public");
+					await BUTTON_REGISTRY.follow.execute("work", `rapidstory${i}`);
+				}
+			},
+		}));
+
 	}
 }
 
