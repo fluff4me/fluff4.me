@@ -231,10 +231,25 @@ export default class Fluff4me {
 			name: "Spam Create Follow Work Test",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("spam create works", "manyworks");
-				for (let i = 0; i < 30; i++) {
+				for (let i = 0; i < 100; i++) {
 					await BUTTON_REGISTRY.createWork.execute(`rapid story ${i}`, "aaaaaaaaa", `rapidstory${i}`, "Ongoing", "Public");
 					await BUTTON_REGISTRY.follow.execute("work", `rapidstory${i}`);
 				}
+			},
+		}));
+
+		testButtons.append(createButton({
+			name: "Test Ignore Endpoints",
+			async execute () {
+				await BUTTON_REGISTRY.createAuthor.execute("ignoring myself", "ignorepls");
+				await BUTTON_REGISTRY.createWork.execute("to ignore", "testing ignoring", "worktoignore", "Ongoing", "Public");
+				await BUTTON_REGISTRY.ignore.execute("author", "ignorepls");
+				await BUTTON_REGISTRY.ignore.execute("work", "worktoignore");
+				await BUTTON_REGISTRY.getIgnore.execute("author", "ignorepls");
+				await BUTTON_REGISTRY.getIgnore.execute("work", "worktoignore");
+				await BUTTON_REGISTRY.getAllIgnores.execute("author");
+				await BUTTON_REGISTRY.getAllIgnores.execute("work");
+				await BUTTON_REGISTRY.getAllIgnoresMerged.execute();
 			},
 		}));
 
