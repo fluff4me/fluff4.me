@@ -252,4 +252,60 @@ export const BUTTON_REGISTRY = {
 		},
 	},
 
+	ignore: {
+		name: "Ignore",
+		async execute (type: string, vanity: string) {
+			await fetch(`${Env.API_ORIGIN}ignore/${type}/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+		},
+	},
+
+	unignore: {
+		name: "Unignore",
+		async execute (type: string, vanity: string) {
+			await fetch(`${Env.API_ORIGIN}unignore/${type}/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+		},
+	},
+
+	getIgnore: {
+		name: "Get Ignore",
+		async execute (type: string, vanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}ignores/${type}/${vanity}`, {
+				credentials: "include",
+			}).then(response => response.json());
+			console.log(response);
+		},
+	},
+
+	getAllIgnores: {
+		name: "Get All Ignores",
+		async execute (type: string, page: number = 0) {
+			const response = await fetch(`${Env.API_ORIGIN}ignoring/${type}?page=${page}`, {
+				credentials: "include",
+			}).then(response => response.json());
+			console.log(response);
+		},
+	},
+
+	getAllIgnoresMerged: {
+		name: "Get All Ignores Merged",
+		async execute (page: number = 0) {
+			const response = await fetch(`${Env.API_ORIGIN}ignoring?page=${page}`, {
+				credentials: "include",
+			}).then(response => response.json());
+			console.log(response);
+		},
+	},
+
 } satisfies Record<string, IButtonImplementation<any[]>>;
