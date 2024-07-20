@@ -50,11 +50,11 @@ export const BUTTON_REGISTRY = {
 
 	viewAuthor: {
 		name: "View Author",
-		async execute (vanity: string) {
+		async execute (label: string, vanity: string) {
 			const response = await fetch(`${Env.API_ORIGIN}author/${vanity}/get`, {
 				credentials: "include",
 			}).then(response => response.json());
-			console.log(response);
+			console.log(label, response);
 		},
 	},
 
@@ -129,11 +129,11 @@ export const BUTTON_REGISTRY = {
 
 	viewWork: {
 		name: "View Work",
-		async execute (url: string) {
+		async execute (label: string, url: string) {
 			const response = await fetch(`${Env.API_ORIGIN}work/${url}/get`, {
 				credentials: "include",
 			}).then(response => response.json());
-			console.log(response);
+			console.log(label, response);
 		},
 	},
 
@@ -157,8 +157,8 @@ export const BUTTON_REGISTRY = {
 
 	updateChapter: {
 		name: "Update Chapter",
-		async execute (name?: string, body?: string, visibility?: string) {
-			await fetch(`${Env.API_ORIGIN}work/a-fancy-story/chapter/1/update`, {
+		async execute (workVanity: string, index: number, name?: string, body?: string, visibility?: string) {
+			await fetch(`${Env.API_ORIGIN}work/${workVanity}/chapter/${index}/update`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -175,7 +175,7 @@ export const BUTTON_REGISTRY = {
 
 	deleteChapter: {
 		name: "Delete Chapter",
-		async execute (work_url: string, index: string) {
+		async execute (work_url: string, index: number) {
 			await fetch(`${Env.API_ORIGIN}work/${work_url}/chapter/${index}/delete`, {
 				method: "POST",
 				credentials: "include",
@@ -188,11 +188,11 @@ export const BUTTON_REGISTRY = {
 
 	viewChapter: {
 		name: "View Chapter",
-		async execute (work_url: string, index: string) {
+		async execute (label: string, work_url: string, index: string) {
 			const response = await fetch(`${Env.API_ORIGIN}work/${work_url}/chapter/${index}/get`, {
 				credentials: "include",
 			}).then(response => response.json());
-			console.log(response);
+			console.log(label, response);
 		},
 	},
 

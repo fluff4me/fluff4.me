@@ -128,7 +128,7 @@ export default class Fluff4me {
 		profileButtons.append(createButton({
 			name: "View Profile 1",
 			async execute () {
-				await BUTTON_REGISTRY.viewAuthor.execute("somanystories");
+				await BUTTON_REGISTRY.viewAuthor.execute("author with many stories", "somanystories");
 			},
 		}));
 
@@ -139,15 +139,30 @@ export default class Fluff4me {
 				await BUTTON_REGISTRY.createWork.execute("one big work", "it's long", "bigstory", "Ongoing", "Public");
 				await BUTTON_REGISTRY.createChapter.execute("big story", "start of a long story", "bigstory", "Public");
 				await BUTTON_REGISTRY.createChapter.execute("big story 2", "middle of a long story", "bigstory", "Public");
-				await BUTTON_REGISTRY.createChapter.execute("big story 3", "still the middle of a long story", "bigstory", "Public");
-				await BUTTON_REGISTRY.follow.execute("work", "debut");
+				await BUTTON_REGISTRY.createChapter.execute("big story 3", "aaaa", "bigstory", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("big story 4", "aaaaaaa", "bigstory", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("big story 5", "aaaaaaaaaaaaaaaaaaa", "bigstory", "Public");
+				await BUTTON_REGISTRY.viewWork.execute("big story five chapters", "bigstory");
+				// await BUTTON_REGISTRY.follow.execute("work", "debut");
+				await BUTTON_REGISTRY.createWork.execute("tried a new story", "test thing", "anotherstory", "Hiatus", "Public");
+				await BUTTON_REGISTRY.viewWork.execute("on creation 0 chapters", "anotherstory");
+				await BUTTON_REGISTRY.createChapter.execute("chapter one", "some chapter data", "anotherstory", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("chapter two", "some chapter data", "anotherstory", "Private");
+				await BUTTON_REGISTRY.viewWork.execute("one public one private", "anotherstory");
+				await BUTTON_REGISTRY.updateChapter.execute("anotherstory", 2, undefined, undefined, "Patreon");
+				await BUTTON_REGISTRY.viewWork.execute("one public one patreon", "anotherstory");
+				await BUTTON_REGISTRY.deleteChapter.execute("anotherstory", 2);
+				await BUTTON_REGISTRY.viewWork.execute("delete second chapter", "anotherstory");
+				await BUTTON_REGISTRY.deleteChapter.execute("anotherstory", 1);
+				await BUTTON_REGISTRY.viewWork.execute("delete first chapter", "anotherstory");
+				await BUTTON_REGISTRY.deleteWork.execute("anotherstory");
 			},
 		}));
 
 		profileButtons.append(createButton({
 			name: "View Profile 2",
 			async execute () {
-				await BUTTON_REGISTRY.viewAuthor.execute("justonestory");
+				await BUTTON_REGISTRY.viewAuthor.execute("justonestory author", "justonestory");
 			},
 		}));
 
@@ -167,7 +182,7 @@ export default class Fluff4me {
 		profileButtons.append(createButton({
 			name: "View Profile 3",
 			async execute () {
-				await BUTTON_REGISTRY.viewAuthor.execute("ifollowpeople");
+				await BUTTON_REGISTRY.viewAuthor.execute("ifollowpeople author", "ifollowpeople");
 			},
 		}));
 
@@ -175,34 +190,50 @@ export default class Fluff4me {
 		document.body.append(testButtons);
 
 		testButtons.append(createButton({
-			name: "Test Following Private Works",
+			name: "Test New Following",
 			async execute () {
-				await BUTTON_REGISTRY.createWork.execute("private from start", "aaaaaaa", "story1", "Ongoing", "Private");
-				await BUTTON_REGISTRY.createChapter.execute("aaaaa", "aaaaaaa", "story1", "Private");
-				await BUTTON_REGISTRY.follow.execute("work", "story1");
-				await BUTTON_REGISTRY.getFollow.execute("work", "story1");
+				await BUTTON_REGISTRY.createAuthor.execute("new follows", "thefollower");
+				await BUTTON_REGISTRY.createWork.execute("wow a work", "test pls ignore", "wowawork", "Ongoing", "Public");
+				await BUTTON_REGISTRY.follow.execute("author", "thefollower");
+				await BUTTON_REGISTRY.follow.execute("work", "wowawork");
+				await BUTTON_REGISTRY.getFollow.execute("author", "thefollower");
 				await BUTTON_REGISTRY.getAllFollows.execute("work");
 				await BUTTON_REGISTRY.getAllFollowsMerged.execute();
+				await BUTTON_REGISTRY.unignore.execute("work", "wowawork");
+				// await BUTTON_REGISTRY.unfollow.execute("work", "wowawork");
+				await BUTTON_REGISTRY.getFollow.execute("work", "wowawork");
 			},
 		}));
 
-		testButtons.append(createButton({
-			name: "Test Following Works Made Private",
-			async execute () {
-				await BUTTON_REGISTRY.createWork.execute("made private later", "bbbbbbbb", "story2", "Ongoing", "Public");
-				await BUTTON_REGISTRY.createChapter.execute("bbbbbb", "bbbbbbbb", "story2", "Public");
-				await BUTTON_REGISTRY.follow.execute("work", "story2");
-				await BUTTON_REGISTRY.getFollow.execute("work", "story2");
-				await BUTTON_REGISTRY.getAllFollows.execute("work");
-				await BUTTON_REGISTRY.getAllFollowsMerged.execute();
-				await BUTTON_REGISTRY.updateWork.execute("story2", undefined, undefined, undefined, undefined, "Private");
-				await BUTTON_REGISTRY.viewWork.execute("story2");
-				await BUTTON_REGISTRY.getFollow.execute("work", "story2");
-				await BUTTON_REGISTRY.getAllFollows.execute("work");
-				await BUTTON_REGISTRY.getAllFollowsMerged.execute();
+		// testButtons.append(createButton({
+		// 	name: "Test Following Private Works",
+		// 	async execute () {
+		// 		await BUTTON_REGISTRY.createWork.execute("private from start", "aaaaaaa", "story1", "Ongoing", "Private");
+		// 		await BUTTON_REGISTRY.createChapter.execute("aaaaa", "aaaaaaa", "story1", "Private");
+		// 		await BUTTON_REGISTRY.follow.execute("work", "story1");
+		// 		await BUTTON_REGISTRY.getFollow.execute("work", "story1");
+		// 		await BUTTON_REGISTRY.getAllFollows.execute("work");
+		// 		await BUTTON_REGISTRY.getAllFollowsMerged.execute();
+		// 	},
+		// }));
 
-			},
-		}));
+		// testButtons.append(createButton({
+		// 	name: "Test Following Works Made Private",
+		// 	async execute () {
+		// 		await BUTTON_REGISTRY.createWork.execute("made private later", "bbbbbbbb", "story2", "Ongoing", "Public");
+		// 		await BUTTON_REGISTRY.createChapter.execute("bbbbbb", "bbbbbbbb", "story2", "Public");
+		// 		await BUTTON_REGISTRY.follow.execute("work", "story2");
+		// 		await BUTTON_REGISTRY.getFollow.execute("work", "story2");
+		// 		await BUTTON_REGISTRY.getAllFollows.execute("work");
+		// 		await BUTTON_REGISTRY.getAllFollowsMerged.execute();
+		// 		await BUTTON_REGISTRY.updateWork.execute("story2", undefined, undefined, undefined, undefined, "Private");
+		// 		await BUTTON_REGISTRY.viewWork.execute("story2");
+		// 		await BUTTON_REGISTRY.getFollow.execute("work", "story2");
+		// 		await BUTTON_REGISTRY.getAllFollows.execute("work");
+		// 		await BUTTON_REGISTRY.getAllFollowsMerged.execute();
+
+		// 	},
+		// }));
 
 		testButtons.append(createButton({
 			name: "Create 40 works",
