@@ -284,6 +284,101 @@ export default class Fluff4me {
 			},
 		}));
 
+		const privRoleButtons = document.createElement("div");
+		document.body.append(privRoleButtons);
+
+		privRoleButtons.append(createButton({
+			name: "privileges initial test",
+			async execute () {
+				await BUTTON_REGISTRY.privilegeGrantAuthor.execute("somanystories", "WorkViewPrivate", "PrivilegeViewAuthor");
+				await BUTTON_REGISTRY.privilegeGetAllAuthor.execute("privileges of somanystories", "somanystories");
+				await BUTTON_REGISTRY.privilegeRevokeAuthor.execute("somanystories", "WorkViewPrivate");
+				await BUTTON_REGISTRY.privilegeGrantAuthor.execute("somanystories", "RevokePrivilege");
+				await BUTTON_REGISTRY.privilegeRevokeAuthor.execute("somanystories", "WorkViewPrivate");
+				await BUTTON_REGISTRY.privilegeGrantAuthor.execute("somanystories", "ThisPrivilegeDoesntExist");
+				await BUTTON_REGISTRY.privilegeGetAllAuthor.execute("privileges of somanystories", "somanystories");
+			},
+		}));
+		privRoleButtons.append(createButton({
+			name: "grant privs for testing",
+			async execute () {
+				await BUTTON_REGISTRY.privilegeGrantAuthor.execute("somanystories", "PrivilegeRevoke", "RoleCreate", "RoleEdit", "RoleDelete", "RoleGrant", "RoleRevoke", "PrivilegeViewAuthor", "RoleViewAll");
+				await BUTTON_REGISTRY.createRole.execute("TestingRevoke", "Visible");
+				await BUTTON_REGISTRY.grantRoleToAuthor.execute("TestingRevoke", "somanystories");
+				await BUTTON_REGISTRY.revokeRoleFromAuthor.execute("TestingRevoke", "somanystories");
+				await BUTTON_REGISTRY.privilegeGrantRole.execute("TestingRevoke", "ViewAllRoles");
+				await BUTTON_REGISTRY.privilegeRevokeRole.execute("TestingRevoke", "ViewAllRoles");
+				await BUTTON_REGISTRY.deleteRole.execute("TestingRevoke");
+				await BUTTON_REGISTRY.createRole.execute("SecondAuthorRole", "Visible");
+				await BUTTON_REGISTRY.grantRoleToAuthor.execute("SecondAuthorRole", "justonestory");
+				await BUTTON_REGISTRY.privilegeGrantRole.execute("SecondAuthorRole", "RoleEdit", "RoleDelete", "RoleCreate");
+				// await BUTTON_REGISTRY.privilegeGrantAuthor.execute("justonestory", "ViewPrivateStories");
+			},
+		}));
+
+		privRoleButtons.append(createButton({
+			name: "second author test stuff",
+			async execute () {
+				await BUTTON_REGISTRY.createRole.execute("DontWork", "Admin");
+				await BUTTON_REGISTRY.createRole.execute("DoWork", "SecondAuthorRole");
+				await BUTTON_REGISTRY.editRole.execute("Admin", "CantDoThis");
+				await BUTTON_REGISTRY.deleteRole.execute("SecondAuthorRole");
+			},
+		}));
+
+		privRoleButtons.append(createButton({
+			name: "see highest level",
+			async execute () {
+				await BUTTON_REGISTRY.privilegeGrantAuthor.execute("somanystories", "RoleViewAll", "RoleGrant", "RoleCreate");
+				await BUTTON_REGISTRY.createRole.execute("NotTopRole", "Admin");
+				await BUTTON_REGISTRY.grantRoleToAuthor.execute("NotTopRole", "somanystories");
+				await BUTTON_REGISTRY.roleListAll.execute("listing all roles");
+
+			},
+		}));
+
+		privRoleButtons.append(createButton({
+			name: "role reorder test",
+			async execute () {
+				await BUTTON_REGISTRY.privilegeGrantAuthor.execute("somanystories", "RoleViewAll", "RoleGrant", "RoleCreate");
+				await BUTTON_REGISTRY.createRole.execute("Role1", "Visible", "Admin");
+				await BUTTON_REGISTRY.createRole.execute("Role2", "Visible", "Admin");
+				await BUTTON_REGISTRY.createRole.execute("Role3", "Hidden", "Admin");
+				await BUTTON_REGISTRY.createRole.execute("Role4", "Hidden", "Admin");
+				await BUTTON_REGISTRY.roleReorder.execute("Role1", "Role2", "Role3", "Role4");
+			},
+		}));
+
+
+		const moreRoleButtons = document.createElement("div");
+		document.body.append(moreRoleButtons);
+
+		moreRoleButtons.append(createButton({
+			name: "admin list roles test (profile 1)",
+			async execute () {
+				await BUTTON_REGISTRY.privilegeGrantAuthor.execute("somanystories", "RoleGrant", "RoleCreate");
+				await BUTTON_REGISTRY.createRole.execute("Role4", "Hidden", "Admin");
+				await BUTTON_REGISTRY.createRole.execute("Role3", "Visible", "Admin");
+				await BUTTON_REGISTRY.createRole.execute("Role2", "Hidden", "Admin");
+				await BUTTON_REGISTRY.createRole.execute("Role1", "Visible", "Admin");
+				await BUTTON_REGISTRY.grantRoleToAuthor.execute("Role2", "justonestory");
+				await BUTTON_REGISTRY.roleListAll.execute("all roles admin");
+			},
+		}));
+
+		moreRoleButtons.append(createButton({
+			name: "user list roles test (profile 2)",
+			async execute () {
+				await BUTTON_REGISTRY.roleListAll.execute("all roles user");
+			},
+		}));
+
+		moreRoleButtons.append(createButton({
+			name: "Delete Author Test",
+			async execute () {
+				await BUTTON_REGISTRY.deleteAuthor.execute();
+			},
+		}));
 	}
 }
 
