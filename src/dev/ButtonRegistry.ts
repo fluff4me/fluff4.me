@@ -48,6 +48,19 @@ export const BUTTON_REGISTRY = {
 		},
 	},
 
+	deleteAuthor: {
+		name: "Delete Author",
+		async execute () {
+			await fetch(`${Env.API_ORIGIN}author/delete`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+		},
+	},
+
 	viewAuthor: {
 		name: "View Author",
 		async execute (label: string, vanity: string) {
@@ -305,6 +318,191 @@ export const BUTTON_REGISTRY = {
 				credentials: "include",
 			}).then(response => response.json());
 			console.log(response);
+		},
+	},
+
+	privilegeGetAllAuthor: {
+		name: "Get All Author Privileges",
+		async execute (label: string, vanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}privilege/get/${vanity}`, {
+				credentials: "include",
+			}).then(response => response.json());
+			console.log(label, response);
+		},
+	},
+
+	privilegeGrantAuthor: {
+		name: "Grant Privileges to Author",
+		async execute (vanity: string, ...privileges: string[]) {
+			const response = await fetch(`${Env.API_ORIGIN}privilege/grant/author/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					privileges,
+				}),
+			}).then(response => response.json());
+			console.log("granted privileges", response);
+		},
+	},
+
+	privilegeRevokeAuthor: {
+		name: "Revoke Privileges from Author",
+		async execute (vanity: string, ...privileges: string[]) {
+			const response = await fetch(`${Env.API_ORIGIN}privilege/revoke/author/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					privileges,
+				}),
+			}).then(response => response.json());
+			console.log("revoked privileges", response);
+		},
+	},
+
+	createRole: {
+		name: "Create Role",
+		async execute (roleName: string, visibilty: string, roleBelow?: string) {
+			const response = await fetch(`${Env.API_ORIGIN}role/create`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: roleName,
+					below: roleBelow,
+					description: "idk some test stuff",
+					visibilty: visibilty,
+				}),
+			}).then(response => response.json());
+			console.log("created role", response);
+		},
+	},
+
+	deleteRole: {
+		name: "Delete Role",
+		async execute (vanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}role/delete/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}).then(response => response.json());
+			console.log("deleted role", response);
+		},
+	},
+
+	editRole: {
+		name: "Edit Role",
+		async execute (vanity: string, name?: string, description?: string) {
+			const response = await fetch(`${Env.API_ORIGIN}role/update/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: name,
+					description: description,
+				}),
+			}).then(response => response.json());
+			console.log("edited role", response);
+		},
+	},
+
+	grantRoleToAuthor: {
+		name: "Grant Role to Author",
+		async execute (roleVanity: string, authorVanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}role/grant/${roleVanity}/${authorVanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}).then(response => response.json());
+			console.log("granted role", response);
+		},
+	},
+
+	revokeRoleFromAuthor: {
+		name: "Revoke Role from Author",
+		async execute (roleVanity: string, authorVanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}role/revoke/${roleVanity}/${authorVanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}).then(response => response.json());
+			console.log("granted role", response);
+		},
+	},
+
+	privilegeGrantRole: {
+		name: "Grant Privileges to Role",
+		async execute (vanity: string, ...privileges: string[]) {
+			const response = await fetch(`${Env.API_ORIGIN}privilege/grant/role/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					privileges,
+				}),
+			}).then(response => response.json());
+			console.log("granted privileges to role", response);
+		},
+	},
+
+	privilegeRevokeRole: {
+		name: "Revoke Privileges from Role",
+		async execute (vanity: string, ...privileges: string[]) {
+			const response = await fetch(`${Env.API_ORIGIN}privilege/revoke/role/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					privileges,
+				}),
+			}).then(response => response.json());
+			console.log("revoked privileges from role", response);
+		},
+	},
+
+	roleListAll: {
+		name: "List all roles",
+		async execute (label: string) {
+			const response = await fetch(`${Env.API_ORIGIN}role/get`, {
+				credentials: "include",
+			}).then(response => response.json());
+			console.log(label, response);
+		},
+	},
+
+	roleReorder: {
+		name: "Reorder roles",
+		async execute (...roles: string[]) {
+			const response = await fetch(`${Env.API_ORIGIN}role/reorder`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					roles,
+				}),
+			}).then(response => response.json());
+			console.log("reordered roles", response);
 		},
 	},
 
