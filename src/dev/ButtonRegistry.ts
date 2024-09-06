@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import Env from "utility/Env";
+import popup from "utility/Popup";
 import Session from "utility/Session";
 
 export interface IButtonImplementation<ARGS extends any[]> {
@@ -503,6 +504,84 @@ export const BUTTON_REGISTRY = {
 				}),
 			}).then(response => response.json());
 			console.log("reordered roles", response);
+		},
+	},
+
+	createCommentChapter: {
+		name: "Create Comment Chapter",
+		async execute (vanity: string, index: string, body: string, parent_id?: string) {
+			await fetch(`${Env.API_ORIGIN}work/${vanity}/chapter/${index}/comment/add`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					body,
+					parent_id,
+				}),
+			});
+		},
+	},
+
+	updateCommentChapter: {
+		name: "Update Comment Chapter",
+		async execute (id: string, comment_body: string) {
+			await fetch(`${Env.API_ORIGIN}comment/update/chapter`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					comment_id: id,
+					body: comment_body,
+				}),
+			});
+		},
+	},
+
+	deleteCommentChapter: {
+		name: "Delete Comment Chapter",
+		async execute (id: string) {
+			await fetch(`${Env.API_ORIGIN}comment/remove/chapter`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					comment_id: id,
+				}),
+			});
+		},
+	},
+
+	getComment: {
+		name: "Get Comment",
+		async execute (id: string, label?: string) {
+			const response = await fetch(`${Env.API_ORIGIN}comment/get`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					comment_id: id,
+				}),
+			}).then(response => response.json());
+			console.log(label, response);
+		},
+	},
+
+	campaignOauth: {
+		name: "Patreon Campaign OAuth",
+		async execute (button: HTMLButtonElement) {
+			await button.addEventListener("click", () => {
+				popup(`${Env.API_ORIGIN}patreon/campaign/begin`, 600, 900)
+					.then(() => true).catch(err => { console.warn(err); return false; });
+				Session.refresh();
+			});
 		},
 	},
 

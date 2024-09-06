@@ -144,18 +144,7 @@ export default class Fluff4me {
 				await BUTTON_REGISTRY.createChapter.execute("big story 5", "aaaaaaaaaaaaaaaaaaa", "bigstory", "Public");
 				await BUTTON_REGISTRY.viewWork.execute("big story five chapters", "bigstory");
 				// await BUTTON_REGISTRY.follow.execute("work", "debut");
-				await BUTTON_REGISTRY.createWork.execute("tried a new story", "test thing", "anotherstory", "Hiatus", "Public");
-				await BUTTON_REGISTRY.viewWork.execute("on creation 0 chapters", "anotherstory");
-				await BUTTON_REGISTRY.createChapter.execute("chapter one", "some chapter data", "anotherstory", "Public");
-				await BUTTON_REGISTRY.createChapter.execute("chapter two", "some chapter data", "anotherstory", "Private");
-				await BUTTON_REGISTRY.viewWork.execute("one public one private", "anotherstory");
-				await BUTTON_REGISTRY.updateChapter.execute("anotherstory", 2, undefined, undefined, "Patreon");
-				await BUTTON_REGISTRY.viewWork.execute("one public one patreon", "anotherstory");
-				await BUTTON_REGISTRY.deleteChapter.execute("anotherstory", 2);
-				await BUTTON_REGISTRY.viewWork.execute("delete second chapter", "anotherstory");
-				await BUTTON_REGISTRY.deleteChapter.execute("anotherstory", 1);
-				await BUTTON_REGISTRY.viewWork.execute("delete first chapter", "anotherstory");
-				await BUTTON_REGISTRY.deleteWork.execute("anotherstory");
+
 			},
 		}));
 
@@ -170,12 +159,13 @@ export default class Fluff4me {
 			name: "Create Profile 3",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("prolific follower", "ifollowpeople");
-				await BUTTON_REGISTRY.follow.execute("author", "somanystories");
-				await BUTTON_REGISTRY.follow.execute("author", "justonestory");
-				await BUTTON_REGISTRY.follow.execute("work", "debut");
-				await BUTTON_REGISTRY.follow.execute("work", "sequel");
-				await BUTTON_REGISTRY.follow.execute("work", "wip");
-				await BUTTON_REGISTRY.follow.execute("work", "bigstory");
+				await BUTTON_REGISTRY.createWork.execute("invalid status", "a test", "uwu", "ShouldNotValidate", "ShouldNotBeValidated");
+				// await BUTTON_REGISTRY.follow.execute("author", "somanystories");
+				// await BUTTON_REGISTRY.follow.execute("author", "justonestory");
+				// await BUTTON_REGISTRY.follow.execute("work", "debut");
+				// await BUTTON_REGISTRY.follow.execute("work", "sequel");
+				// await BUTTON_REGISTRY.follow.execute("work", "wip");
+				// await BUTTON_REGISTRY.follow.execute("work", "bigstory");
 			},
 		}));
 
@@ -379,6 +369,63 @@ export default class Fluff4me {
 				await BUTTON_REGISTRY.deleteAuthor.execute();
 			},
 		}));
+
+		const commentsButton = document.createElement("div");
+		document.body.append(commentsButton);
+
+		commentsButton.append(createButton({
+			name: "Author 2 lots of comments",
+			async execute () {
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "1", "base comments 1");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "2", "base comments 2");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "3", "base comments 3");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "4", "base comments 4");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "5", "base comments 5");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "1", "child comment", "6");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "1", "child comment 2", "6");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "1", "child comment 3", "11");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "1", "child comment 4", "12");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "1", "base comment index 1");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "1", "child comment 6", "13");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "1", "child comment 7", "11");
+				await BUTTON_REGISTRY.createCommentChapter.execute("bigstory", "1", "base comment index 1 again");
+			},
+		}));
+
+		commentsButton.append(createButton({
+			name: "Author 1 single comment ping",
+			async execute () {
+				await BUTTON_REGISTRY.createCommentChapter.execute("debut", "1", "wow you write so many stories @somanystories how do you do it");
+				await BUTTON_REGISTRY.createCommentChapter.execute("debut", "1", "@somanystories you're so @somanystories amazing");
+				await BUTTON_REGISTRY.getComment.execute("4");
+				await BUTTON_REGISTRY.getComment.execute("5");
+				await BUTTON_REGISTRY.updateCommentChapter.execute("4", "okay done fawning over @somanystories now");
+				await BUTTON_REGISTRY.getComment.execute("4");
+				await BUTTON_REGISTRY.deleteCommentChapter.execute("5");
+				await BUTTON_REGISTRY.getComment.execute("5");
+			},
+		}));
+
+		commentsButton.append(createButton({
+			name: "try to delete author 1's comment",
+			async execute () {
+				await BUTTON_REGISTRY.deleteCommentChapter.execute("4");
+				await BUTTON_REGISTRY.getComment.execute("4");
+			},
+		}));
+
+		const patreonButtons = document.createElement("div");
+		document.body.append(patreonButtons);
+
+		const campaignButtonTest = document.createElement("button");
+		campaignButtonTest.textContent = "Campaign Test";
+		patreonButtons.append(campaignButtonTest);
+		patreonButtons.addEventListener("click", async () => {
+			await popup(`${Env.API_ORIGIN}auth/patreon/campaign/begin`, 600, 900)
+				.then(() => true).catch(err => { console.warn(err); return false; });
+			await Session.refresh();
+		});
+
 	}
 }
 
