@@ -142,7 +142,7 @@ export default class Fluff4me {
 				await BUTTON_REGISTRY.createChapter.execute("big story 3", "aaaa", "bigstory", "Public");
 				await BUTTON_REGISTRY.createChapter.execute("big story 4", "aaaaaaa", "bigstory", "Public");
 				await BUTTON_REGISTRY.createChapter.execute("big story 5", "aaaaaaaaaaaaaaaaaaa", "bigstory", "Public");
-				await BUTTON_REGISTRY.viewWork.execute("big story five chapters", "bigstory");
+				await BUTTON_REGISTRY.viewWork.execute("big story five chapters", "justonestory", "bigstory");
 				// await BUTTON_REGISTRY.follow.execute("work", "debut");
 
 			},
@@ -185,13 +185,13 @@ export default class Fluff4me {
 				await BUTTON_REGISTRY.createAuthor.execute("new follows", "thefollower");
 				await BUTTON_REGISTRY.createWork.execute("wow a work", "test pls ignore", "wowawork", "Ongoing", "Public");
 				await BUTTON_REGISTRY.follow.execute("author", "thefollower");
-				await BUTTON_REGISTRY.follow.execute("work", "wowawork");
+				await BUTTON_REGISTRY.followWork.execute("thefollower", "wowawork");
 				await BUTTON_REGISTRY.getFollow.execute("author", "thefollower");
 				await BUTTON_REGISTRY.getAllFollows.execute("work");
 				await BUTTON_REGISTRY.getAllFollowsMerged.execute();
-				await BUTTON_REGISTRY.unignore.execute("work", "wowawork");
+				await BUTTON_REGISTRY.unignoreWork.execute("thefollower", "wowawork");
 				// await BUTTON_REGISTRY.unfollow.execute("work", "wowawork");
-				await BUTTON_REGISTRY.getFollow.execute("work", "wowawork");
+				await BUTTON_REGISTRY.getFollowWork.execute("thefollower", "wowawork");
 			},
 		}));
 

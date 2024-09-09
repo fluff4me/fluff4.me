@@ -110,8 +110,8 @@ export const BUTTON_REGISTRY = {
 
 	updateWork: {
 		name: "Update Work",
-		async execute (url: string, name?: string, description?: string, vanity?: string, status?: string, visibility?: string) {
-			await fetch(`${Env.API_ORIGIN}work/${url}/update`, {
+		async execute (author: string, url: string, name?: string, description?: string, vanity?: string, status?: string, visibility?: string) {
+			await fetch(`${Env.API_ORIGIN}work/${author}/${url}/update`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -130,8 +130,8 @@ export const BUTTON_REGISTRY = {
 
 	deleteWork: {
 		name: "Delete Work",
-		async execute (url: string) {
-			await fetch(`${Env.API_ORIGIN}work/${url}/delete`, {
+		async execute (author: string, url: string) {
+			await fetch(`${Env.API_ORIGIN}work/${author}/${url}/delete`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -143,8 +143,8 @@ export const BUTTON_REGISTRY = {
 
 	viewWork: {
 		name: "View Work",
-		async execute (label: string, url: string) {
-			const response = await fetch(`${Env.API_ORIGIN}work/${url}/get`, {
+		async execute (label: string, author: string, url: string) {
+			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${url}/get`, {
 				credentials: "include",
 			}).then(response => response.json());
 			console.log(label, response);
@@ -153,8 +153,8 @@ export const BUTTON_REGISTRY = {
 
 	createChapter: {
 		name: "Create Chapter",
-		async execute (name: string, body: string, work_url: string, visibility?: string) {
-			await fetch(`${Env.API_ORIGIN}work/${work_url}/chapter/create`, {
+		async execute (author: string, work_url: string, name: string, body: string, visibility?: string) {
+			await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/create`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -171,8 +171,8 @@ export const BUTTON_REGISTRY = {
 
 	updateChapter: {
 		name: "Update Chapter",
-		async execute (workVanity: string, index: number, name?: string, body?: string, visibility?: string) {
-			await fetch(`${Env.API_ORIGIN}work/${workVanity}/chapter/${index}/update`, {
+		async execute (author: string, work_url: string, index: number, name?: string, body?: string, visibility?: string) {
+			await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/${index}/update`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -189,8 +189,8 @@ export const BUTTON_REGISTRY = {
 
 	deleteChapter: {
 		name: "Delete Chapter",
-		async execute (work_url: string, index: number) {
-			await fetch(`${Env.API_ORIGIN}work/${work_url}/chapter/${index}/delete`, {
+		async execute (author: string, work_url: string, index: number) {
+			await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/${index}/delete`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -202,8 +202,8 @@ export const BUTTON_REGISTRY = {
 
 	viewChapter: {
 		name: "View Chapter",
-		async execute (label: string, work_url: string, index: string) {
-			const response = await fetch(`${Env.API_ORIGIN}work/${work_url}/chapter/${index}/get`, {
+		async execute (label: string, author: string, work_url: string, index: string) {
+			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/${index}/get`, {
 				credentials: "include",
 			}).then(response => response.json());
 			console.log(label, response);
@@ -214,6 +214,19 @@ export const BUTTON_REGISTRY = {
 		name: "Follow",
 		async execute (type: string, vanity: string) {
 			await fetch(`${Env.API_ORIGIN}follow/${type}/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+		},
+	},
+
+	followWork: {
+		name: "Follow",
+		async execute (author_vanity: string, work_vanity: string) {
+			await fetch(`${Env.API_ORIGIN}follow/work/${author_vanity}/${work_vanity}`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -236,10 +249,33 @@ export const BUTTON_REGISTRY = {
 		},
 	},
 
+	unfollowWork: {
+		name: "Unfollow",
+		async execute (author_vanity: string, work_vanity: string) {
+			await fetch(`${Env.API_ORIGIN}unfollow/work/${author_vanity}/${work_vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+		},
+	},
+
 	getFollow: {
 		name: "Get Follow",
 		async execute (type: string, vanity: string) {
 			const response = await fetch(`${Env.API_ORIGIN}follows/${type}/${vanity}`, {
+				credentials: "include",
+			}).then(response => response.json());
+			console.log(response);
+		},
+	},
+
+	getFollowWork: {
+		name: "Get Follow",
+		async execute (author_vanity: string, work_vanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}follows/work/${author_vanity}/${work_vanity}`, {
 				credentials: "include",
 			}).then(response => response.json());
 			console.log(response);
@@ -279,6 +315,19 @@ export const BUTTON_REGISTRY = {
 		},
 	},
 
+	ignoreWork: {
+		name: "Ignore",
+		async execute (author_vanity: string, work_vanity: string) {
+			await fetch(`${Env.API_ORIGIN}ignore/work/${author_vanity}/${work_vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+		},
+	},
+
 	unignore: {
 		name: "Unignore",
 		async execute (type: string, vanity: string) {
@@ -292,10 +341,33 @@ export const BUTTON_REGISTRY = {
 		},
 	},
 
+	unignoreWork: {
+		name: "Unignore",
+		async execute (author_vanity: string, work_vanity: string) {
+			await fetch(`${Env.API_ORIGIN}unignore/work/${author_vanity}/${work_vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+		},
+	},
+
 	getIgnore: {
 		name: "Get Ignore",
 		async execute (type: string, vanity: string) {
 			const response = await fetch(`${Env.API_ORIGIN}ignores/${type}/${vanity}`, {
+				credentials: "include",
+			}).then(response => response.json());
+			console.log(response);
+		},
+	},
+
+	getIgnoreWork: {
+		name: "Get Ignore",
+		async execute (author_vanity: string, work_vanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}ignores/work/${author_vanity}/${work_vanity}`, {
 				credentials: "include",
 			}).then(response => response.json());
 			console.log(response);
