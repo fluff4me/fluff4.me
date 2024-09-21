@@ -3,12 +3,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
+import type { AuthServices } from "api.fluff4.me"
 import { BUTTON_REGISTRY, type IButtonImplementation } from "dev/ButtonRegistry"
 import Component from "ui/Component"
 import Button from "ui/component/Button"
 import View from "ui/view/View"
 import ViewDefinition from "ui/view/ViewDefinition"
+import EndpointAuthServices from "utility/endpoint/auth/EndpointAuthServices"
 import Env from "utility/Env"
+import Objects from "utility/Objects"
 import popup from "utility/Popup"
 import Session from "utility/Session"
 
@@ -38,10 +41,11 @@ export default ViewDefinition({
 
 		const oauthDiv = Block().appendTo(view)
 
-		const OAuthServices = await fetch(`${Env.API_ORIGIN}auth/services`, {})
-			.then(response => response.json())
+		const OAuthServices = await EndpointAuthServices.query()
 
-		for (const service of Object.values(OAuthServices.data) as any[]) {
+		for (const service of Objects.values(OAuthServices.data ?? {} as Partial<AuthServices>)) {
+			if (!service) continue
+
 			Button()
 				.text.set(`OAuth ${service.name}`)
 				.event.subscribe("click", async () => {
@@ -55,7 +59,7 @@ export default ViewDefinition({
 				.text.set(`UnOAuth ${service.name}`)
 				.event.subscribe("click", async () => {
 
-					const id = Session.getAuthServices()[service.id]?.[0]?.id
+					const id = Session.getAuthServices().find(auth => auth.service === service.id)?.id
 					if (id === undefined)
 						return
 					await fetch(`${Env.API_ORIGIN}auth/remove`, {

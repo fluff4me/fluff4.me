@@ -1,29 +1,23 @@
-import Env from "utility/Env";
+import EndpointSessionGet from "utility/endpoint/session/EndpointSessionGet"
+import Store from "utility/Store"
 
 namespace Session {
-	export async function refresh (response?: Response) {
-		const headers: HeadersInit = {
-			"Accept": "application/json",
-		};
-		response ??= await fetch(`${Env.API_ORIGIN}session`, { headers, credentials: "include" });
-		const stateToken = response.headers.get("State-Token");
+	export async function refresh () {
+		const session = await EndpointSessionGet.query()
+		const stateToken = session.headers.get("State-Token")
 		if (stateToken)
-			localStorage.setItem("State-Token", stateToken);
+			Store.items.stateToken = stateToken
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		const session = await response.json().catch(() => ({}));
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-		localStorage.setItem("Session-Auth-Services", JSON.stringify(session?.data?.authServices ?? {}));
+		Store.items.sessionAuthServices = session?.data?.authorisations ?? undefined
 	}
 
 	export function getStateToken () {
-		return localStorage.getItem("State-Token");
+		return Store.items.stateToken
 	}
 
 	export function getAuthServices () {
-		const authServicesString = localStorage.getItem("Session-Auth-Services");
-		return authServicesString && JSON.parse(authServicesString) || {};
+		return Store.items.sessionAuthServices ?? []
 	}
 }
 
-export default Session;
+export default Session
