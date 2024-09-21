@@ -1,97 +1,68 @@
-export interface EndpointRequest extends Omit<RequestInit, "headers" | "body"> {
-	headers?: Record<string, string | undefined>;
-	body?: string | object;
-	search?: string | object;
+import type { ErrorResponse, Paths } from "api.fluff4.me"
+import Env from "utility/Env"
+
+declare module "api.fluff4.me" {
+	interface ErrorResponse extends Error {
+	}
 }
 
-export default class Endpoint<T, R = T, ARGS extends any[] = []> {
-	public constructor (protected readonly path: string | ((...args: ARGS) => string), protected readonly builder?: (...args: ARGS) => EndpointRequest | Promise<EndpointRequest>) { }
+type EndpointQuery<BODY, RESPONSE> =
+	(
+		[keyof BODY] extends [never] ? {} : { body: BODY }
+	) extends infer QUERY ?
 
-	public async query (...args: ARGS): Promise<R & { _headers: Headers }> {
-		const path = this.resolvePath(...args);
-		let headers: Headers;
-		return this.fetch(path, ...args)
-			.then(response => {
-				headers = response.headers;
-				return response.text();
+	[keyof QUERY] extends [never]
+	? { (): Promise<RESPONSE> }
+	: { (query: QUERY): Promise<RESPONSE> }
+
+	: never
+
+interface EndpointQueryData {
+	body?: any
+}
+
+interface Endpoint<ROUTE extends keyof Paths> {
+	query: EndpointQuery<Paths[ROUTE]["body"], Paths[ROUTE]["response"]>
+}
+
+function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]["method"]) {
+	return {
+		async query (query?: EndpointQueryData) {
+			const body = !query?.body ? undefined : JSON.stringify(query.body)
+			const response = await fetch(`${Env.API_ORIGIN}${route.slice(1)}`, {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				method,
+				headers: {
+					"Content-Type": body ? "application/json" : undefined,
+				} as HeadersInit,
+				body,
 			})
-			.then(text => {
-				if (path.endsWith(".json")) {
-					// text = text
-					// 	.replace(/\s*\/\/[^\n"]*(?=\n)/g, "")
-					// 	.replace(/(?<=\n)\s*\/\/[^\n]*(?=\n)/g, "")
-					// 	.replace(/,(?=[^}\]"\d\w_-]*?[}\]])/gs, "");
 
-					let parsed: T | undefined;
-					try {
-						parsed = JSON.parse(text) as T;
-					} catch (err) {
-						console.warn(text);
-						throw err;
-					}
+			let error: ErrorResponse | undefined
 
-					const result = this.process(parsed) as R & { _headers: Headers };
-
-					Object.defineProperty(result, "_headers", {
-						enumerable: false,
-						get: () => headers,
-					});
-					return result;
-				}
-
-				throw new Error("Unknown file type");
-			});
-	}
-
-	public process (received: T): R {
-		return received as any as R;
-	}
-
-	protected async fetch (path: string | undefined, ...args: ARGS) {
-		path ??= this.resolvePath(...args);
-
-		const request = {
-			...this.getDefaultRequest(...args),
-			...await this.builder?.(...args) ?? {},
-		};
-
-		let body: string | undefined;
-		if (typeof request.body === "object") {
-			if (request.headers?.["Content-Type"] === "application/x-www-form-urlencoded")
-				body = new URLSearchParams(Object.entries(request.body)).toString();
-			else if (request.headers?.["Content-Type"] === undefined || request.headers?.["Content-Type"] === "application/json") {
-				request.headers ??= {};
-				request.headers["Content-Type"] = "application/json";
-				body = JSON.stringify(request.body);
+			const code = response.status
+			if (code !== 200) {
+				error = Object.assign(new Error(response.statusText), { code }) as ErrorResponse
+				delete error.stack
 			}
-		}
 
-		let search = "";
-		if (request.search) {
-			search = "?";
-			if (typeof request.search === "object")
-				search += new URLSearchParams(Object.entries(request.search)).toString();
-			else
-				search += request.search;
-		}
+			if (!response.body)
+				return error
 
-		return fetch(`${path}${search}`, {
-			...request,
-			body,
-			headers: Object.fromEntries(Object.entries(await this.getHeaders(request?.headers)).filter(([key, value]) => typeof value === "string") as [string, string][]),
-		});
-	}
+			const responseType = response.headers.get("Content-Type")
+			if (responseType === "application/json") {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				const json = await response.json()
+				if (error)
+					return Object.assign(error, json)
 
-	protected resolvePath (...args: ARGS) {
-		return typeof this.path === "string" ? this.path : this.path(...args);
-	}
+				return json
+			}
 
-	protected getDefaultRequest (...args: ARGS): EndpointRequest {
-		return {};
-	}
-
-	// eslint-disable-next-line @typescript-eslint/require-await
-	protected async getHeaders (headers?: Record<string, string | undefined>): Promise<Record<string, string | undefined>> {
-		return { ...headers };
-	}
+			throw new Error(`Response type ${responseType} is not supported`)
+		},
+	} as Endpoint<ROUTE>
 }
+
+
+export default Endpoint

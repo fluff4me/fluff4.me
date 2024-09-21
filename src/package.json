@@ -1,4 +1,6 @@
 {
 	"private": true,
-	"dependencies": {}
+	"dependencies": {
+		"api.fluff4.me": "^1.0.25"
+	}
 }
