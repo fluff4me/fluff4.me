@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import Env from "utility/Env";
-import popup from "utility/Popup";
 import Session from "utility/Session";
 
 export interface IButtonImplementation<ARGS extends any[]> {
@@ -12,7 +11,7 @@ export const BUTTON_REGISTRY = {
 	createAuthor: {
 		name: "Create Author",
 		async execute (name: string, vanity: string) {
-			await fetch(`${Env.API_ORIGIN}author/create`, {
+			const response = await fetch(`${Env.API_ORIGIN}author/create`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -23,7 +22,8 @@ export const BUTTON_REGISTRY = {
 					name: name,
 					vanity: vanity,
 				}),
-			});
+			}).then(response => response.json());
+			console.log(response);
 			await Session.refresh();
 		},
 	},
@@ -154,7 +154,7 @@ export const BUTTON_REGISTRY = {
 	createChapter: {
 		name: "Create Chapter",
 		async execute (author: string, work_url: string, name: string, body: string, visibility?: string) {
-			await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/create`, {
+			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/create`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -165,7 +165,8 @@ export const BUTTON_REGISTRY = {
 					body: body,
 					visibility: visibility,
 				}),
-			});
+			}).then(response => response.json());
+			console.log(response);
 		},
 	},
 
@@ -646,14 +647,32 @@ export const BUTTON_REGISTRY = {
 		},
 	},
 
-	campaignOauth: {
-		name: "Patreon Campaign OAuth",
-		async execute (button: HTMLButtonElement) {
-			await button.addEventListener("click", () => {
-				popup(`${Env.API_ORIGIN}patreon/campaign/begin`, 600, 900)
-					.then(() => true).catch(err => { console.warn(err); return false; });
-				Session.refresh();
-			});
+	patreonGetTiers: {
+		name: "Get Tiers",
+		async execute (label?: string) {
+			const response = await fetch(`${Env.API_ORIGIN}patreon/campaign/tiers/get`, {
+				credentials: "include",
+			}).then(response => response.json());
+			console.log(label, response);
+		},
+	},
+
+	patreonSetThresholds: {
+		name: "Set Chapter Thresholds",
+		async execute (author_vanity: string, work_vanity: string, visibility: string, chapters: string[], tier_id?: string) {
+			const response = await fetch(`${Env.API_ORIGIN}patreon/campaign/tiers/set/${author_vanity}/${work_vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					visibility: visibility,
+					chapters: chapters,
+					tier_id: tier_id,
+				}),
+			}).then(response => response.json());
+			console.log(response);
 		},
 	},
 

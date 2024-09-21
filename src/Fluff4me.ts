@@ -117,11 +117,11 @@ export default class Fluff4me {
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("prolific author", "somanystories");
 				await BUTTON_REGISTRY.createWork.execute("a debut work", "pretty decent", "debut", "Complete", "Public");
-				await BUTTON_REGISTRY.createChapter.execute("chapter 1", "woo look it's prolific author's first story!", "debut", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("somanystories", "debut", "chapter 1", "woo look it's prolific author's first story!", "Public");
 				await BUTTON_REGISTRY.createWork.execute("sequel to debut", "wow they wrote a sequel", "sequel", "Ongoing", "Public");
-				await BUTTON_REGISTRY.createChapter.execute("the chapters", "pretend there's a story here", "sequel", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("somanystories", "sequel", "the chapters", "pretend there's a story here", "Public");
 				await BUTTON_REGISTRY.createWork.execute("work in progress", "private test", "wip", "Ongoing", "Private");
-				await BUTTON_REGISTRY.createChapter.execute("draft", "it's a rough draft", "wip", "Private");
+				await BUTTON_REGISTRY.createChapter.execute("somanystories", "wip", "draft", "it's a rough draft", "Private");
 			},
 		}));
 
@@ -137,11 +137,11 @@ export default class Fluff4me {
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("single story author", "justonestory");
 				await BUTTON_REGISTRY.createWork.execute("one big work", "it's long", "bigstory", "Ongoing", "Public");
-				await BUTTON_REGISTRY.createChapter.execute("big story", "start of a long story", "bigstory", "Public");
-				await BUTTON_REGISTRY.createChapter.execute("big story 2", "middle of a long story", "bigstory", "Public");
-				await BUTTON_REGISTRY.createChapter.execute("big story 3", "aaaa", "bigstory", "Public");
-				await BUTTON_REGISTRY.createChapter.execute("big story 4", "aaaaaaa", "bigstory", "Public");
-				await BUTTON_REGISTRY.createChapter.execute("big story 5", "aaaaaaaaaaaaaaaaaaa", "bigstory", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story", "start of a long story", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 2", "middle of a long story", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3", "aaaa", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 4", "aaaaaaa", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 5", "aaaaaaaaaaaaaaaaaaa", "Public");
 				await BUTTON_REGISTRY.viewWork.execute("big story five chapters", "justonestory", "bigstory");
 				// await BUTTON_REGISTRY.follow.execute("work", "debut");
 
@@ -420,12 +420,64 @@ export default class Fluff4me {
 		const campaignButtonTest = document.createElement("button");
 		campaignButtonTest.textContent = "Campaign Test";
 		patreonButtons.append(campaignButtonTest);
-		patreonButtons.addEventListener("click", async () => {
+		campaignButtonTest.addEventListener("click", async () => {
 			await popup(`${Env.API_ORIGIN}auth/patreon/campaign/begin`, 600, 900)
 				.then(() => true).catch(err => { console.warn(err); return false; });
 			await Session.refresh();
 		});
 
+		patreonButtons.append(createButton({
+			name: "create patreon author",
+			async execute () {
+				await BUTTON_REGISTRY.createAuthor.execute("has a campaign", "patreonuser");
+				await BUTTON_REGISTRY.createWork.execute("patreon only story", "test", "exclusive", "Ongoing", "Public");
+				await BUTTON_REGISTRY.createChapter.execute("patreonuser", "exclusive", "chapter 1", "hewwo", "Private");
+				await BUTTON_REGISTRY.createChapter.execute("patreonuser", "exclusive", "chapter 2", "hewwoo", "Private");
+				await BUTTON_REGISTRY.createChapter.execute("patreonuser", "exclusive", "chapter 3", "hewwooo", "Private");
+				await BUTTON_REGISTRY.createChapter.execute("patreonuser", "exclusive", "chapter 4", "hewwooo", "Private");
+				await BUTTON_REGISTRY.createChapter.execute("patreonuser", "exclusive", "chapter 5", "hewwooo", "Private");
+			},
+		}));
+
+		patreonButtons.append(createButton({
+			name: "get patreon tiers",
+			async execute () {
+				await BUTTON_REGISTRY.patreonGetTiers.execute("patreon tiers");
+			},
+		}));
+
+		patreonButtons.append(createButton({
+			name: "set patreon chapters",
+			async execute () {
+				await BUTTON_REGISTRY.updateChapter.execute("patreonuser", "exclusive", 1, undefined, undefined, "Public");
+				await BUTTON_REGISTRY.patreonSetThresholds.execute("patreonuser", "exclusive", "Public", ["2", "3"]);
+				await BUTTON_REGISTRY.patreonSetThresholds.execute("patreonuser", "exclusive", "Patreon", ["4", "5"], "4392761");
+			},
+		}));
+
+		const readerButtonTest = document.createElement("button");
+		readerButtonTest.textContent = "Patron Test";
+		patreonButtons.append(readerButtonTest);
+		readerButtonTest.addEventListener("click", async () => {
+			await popup(`${Env.API_ORIGIN}auth/patreon/patron/begin`, 600, 900)
+				.then(() => true).catch(err => { console.warn(err); return false; });
+			await Session.refresh();
+		});
+
+		patreonButtons.append(createButton({
+			name: "get patreon-only chapters",
+			async execute () {
+				await BUTTON_REGISTRY.viewChapter.execute("public:", "patreonuser", "exclusive", "3");
+				await BUTTON_REGISTRY.viewChapter.execute("patreon:", "patreonuser", "exclusive", "4");
+			},
+		}));
+
+		patreonButtons.append(createButton({
+			name: "update patreon-only chapters",
+			async execute () {
+				await BUTTON_REGISTRY.patreonSetThresholds.execute("patreonuser", "exclusive", "Public", ["4"]);
+			},
+		}));
 	}
 }
 
