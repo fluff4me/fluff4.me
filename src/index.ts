@@ -1,7 +1,7 @@
-import Fluff4me from "Fluff4me";
-import Arrays from "utility/Arrays";
-import applyDOMRectPrototypes from "utility/DOMRect";
+import App from "App"
+import Arrays from "utility/Arrays"
+import applyDOMRectPrototypes from "utility/DOMRect"
 
-applyDOMRectPrototypes();
-Arrays.applyPrototypes();
-new Fluff4me();
+applyDOMRectPrototypes()
+Arrays.applyPrototypes()
+void App()

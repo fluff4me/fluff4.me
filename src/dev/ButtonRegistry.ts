@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import Env from "utility/Env";
-import Session from "utility/Session";
+import Env from "utility/Env"
+import Session from "utility/Session"
 
 export interface IButtonImplementation<ARGS extends any[]> {
-	name: string;
-	execute (...args: ARGS): any;
+	name: string
+	execute (...args: ARGS): any
 }
 
 export const BUTTON_REGISTRY = {
@@ -22,9 +22,9 @@ export const BUTTON_REGISTRY = {
 					name: name,
 					vanity: vanity,
 				}),
-			}).then(response => response.json());
-			console.log(response);
-			await Session.refresh();
+			}).then(response => response.json())
+			console.log(response)
+			await Session.refresh()
 		},
 	},
 
@@ -45,7 +45,7 @@ export const BUTTON_REGISTRY = {
 					support_link: support_link,
 					support_message: support_message,
 				}),
-			});
+			})
 		},
 	},
 
@@ -58,7 +58,7 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			});
+			})
 		},
 	},
 
@@ -67,8 +67,8 @@ export const BUTTON_REGISTRY = {
 		async execute (label: string, vanity: string) {
 			const response = await fetch(`${Env.API_ORIGIN}author/${vanity}/get`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(label, response);
+			}).then(response => response.json())
+			console.log(label, response)
 		},
 	},
 
@@ -82,9 +82,9 @@ export const BUTTON_REGISTRY = {
 					"Accept": "application/json",
 					"Content-Type": "application/json",
 				},
-			});
+			})
 
-			await Session.refresh();
+			await Session.refresh()
 		},
 	},
 
@@ -104,7 +104,7 @@ export const BUTTON_REGISTRY = {
 					status: status,
 					visibility: visibility,
 				}),
-			});
+			})
 		},
 	},
 
@@ -124,7 +124,7 @@ export const BUTTON_REGISTRY = {
 					status: status,
 					visibility: visibility,
 				}),
-			});
+			})
 		},
 	},
 
@@ -137,7 +137,7 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			});
+			})
 		},
 	},
 
@@ -146,8 +146,8 @@ export const BUTTON_REGISTRY = {
 		async execute (label: string, author: string, url: string) {
 			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${url}/get`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(label, response);
+			}).then(response => response.json())
+			console.log(label, response)
 		},
 	},
 
@@ -165,8 +165,8 @@ export const BUTTON_REGISTRY = {
 					body: body,
 					visibility: visibility,
 				}),
-			}).then(response => response.json());
-			console.log(response);
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -184,7 +184,7 @@ export const BUTTON_REGISTRY = {
 					body,
 					visibility,
 				}),
-			});
+			})
 		},
 	},
 
@@ -197,7 +197,7 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			});
+			})
 		},
 	},
 
@@ -206,8 +206,8 @@ export const BUTTON_REGISTRY = {
 		async execute (label: string, author: string, work_url: string, index: string) {
 			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/${index}/get`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(label, response);
+			}).then(response => response.json())
+			console.log(label, response)
 		},
 	},
 
@@ -220,7 +220,7 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			});
+			})
 		},
 	},
 
@@ -233,7 +233,7 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			});
+			})
 		},
 	},
 
@@ -246,7 +246,7 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			});
+			})
 		},
 	},
 
@@ -259,7 +259,7 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			});
+			})
 		},
 	},
 
@@ -268,8 +268,8 @@ export const BUTTON_REGISTRY = {
 		async execute (type: string, vanity: string) {
 			const response = await fetch(`${Env.API_ORIGIN}follows/${type}/${vanity}`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(response);
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -278,8 +278,8 @@ export const BUTTON_REGISTRY = {
 		async execute (author_vanity: string, work_vanity: string) {
 			const response = await fetch(`${Env.API_ORIGIN}follows/work/${author_vanity}/${work_vanity}`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(response);
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -288,8 +288,8 @@ export const BUTTON_REGISTRY = {
 		async execute (type: string, page: number = 0) {
 			const response = await fetch(`${Env.API_ORIGIN}following/${type}?page=${page}`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(response);
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -298,8 +298,8 @@ export const BUTTON_REGISTRY = {
 		async execute (page: number = 0) {
 			const response = await fetch(`${Env.API_ORIGIN}following?page=${page}`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(response);
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -312,7 +312,7 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			});
+			})
 		},
 	},
 
@@ -325,7 +325,7 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			});
+			})
 		},
 	},
 
@@ -338,7 +338,7 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			});
+			})
 		},
 	},
 
@@ -351,7 +351,7 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			});
+			})
 		},
 	},
 
@@ -360,8 +360,8 @@ export const BUTTON_REGISTRY = {
 		async execute (type: string, vanity: string) {
 			const response = await fetch(`${Env.API_ORIGIN}ignores/${type}/${vanity}`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(response);
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -370,8 +370,8 @@ export const BUTTON_REGISTRY = {
 		async execute (author_vanity: string, work_vanity: string) {
 			const response = await fetch(`${Env.API_ORIGIN}ignores/work/${author_vanity}/${work_vanity}`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(response);
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -380,8 +380,8 @@ export const BUTTON_REGISTRY = {
 		async execute (type: string, page: number = 0) {
 			const response = await fetch(`${Env.API_ORIGIN}ignoring/${type}?page=${page}`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(response);
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -390,8 +390,8 @@ export const BUTTON_REGISTRY = {
 		async execute (page: number = 0) {
 			const response = await fetch(`${Env.API_ORIGIN}ignoring?page=${page}`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(response);
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -400,8 +400,8 @@ export const BUTTON_REGISTRY = {
 		async execute (label: string, vanity: string) {
 			const response = await fetch(`${Env.API_ORIGIN}privilege/get/${vanity}`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(label, response);
+			}).then(response => response.json())
+			console.log(label, response)
 		},
 	},
 
@@ -417,8 +417,8 @@ export const BUTTON_REGISTRY = {
 				body: JSON.stringify({
 					privileges,
 				}),
-			}).then(response => response.json());
-			console.log("granted privileges", response);
+			}).then(response => response.json())
+			console.log("granted privileges", response)
 		},
 	},
 
@@ -434,8 +434,8 @@ export const BUTTON_REGISTRY = {
 				body: JSON.stringify({
 					privileges,
 				}),
-			}).then(response => response.json());
-			console.log("revoked privileges", response);
+			}).then(response => response.json())
+			console.log("revoked privileges", response)
 		},
 	},
 
@@ -454,8 +454,8 @@ export const BUTTON_REGISTRY = {
 					description: "idk some test stuff",
 					visibilty: visibilty,
 				}),
-			}).then(response => response.json());
-			console.log("created role", response);
+			}).then(response => response.json())
+			console.log("created role", response)
 		},
 	},
 
@@ -468,8 +468,8 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			}).then(response => response.json());
-			console.log("deleted role", response);
+			}).then(response => response.json())
+			console.log("deleted role", response)
 		},
 	},
 
@@ -486,8 +486,8 @@ export const BUTTON_REGISTRY = {
 					name: name,
 					description: description,
 				}),
-			}).then(response => response.json());
-			console.log("edited role", response);
+			}).then(response => response.json())
+			console.log("edited role", response)
 		},
 	},
 
@@ -500,8 +500,8 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			}).then(response => response.json());
-			console.log("granted role", response);
+			}).then(response => response.json())
+			console.log("granted role", response)
 		},
 	},
 
@@ -514,8 +514,8 @@ export const BUTTON_REGISTRY = {
 				headers: {
 					"Content-Type": "application/json",
 				},
-			}).then(response => response.json());
-			console.log("granted role", response);
+			}).then(response => response.json())
+			console.log("granted role", response)
 		},
 	},
 
@@ -531,8 +531,8 @@ export const BUTTON_REGISTRY = {
 				body: JSON.stringify({
 					privileges,
 				}),
-			}).then(response => response.json());
-			console.log("granted privileges to role", response);
+			}).then(response => response.json())
+			console.log("granted privileges to role", response)
 		},
 	},
 
@@ -548,8 +548,8 @@ export const BUTTON_REGISTRY = {
 				body: JSON.stringify({
 					privileges,
 				}),
-			}).then(response => response.json());
-			console.log("revoked privileges from role", response);
+			}).then(response => response.json())
+			console.log("revoked privileges from role", response)
 		},
 	},
 
@@ -558,8 +558,8 @@ export const BUTTON_REGISTRY = {
 		async execute (label: string) {
 			const response = await fetch(`${Env.API_ORIGIN}role/get`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(label, response);
+			}).then(response => response.json())
+			console.log(label, response)
 		},
 	},
 
@@ -575,8 +575,8 @@ export const BUTTON_REGISTRY = {
 				body: JSON.stringify({
 					roles,
 				}),
-			}).then(response => response.json());
-			console.log("reordered roles", response);
+			}).then(response => response.json())
+			console.log("reordered roles", response)
 		},
 	},
 
@@ -593,7 +593,7 @@ export const BUTTON_REGISTRY = {
 					body,
 					parent_id,
 				}),
-			});
+			})
 		},
 	},
 
@@ -610,7 +610,7 @@ export const BUTTON_REGISTRY = {
 					comment_id: id,
 					body: comment_body,
 				}),
-			});
+			})
 		},
 	},
 
@@ -626,7 +626,7 @@ export const BUTTON_REGISTRY = {
 				body: JSON.stringify({
 					comment_id: id,
 				}),
-			});
+			})
 		},
 	},
 
@@ -642,8 +642,8 @@ export const BUTTON_REGISTRY = {
 				body: JSON.stringify({
 					comment_id: id,
 				}),
-			}).then(response => response.json());
-			console.log(label, response);
+			}).then(response => response.json())
+			console.log(label, response)
 		},
 	},
 
@@ -652,8 +652,8 @@ export const BUTTON_REGISTRY = {
 		async execute (label?: string) {
 			const response = await fetch(`${Env.API_ORIGIN}patreon/campaign/tiers/get`, {
 				credentials: "include",
-			}).then(response => response.json());
-			console.log(label, response);
+			}).then(response => response.json())
+			console.log(label, response)
 		},
 	},
 
@@ -671,9 +671,9 @@ export const BUTTON_REGISTRY = {
 					chapters: chapters,
 					tier_id: tier_id,
 				}),
-			}).then(response => response.json());
-			console.log(response);
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
-} satisfies Record<string, IButtonImplementation<any[]>>;
+} satisfies Record<string, IButtonImplementation<any[]>>

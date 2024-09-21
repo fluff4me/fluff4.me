@@ -19,3 +19,30 @@
 
 // views
 
+// TEMPORARY
+
+.button {
+	display: inline-block;
+	padding: 2px 8px;
+	background: #444;
+	cursor: pointer;
+	user-select: none;
+	&:hover, &:focus-visible {
+		background: #555;
+	}
+	&:active {
+		background: #333;
+	}
+}
+
+.view-type-debug {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 12px;
+}
+
+.debug-block {
+	display: flex;
+	gap: 8px;
+}
