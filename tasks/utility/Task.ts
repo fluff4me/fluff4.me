@@ -23,6 +23,7 @@ namespace Task {
 
 	export interface ITaskCLIOptions {
 		cwd?: string
+		env?: NodeJS.ProcessEnv
 		stdout?(data: string): any
 	}
 
@@ -41,7 +42,7 @@ namespace Task {
 			command = command!
 			command = command.startsWith("PATH:") ? command.slice(5) : path.resolve(`node_modules/.bin/${command}`)
 			const childProcess = spawn(command + ext, [...args],
-				{ stdio: [process.stdin, options.stdout ? "pipe" : process.stdout, process.stderr], cwd: options.cwd })
+				{ stdio: [process.stdin, options.stdout ? "pipe" : process.stdout, process.stderr], cwd: options.cwd, env: options.env })
 
 			if (options.stdout)
 				childProcess.stdout?.on("data", options.stdout)

@@ -1,3 +1,4 @@
+import type style from "style/index"
 import Component from "ui/Component"
 import Async from "utility/Async"
 
@@ -15,8 +16,11 @@ interface ViewExtensions {
 
 interface View extends Component, ViewExtensions { }
 
-const View = (id: string): View => Component()
-	.classes.add(ViewClasses.Main, `${ViewClasses.Type_}${id}`)
+type ViewId = keyof { [KEY in keyof typeof style as KEY extends `view-type-${infer ID}` ? ID : never]: string[] }
+
+const View = (id: ViewId): View => Component()
+	.style("view", `${ViewClasses.Type_}${id}`)
+	.classes.add(ViewClasses.Main,)
 	.extend<ViewExtensions>({
 		async hide () {
 			this.classes.add(ViewClasses._Hidden)

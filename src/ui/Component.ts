@@ -1,3 +1,4 @@
+import style from "style/index"
 import AttributeManipulator from "ui/utility/AttributeManipulator"
 import ClassManipulator from "ui/utility/ClassManipulator"
 import type { NativeEvents } from "ui/utility/EventManipulator"
@@ -41,6 +42,10 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		isComponent: true,
 		element,
 		removed: false,
+		style: (...names) => {
+			for (const name of names) element.classList.add(...style[name])
+			return component
+		},
 		and (builder, ...params) {
 			component = builder(...params, component as Component)
 			return component as any
@@ -109,6 +114,8 @@ namespace Component {
 	export interface SettingUp {
 		readonly isComponent: true
 		readonly element: HTMLElement
+
+		style (...names: (keyof typeof style)[]): this
 
 		and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT>, ...params: PARAMS): this & COMPONENT
 		extend<T> (extension: T): this & T
