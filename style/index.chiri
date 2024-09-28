@@ -1,26 +1,5 @@
 #import: chiri:defaults
 
-.button:
-	%inline-block
-	%padding-1-3
-	%background-dark-4
-	%cursor-pointer
-
-	::hover: %background-dark-5
-	::focus: %background-dark-5
-	::active: %background-dark-3
-
-.view:
-	&-type:
-		&-debug:
-			#debug: hi
-			%flex
-			%flex-column
-			%gap-4
-			%padding-4
-
-		&-account:
-
-.debug-block:
-	%flex
-	%gap-3
+#import:
+	component/button
+	view/view

@@ -1,0 +1,9 @@
+#view type="debug":
+	%flex
+	%flex-column
+	%gap-4
+	%padding-4
+
+.debug-block:
+	%flex
+	%gap-3

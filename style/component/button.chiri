@@ -1,0 +1,9 @@
+.button:
+	%inline-block
+	%padding-1-3
+	%background-dark-4
+	%cursor-pointer
+
+	::hover: %background-dark-5
+	::focus: %background-dark-5
+	::active: %background-dark-3

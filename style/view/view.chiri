@@ -1,0 +1,12 @@
+.view:
+
+#macro view:
+	#string type
+	#body!component body
+
+	.view-type-#{type}:
+		#include body
+
+#import:
+	type/debug
+	type/account
