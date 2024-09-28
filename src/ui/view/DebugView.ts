@@ -15,12 +15,8 @@ import Objects from "utility/Objects"
 import popup from "utility/Popup"
 import Session from "utility/Session"
 
-export enum DebugClasses {
-	Block = "debug-block",
-}
-
 const Block = Component.Builder((component = Component()) => component
-	.classes.add(DebugClasses.Block))
+	.style("debug-block"))
 
 export default ViewDefinition({
 	async create () {
