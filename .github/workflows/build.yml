@@ -27,7 +27,7 @@ jobs:
       - name: Calculate Run Number
         env:
           NUM: ${{ github.run_number }}
-        run: echo "BUILD_NUMBER=$(($NUM+447))" >> "$GITHUB_ENV"
+        run: echo "BUILD_NUMBER=$(($NUM+0))" >> "$GITHUB_ENV"
 
       - name: Build
         env:
@@ -37,8 +37,8 @@ jobs:
           BUILD_SHA: ${{ github.sha }}
         run: npm run build
 
-      - name: Cleanup
-        run: rm -rf docs/testiny
+      # - name: Cleanup
+      #   run: rm -rf docs/testiny
 
       - name: Prepare for GitHub Pages
         if: success()
