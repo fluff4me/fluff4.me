@@ -10,6 +10,6 @@ export default Task("install", async () => {
 		await Task.cli({ cwd: "src" }, "PATH:npm", "install", "api.fluff4.me@latest")
 	} else {
 		Log.info(`Installing ${ansi.lightCyan("chiri@latest")}...`)
-		await Task.cli({ cwd: "src" }, "PATH:npm", "install", "github:fluff4me/chiri#package")
+		await Task.cli({ cwd: "src" }, "PATH:npm", "install", "github:fluff4me/chiri#package", "--force")
 	}
 })
