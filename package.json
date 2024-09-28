@@ -33,6 +33,7 @@
 		"eslint-plugin-only-warn": "1.0.3",
 		"https-localhost": "4.7.1",
 		"@types/express": "4.17.13",
-		"tsconfig-paths": "4.2.0"
+		"tsconfig-paths": "4.2.0",
+		"chiri": "github:fluff4me/chiri#package"
 	}
 }
