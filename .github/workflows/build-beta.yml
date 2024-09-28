@@ -18,6 +18,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --force
+      
+      - name: Disable npm cache
+        run: npm config set cache /tmp/no-cache
 
       - name: Build
         env:
