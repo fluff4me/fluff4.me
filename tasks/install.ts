@@ -8,8 +8,5 @@ export default Task("install", async () => {
 	if (Env.ENVIRONMENT === "dev") {
 		Log.info(`Installing ${ansi.lightCyan("api.fluff4.me@latest")}...`)
 		await Task.cli({ cwd: "src" }, "PATH:npm", "install", "api.fluff4.me@latest")
-	} else {
-		Log.info(`Installing ${ansi.lightCyan("chiri@latest")}...`)
-		await Task.cli({ cwd: "src" }, "PATH:npm", "install", "github:fluff4me/chiri#package")
 	}
 })
