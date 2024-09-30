@@ -1,5 +1,10 @@
 #import: chiri:defaults
 
 #import:
+	var/font
+
+#import:
 	component/button
 	view/view
+	view/type/debug
+	view/type/account

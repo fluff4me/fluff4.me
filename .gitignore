@@ -3,3 +3,4 @@ docs/
 .env
 static/js/vendor
 src/style/
+style/index.ast.json

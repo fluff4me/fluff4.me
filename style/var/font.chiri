@@ -1,0 +1,38 @@
+#function google-font-format returns string:
+	#int weight
+	#string format?
+
+	#int format-code = match format:
+		"italic": 1
+		else: 0
+
+	#return "#{format-code},#{weight}
+
+#macro google-font:
+	#string family
+	#list!string formats
+
+	#string format-text = join(formats, ";")
+
+	#import css: url("https://fonts.googleapis.com/css2?family=#{family}:ital,wght@#{format-text}&display=swap")
+
+#google-font
+	family="Open+Sans
+	formats=[
+		google-font-format(300)
+		google-font-format(400)
+		google-font-format(500)
+		google-font-format(600)
+		google-font-format(700)
+		google-font-format(800)
+		google-font-format(300, "italic")
+		google-font-format(400, "italic")
+		google-font-format(500, "italic")
+		google-font-format(600, "italic")
+		google-font-format(700, "italic")
+		google-font-format(800, "italic")
+
+$font-body: "Open Sans"
+$font: $font-body
+
+font-family: $font
