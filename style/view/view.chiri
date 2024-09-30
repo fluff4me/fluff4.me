@@ -6,7 +6,3 @@
 
 	.view-type-#{type}:
 		#include body
-
-#import:
-	type/debug
-	type/account

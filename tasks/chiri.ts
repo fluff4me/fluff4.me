@@ -9,6 +9,8 @@ export const chiriwatch = Task("chiriwatch", () =>
 			env: {
 				// makes it so chirilang watches its lib folder
 				CHIRI_ENV: "dev",
+				CHIRI_STACK_LENGTH: "10",
+				CHIRI_AST: "true",
 			},
 		},
 		"chiri", "style/index.chiri", "--out", "docs", "--out-dts", "src", "-w"))
