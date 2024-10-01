@@ -1,8 +1,9 @@
-import style from "style"
+import type style from "style"
 import AttributeManipulator from "ui/utility/AttributeManipulator"
 import ClassManipulator from "ui/utility/ClassManipulator"
 import type { NativeEvents } from "ui/utility/EventManipulator"
 import EventManipulator from "ui/utility/EventManipulator"
+import StyleManipulator from "ui/utility/StyleManipulator"
 import TextManipulator from "ui/utility/TextManipulator"
 import Define from "utility/Define"
 import Errors from "utility/Errors"
@@ -34,6 +35,7 @@ interface Component extends Component.SettingUp {
 	readonly attributes: AttributeManipulator<this>
 	readonly event: EventManipulator<this, NativeEvents>
 	readonly text: TextManipulator<this>
+	readonly style: StyleManipulator<this>
 }
 
 function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
@@ -42,10 +44,6 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		isComponent: true,
 		element,
 		removed: false,
-		style: (...names) => {
-			for (const name of names) element.classList.add(...style[name])
-			return component
-		},
 		and (builder, ...params) {
 			component = builder(...params, component as Component)
 			return component as any
@@ -80,6 +78,11 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		prepend (...contents) {
 			component.element.prepend(...contents.map(Component.element))
 			return component
+		},
+		get style () {
+			const style = StyleManipulator(component)
+			Object.defineProperty(component, "style", { value: style })
+			return style
 		},
 		get classes () {
 			const classes = ClassManipulator(component)

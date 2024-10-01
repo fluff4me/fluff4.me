@@ -4,13 +4,9 @@ import AccountViewOAuthService from "ui/view/account/AccountViewOAuthService"
 import EndpointAuthServices from "utility/endpoint/auth/EndpointAuthServices"
 import Objects from "utility/Objects"
 
-export enum AccountViewOAuthServicesClasses {
-	Main = "account-view-oauth-services",
-}
-
 export default Component.Builder(async (component = Block()) => {
 	const block = component
-		.classes.add(AccountViewOAuthServicesClasses.Main)
+		.style("account-view-oauth-service-container")
 
 	const services = await EndpointAuthServices.query()
 	if (services instanceof Error) {

@@ -1,20 +1,14 @@
 import type { AuthService } from "api.fluff4.me"
 import Component from "ui/Component"
-import Button from "ui/component/Button"
+import Checkbox from "ui/component/Checkbox"
 
-export enum AccountViewOAuthServiceClasses {
-	Main = "account-view-oauth-service",
-	_Authenticated = "account-view-oauth-service--authenticated",
-	Icon = "account-view-oauth-service-icon",
-	Name = "account-view-oauth-service-name",
-}
-
-export default Component.Builder((service: AuthService, component: Component = Button()) => component
-	.classes.add(AccountViewOAuthServiceClasses.Main)
+export default Component.Builder((service: AuthService, component: Component = Checkbox()) => component
+	.style("account-view-oauth-service")
+	.style.var("colour", `#${service.colour.toString(16)}`)
 	.append(Component("img")
-		.classes.add(AccountViewOAuthServiceClasses.Icon)
+		.style("account-view-oauth-service-icon")
 		.attributes.set("src", service.icon))
 	.append(Component()
-		.classes.add(AccountViewOAuthServiceClasses.Name)
+		.style("account-view-oauth-service-name")
 		.text.set(service.name))
 )

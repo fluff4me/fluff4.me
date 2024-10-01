@@ -1,1 +1,23 @@
 #view type="account":
+
+.account-view-oauth-service:
+	%flex
+	%gap-3
+	%align-items-centre
+	%padding-2-3
+	background: $colour
+	colour: #{contrast($colour)}
+
+	::hover: background: color-mix(in lch, $colour, 20% #fff)
+
+	&-container:
+		%flex
+		%flex-column
+		%gap-3
+
+	&-icon:
+		%size-constrain-text
+
+	&-name:
+
+	&--authenticated:

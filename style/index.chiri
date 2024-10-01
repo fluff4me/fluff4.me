@@ -6,6 +6,7 @@
 #import:
 	root
 	component/button
+	component/checkbox
 	view/view
 	view/type/debug
 	view/type/account
