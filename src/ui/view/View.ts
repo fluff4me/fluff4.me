@@ -1,4 +1,4 @@
-import type style from "style/index"
+import type style from "style"
 import Component from "ui/Component"
 import Async from "utility/Async"
 

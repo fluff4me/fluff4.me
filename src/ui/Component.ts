@@ -1,4 +1,4 @@
-import style from "style/index"
+import style from "style"
 import AttributeManipulator from "ui/utility/AttributeManipulator"
 import ClassManipulator from "ui/utility/ClassManipulator"
 import type { NativeEvents } from "ui/utility/EventManipulator"

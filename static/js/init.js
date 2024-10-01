@@ -45,6 +45,7 @@
 			name = src.startsWith("./") ? src.slice(2) : src.startsWith("/") ? src.slice(1) : src
 			name = baseURL && name.startsWith(baseURL) ? name.slice(baseURL.length) : name
 			name = name.endsWith(".js") ? name.slice(0, -3) : name
+			name = name.endsWith("/index") ? name.slice(0, -6) : name
 		}
 
 		reqs ??= []

@@ -1,3 +1,4 @@
+import style from "style"
 import UiEventBus from "ui/UiEventBus"
 import AccountView from "ui/view/AccountView"
 import DebugView from "ui/view/DebugView"
@@ -52,6 +53,8 @@ async function App (): Promise<App> {
 	// ViewManager.showByHash(URL.path ?? URL.hash);
 
 	await Session.refresh()
+
+	document.body.classList.add(...style.body)
 
 	const view = ViewContainer()
 		.appendTo(document.body)
