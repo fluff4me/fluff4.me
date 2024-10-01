@@ -1,0 +1,7 @@
+colour-scheme: light dark
+overflow-x: hidden
+background: $background-2
+colour: $colour-3
+
+.body:
+	%margin-0

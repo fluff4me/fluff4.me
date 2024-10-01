@@ -4,6 +4,7 @@
 	var/font
 
 #import:
+	root
 	component/button
 	view/view
 	view/type/debug

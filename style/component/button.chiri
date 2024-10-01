@@ -3,6 +3,7 @@
 	%padding-1-3
 	%background-dark-4
 	%cursor-pointer
+	%no-select
 
 	::hover: %background-dark-5
 	::focus: %background-dark-5
