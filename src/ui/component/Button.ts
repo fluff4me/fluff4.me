@@ -6,7 +6,7 @@ interface ButtonExtensions {
 
 interface Button extends Component, ButtonExtensions { }
 
-const Button = Component.Builder((component = Component()): Button => component
+const Button = Component.Builder((component = Component("button")): Button => component
 	.style("button")
 	.extend<ButtonExtensions>({
 		setDisabled (disabled, reason) {
