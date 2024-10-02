@@ -9,7 +9,11 @@
 	colour: #{contrast($colour)}
 
 	::hover, ::focus:
-		$background: color-mix(in hsl, $colour, 10% #fff)
+		$background: hsl(from $colour h s calc(l + 5))
+		background: $background
+
+	::active:
+		$background: hsl(from $colour h calc(s - 40) calc(l - 15))
 		background: $background
 
 	&-container:
