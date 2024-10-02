@@ -2,6 +2,8 @@ import style from "style"
 import type Component from "ui/Component"
 
 interface StyleManipulatorFunctions<HOST> {
+	toggle (enabled: boolean, ...names: (keyof typeof style)[]): HOST
+
 	set (property: string, value: string | number): HOST
 	var (variable: string, value: string | number): HOST
 	remove (...properties: string[]): HOST
@@ -24,6 +26,15 @@ function StyleManipulator (component: Component.SettingUp): StyleManipulator<Com
 		}) as StyleManipulatorFunction<Component>,
 
 		{
+			toggle (enabled, ...names) {
+				if (enabled)
+					for (const name of names)
+						component.element.classList.add(...style[name])
+				else
+					for (const name of names)
+						component.element.classList.remove(...style[name])
+				return done
+			},
 			set (property, value) {
 				component.element.style.setProperty(property, `${value}`)
 				return done

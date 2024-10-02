@@ -4,7 +4,9 @@ import AccountViewOAuthService from "ui/view/account/AccountViewOAuthService"
 import EndpointAuthServices from "utility/endpoint/auth/EndpointAuthServices"
 import Objects from "utility/Objects"
 
-export default Component.Builder(async (component = Block()) => {
+export default Component.Builder(async component => {
+	component.and(Block)
+
 	const block = component
 		.style("account-view-oauth-service-container")
 

@@ -5,6 +5,7 @@
 
 #import:
 	root
+	component/block
 	component/button
 	component/checkbox
 	view/view

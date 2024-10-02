@@ -15,7 +15,7 @@ interface FormExtensions {
 
 interface Form extends Component, FormExtensions { }
 
-const Form = Component.Builder((container = Component()): Form => {
+const Form = Component.Builder((container): Form => {
 	const header = Component()
 		.classes.add(FormClasses.Header)
 

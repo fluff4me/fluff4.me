@@ -15,7 +15,7 @@ import Objects from "utility/Objects"
 import popup from "utility/Popup"
 import Session from "utility/Session"
 
-const Block = Component.Builder((component = Component()) => component
+const Block = Component.Builder(component => component
 	.style("debug-block"))
 
 export default ViewDefinition({

@@ -4,7 +4,13 @@
 	%background-dark-4
 	%cursor-pointer
 	%no-select
+	%weight-bold
 
-	::hover: %background-dark-5
-	::focus: %background-dark-5
+	::hover, ::focus:
+		%background-dark-5
+		%translate-up-1
+
 	::active: %background-dark-3
+
+	&--disabled:
+

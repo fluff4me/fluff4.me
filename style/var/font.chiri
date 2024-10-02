@@ -32,7 +32,8 @@
 		google-font-format(700, "italic")
 		google-font-format(800, "italic")
 
-$font-body: "Open Sans"
-$font: $font-body
+#font
+	name="Open Sans"
+	vertical-align=-0.027
 
-font-family: $font
+%font-open-sans

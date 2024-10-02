@@ -8,14 +8,16 @@ interface CheckboxExtensions {
 
 interface Checkbox extends Button, CheckboxExtensions { }
 
-const Checkbox = Component.Builder((component = Component("label")): Checkbox => {
+const Checkbox = Component.Builder("label", (component): Checkbox => {
 
 	const input = Component("input")
 		.style("checkbox-input")
 		.attributes.set("type", "checkbox")
 
-	return Button(component)
+	return component
+		.and(Button)
 		.style("checkbox")
+		.attributes.set("tabindex", "0")
 		.append(input)
 		.extend<CheckboxExtensions>({
 			isChecked (this: Checkbox) {
