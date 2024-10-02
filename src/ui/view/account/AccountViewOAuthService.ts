@@ -2,7 +2,8 @@ import type { AuthService } from "api.fluff4.me"
 import Component from "ui/Component"
 import Checkbox from "ui/component/Checkbox"
 
-export default Component.Builder((service: AuthService, component: Component = Checkbox()) => component
+export default Component.Builder((component, service: AuthService) => component
+	.and(Checkbox)
 	.style("account-view-oauth-service")
 	.style.var("colour", `#${service.colour.toString(16)}`)
 	.append(Component("img")

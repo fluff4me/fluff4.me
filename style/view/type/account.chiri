@@ -5,10 +5,15 @@
 	%gap-3
 	%align-items-centre
 	%padding-2-3
-	background: $colour
+	$background: $colour
+	background: $background
 	colour: #{contrast($colour)}
+	%border-radius-2
+	%font-3
 
-	::hover: background: color-mix(in lch, $colour, 20% #fff)
+	::hover, ::focus:
+		$background: color-mix(in hsl, $colour, 10% #fff)
+		background: $background
 
 	&-container:
 		%flex
@@ -19,5 +24,6 @@
 		%size-constrain-text
 
 	&-name:
+		%font-vertical-align
 
 	&--authenticated:

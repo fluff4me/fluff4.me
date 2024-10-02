@@ -7,6 +7,7 @@ import StyleManipulator from "ui/utility/StyleManipulator"
 import TextManipulator from "ui/utility/TextManipulator"
 import Define from "utility/Define"
 import Errors from "utility/Errors"
+import type { AnyFunction } from "utility/Type"
 
 const ELEMENT_TO_COMPONENT_MAP = new WeakMap<HTMLElement, Component>()
 
@@ -45,7 +46,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		element,
 		removed: false,
 		and (builder, ...params) {
-			component = builder(...params, component as Component)
+			component = builder.from(component as Component, ...params)
 			return component as any
 		},
 		extend: extension => Object.assign(component, extension) as Component & typeof extension,
@@ -140,36 +141,34 @@ namespace Component {
 		return is(from) ? from.element as Node as NODE : from
 	}
 
-	export interface BuilderParams<PARAMS extends any[], COMPONENT extends Component> {
-		<COMPONENT2 extends Component> (...params: [...PARAMS, component?: COMPONENT2]): COMPONENT & Partial<COMPONENT2>
-		<COMPONENT2 extends Component> (...params: [...PARAMS, component: COMPONENT2]): COMPONENT & COMPONENT2
+	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component> {
+		(...params: PARAMS): BUILD_COMPONENT
+		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): COMPONENT & BUILD_COMPONENT
 	}
 
-	export interface BuilderParamsAsync<PARAMS extends any[], COMPONENT extends Component> {
-		<COMPONENT2 extends Component> (...params: [...PARAMS, component?: COMPONENT2]): Promise<COMPONENT & Partial<COMPONENT2>>
-		<COMPONENT2 extends Component> (...params: [...PARAMS, component: COMPONENT2]): Promise<COMPONENT & COMPONENT2>
+	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component> {
+		(...params: PARAMS): Promise<BUILD_COMPONENT>
+		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): Promise<COMPONENT & BUILD_COMPONENT>
 	}
 
-	export interface Builder<PARAMS extends any[], COMPONENT extends Component> {
-		(): COMPONENT
-		<COMPONENT2 extends Component> (...params: [...PARAMS, component?: COMPONENT2]): COMPONENT & Partial<COMPONENT2>
-		<COMPONENT2 extends Component> (...params: [...PARAMS, component: COMPONENT2]): COMPONENT & COMPONENT2
-	}
+	const defaultBuilder = (type?: keyof HTMLElementTagNameMap) => Component(type)
+	export function Builder<PARAMS extends any[], COMPONENT extends Component> (builder: (component: Component, ...params: PARAMS) => COMPONENT): Builder<PARAMS, COMPONENT>
+	export function Builder<PARAMS extends any[], COMPONENT extends Component> (builder: (component: Component, ...params: PARAMS) => Promise<COMPONENT>): BuilderAsync<PARAMS, COMPONENT>
+	export function Builder<PARAMS extends any[], COMPONENT extends Component> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => COMPONENT): Builder<PARAMS, COMPONENT>
+	export function Builder<PARAMS extends any[], COMPONENT extends Component> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => Promise<COMPONENT>): BuilderAsync<PARAMS, COMPONENT>
+	export function Builder (initialOrBuilder: keyof HTMLElementTagNameMap | AnyFunction, builder?: (component: Component, ...params: any[]) => Component | Promise<Component>): (component?: Component, ...params: any[]) => Component | Promise<Component> {
+		const type = typeof initialOrBuilder === "string" ? initialOrBuilder : undefined
+		const initialBuilder: (type?: keyof HTMLElementTagNameMap) => Component = !builder || typeof initialOrBuilder === "string" ? defaultBuilder : initialOrBuilder
+		builder ??= initialOrBuilder as AnyFunction
 
-	export interface BuilderAsync<PARAMS extends any[], COMPONENT extends Component> {
-		(): Promise<COMPONENT>
-		<COMPONENT2 extends Component> (...params: [...PARAMS, component?: COMPONENT2]): Promise<COMPONENT & Partial<COMPONENT2>>
-		<COMPONENT2 extends Component> (...params: [...PARAMS, component: COMPONENT2]): Promise<COMPONENT & COMPONENT2>
-	}
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+		const realBuilder = (component = initialBuilder(type), ...params: any[]) => builder!(component, ...params)
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+		const simpleBuilder = (...params: any[]) => realBuilder(undefined, ...params)
 
-	export function Builder<COMPONENT extends Component> (builder: (component?: Component) => COMPONENT): Builder<[], COMPONENT>
-	export function Builder<COMPONENT extends Component> (builder: (component?: Component) => Promise<COMPONENT>): BuilderAsync<[], COMPONENT>
-	/** **Note:** When providing parameters, the component parameter must be typed as `: Component` */
-	export function Builder<PARAMS extends any[], COMPONENT extends Component> (builder: (...params: [...PARAMS, Component?]) => COMPONENT): undefined extends PARAMS[0] ? Builder<PARAMS, COMPONENT> : BuilderParams<PARAMS, COMPONENT>
-	/** **Note:** When providing parameters, the component parameter must be typed as `: Component` */
-	export function Builder<PARAMS extends any[], COMPONENT extends Component> (builder: (...params: [...PARAMS, Component?]) => Promise<COMPONENT>): undefined extends PARAMS[0] ? BuilderAsync<PARAMS, COMPONENT> : BuilderParamsAsync<PARAMS, COMPONENT>
-	export function Builder<PARAMS extends any[], COMPONENT extends Component> (builder: (...params: [...PARAMS, Component?]) => COMPONENT | Promise<COMPONENT>) {
-		return builder
+		return Object.assign(simpleBuilder, {
+			from: realBuilder,
+		})
 	}
 
 }
