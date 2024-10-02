@@ -1,16 +1,21 @@
 .button:
+	%borderless
 	%inline-block
-	%padding-1-3
+	%padding-2-3
 	%background-dark-4
 	%cursor-pointer
 	%no-select
 	%weight-bold
+	%border-radius-1
+	%font-3
 
 	::hover, ::focus:
 		%background-dark-5
 		%translate-up-1
 
-	::active: %background-dark-3
+	::active:
+		%background-dark-3
+		%translate-y-0
 
 	&--disabled:
 

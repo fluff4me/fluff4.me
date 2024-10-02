@@ -4,12 +4,9 @@
 	%flex
 	%gap-3
 	%align-items-centre
-	%padding-2-3
 	$background: $colour
 	background: $background
 	colour: #{contrast($colour)}
-	%border-radius-2
-	%font-3
 
 	::hover, ::focus:
 		$background: color-mix(in hsl, $colour, 10% #fff)
