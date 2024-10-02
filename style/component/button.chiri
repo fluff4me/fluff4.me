@@ -8,14 +8,16 @@
 	%weight-bold
 	%border-radius-1
 	%font-3
+	%box-shadow-1
 
 	::hover, ::focus:
 		%background-dark-5
 		%translate-up-1
+		%box-shadow-2
 
 	::active:
 		%background-dark-3
 		%translate-y-0
+		%box-shadow-inset-1
 
 	&--disabled:
-
