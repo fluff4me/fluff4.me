@@ -1,23 +1,34 @@
+$$button-background!colour
+$$button-background-highlight!colour
+
 .button:
 	%borderless
 	%inline-block
 	%padding-2-3
-	%background-dark-4
 	%cursor-pointer
 	%no-select
 	%weight-bold
 	%border-radius-1
 	%font-3
 	%box-shadow-1
+	$button-background: $dark-4
+	$button-background-highlight: hsl(from $button-background h s calc(l + 8))
+	background: radial-gradient(ellipse at left 20% top 20%, $button-background-highlight, $button-background)
+	#transition:
+		#{transition($$button-background)},
+		#{transition($$button-background-highlight)},
+		#{transition("translate")}
 
 	::hover, ::focus:
-		%background-dark-5
+		$button-background: $dark-5
 		%translate-up-1
 		%box-shadow-2
+		$transition-duration: $transition-focus
 
 	::active:
-		%background-dark-3
+		$button-background: $dark-3
 		%translate-y-0
 		%box-shadow-inset-1
+		$transition-duration: $transition-action
 
 	&--disabled:
