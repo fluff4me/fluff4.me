@@ -27,6 +27,7 @@ $$button-background-highlight!colour
 
 	::active:
 		$button-background: $dark-3
+		$button-background-highlight: $button-background
 		%translate-y-0
 		%box-shadow-inset-1
 		$transition-duration: $transition-action
