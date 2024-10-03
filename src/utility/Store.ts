@@ -35,6 +35,14 @@ export default class Store {
 		}) as any as ILocalStorage
 	}
 
+	public static get full () {
+		const result: any = {}
+		for (const [key, value] of Object.entries(localStorage))
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+			result[key] = JSON.parse(value)
+		return result
+	}
+
 	public static has (key: string) {
 		return localStorage.getItem(key) !== null
 	}
@@ -69,3 +77,5 @@ export default class Store {
 		return true
 	}
 }
+
+Object.assign(window, { Store })
