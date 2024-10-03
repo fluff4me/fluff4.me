@@ -4,17 +4,14 @@
 	%flex
 	%gap-3
 	%align-items-centre
-	$background: $colour
-	background: $background
+	$button-background: $colour
 	colour: #{contrast($colour)}
 
 	::hover, ::focus:
-		$background: hsl(from $colour h s calc(l + 5))
-		background: $background
+		$button-background: hsl(from $colour h s calc(l + 5))
 
 	::active:
-		$background: hsl(from $colour h calc(s - 40) calc(l - 15))
-		background: $background
+		$button-background: hsl(from $colour h calc(s - 40) calc(l - 15))
 
 	&-container:
 		%flex
