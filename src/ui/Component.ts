@@ -39,6 +39,8 @@ interface Component extends Component.SettingUp {
 	readonly style: StyleManipulator<this>
 }
 
+export type EventsOf<COMPONENT extends Component> = COMPONENT["event"] extends EventManipulator<any, infer EVENTS> ? EVENTS : never
+
 function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 	const element = document.createElement(type)
 	let component: Component.SettingUp & { -readonly [KEY in keyof Component as KEY extends keyof Component.SettingUp ? never : KEY]?: Component[KEY] } = {

@@ -1,10 +1,11 @@
+import Session from "model/Session"
 import style from "style"
 import UiEventBus from "ui/UiEventBus"
 import AccountView from "ui/view/AccountView"
 import DebugView from "ui/view/DebugView"
 import ViewContainer from "ui/ViewContainer"
 import Env from "utility/Env"
-import Session from "utility/Session"
+import Store from "utility/Store"
 import URL from "utility/URL"
 
 interface App {
@@ -18,8 +19,10 @@ async function App (): Promise<App> {
 			const params = new URLSearchParams(location.search)
 			// eslint-disable-next-line no-debugger
 			debugger
-			localStorage.setItem("Popup-Error-Code", params.get("code") ?? "500")
-			localStorage.setItem("Popup-Error-Message", params.get("message") ?? "Internal Server Error")
+			Store.items.popupError = {
+				code: +(params.get("code") ?? "500"),
+				message: params.get("message") ?? "Internal Server Error",
+			}
 		}
 		window.close()
 	}

@@ -7,7 +7,7 @@
 	root
 	component/block
 	component/button
-	component/checkbox
+	component/checkbutton
 	view/view
 	view/type/debug
 	view/type/account

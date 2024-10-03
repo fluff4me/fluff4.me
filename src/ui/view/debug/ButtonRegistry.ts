@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import Session from "model/Session"
 import Env from "utility/Env"
-import Session from "utility/Session"
 
 export interface IButtonImplementation<ARGS extends any[]> {
 	name: string

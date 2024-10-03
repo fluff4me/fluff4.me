@@ -1,10 +1,12 @@
 #view type="account":
 
 .account-view-oauth-service:
+	%relative
 	%flex
 	%gap-3
 	%align-items-centre
 	$button-background: $colour
+	%height-lh
 	colour: #{contrast($colour)}
 
 	::hover, ::focus:
@@ -19,9 +21,20 @@
 		%gap-3
 
 	&-icon:
-		%size-constrain-text
+		%size-constrain-em
 
 	&-name:
 		%font-vertical-align
+		%flex-grow
+
+	&-state:
+		%block
+		%size-100
+		%width-lh
+		%align-self-stretch
+		; @before, @after:
+
+
+		&--authenticated:
 
 	&--authenticated:

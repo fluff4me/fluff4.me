@@ -4,16 +4,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import type { AuthServices } from "api.fluff4.me"
-import { BUTTON_REGISTRY, type IButtonImplementation } from "dev/ButtonRegistry"
+import Session from "model/Session"
 import Component from "ui/Component"
 import Button from "ui/component/Button"
+import { BUTTON_REGISTRY, type IButtonImplementation } from "ui/view/debug/ButtonRegistry"
 import View from "ui/view/View"
 import ViewDefinition from "ui/view/ViewDefinition"
 import EndpointAuthServices from "utility/endpoint/auth/EndpointAuthServices"
 import Env from "utility/Env"
 import Objects from "utility/Objects"
 import popup from "utility/Popup"
-import Session from "utility/Session"
 
 const Block = Component.Builder(component => component
 	.style("debug-block"))
@@ -45,7 +45,7 @@ export default ViewDefinition({
 			Button()
 				.text.set(`OAuth ${service.name}`)
 				.event.subscribe("click", async () => {
-					await popup(service.url_begin, 600, 900)
+					await popup(`OAuth ${service.name}`, service.url_begin, 600, 900)
 						.then(() => true).catch(err => { console.warn(err); return false })
 					await Session.refresh()
 				})
@@ -55,7 +55,7 @@ export default ViewDefinition({
 				.text.set(`UnOAuth ${service.name}`)
 				.event.subscribe("click", async () => {
 
-					const id = Session.getAuthServices().find(auth => auth.service === service.id)?.id
+					const id = Session.Auth.get(service.id)?.id
 					if (id === undefined)
 						return
 					await fetch(`${Env.API_ORIGIN}auth/remove`, {
@@ -379,7 +379,7 @@ export default ViewDefinition({
 		Button()
 			.text.set("Campaign Test")
 			.event.subscribe("click", async () => {
-				await popup(`${Env.API_ORIGIN}auth/patreon/campaign/begin`, 600, 900)
+				await popup("Campaign OAuth", `${Env.API_ORIGIN}auth/patreon/campaign/begin`, 600, 900)
 					.then(() => true).catch(err => { console.warn(err); return false })
 				await Session.refresh()
 			})
@@ -417,7 +417,7 @@ export default ViewDefinition({
 		Button()
 			.text.set("Patron Test")
 			.event.subscribe("click", async () => {
-				await popup(`${Env.API_ORIGIN}auth/patreon/patron/begin`, 600, 900)
+				await popup("Patron OAuth", `${Env.API_ORIGIN}auth/patreon/patron/begin`, 600, 900)
 					.then(() => true).catch(err => { console.warn(err); return false })
 				await Session.refresh()
 			})
