@@ -1,8 +1,12 @@
 import style from "style"
 import type Component from "ui/Component"
+import type State from "utility/State"
+
+type ComponentName = keyof typeof style
 
 interface StyleManipulatorFunctions<HOST> {
-	toggle (enabled: boolean, ...names: (keyof typeof style)[]): HOST
+	toggle (enabled: boolean, ...names: ComponentName[]): HOST
+	bind (state: State<boolean>, ...names: ComponentName[]): HOST
 
 	set (property: string, value: string | number): HOST
 	var (variable: string, value: string | number): HOST
@@ -10,46 +14,74 @@ interface StyleManipulatorFunctions<HOST> {
 }
 
 interface StyleManipulatorFunction<HOST> {
-	(...names: (keyof typeof style)[]): HOST
+	(...names: ComponentName[]): HOST
 }
 
 interface StyleManipulator<HOST> extends StyleManipulatorFunction<HOST>, StyleManipulatorFunctions<HOST> {
 }
 
-function StyleManipulator (component: Component.SettingUp): StyleManipulator<Component> {
-	const done = component as Component
+function StyleManipulator (component: Component): StyleManipulator<Component> {
+	const styles = new Set<ComponentName>()
+
 	return Object.assign(
 		((...names) => {
 			for (const name of names)
-				component.element.classList.add(...style[name])
-			return done
+				styles.add(name)
+			updateClasses()
+			return component
 		}) as StyleManipulatorFunction<Component>,
 
 		{
 			toggle (enabled, ...names) {
 				if (enabled)
 					for (const name of names)
-						component.element.classList.add(...style[name])
+						styles.add(name)
 				else
 					for (const name of names)
-						component.element.classList.remove(...style[name])
-				return done
+						styles.delete(name)
+
+				updateClasses(!enabled ? names : undefined)
+				return component
 			},
+			bind (state, ...names) {
+				state.subscribe(component, active => {
+					if (active)
+						for (const name of names)
+							styles.add(name)
+					else
+						for (const name of names)
+							styles.delete(name)
+
+					updateClasses(!active ? names : undefined)
+				})
+				return component
+			},
+
 			set (property, value) {
 				component.element.style.setProperty(property, `${value}`)
-				return done
+				return component
 			},
 			var (variable, value) {
 				component.element.style.setProperty(`--${variable}`, `${value}`)
-				return done
+				return component
 			},
 			remove (...properties) {
 				for (const property of properties)
 					component.element.style.removeProperty(property)
-				return done
+				return component
 			},
 		} as StyleManipulatorFunctions<Component>,
 	)
+
+	function updateClasses (deletedStyles?: ComponentName[]) {
+		const toAdd = [...styles].flatMap(component => style[component])
+		const toRemove = deletedStyles?.flatMap(component => style[component]).filter(cls => !toAdd.includes(cls))
+
+		if (toRemove)
+			component.element.classList.remove(...toRemove)
+
+		component.element.classList.add(...toAdd)
+	}
 }
 
 export default StyleManipulator

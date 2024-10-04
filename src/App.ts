@@ -1,6 +1,8 @@
 import Session from "model/Session"
 import style from "style"
 import UiEventBus from "ui/UiEventBus"
+import FocusListener from "ui/utility/FocusListener"
+import HoverListener from "ui/utility/HoverListener"
 import AccountView from "ui/view/AccountView"
 import DebugView from "ui/view/DebugView"
 import ViewContainer from "ui/ViewContainer"
@@ -56,6 +58,9 @@ async function App (): Promise<App> {
 	// ViewManager.showByHash(URL.path ?? URL.hash);
 
 	await Session.refresh()
+
+	HoverListener.listen()
+	FocusListener.listen()
 
 	document.body.classList.add(...style.body)
 

@@ -22,6 +22,8 @@ export default Component.Builder((component, service: AuthService) => {
 
 	const state = Component()
 		.style("account-view-oauth-service-state")
+		.style.toggle(authedAtStart, "account-view-oauth-service-state--authenticated")
+		.style.bind(button.hoveredOrFocused, "account-view-oauth-service-state--focus")
 		.appendTo(button)
 
 	button.event.subscribe("setChecked", (event, checked) => {

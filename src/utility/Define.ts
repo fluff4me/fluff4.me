@@ -22,7 +22,7 @@ module Define {
 
 	interface IMagicImplementation<O, K extends string & keyof O> {
 		get (this: O): O[K]
-		set (this: O, value: O[K]): void
+		set?(this: O, value: O[K]): void
 	}
 
 	export function magic<O, K extends string & keyof O> (obj: O, key: K, implementation: IMagicImplementation<O, K>): void {
@@ -34,6 +34,19 @@ module Define {
 		} catch (err) {
 
 		}
+	}
+
+	export function set<O, K extends string & keyof O> (obj: O, key: K, value: O[K]): O[K] {
+		try {
+			Object.defineProperty(obj, key, {
+				configurable: true,
+				value,
+			})
+		} catch (err) {
+
+		}
+
+		return value
 	}
 }
 

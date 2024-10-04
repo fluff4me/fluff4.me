@@ -7,22 +7,21 @@ interface AttributeManipulator<HOST> {
 	toggle (present: boolean, attribute: string, value: string): HOST
 }
 
-function AttributeManipulator (component: Component.SettingUp): AttributeManipulator<Component> {
-	const done = component as Component
+function AttributeManipulator (component: Component): AttributeManipulator<Component> {
 	return {
 		add (...attributes) {
 			for (const attribute of attributes)
 				component.element.setAttribute(attribute, "")
-			return done
+			return component
 		},
 		set (attribute, value) {
 			component.element.setAttribute(attribute, value)
-			return done
+			return component
 		},
 		remove (...attributes) {
 			for (const attribute of attributes)
 				component.element.removeAttribute(attribute)
-			return done
+			return component
 		},
 		toggle (present, attribute, value) {
 			return this[present ? "set" : "remove"](attribute, value)
