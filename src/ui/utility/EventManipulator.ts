@@ -28,8 +28,7 @@ interface EventHandlerRegistered extends AnyFunction {
 	[SYMBOL_REGISTERED_FUNCTION]?: AnyFunction
 }
 
-function EventManipulator (component: Component.SettingUp): EventManipulator<Component, NativeEvents> {
-	const done = component as Component
+function EventManipulator (component: Component): EventManipulator<Component, NativeEvents> {
 	return {
 		emit (event, ...params) {
 			const detail: EventDetail = { result: [], params }
@@ -40,14 +39,14 @@ function EventManipulator (component: Component.SettingUp): EventManipulator<Com
 		subscribe (events, handler) {
 			if ((handler as EventHandlerRegistered)[SYMBOL_REGISTERED_FUNCTION]) {
 				console.error(`Can't register handler for event(s) ${Arrays.resolve(events).join(", ")}, already used for other events`, handler)
-				return done
+				return component
 			}
 
 			const realHandler = (event: Event) => {
 				const customEvent = event instanceof CustomEvent ? event : undefined
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-				const result = (handler as any)(Object.assign(event, { component: done }), ...customEvent?.detail ?? [])
 				const eventDetail = customEvent?.detail as EventDetail | undefined
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+				const result = (handler as any)(Object.assign(event, { component }), ...eventDetail?.params ?? [])
 				eventDetail?.result.push(result)
 			}
 
@@ -56,19 +55,19 @@ function EventManipulator (component: Component.SettingUp): EventManipulator<Com
 			for (const event of Arrays.resolve(events))
 				component.element.addEventListener(event, realHandler)
 
-			return done
+			return component
 		},
 		unsubscribe (events, handler) {
 			const realHandler = (handler as EventHandlerRegistered)[SYMBOL_REGISTERED_FUNCTION]
 			if (!realHandler)
-				return done
+				return component
 
 			delete (handler as EventHandlerRegistered)[SYMBOL_REGISTERED_FUNCTION]
 
 			for (const event of Arrays.resolve(events))
 				component.element.removeEventListener(event, realHandler)
 
-			return done
+			return component
 		},
 	}
 }

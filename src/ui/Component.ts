@@ -1,4 +1,3 @@
-import type style from "style"
 import AttributeManipulator from "ui/utility/AttributeManipulator"
 import ClassManipulator from "ui/utility/ClassManipulator"
 import type { NativeEvents } from "ui/utility/EventManipulator"
@@ -7,17 +6,18 @@ import StyleManipulator from "ui/utility/StyleManipulator"
 import TextManipulator from "ui/utility/TextManipulator"
 import Define from "utility/Define"
 import Errors from "utility/Errors"
+import State from "utility/State"
 import type { AnyFunction } from "utility/Type"
 
-const ELEMENT_TO_COMPONENT_MAP = new WeakMap<HTMLElement, Component>()
+const ELEMENT_TO_COMPONENT_MAP = new WeakMap<Element, Component>()
 
 declare global {
-	interface HTMLElement {
+	interface Element {
 		component?: Component
 	}
 }
 
-Define.magic(HTMLElement.prototype, "component", {
+Define.magic(Element.prototype, "component", {
 	get (): Component | undefined {
 		return ELEMENT_TO_COMPONENT_MAP.get(this)
 	},
@@ -30,30 +30,49 @@ Define.magic(HTMLElement.prototype, "component", {
 	},
 })
 
-interface Component extends Component.SettingUp {
-	readonly removed: boolean
+interface Component {
+	readonly isComponent: true
+
 	readonly classes: ClassManipulator<this>
 	readonly attributes: AttributeManipulator<this>
 	readonly event: EventManipulator<this, NativeEvents>
 	readonly text: TextManipulator<this>
 	readonly style: StyleManipulator<this>
+
+	readonly hovered: State<boolean>
+	readonly focused: State<boolean>
+	readonly hoveredOrFocused: State<boolean>
+	readonly removed: State<boolean>
+
+	readonly element: HTMLElement
+
+	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT>, ...params: PARAMS): this & COMPONENT
+	extend<T> (extension: T): this & T
+
+	appendTo (destination: Component | Element): this
+	prependTo (destination: Component | Element): this
+	append (...contents: (Component | Node)[]): this
+	prepend (...contents: (Component | Node)[]): this
+
+	remove (): void
 }
 
 export type EventsOf<COMPONENT extends Component> = COMPONENT["event"] extends EventManipulator<any, infer EVENTS> ? EVENTS : never
 
 function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 	const element = document.createElement(type)
-	let component: Component.SettingUp & { -readonly [KEY in keyof Component as KEY extends keyof Component.SettingUp ? never : KEY]?: Component[KEY] } = {
+
+	let component: Component = {
 		isComponent: true,
 		element,
-		removed: false,
+		removed: State(false),
 		and (builder, ...params) {
-			component = builder.from(component as Component, ...params)
+			component = builder.from(component, ...params)
 			return component as any
 		},
-		extend: extension => Object.assign(component, extension) as Component & typeof extension,
+		extend: extension => Object.assign(component, extension),
 		remove (internal = false) {
-			component.removed = true
+			component.removed.value = true
 
 			interface HTMLElementRemovable extends HTMLElement {
 				component?: Component & { remove (internal: boolean): void }
@@ -83,29 +102,30 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 		get style () {
-			const style = StyleManipulator(component)
-			Object.defineProperty(component, "style", { value: style })
-			return style
+			return Define.set(component, "style", StyleManipulator(component))
 		},
 		get classes () {
-			const classes = ClassManipulator(component)
-			Object.defineProperty(component, "classes", { value: classes })
-			return classes
+			return Define.set(component, "classes", ClassManipulator(component))
 		},
 		get attributes () {
-			const attributes = AttributeManipulator(component)
-			Object.defineProperty(component, "attributes", { value: attributes })
-			return attributes
+			return Define.set(component, "attributes", AttributeManipulator(component))
 		},
 		get event () {
-			const event = EventManipulator(component)
-			Object.defineProperty(component, "event", { value: event })
-			return event
+			return Define.set(component, "event", EventManipulator(component))
 		},
 		get text () {
-			const text = TextManipulator(component)
-			Object.defineProperty(component, "text", { value: text })
-			return text
+			return Define.set(component, "text", TextManipulator(component))
+		},
+		get hovered (): State<boolean> {
+			return Define.set(component, "hovered", State(false))
+		},
+		get focused (): State<boolean> {
+			return Define.set(component, "focused", State(false))
+		},
+		get hoveredOrFocused (): State<boolean> {
+			return Define.set(component, "hoveredOrFocused",
+				State.Generator(() => component.hovered.value || component.focused.value)
+					.observe(component.hovered, component.focused))
 		},
 	}
 
@@ -118,21 +138,6 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 namespace Component {
 	export interface SettingUp {
-		readonly isComponent: true
-		readonly element: HTMLElement
-
-		style (...names: (keyof typeof style)[]): this
-
-		and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT>, ...params: PARAMS): this & COMPONENT
-		extend<T> (extension: T): this & T
-
-		appendTo (destination: Component | Element): this
-		prependTo (destination: Component | Element): this
-		append (...contents: (Component | Node)[]): this
-		prepend (...contents: (Component | Node)[]): this
-
-		removed: boolean
-		remove (): void
 	}
 
 	export function is (value: unknown): value is Component {

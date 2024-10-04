@@ -35,6 +35,7 @@ const Checkbutton = Component.Builder("label", (component): Checkbutton => {
 			},
 			setChecked (this: Checkbutton, checked: boolean) {
 				inputElement.checked = checked
+				onChange()
 				return this
 			},
 		})
@@ -42,10 +43,12 @@ const Checkbutton = Component.Builder("label", (component): Checkbutton => {
 			event.preventDefault()
 		})
 
-	input.event.subscribe("change", () => {
+	input.event.subscribe("change", onChange)
+
+	function onChange () {
 		checkbutton.style.toggle(inputElement.checked, "checkbutton--checked")
 		checkbutton.event.emit("setChecked", inputElement.checked)
-	})
+	}
 
 	return checkbutton
 })

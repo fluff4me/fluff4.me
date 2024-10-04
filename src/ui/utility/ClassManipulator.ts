@@ -6,16 +6,15 @@ interface ClassManipulator<HOST> {
 	toggle (present: boolean, ...classes: string[]): HOST
 }
 
-function ClassManipulator (component: Component.SettingUp): ClassManipulator<Component> {
-	const done = component as Component
+function ClassManipulator (component: Component): ClassManipulator<Component> {
 	return {
 		add (...classes) {
 			component.element.classList.add(...classes)
-			return done
+			return component
 		},
 		remove (...classes) {
 			component.element.classList.add(...classes)
-			return done
+			return component
 		},
 		toggle (present, ...classes) {
 			return this[present ? "add" : "remove"](...classes)

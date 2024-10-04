@@ -28,13 +28,49 @@
 		%flex-grow
 
 	&-state:
+		%relative
 		%block
 		%size-100
-		%width-lh
-		%align-self-stretch
-		; @before, @after:
+		$size: round(0.8lh, 2px)
+		size: $size
 
+		$box-shadow: 0 calc($size / 2) 0 0 currentcolor
+		@before, @after:
+			%block
+			%absolute
+			%width-1
+			%opacity-0
+			%height-50
+			%background-currentcolour
+			box-shadow: $box-shadow
+			$left: calc(50% - $space-1 / 2 - $space-1)
+			transform-origin: bottom center
+			#transition:
+				#{transition("top")},
+				#{transition("left")},
+				#{transition("height")},
+				#{transition("border")},
+				#{transition("margin")},
+				#{transition("box-shadow")}
+
+		@before:
+			left: calc($left + round($size / 3, 1px) - $space-2)
+			%rotate-45
+
+		@after:
+			%rotate-135
+			left: calc($left - round($size / 3, 1px) - $space-2)
+			box-shadow: 0 0 0 0 currentcolor
 
 		&--authenticated:
+			@before, @after:
+				%opacity-1
+
+		&--focus:
+			@before, @after:
+				left: $left
+
+			@after:
+				box-shadow: $box-shadow
 
 	&--authenticated:
