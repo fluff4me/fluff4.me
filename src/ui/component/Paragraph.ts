@@ -1,5 +1,10 @@
 import Component from "ui/Component"
 
-export default Component.Builder(component => component
+interface Paragraph extends Component {
+}
+
+const Paragraph = Component.Builder(component => component
 	.style("paragraph")
 )
+
+export default Paragraph
