@@ -11,7 +11,7 @@ $$button-background-highlight!colour
 	%border-radius-1
 	%font-3
 	%box-shadow-1
-	$button-background: $dark-4
+	$button-background: $background-interact-4
 	$button-background-highlight: hsl(from $button-background h s calc(l + 8))
 	background: radial-gradient(ellipse at left 20% top 20%, $button-background-highlight, $button-background)
 	#transition:
@@ -21,13 +21,13 @@ $$button-background-highlight!colour
 		#{transition("box-shadow")}
 
 	::hover, ::focus:
-		$button-background: $dark-5
+		$button-background: $background-interact-5
 		%translate-up-1
 		%box-shadow-2
 		$transition-duration: $transition-focus
 
 	::active:
-		$button-background: $dark-3
+		$button-background: $background-interact-3
 		$button-background-highlight: $button-background
 		%translate-y-0
 		%box-shadow-inset-1

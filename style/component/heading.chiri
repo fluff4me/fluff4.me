@@ -3,8 +3,9 @@
 	%margin-0
 	%weight-normal
 	%font-inherit
+	%text-shadow
 	margin-left: -0.05em
-	#outline colour=$background-2
+	; #outline colour=$background-2
 
 	#dec slant = 0.05
 	@before, @after:

@@ -1,2 +1,26 @@
 .block:
 	%padding-4
+	%margin-4
+	%border-radius-2
+	%inset-border-1
+	box-shadow: #{box-shadow-inset-border-1}, #{box-shadow-1}
+	#string background-colour = "light-dark(#{alpha(0.2, $colour-0)}, #{alpha(0.02, $colour-0)})
+	#string border-colour = "light-dark(#{alpha(0.1, $colour-0)}, #{alpha(0.05, $colour-0)})
+	$border-colour: #{border-colour}
+	#string background-highlight = "color-mix(in lch, #{background-colour}, #fff2 50%)
+	background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, #{background-colour})
+
+	&-header:
+		%block
+		%border-bottom-1
+		%unmargin-4
+		%padding-inline-4
+		%padding-block-2
+		%margin-bottom-4
+		$border-colour: #{border-colour}
+		background: light-dark(#{alpha(0.2, $light-0)}, #{alpha(0.02, $colour-0)})
+
+	&-title:
+		%z-index-0
+
+	&-description:
