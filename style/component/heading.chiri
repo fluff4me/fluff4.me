@@ -1,7 +1,27 @@
 .heading:
+	%relative
 	%margin-0
 	%weight-normal
 	%font-inherit
+	margin-left: -0.05em
+	#outline colour=$background-2
+
+	#dec slant = 0.05
+	@before, @after:
+		%absolute
+		%z-index-bg
+		bottom: 0.05em
+		height: 0.1em
+		clip-path: polygon(#{slant}em 0%, 100% 0%, calc(100% - #{slant}em) 100%, 0% 100%)
+
+	@before:
+		width: calc(2em - 0.05em)
+		background-colour: $colour-pink
+
+	@after:
+		left: calc(2em)
+		width: 1em
+		background-colour: $colour-blue
 
 	#for var i = 1, i <= 6, set i++:
 		&-#{i}:
