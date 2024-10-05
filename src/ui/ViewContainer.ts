@@ -8,21 +8,21 @@ export enum ViewContainerClasses {
 
 interface ViewContainerExtensions {
 	view?: View
-	show<VIEW extends View> (this: ViewContainer, view: ViewDefinition<VIEW>): Promise<VIEW>
+	show<VIEW extends View> (view: ViewDefinition<VIEW>): Promise<VIEW>
 }
 
 interface ViewContainer extends Component, ViewContainerExtensions { }
 
 const ViewContainer = (): ViewContainer => Component()
 	.classes.add(ViewContainerClasses.Main)
-	.extend<ViewContainerExtensions>({
+	.extend<ViewContainerExtensions>(container => ({
 		view: undefined,
-		async show (definition) {
-			void this.view?.hide()
+		show: async definition => {
+			void container.view?.hide()
 			const view = await definition.create()
-			view.appendTo(this)
+			view.appendTo(container)
 			return view
 		},
-	})
+	}))
 
 export default ViewContainer

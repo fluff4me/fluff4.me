@@ -11,16 +11,16 @@ const Button = Component.Builder("button", (component): Button => {
 
 	return component
 		.style("button")
-		.extend<ButtonExtensions>({
-			setDisabled (this: Button, disabled, reason) {
+		.extend<ButtonExtensions>(button => ({
+			setDisabled (disabled, reason) {
 				if (disabled)
 					disabledReasons.add(reason)
 				else
 					disabledReasons.delete(reason)
-				this.style.toggle(!!disabledReasons.size, "button--disabled")
-				return this
+				button.style.toggle(!!disabledReasons.size, "button--disabled")
+				return button
 			},
-		})
+		}))
 })
 
 export default Button

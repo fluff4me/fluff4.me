@@ -28,7 +28,7 @@ const Form = Component.Builder((container): Form => {
 	return container
 		.classes.add(FormClasses.Main)
 		.append(header, content, footer)
-		.extend({ header, content, footer })
+		.extend(() => ({ header, content, footer }))
 })
 
 export default Form

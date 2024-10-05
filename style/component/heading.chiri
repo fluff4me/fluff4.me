@@ -1,0 +1,11 @@
+.heading:
+	%margin-0
+	%weight-normal
+	%font-inherit
+
+	#for var i = 1, i <= 6, set i++:
+		&-#{i}:
+
+	&-1:
+		%font-6
+		%font-righteous

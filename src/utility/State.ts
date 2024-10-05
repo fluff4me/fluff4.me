@@ -35,6 +35,9 @@ function State<T> (defaultValue: T): State<T> {
 			return result[SYMBOL_VALUE]
 		},
 		set value (value: T) {
+			if (result[SYMBOL_VALUE] === value)
+				return
+
 			result[SYMBOL_VALUE] = value
 			result.emit()
 		},
@@ -87,7 +90,11 @@ namespace State {
 		result.observe = (...states) => {
 			for (const state of states)
 				state.subscribeManual(() => {
-					result[SYMBOL_VALUE] = generate()
+					const value = generate()
+					if (result[SYMBOL_VALUE] === value)
+						return
+
+					result[SYMBOL_VALUE] = value
 					result.emit()
 				})
 			return result

@@ -21,12 +21,12 @@ type ViewId = keyof { [KEY in keyof typeof style as KEY extends `view-type-${inf
 const View = (id: ViewId): View => Component()
 	.style("view", `${ViewClasses.Type_}${id}`)
 	.classes.add(ViewClasses.Main,)
-	.extend<ViewExtensions>({
-		async hide () {
-			this.classes.add(ViewClasses._Hidden)
+	.extend<ViewExtensions>(view => ({
+		hide: async () => {
+			view.classes.add(ViewClasses._Hidden)
 			await Async.sleep(VIEW_HIDE_TIME)
-			this.remove()
+			view.remove()
 		},
-	})
+	}))
 
 export default View
