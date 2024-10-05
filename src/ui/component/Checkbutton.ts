@@ -29,16 +29,14 @@ const Checkbutton = Component.Builder("label", (component): Checkbutton => {
 		.style("checkbutton")
 		.attributes.set("tabindex", "0")
 		.append(input)
-		.extend<CheckbuttonExtensions>({
-			isChecked (this: Checkbutton) {
-				return inputElement.checked
-			},
-			setChecked (this: Checkbutton, checked: boolean) {
+		.extend<CheckbuttonExtensions>(checkbutton => ({
+			isChecked: () => inputElement.checked,
+			setChecked: (checked: boolean) => {
 				inputElement.checked = checked
 				onChange()
-				return this
+				return checkbutton
 			},
-		})
+		}))
 		.event.subscribe("click", event => {
 			event.preventDefault()
 		})

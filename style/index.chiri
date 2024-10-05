@@ -5,6 +5,8 @@
 
 #import:
 	root
+	component/heading
+	component/paragraph
 	component/block
 	component/button
 	component/checkbutton

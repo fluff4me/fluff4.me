@@ -7,7 +7,7 @@ import TextManipulator from "ui/utility/TextManipulator"
 import Define from "utility/Define"
 import Errors from "utility/Errors"
 import State from "utility/State"
-import type { AnyFunction } from "utility/Type"
+import type { AnyFunction, Mutable } from "utility/Type"
 
 const ELEMENT_TO_COMPONENT_MAP = new WeakMap<Element, Component>()
 
@@ -30,24 +30,39 @@ Define.magic(Element.prototype, "component", {
 	},
 })
 
+interface ComponentEvents extends NativeEvents {
+	remove (): any
+	insert (): any
+	ancestorInsert (): any
+	root (): any
+	unroot (): any
+}
+
 interface Component {
 	readonly isComponent: true
 
 	readonly classes: ClassManipulator<this>
 	readonly attributes: AttributeManipulator<this>
-	readonly event: EventManipulator<this, NativeEvents>
+	readonly event: EventManipulator<this, ComponentEvents>
 	readonly text: TextManipulator<this>
 	readonly style: StyleManipulator<this>
 
 	readonly hovered: State<boolean>
 	readonly focused: State<boolean>
 	readonly hoveredOrFocused: State<boolean>
+	readonly rooted: State<boolean>
 	readonly removed: State<boolean>
 
 	readonly element: HTMLElement
 
+	/**
+	 * **Warning:** Replacing an element will leave any subscribed events on the original element, and not re-subscribe them on the new element.
+	 */
+	replaceElement (elementOrType: HTMLElement | keyof HTMLElementTagNameMap): this
+
 	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT>, ...params: PARAMS): this & COMPONENT
-	extend<T> (extension: T): this & T
+	extend<T> (extensionProvider: (component: this & T) => T): this & T
+	extendMagic<K extends keyof this, O extends this = this> (property: K, magic: (component: this) => { get (): O[K], set?(value: O[K]): void }): this
 
 	appendTo (destination: Component | Element): this
 	prependTo (destination: Component | Element): this
@@ -55,50 +70,105 @@ interface Component {
 	prepend (...contents: (Component | Node)[]): this
 
 	remove (): void
+
+	receiveAncestorInsertEvents (): this
 }
 
 export type EventsOf<COMPONENT extends Component> = COMPONENT["event"] extends EventManipulator<any, infer EVENTS> ? EVENTS : never
 
-function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
-	const element = document.createElement(type)
+enum Classes {
+	ReceiveAncestorInsertEvents = "_receieve-ancestor-insert-events"
+}
 
-	let component: Component = {
+function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
+	let component: Mutable<Component> = {
 		isComponent: true,
-		element,
+		element: document.createElement(type),
 		removed: State(false),
+		rooted: State(false),
+		replaceElement: (newElement) => {
+			if (typeof newElement === "string")
+				newElement = document.createElement(newElement)
+
+			const oldElement = component.element
+
+			if (component.element.parentNode)
+				component.element.replaceWith(newElement)
+
+			component.element = newElement
+			type = component.element.tagName as keyof HTMLElementTagNameMap
+			component.style.refresh()
+
+			if (oldElement.classList.contains(Classes.ReceiveAncestorInsertEvents))
+				newElement.classList.add(Classes.ReceiveAncestorInsertEvents)
+
+			return component
+		},
 		and (builder, ...params) {
 			component = builder.from(component, ...params)
 			return component as any
 		},
-		extend: extension => Object.assign(component, extension),
+		extend: extension => Object.assign(component, extension(component as never)),
+		extendMagic: (property, magic) => {
+			Define.magic(component, property, magic(component))
+			return component
+		},
 		remove (internal = false) {
 			component.removed.value = true
+			component.rooted.value = false
 
 			interface HTMLElementRemovable extends HTMLElement {
 				component?: Component & { remove (internal: boolean): void }
 			}
 
 			if (!internal)
-				for (const descendant of element.querySelectorAll<HTMLElementRemovable>("*"))
+				for (const descendant of component.element.querySelectorAll<HTMLElementRemovable>("*"))
 					descendant.component?.remove(true)
 
-			element.component = undefined
-			element.remove()
+			component.element.component = undefined
+			component.element.remove()
+
+			component.event.emit("unroot")
+			component.event.emit("remove")
 		},
 		appendTo (destination) {
-			Component.element(destination).append(element)
+			Component.element(destination).append(component.element)
+			updateRooted(component)
+			emitInsert(component)
 			return component
 		},
 		prependTo (destination) {
-			Component.element(destination).prepend(element)
+			Component.element(destination).prepend(component.element)
+			updateRooted(component)
+			emitInsert(component)
 			return component
 		},
 		append (...contents) {
-			component.element.append(...contents.map(Component.element))
+			const elements = contents.map(Component.element)
+			component.element.append(...elements)
+
+			for (const element of elements) {
+				const component = (element as Element).component
+				emitInsert(component)
+				updateRooted(component)
+			}
+
 			return component
 		},
 		prepend (...contents) {
-			component.element.prepend(...contents.map(Component.element))
+			const elements = contents.map(Component.element)
+			component.element.prepend(...elements)
+
+			for (const element of elements) {
+				const component = (element as Element).component
+				emitInsert(component)
+				updateRooted(component)
+			}
+
+			return component
+		},
+		receiveAncestorInsertEvents: () => {
+			component.element.classList.add(Classes.ReceiveAncestorInsertEvents)
 			return component
 		},
 		get style () {
@@ -132,14 +202,40 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 	if (!Component.is(component))
 		throw Errors.Impossible()
 
-	element.component = component
+	component.element.component = component
 	return component
 }
 
-namespace Component {
-	export interface SettingUp {
-	}
+function emitInsert (component: Component | undefined) {
+	if (!component)
+		return
 
+	component.event.emit("insert")
+	const descendantsListeningForEvent = component.element.getElementsByClassName(Classes.ReceiveAncestorInsertEvents)
+	for (const descendant of descendantsListeningForEvent)
+		descendant.component?.event.emit("ancestorInsert")
+}
+
+function updateRooted (component: Component | undefined) {
+	if (component) {
+		const rooted = document.documentElement.contains(component.element)
+		if (component.rooted.value === rooted)
+			return
+
+		component.rooted.value = rooted
+		component.event.emit(rooted ? "root" : "unroot")
+
+		for (const descendant of component.element.querySelectorAll<Element>("*")) {
+			const component = descendant.component
+			if (component) {
+				component.rooted.value = rooted
+				component.event.emit(rooted ? "root" : "unroot")
+			}
+		}
+	}
+}
+
+namespace Component {
 	export function is (value: unknown): value is Component {
 		return typeof value === "object" && !!(value as Component)?.isComponent
 	}

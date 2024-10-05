@@ -11,7 +11,7 @@ export default Component.Builder((component, service: AuthService) => {
 		.setChecked(authedAtStart)
 		.style("account-view-oauth-service")
 		.style.toggle(authedAtStart, "account-view-oauth-service--authenticated")
-		.style.var("colour", `#${service.colour.toString(16)}`)
+		.style.setVariable("colour", `#${service.colour.toString(16)}`)
 		.append(Component("img")
 			.style("account-view-oauth-service-icon")
 			.attributes.set("src", service.icon))

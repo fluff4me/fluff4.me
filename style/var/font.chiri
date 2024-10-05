@@ -32,8 +32,17 @@
 		google-font-format(700, "italic")
 		google-font-format(800, "italic")
 
+#google-font
+	family="Righteous
+	formats=[
+		google-font-format(400)
+
 #font
 	name="Open Sans"
 	vertical-align=-0.027
+
+#font
+	name="Righteous"
+	letter-spacing=0.03
 
 %font-open-sans

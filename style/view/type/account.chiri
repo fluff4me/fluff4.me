@@ -16,6 +16,9 @@
 		$button-background: hsl(from $colour h calc(s - 40) calc(l - 15))
 
 	&-container:
+		%block
+
+	&-list:
 		%flex
 		%flex-column
 		%gap-3

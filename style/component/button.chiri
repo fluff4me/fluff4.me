@@ -17,7 +17,8 @@ $$button-background-highlight!colour
 	#transition:
 		#{transition($$button-background)},
 		#{transition($$button-background-highlight)},
-		#{transition("translate")}
+		#{transition("translate")},
+		#{transition("box-shadow")}
 
 	::hover, ::focus:
 		$button-background: $dark-5

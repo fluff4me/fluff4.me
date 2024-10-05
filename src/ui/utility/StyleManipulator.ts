@@ -5,12 +5,14 @@ import type State from "utility/State"
 type ComponentName = keyof typeof style
 
 interface StyleManipulatorFunctions<HOST> {
+	remove (...names: ComponentName[]): HOST
 	toggle (enabled: boolean, ...names: ComponentName[]): HOST
 	bind (state: State<boolean>, ...names: ComponentName[]): HOST
+	refresh (): HOST
 
-	set (property: string, value: string | number): HOST
-	var (variable: string, value: string | number): HOST
-	remove (...properties: string[]): HOST
+	setProperty (property: string, value: string | number): HOST
+	setVariable (variable: string, value: string | number): HOST
+	removeProperties (...properties: string[]): HOST
 }
 
 interface StyleManipulatorFunction<HOST> {
@@ -32,6 +34,13 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 		}) as StyleManipulatorFunction<Component>,
 
 		{
+			remove (...names) {
+				for (const name of names)
+					styles.delete(name)
+
+				updateClasses(names)
+				return component
+			},
 			toggle (enabled, ...names) {
 				if (enabled)
 					for (const name of names)
@@ -56,16 +65,17 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 				})
 				return component
 			},
+			refresh: () => updateClasses(),
 
-			set (property, value) {
+			setProperty (property, value) {
 				component.element.style.setProperty(property, `${value}`)
 				return component
 			},
-			var (variable, value) {
+			setVariable (variable, value) {
 				component.element.style.setProperty(`--${variable}`, `${value}`)
 				return component
 			},
-			remove (...properties) {
+			removeProperties (...properties) {
 				for (const property of properties)
 					component.element.style.removeProperty(property)
 				return component

@@ -28,7 +28,6 @@ namespace FocusListener {
 			focused.component.focused.value = true
 
 		lastFocused = focused
-		console.log(focused)
 	}
 
 }
