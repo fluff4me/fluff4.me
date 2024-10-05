@@ -17,6 +17,7 @@
 
 	&-container:
 		%block
+		max-width: 550px;
 
 	&-list:
 		%flex
