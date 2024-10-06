@@ -184,7 +184,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return Define.set(component, "event", EventManipulator(component))
 		},
 		get text () {
-			return Define.set(component, "text", TextManipulator(component))
+			return Define.set(component, "text", TextManipulator(component, Component))
 		},
 		get hovered (): State<boolean> {
 			return Define.set(component, "hovered", State(false))
