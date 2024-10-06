@@ -9,8 +9,8 @@ export default Component.Builder(async component => {
 		.and(Block)
 		.style("account-view-oauth-service-container")
 
-	block.title.text.set("Log in or sign up")
-	block.description.text.set("fluff4.me does not store an email address or password for your account. You must authenticate with a third-party service to begin.")
+	block.title.text.use("view/account/auth/title")
+	block.description.text.use("view/account/auth/description")
 
 	const list = Component()
 		.style("account-view-oauth-service-list")
