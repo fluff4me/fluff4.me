@@ -2,7 +2,7 @@ import type { Quilt, Weave, Weft } from "lang/en-nz"
 import quilt from "lang/en-nz"
 import type Component from "ui/Component"
 
-type SimpleQuiltKey = keyof { [KEY in keyof Quilt as Parameters<Quilt[KEY]>["length"] extends 0 ? KEY : never]: true }
+export type SimpleQuiltKey = keyof { [KEY in keyof Quilt as Parameters<Quilt[KEY]>["length"] extends 0 ? KEY : never]: true }
 
 interface TextManipulator<HOST> {
 	set (text: string): HOST
@@ -49,10 +49,10 @@ function TextManipulator (component: Component, createComponent: () => Component
 
 		const component = document.createElement("span")
 
-		if (typeof weft.content === "string")
-			component.textContent = weft.content
-		else
+		if (Array.isArray(weft.content))
 			component.append(...weft.content.map(renderWeft))
+		else
+			component.textContent = `${weft.content}`
 
 		return component
 	}

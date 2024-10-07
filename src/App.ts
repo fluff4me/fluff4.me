@@ -1,18 +1,17 @@
 import Session from "model/Session"
+import Navigator from "navigation/Navigate"
 import style from "style"
 import Component from "ui/Component"
 import Sidebar from "ui/component/Sidebar"
 import UiEventBus from "ui/UiEventBus"
 import FocusListener from "ui/utility/FocusListener"
 import HoverListener from "ui/utility/HoverListener"
-import AccountView from "ui/view/AccountView"
-import DebugView from "ui/view/DebugView"
 import ViewContainer from "ui/ViewContainer"
 import Env from "utility/Env"
 import Store from "utility/Store"
-import URL from "utility/URL"
 
 interface AppExtensions {
+	navigate: Navigator
 	sidebar: Sidebar
 	view: ViewContainer
 }
@@ -75,10 +74,13 @@ async function App (): Promise<App> {
 	const app: App = Component()
 		.style("app")
 		.append(sidebar, view)
-		.extend<AppExtensions>(app => ({ sidebar, view }))
+		.extend<AppExtensions>(app => ({
+			sidebar, view,
+			navigate: Navigator(app),
+		}))
 		.appendTo(document.body)
 
-	await app.view.show(URL.path === "debug" ? DebugView : AccountView)
+	await app.navigate.fromURL()
 
 	Object.assign(window, { app })
 	return app

@@ -1,5 +1,9 @@
 .view:
 
+	&-container:
+
+	&--hidden:
+
 #macro view:
 	#string type
 	#body!component body

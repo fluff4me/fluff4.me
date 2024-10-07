@@ -1,5 +1,9 @@
 # view
 
+## error
+title: Error {CODE}
+description-404: Your adventure has come to a close, your questions left unanswered, your goals unfulfilled. What will you do?
+
 ## account
 
 ### auth
