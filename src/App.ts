@@ -1,5 +1,7 @@
 import Session from "model/Session"
 import style from "style"
+import Component from "ui/Component"
+import Sidebar from "ui/component/Sidebar"
 import UiEventBus from "ui/UiEventBus"
 import FocusListener from "ui/utility/FocusListener"
 import HoverListener from "ui/utility/HoverListener"
@@ -10,9 +12,12 @@ import Env from "utility/Env"
 import Store from "utility/Store"
 import URL from "utility/URL"
 
-interface App {
+interface AppExtensions {
+	sidebar: Sidebar
 	view: ViewContainer
 }
+
+interface App extends Component, AppExtensions { }
 
 async function App (): Promise<App> {
 
@@ -64,12 +69,14 @@ async function App (): Promise<App> {
 
 	document.body.classList.add(...style.body)
 
+	const sidebar = Sidebar()
 	const view = ViewContainer()
-		.appendTo(document.body)
 
-	const app: App = {
-		view,
-	}
+	const app: App = Component()
+		.style("app")
+		.append(sidebar, view)
+		.extend<AppExtensions>(app => ({ sidebar, view }))
+		.appendTo(document.body)
 
 	await app.view.show(URL.path === "debug" ? DebugView : AccountView)
 

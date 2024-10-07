@@ -1,0 +1,20 @@
+.sidebar:
+	width: calc($space-5 * 6)
+	%padding-4
+	%margin-right-4
+	%relative
+	%height-100
+	%box-sizing-border-box
+
+	@after:
+		%block
+		%absolute
+		%left-100
+		%top-5
+		%bottom-5
+		%border-left-1
+		%border-color-4
+		%box-shadow-right-inset-1
+		%width-1
+		%gradient-mask
+		$gradient-mask-height: $space-5

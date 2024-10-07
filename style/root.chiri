@@ -1,7 +1,11 @@
 colour-scheme: light dark
 overflow-x: hidden
-background: $background-2
+#string background-highlight = "color-mix(in lch, $background-2, #fff 5%)
+background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $background-2)
+position: absolute
+inset: 0
 colour: $colour-3
 
 .body:
 	%margin-0
+	%overflow-hidden
