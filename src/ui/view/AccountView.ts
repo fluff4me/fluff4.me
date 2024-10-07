@@ -3,10 +3,6 @@ import AccountViewOAuthServices from "ui/view/account/AccountViewOAuthServices"
 import View from "ui/view/View"
 import ViewDefinition from "ui/view/ViewDefinition"
 
-export enum AccountViewClasses {
-
-}
-
 export default ViewDefinition({
 	create: async () => {
 		const view = View("account")

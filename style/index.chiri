@@ -14,6 +14,7 @@
 	component/flag
 	component/sidebar
 	view/view
+	view/type/error
 	view/type/debug
 	view/type/account
 	app
