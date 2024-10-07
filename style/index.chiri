@@ -11,6 +11,9 @@
 	component/block
 	component/button
 	component/checkbutton
+	component/flag
+	component/sidebar
 	view/view
 	view/type/debug
 	view/type/account
+	app

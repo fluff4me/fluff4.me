@@ -1,0 +1,6 @@
+.app:
+	%fixed
+	%height-100
+	%width-100
+	%grid
+	grid-template-columns: auto 1fr

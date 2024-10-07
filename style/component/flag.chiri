@@ -1,0 +1,95 @@
+.flag:
+	%margin-auto
+	%background-none
+	%box-shadow-none
+	transform: rotate(-15deg)
+	$transition-duration: ${flag-transition-duration: $transition-blur}
+
+	#function scale returns string:
+		#dec value
+		#return "#{5 * (value / 100)}em
+
+	&-stripe:
+		$wave-amount-x: #{scale(0.5176373410345749)}
+		$wave-amount-y: #{scale(1.9318518533176023)}
+		%absolute
+		%top-0
+		%left-0
+		%height-100
+		background: hsl(from $stripe-background h s calc(l + ${stripe-background-l-mod: 0}))
+		clip-path: polygon(0 0, 0 calc(100% - #{scale(13)}), #{scale(23)} 100%, #{scale(23)} #{scale(13)})
+		$transition-duration: $flag-transition-duration
+		#transition: #{transition("background")}
+
+		&-blue: $stripe-background: $colour-blue
+		&-pink: $stripe-background: $colour-pink
+		&-white: $stripe-background: #fff
+
+		#for var i = 1, i <= 5, set i++:
+			&-#{i}:
+				$animation-delay: #{0.1 * (i - 1)}s
+
+		&-1:
+			left: #{scale(15)}
+			width: #{scale(11)}
+			top: -#{scale(9)}
+			height: #{scale(92)}
+
+		&-2:
+			left: #{scale(29)}
+			width: #{scale(9)}
+			top: #{scale(10)}
+			height: #{scale(92)}
+
+		&-3:
+			left: #{scale(42)}
+			width: #{scale(21)}
+			top: #{scale(8)}
+			height: #{scale(96)}
+
+		&-4:
+			left: #{scale(61)}
+			width: #{scale(14)}
+			top: #{scale(7)}
+			height: #{scale(90)}
+			z-index: 1
+
+		&-5:
+			left: #{scale(71)}
+			width: #{scale(15)}
+			top: #{scale(29)}
+			height: #{scale(80)}
+
+		$base-animation:
+			wave-start 0.4s ease-in-out $animation-delay,
+			wave 0.6s ease-in-out calc(0.4s + $animation-delay) infinite alternate-reverse
+
+		&--animate: animation: $base-animation
+		&--animate-end-0: animation: wave-end-0 0.4s ease-in-out
+		&--animate-end-1: animation: wave-end-1 0.4s ease-in-out
+
+		; #animation wave:
+		; 	from: transform: translateX($wave-amount-x) translateY(calc($wave-amount-y * -1))
+		; 	to: transform: translateX(calc($wave-amount-x * -1)) translateY($wave-amount-y)
+
+		; #animation wave-start:
+		; 	from: transform: none
+		; 	to: transform: translateX(calc($wave-amount-x * -1)) translateY($wave-amount-y)
+
+		; #animation wave-end-0:
+		; 	from: transform: translateX(calc($wave-amount-x * -1)) translateY($wave-amount-y)
+		; 	to: transform: none
+
+		; #animation wave-end-1:
+		; 	from: transform: translateX($wave-amount-x) translateY(calc($wave-amount-y * -1))
+		; 	to: transform: none
+
+	::hover, ::focus:
+		%translate-up-1
+		$transition-duration: $transition-focus
+		$stripe-background-l-mod: 5
+
+	::active:
+		%translate-y-0
+		$transition-duration: $transition-action
+		$stripe-background-l-mod: -5
