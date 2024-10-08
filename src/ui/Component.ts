@@ -50,6 +50,7 @@ interface Component {
 	readonly hovered: State<boolean>
 	readonly focused: State<boolean>
 	readonly hoveredOrFocused: State<boolean>
+	readonly active: State<boolean>
 	readonly rooted: State<boolean>
 	readonly removed: State<boolean>
 
@@ -196,6 +197,9 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return Define.set(component, "hoveredOrFocused",
 				State.Generator(() => component.hovered.value || component.focused.value)
 					.observe(component.hovered, component.focused))
+		},
+		get active (): State<boolean> {
+			return Define.set(component, "active", State(false))
 		},
 	}
 

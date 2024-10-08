@@ -1,13 +1,11 @@
 .flag:
-	%margin-auto
-	%background-none
-	%box-shadow-none
+	%size-em
 	transform: rotate(-15deg)
 	$transition-duration: ${flag-transition-duration: $transition-blur}
 
 	#function scale returns string:
 		#dec value
-		#return "#{5 * (value / 100)}em
+		#return "#{value / 100}em
 
 	&-stripe:
 		$wave-amount-x: #{scale(0.5176373410345749)}
@@ -84,13 +82,10 @@
 			from: transform: translateX($wave-amount-x) translateY(calc($wave-amount-y * -1))
 			to: transform: none
 
-	::hover, ::focus:
-		%translate-up-1
+	&--focused:
 		$transition-duration: $transition-focus
 		$stripe-background-l-mod: 5
-		%box-shadow-none
 
-	::active:
-		%translate-y-0
+	&--active:
 		$transition-duration: $transition-action
 		$stripe-background-l-mod: -5

@@ -2,6 +2,8 @@ import Session from "model/Session"
 import Navigator from "navigation/Navigate"
 import style from "style"
 import Component from "ui/Component"
+import Link from "ui/component/Link"
+import Masthead from "ui/component/Masthead"
 import Sidebar from "ui/component/Sidebar"
 import UiEventBus from "ui/UiEventBus"
 import FocusListener from "ui/utility/FocusListener"
@@ -68,17 +70,20 @@ async function App (): Promise<App> {
 
 	document.body.classList.add(...style.body)
 
+	const masthead = Masthead()
 	const sidebar = Sidebar()
 	const view = ViewContainer()
 
 	const app: App = Component()
 		.style("app")
-		.append(sidebar, view)
+		.append(masthead, sidebar, view)
 		.extend<AppExtensions>(app => ({
-			sidebar, view,
+			masthead, sidebar, view,
 			navigate: Navigator(app),
 		}))
 		.appendTo(document.body)
+
+	Link.setNavigator(app.navigate)
 
 	await app.navigate.fromURL()
 
