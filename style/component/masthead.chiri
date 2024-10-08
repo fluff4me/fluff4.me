@@ -1,0 +1,32 @@
+.masthead:
+	%background-dark-a30
+	%height-5
+	%grid
+	%align-content-centre
+	grid-area: masthead
+	grid-template-columns: auto 1fr
+	$border-colour: $background-3
+	box-shadow:
+		#{box-shadow-inset-border-bottom-1},
+		#{box-shadow-inset-bottom-1}
+
+	&-home:
+		%font-5
+		%size-fit
+		%flex
+		%gap-2
+		%padding-2-3
+		%background-none
+		%box-shadow-none
+
+		::hover, ::focus:
+			%box-shadow-none
+
+		@before, @after:
+			content: none
+
+		&-logo:
+
+			&-wordmark:
+				%no-pointer-events
+				%height-em

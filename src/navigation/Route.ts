@@ -6,15 +6,26 @@ interface RouteDefinition<PARAMS extends object> {
 	handler: RouteHandler<PARAMS>
 }
 
-interface Route<PARAMS extends object> extends RouteDefinition<PARAMS> {
-	path: string
+interface Route<PATH extends string, PARAMS extends object> extends RouteDefinition<PARAMS> {
+	path: PATH
 	match: (path: string) => PARAMS | undefined
 }
 
 export type ExtractData<PATH extends string[]> = PATH extends infer PATH2 ? { [INDEX in keyof PATH2 as PATH2[INDEX] extends `$$${infer VAR_NAME}` ? VAR_NAME : PATH2[INDEX] extends `$${infer VAR_NAME}` ? VAR_NAME : never]: string } : never
 export type SplitPath<PATH extends string> = PATH extends `${infer X}/${infer Y}` ? [X, ...SplitPath<Y>] : [PATH]
 
-function Route<PATH extends string, PARAMS extends ExtractData<SplitPath<PATH>>> (path: PATH, route: RouteHandler<PARAMS> | RouteDefinition<PARAMS>): Route<PARAMS> {
+type JoinPath<PATH extends string[]> = PATH extends [infer X extends string, ...infer Y extends string[]] ? Y["length"] extends 0 ? X : `${X}/${JoinPath<Y>}` : never
+
+export type RoutePathInput<PATH extends string> = SplitPath<PATH> extends infer SPLIT ?
+
+	{ [KEY in keyof SPLIT]: SPLIT[KEY] extends `$${string}` | `$$${string}` ? string : SPLIT[KEY] } extends infer SPLIT extends string[] ?
+
+	JoinPath<SPLIT>
+
+	: never
+	: never
+
+function Route<PATH extends `/${string}`, PARAMS extends ExtractData<SplitPath<PATH>>> (path: PATH, route: RouteHandler<PARAMS> | RouteDefinition<PARAMS>): Route<PATH, PARAMS> {
 	const segments = (path.startsWith("/") ? path.slice(1) : path).split("/")
 	const varGroups: string[] = []
 	let regexString = "^"

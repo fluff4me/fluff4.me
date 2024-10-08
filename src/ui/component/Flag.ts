@@ -1,8 +1,13 @@
 import Component from "ui/Component"
-import Button from "ui/component/Button"
 import Arrays from "utility/Arrays"
 
-export default Component.Builder(component => {
+interface FlagExtensions {
+	wave (reason: string, enabled: boolean): void
+}
+
+interface Flag extends Component, FlagExtensions { }
+
+const Flag = Component.Builder((component): Flag => {
 	const stripes = Arrays.range(5)
 		.map(i => Component()
 			.style("flag-stripe", `flag-stripe-${FLAG_STRIPE_COLOURS[i]}`, `flag-stripe-${i + 1 as 1}`))
@@ -48,10 +53,14 @@ export default Component.Builder(component => {
 	}
 
 	return component
-		.and(Button)
 		.style("flag")
 		.append(...stripes)
+		.extend<FlagExtensions>(flag => ({
+			wave: toggle,
+		}))
 })
+
+export default Flag
 
 const FLAG_STRIPE_COLOURS = [
 	"blue" as const,
