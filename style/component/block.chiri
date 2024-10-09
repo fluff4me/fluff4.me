@@ -10,6 +10,18 @@
 	#string background-highlight = "color-mix(in lch, #{background-colour}, #fff2 50%)
 	background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, #{background-colour})
 
+	@view-transition!old:
+		#animate .3s ease-out forwards:
+			to:
+				translate: 0 $space-5
+				opacity: 0
+
+	@view-transition!new:
+		#animate .5s ease-out:
+			from:
+				translate: 0 $space-4
+				opacity: 0
+
 	&-header:
 		%block
 		%border-bottom-1

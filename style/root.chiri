@@ -5,6 +5,7 @@ background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}
 position: absolute
 inset: 0
 colour: $colour-3
+view-transition-name: unset
 
 .body:
 	%margin-0

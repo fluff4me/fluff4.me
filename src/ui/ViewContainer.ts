@@ -13,11 +13,24 @@ const ViewContainer = (): ViewContainer => Component()
 	.style("view-container")
 	.extend<ViewContainerExtensions>(container => ({
 		view: undefined,
-		show: async (definition, params) => {
-			void container.view?.hide()
-			const view = await definition.create(params)
-			view.appendTo(container)
+		show: async <VIEW extends View, PARAMS extends object> (definition: ViewDefinition<VIEW, PARAMS>, params: PARAMS) => {
+			let view!: VIEW
+
+			if (container.view) {
+				const transition = document.startViewTransition(swap)
+				await transition.updateCallbackDone
+			} else {
+				await swap()
+			}
+
 			return view
+
+			async function swap () {
+				container.view?.remove()
+				view = await definition.create(params)
+				view.appendTo(container)
+				container.view = view
+			}
 		},
 	}))
 
