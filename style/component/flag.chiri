@@ -58,29 +58,23 @@
 			top: #{scale(29)}
 			height: #{scale(80)}
 
-		$base-animation:
-			wave-start 0.4s ease-in-out $animation-delay,
-			wave 0.6s ease-in-out calc(0.4s + $animation-delay) infinite alternate-reverse
+		&--animate:
+			#animate 0.4s ease-in-out $animation-delay:
+				from: transform: none
+				to: transform: translateX(calc($wave-amount-x * -1)) translateY($wave-amount-y)
+			#animate 0.6s ease-in-out calc(0.4s + $animation-delay) infinite alternate-reverse:
+				from: transform: translateX($wave-amount-x) translateY(calc($wave-amount-y * -1))
+				to: transform: translateX(calc($wave-amount-x * -1)) translateY($wave-amount-y)
 
-		&--animate: animation: $base-animation
-		&--animate-end-0: animation: wave-end-0 0.4s ease-in-out
-		&--animate-end-1: animation: wave-end-1 0.4s ease-in-out
+		&--animate-end-0:
+			#animate 0.4s ease-in-out:
+				from: transform: translateX(calc($wave-amount-x * -1)) translateY($wave-amount-y)
+				to: transform: none
 
-		#animation wave:
-			from: transform: translateX($wave-amount-x) translateY(calc($wave-amount-y * -1))
-			to: transform: translateX(calc($wave-amount-x * -1)) translateY($wave-amount-y)
-
-		#animation wave-start:
-			from: transform: none
-			to: transform: translateX(calc($wave-amount-x * -1)) translateY($wave-amount-y)
-
-		#animation wave-end-0:
-			from: transform: translateX(calc($wave-amount-x * -1)) translateY($wave-amount-y)
-			to: transform: none
-
-		#animation wave-end-1:
-			from: transform: translateX($wave-amount-x) translateY(calc($wave-amount-y * -1))
-			to: transform: none
+		&--animate-end-1:
+			#animate 0.4s ease-in-out:
+				from: transform: translateX($wave-amount-x) translateY(calc($wave-amount-y * -1))
+				to: transform: none
 
 	&--focused:
 		$transition-duration: $transition-focus
