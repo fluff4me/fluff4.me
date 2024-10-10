@@ -3,6 +3,7 @@
 #import:
 	var/colour
 	var/font
+	var/font/font-awesome
 
 #import:
 	root

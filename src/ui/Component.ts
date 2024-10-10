@@ -3,6 +3,7 @@ import ClassManipulator from "ui/utility/ClassManipulator"
 import type { NativeEvents } from "ui/utility/EventManipulator"
 import EventManipulator from "ui/utility/EventManipulator"
 import StyleManipulator from "ui/utility/StyleManipulator"
+import type { QuiltHandler, SimpleQuiltKey } from "ui/utility/TextManipulator"
 import TextManipulator from "ui/utility/TextManipulator"
 import Define from "utility/Define"
 import Errors from "utility/Errors"
@@ -73,6 +74,8 @@ interface Component {
 	remove (): void
 
 	receiveAncestorInsertEvents (): this
+
+	ariaLabel (keyOrHandler: SimpleQuiltKey | QuiltHandler): this
 }
 
 export type EventsOf<COMPONENT extends Component> = COMPONENT["event"] extends EventManipulator<any, infer EVENTS> ? EVENTS : never
@@ -114,6 +117,37 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			Define.magic(component, property, magic(component))
 			return component
 		},
+
+		get style () {
+			return Define.set(component, "style", StyleManipulator(component))
+		},
+		get classes () {
+			return Define.set(component, "classes", ClassManipulator(component))
+		},
+		get attributes () {
+			return Define.set(component, "attributes", AttributeManipulator(component))
+		},
+		get event () {
+			return Define.set(component, "event", EventManipulator(component))
+		},
+		get text () {
+			return Define.set(component, "text", TextManipulator(component))
+		},
+		get hovered (): State<boolean> {
+			return Define.set(component, "hovered", State(false))
+		},
+		get focused (): State<boolean> {
+			return Define.set(component, "focused", State(false))
+		},
+		get hoveredOrFocused (): State<boolean> {
+			return Define.set(component, "hoveredOrFocused",
+				State.Generator(() => component.hovered.value || component.focused.value)
+					.observe(component.hovered, component.focused))
+		},
+		get active (): State<boolean> {
+			return Define.set(component, "active", State(false))
+		},
+
 		remove (internal = false) {
 			component.removed.value = true
 			component.rooted.value = false
@@ -168,39 +202,13 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 			return component
 		},
+
 		receiveAncestorInsertEvents: () => {
 			component.element.classList.add(Classes.ReceiveAncestorInsertEvents)
 			return component
 		},
-		get style () {
-			return Define.set(component, "style", StyleManipulator(component))
-		},
-		get classes () {
-			return Define.set(component, "classes", ClassManipulator(component))
-		},
-		get attributes () {
-			return Define.set(component, "attributes", AttributeManipulator(component))
-		},
-		get event () {
-			return Define.set(component, "event", EventManipulator(component))
-		},
-		get text () {
-			return Define.set(component, "text", TextManipulator(component, Component))
-		},
-		get hovered (): State<boolean> {
-			return Define.set(component, "hovered", State(false))
-		},
-		get focused (): State<boolean> {
-			return Define.set(component, "focused", State(false))
-		},
-		get hoveredOrFocused (): State<boolean> {
-			return Define.set(component, "hoveredOrFocused",
-				State.Generator(() => component.hovered.value || component.focused.value)
-					.observe(component.hovered, component.focused))
-		},
-		get active (): State<boolean> {
-			return Define.set(component, "active", State(false))
-		},
+
+		ariaLabel: (keyOrHandler) => component.attributes.use("aria-label", keyOrHandler),
 	}
 
 	if (!Component.is(component))
@@ -269,7 +277,7 @@ namespace Component {
 		builder ??= initialOrBuilder as AnyFunction
 
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-		const realBuilder = (component = initialBuilder(type), ...params: any[]) => builder!(component, ...params)
+		const realBuilder = (component = initialBuilder(type), ...params: any[]) => builder(component, ...params)
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		const simpleBuilder = (...params: any[]) => realBuilder(undefined, ...params)
 

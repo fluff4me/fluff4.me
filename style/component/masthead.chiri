@@ -4,7 +4,7 @@
 	%grid
 	%align-content-centre
 	grid-area: masthead
-	grid-template-columns: auto 1fr
+	grid-template-columns: auto 1fr auto
 	$border-colour: $background-3
 	box-shadow:
 		#{box-shadow-inset-border-bottom-1},
@@ -30,3 +30,17 @@
 			&-wordmark:
 				%no-pointer-events
 				%height-em
+
+	&-search:
+
+	&-user:
+		%flex
+		%align-content-centre
+		%padding-right-2
+		%margin-right-1
+
+		&-notifications:
+			#icon name="bell
+
+		&-profile:
+			#icon name="circle-user

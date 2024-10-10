@@ -37,12 +37,12 @@
 	formats=[
 		google-font-format(400)
 
-#font
-	name="Open Sans"
+#font-family
+	name="Open Sans
 	vertical-align=-0.027
 
-#font
-	name="Righteous"
+#font-family
+	name="Righteous
 	letter-spacing=0.03
 
 %font-open-sans
