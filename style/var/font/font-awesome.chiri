@@ -8,6 +8,7 @@
 
 #font-family
 	name="Font Awesome
+	scale-factor=0.8
 
 #macro icon:
 	#string name
@@ -2501,10 +2502,10 @@
 	%box-shadow-none
 	%padding-2-3
 	%font-4
+	%font-font-awesome
 	::hover, ::focus:
 		%box-shadow-none
 
 	@before:
 		content: "#{icons[name]}"
-		font-family: "Font Awesome"
 

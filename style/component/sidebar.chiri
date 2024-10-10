@@ -6,6 +6,12 @@
 	%relative
 	%height-100
 	%box-sizing-border-box
+	%transparent
+	%translate
+	$translate-x: -100%
+	#transition:
+		#{transition("opacity")},
+		#{transition("translate")}
 
 	@after:
 		%block
@@ -19,3 +25,7 @@
 		%width-1
 		%gradient-mask
 		$gradient-mask-height: $space-5
+
+	&--visible:
+		$translate-x: 0%
+		%opaque

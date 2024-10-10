@@ -3,6 +3,8 @@ import Button from "ui/component/Button"
 import Heading from "ui/component/Heading"
 import Link from "ui/component/Link"
 import Flag from "ui/component/masthead/Flag"
+import type Sidebar from "ui/component/Sidebar"
+import type ViewContainer from "ui/ViewContainer"
 import Env from "utility/Env"
 
 interface MastheadExtensions {
@@ -11,8 +13,22 @@ interface MastheadExtensions {
 
 interface Masthead extends Component, MastheadExtensions { }
 
-const Masthead = Component.Builder("nav", masthead => {
+const Masthead = Component.Builder("nav", (masthead, sidebar: Sidebar, view: ViewContainer) => {
 	masthead.style("masthead")
+
+	Button()
+		.style("masthead-skip-nav")
+		.text.use("masthead/skip-navigation")
+		.event.subscribe("click", view.focus)
+		.appendTo(masthead)
+
+	const left = Component()
+		.append(Button()
+			.style("masthead-left-hamburger")
+			.ariaLabel("masthead/hamburger/alt")
+			.event.subscribe("click", sidebar.toggle))
+		.style("masthead-left")
+		.appendTo(masthead)
 
 	const flag = Flag()
 		.style("masthead-home-logo")
@@ -26,7 +42,7 @@ const Masthead = Component.Builder("nav", masthead => {
 			.append(Component("img")
 				.style("masthead-home-logo-wordmark")
 				.attributes.set("src", `${Env.URL_ORIGIN}image/logo-wordmark.svg`)))
-		.appendTo(masthead)
+		.appendTo(left)
 
 	flag.style.bind(homeLink.hoveredOrFocused, "flag--focused")
 	flag.style.bind(homeLink.active, "flag--active")

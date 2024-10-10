@@ -11,6 +11,8 @@ interface ViewContainer extends Component, ViewContainerExtensions { }
 
 const ViewContainer = (): ViewContainer => Component()
 	.style("view-container")
+	.tabIndex("programmatic")
+	.ariaLabel("view/container/alt")
 	.extend<ViewContainerExtensions>(container => ({
 		view: undefined,
 		show: async <VIEW extends View, PARAMS extends object> (definition: ViewDefinition<VIEW, PARAMS>, params: PARAMS) => {

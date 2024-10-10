@@ -6,6 +6,7 @@ type ComponentName = keyof typeof style
 
 interface StyleManipulatorFunctions<HOST> {
 	remove (...names: ComponentName[]): HOST
+	toggle (...names: ComponentName[]): HOST
 	toggle (enabled: boolean, ...names: ComponentName[]): HOST
 	bind (state: State<boolean>, ...names: ComponentName[]): HOST
 	refresh (): HOST
