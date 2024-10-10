@@ -13,11 +13,11 @@ interface SidebarExtensions {
 
 interface Sidebar extends Component, SidebarExtensions { }
 
-const Sidebar = Component.Builder("aside", (component): Sidebar => {
-	component.style("sidebar")
+const Sidebar = Component.Builder("aside", (sidebar): Sidebar => {
+	sidebar.style("sidebar")
 
 	updateSidebarVisibility()
-	return component.extend<SidebarExtensions>(sidebar => ({
+	return sidebar.extend<SidebarExtensions>(sidebar => ({
 		toggle: () => {
 			Store.items.sidebar = !Store.items.sidebar
 			updateSidebarVisibility()
@@ -26,7 +26,7 @@ const Sidebar = Component.Builder("aside", (component): Sidebar => {
 	}))
 
 	function updateSidebarVisibility () {
-		component.style.toggle(!!Store.items.sidebar, "sidebar--visible")
+		sidebar.style.toggle(!!Store.items.sidebar, "sidebar--visible")
 	}
 })
 

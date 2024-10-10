@@ -50,6 +50,7 @@ interface Component {
 
 	readonly hovered: State<boolean>
 	readonly focused: State<boolean>
+	readonly hasFocused: State<boolean>
 	readonly hoveredOrFocused: State<boolean>
 	readonly active: State<boolean>
 	readonly rooted: State<boolean>
@@ -71,11 +72,14 @@ interface Component {
 	append (...contents: (Component | Node)[]): this
 	prepend (...contents: (Component | Node)[]): this
 
+	getAncestorComponents (): Generator<Component>
+
 	remove (): void
 
 	receiveAncestorInsertEvents (): this
 
 	ariaLabel (keyOrHandler: SimpleQuiltKey | QuiltHandler): this
+	ariaHidden (): this
 
 	tabIndex (index?: "programmatic" | "auto" | number): this
 	focus (): this
@@ -143,6 +147,9 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		get focused (): State<boolean> {
 			return Define.set(component, "focused", State(false))
 		},
+		get hasFocused (): State<boolean> {
+			return Define.set(component, "hasFocused", State(false))
+		},
 		get hoveredOrFocused (): State<boolean> {
 			return Define.set(component, "hoveredOrFocused",
 				State.Generator(() => component.hovered.value || component.focused.value)
@@ -207,12 +214,23 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 
+		*getAncestorComponents () {
+			let cursor: HTMLElement | null = component.element
+			while (cursor) {
+				cursor = cursor.parentElement
+				const component = cursor?.component
+				if (component)
+					yield component
+			}
+		},
+
 		receiveAncestorInsertEvents: () => {
 			component.element.classList.add(Classes.ReceiveAncestorInsertEvents)
 			return component
 		},
 
 		ariaLabel: (keyOrHandler) => component.attributes.use("aria-label", keyOrHandler),
+		ariaHidden: () => component.attributes.set("aria-hidden", "true"),
 
 		tabIndex: (index) => {
 			if (index === undefined)

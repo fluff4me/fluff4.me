@@ -1,7 +1,10 @@
 import type Component from "ui/Component"
+import State from "utility/State"
 
 namespace FocusListener {
 	let lastFocused: Element | undefined
+
+	export const hasFocus = State<boolean>(false)
 
 	export function focused (): Element | undefined {
 		return lastFocused
@@ -21,13 +24,31 @@ namespace FocusListener {
 		if (focused === lastFocused)
 			return
 
-		if (lastFocused?.component?.focused.listening)
-			lastFocused.component.focused.value = false
+		const lastFocusedComponent = lastFocused?.component
+		if (lastFocusedComponent?.focused.listening)
+			lastFocusedComponent.focused.value = false
 
-		if (focused?.component?.focused.listening)
-			focused.component.focused.value = true
+		const oldAncestors = !lastFocusedComponent ? undefined : [...lastFocusedComponent.getAncestorComponents()]
+
+		const focusedComponent = focused?.component
+		if (focusedComponent?.focused.listening)
+			focusedComponent.focused.value = true
+
+		const newAncestors = !focusedComponent ? undefined : [...focusedComponent.getAncestorComponents()]
+
+		if (oldAncestors)
+			for (const ancestor of oldAncestors)
+				if (!newAncestors?.includes(ancestor))
+					if (ancestor.hasFocused.listening)
+						ancestor.hasFocused.value = false
+
+		if (newAncestors)
+			for (const ancestor of newAncestors)
+				if (ancestor.hasFocused.listening)
+					ancestor.hasFocused.value = true
 
 		lastFocused = focused
+		hasFocus.value = !!focused
 	}
 
 }
