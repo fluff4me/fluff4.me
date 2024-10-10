@@ -25,10 +25,13 @@ const Masthead = Component.Builder("nav", (masthead, sidebar: Sidebar, view: Vie
 	const left = Component()
 		.append(Button()
 			.style("masthead-left-hamburger")
-			.ariaLabel("masthead/hamburger/alt")
+			.tabIndex("programmatic")
+			.ariaHidden()
 			.event.subscribe("click", sidebar.toggle))
 		.style("masthead-left")
 		.appendTo(masthead)
+
+	sidebar.style.bind(masthead.hasFocused, "sidebar--visible-due-to-keyboard-navigation")
 
 	const flag = Flag()
 		.style("masthead-home-logo")

@@ -30,6 +30,10 @@
 		$translate-x: 0%
 		%opaque
 
+	&--visible-due-to-keyboard-navigation:
+		$translate-x: 0%
+		%opaque
+
 	::focus:
 		$translate-x: 0%
 		%opaque
