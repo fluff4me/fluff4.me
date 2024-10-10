@@ -70,9 +70,9 @@ async function App (): Promise<App> {
 
 	document.body.classList.add(...style.body)
 
-	const masthead = Masthead()
 	const sidebar = Sidebar()
 	const view = ViewContainer()
+	const masthead = Masthead(sidebar, view)
 
 	const app: App = Component()
 		.style("app")

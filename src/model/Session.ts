@@ -4,6 +4,13 @@ import EndpointSessionGet from "utility/endpoint/session/EndpointSessionGet"
 import popup from "utility/Popup"
 import Store from "utility/Store"
 
+declare module "utility/Store" {
+	interface ILocalStorage {
+		stateToken: string
+		sessionAuthServices: Authorisation[]
+	}
+}
+
 namespace Session {
 	export async function refresh () {
 		const session = await EndpointSessionGet.query()

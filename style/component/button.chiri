@@ -14,11 +14,12 @@ $$button-background-highlight!colour
 	$button-background: $background-interact-4
 	$button-background-highlight: hsl(from $button-background h s calc(l + 8))
 	background: radial-gradient(ellipse at left 20% top 20%, $button-background-highlight, $button-background)
-	#transition:
+	$button-transition:
 		#{transition($$button-background)},
 		#{transition($$button-background-highlight)},
 		#{transition("translate")},
 		#{transition("box-shadow")}
+	#transition: $button-transition
 
 	::hover, ::focus:
 		$button-background: $background-interact-5

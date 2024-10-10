@@ -76,6 +76,10 @@ interface Component {
 	receiveAncestorInsertEvents (): this
 
 	ariaLabel (keyOrHandler: SimpleQuiltKey | QuiltHandler): this
+
+	tabIndex (index?: "programmatic" | "auto" | number): this
+	focus (): this
+	blur (): this
 }
 
 export type EventsOf<COMPONENT extends Component> = COMPONENT["event"] extends EventManipulator<any, infer EVENTS> ? EVENTS : never
@@ -209,6 +213,27 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 
 		ariaLabel: (keyOrHandler) => component.attributes.use("aria-label", keyOrHandler),
+
+		tabIndex: (index) => {
+			if (index === undefined)
+				component.element.removeAttribute("tabindex")
+			else if (index === "programmatic")
+				component.element.setAttribute("tabindex", "-1")
+			else if (index === "auto")
+				component.element.setAttribute("tabindex", "0")
+			else
+				component.element.setAttribute("tabindex", `${index}`)
+
+			return component
+		},
+		focus: () => {
+			component.element.focus()
+			return component
+		},
+		blur: () => {
+			component.element.blur()
+			return component
+		},
 	}
 
 	if (!Component.is(component))

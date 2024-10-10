@@ -10,6 +10,30 @@
 		#{box-shadow-inset-border-bottom-1},
 		#{box-shadow-inset-bottom-1}
 
+	&-skip-nav:
+		%no-pointer-events
+		%transparent
+		%column-1
+		%row-1
+		%z-index-fg
+		$transitions:
+			#{transition("opacity")},
+			$button-transition
+
+		::hover, ::focus:
+			%opaque
+			%pointer-events
+
+	&-left:
+		%flex
+		%padding-left-2
+		%margin-left-1
+		%column-1
+		%row-1
+
+		&-hamburger:
+			#icon name="bars
+
 	&-home:
 		%font-5
 		%size-fit

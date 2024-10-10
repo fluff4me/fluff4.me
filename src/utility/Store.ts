@@ -1,17 +1,14 @@
-import type { Authorisation } from "api.fluff4.me"
 import { EventManager } from "utility/EventManager"
 
 export interface ILocalStorage {
-	stateToken: string
-	sessionAuthServices?: Authorisation[]
-	databases?: IDBDatabaseInfo[]
+	databases: IDBDatabaseInfo[]
 }
 
 export type IStoreEvents =
 	& { [KEY in keyof ILocalStorage as `set${Capitalize<KEY>}`]: { value: ILocalStorage[KEY]; oldValue: ILocalStorage[KEY] } }
 	& { [KEY in keyof ILocalStorage as `delete${Capitalize<KEY>}`]: { oldValue: ILocalStorage[KEY] } }
 
-let storage: ILocalStorage | undefined
+let storage: Partial<ILocalStorage> | undefined
 
 export default class Store {
 
@@ -32,7 +29,7 @@ export default class Store {
 			deleteProperty (_, key) {
 				return Store.delete(key as string)
 			},
-		}) as any as ILocalStorage
+		}) as any as Partial<ILocalStorage>
 	}
 
 	public static get full () {
