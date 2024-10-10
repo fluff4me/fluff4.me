@@ -29,3 +29,7 @@
 	&--visible:
 		$translate-x: 0%
 		%opaque
+
+	::focus:
+		$translate-x: 0%
+		%opaque
