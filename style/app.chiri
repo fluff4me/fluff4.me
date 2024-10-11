@@ -4,10 +4,11 @@
 	%width-100
 	%grid
 	grid-template-areas:
-		"masthead masthead"
-		"sidebar content"
+		"masthead masthead masthead masthead masthead"
+		". sidebar content related ."
 	grid-template-rows:
 		auto
 		1fr
 	grid-template-columns:
-		auto 1fr
+		#int w = 300
+		1fr #{w}px calc(1920px - #{w}px * 2) #{w}px 1fr
