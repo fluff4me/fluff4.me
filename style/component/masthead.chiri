@@ -4,7 +4,8 @@
 	%grid
 	%align-content-centre
 	grid-area: masthead
-	grid-template-columns: auto 1fr auto
+	grid-template-columns: subgrid
+	grid-template-areas: ". left mid right ."
 	$border-colour: $background-3
 	box-shadow:
 		#{box-shadow-inset-border-bottom-1},
@@ -13,8 +14,7 @@
 	&-skip-nav:
 		%no-pointer-events
 		%transparent
-		%column-1
-		%row-1
+		grid-area: left
 		%z-index-fg
 		$transitions:
 			#{transition("opacity")},
@@ -28,8 +28,7 @@
 		%flex
 		%padding-left-2
 		%margin-left-1
-		%column-1
-		%row-1
+		grid-area: left
 
 		&-hamburger:
 			#icon name="bars
@@ -56,12 +55,15 @@
 				%height-em
 
 	&-search:
+		grid-area: mid
 
 	&-user:
 		%flex
 		%align-content-centre
 		%padding-right-2
 		%margin-right-1
+		%justify-content-end
+		grid-area: right
 
 		&-notifications:
 			#icon name="bell
