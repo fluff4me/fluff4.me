@@ -1,4 +1,5 @@
 import Component from "ui/Component"
+import ViewTransition from "ui/view/component/ViewTransition"
 import type View from "ui/view/View"
 import type ViewDefinition from "ui/view/ViewDefinition"
 
@@ -19,6 +20,7 @@ const ViewContainer = (): ViewContainer => Component()
 			let view!: VIEW
 
 			if (container.view) {
+				ViewTransition.reapply()
 				const transition = document.startViewTransition(swap)
 				await transition.updateCallbackDone
 			} else {
@@ -32,6 +34,7 @@ const ViewContainer = (): ViewContainer => Component()
 				view = await definition.create(params)
 				view.appendTo(container)
 				container.view = view
+				ViewTransition.reapply()
 			}
 		},
 	}))

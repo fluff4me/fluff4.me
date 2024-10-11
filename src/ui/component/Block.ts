@@ -1,6 +1,7 @@
 import Component from "ui/Component"
 import Heading from "ui/component/Heading"
 import Paragraph from "ui/component/Paragraph"
+import ViewTransition from "ui/view/component/ViewTransition"
 import Define from "utility/Define"
 
 interface BlockExtensions {
@@ -13,6 +14,7 @@ interface Block extends Component, BlockExtensions { }
 
 const Block = Component.Builder((component): Block => {
 	return component
+		.and(ViewTransition.Has)
 		.style("block")
 		.extend<BlockExtensions>(() => ({
 			title: undefined!,

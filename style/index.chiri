@@ -18,6 +18,7 @@
 	component/masthead
 	component/sidebar
 	view/view
+	view/transition
 	view/type/error
 	view/type/debug
 	view/type/account

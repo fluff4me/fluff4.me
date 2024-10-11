@@ -13,7 +13,7 @@ function ClassManipulator (component: Component): ClassManipulator<Component> {
 			return component
 		},
 		remove (...classes) {
-			component.element.classList.add(...classes)
+			component.element.classList.remove(...classes)
 			return component
 		},
 		toggle (present, ...classes) {
