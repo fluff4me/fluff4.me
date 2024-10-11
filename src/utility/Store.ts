@@ -1,4 +1,5 @@
 import { EventManager } from "utility/EventManager"
+import State from "utility/State"
 
 export interface ILocalStorage {
 	databases: IDBDatabaseInfo[]
@@ -9,6 +10,10 @@ export type IStoreEvents =
 	& { [KEY in keyof ILocalStorage as `delete${Capitalize<KEY>}`]: { oldValue: ILocalStorage[KEY] } }
 
 let storage: Partial<ILocalStorage> | undefined
+
+type States = { [KEY in keyof ILocalStorage]: State<ILocalStorage[KEY] | undefined> }
+let statesProxy: States | undefined
+let states: Partial<States> | undefined
 
 export default class Store {
 
@@ -30,6 +35,18 @@ export default class Store {
 				return Store.delete(key as string)
 			},
 		}) as any as Partial<ILocalStorage>
+	}
+
+	public static get state () {
+		const s = states ??= {}
+		return statesProxy ??= new Proxy({}, {
+			has (_, key) {
+				return Store.has(key as string)
+			},
+			get (_, key: keyof ILocalStorage) {
+				return s[key] ??= State(Store.get(key)) as never
+			},
+		}) as any as States
 	}
 
 	public static get full () {
@@ -62,7 +79,11 @@ export default class Store {
 		else
 			localStorage.setItem(key, JSON.stringify(value))
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		Store.event.emit(`set${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { value, oldValue })
+		Store.event.emit(`set${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { value, oldValue } as never)
+		const state = states?.[key as keyof ILocalStorage]
+		if (state)
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			state.value = value
 		return true
 	}
 
@@ -70,7 +91,11 @@ export default class Store {
 		const oldValue = Store.get(key)
 		localStorage.removeItem(key)
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		Store.event.emit(`delete${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { oldValue })
+		Store.event.emit(`delete${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { oldValue } as never)
+		const state = states?.[key as keyof ILocalStorage]
+		if (state)
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			state.value = undefined
 		return true
 	}
 }

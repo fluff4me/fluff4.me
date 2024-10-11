@@ -1,11 +1,16 @@
 import type App from "App"
+import type { RoutePath } from "navigation/Routes"
 import Routes from "navigation/Routes"
 import ErrorView from "ui/view/ErrorView"
 import Env from "utility/Env"
 
+declare global {
+	export const navigate: Navigator
+}
+
 interface Navigator {
 	fromURL (): Promise<void>
-	toURL (route: string): Promise<void>
+	toURL (route: RoutePath): Promise<void>
 }
 
 function Navigator (app: App): Navigator {
@@ -33,6 +38,8 @@ function Navigator (app: App): Navigator {
 
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises
 	window.addEventListener("popstate", navigate.fromURL)
+
+	Object.assign(window, { navigate })
 
 	return navigate
 }

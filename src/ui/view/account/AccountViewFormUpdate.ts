@@ -5,8 +5,8 @@ import Form from "ui/component/Form"
 export default Component.Builder(component => {
 	const block = component.and(Block).and(Form)
 
-	block.title.text.use("view/account/create/title")
-	// block.description.text.use("view/account/create/description")
+	block.title.text.use("view/account/update/title")
+	// block.description.text.use("view/account/update/description")
 
 	Form()
 		.appendTo(block)

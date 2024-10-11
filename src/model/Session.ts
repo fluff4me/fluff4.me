@@ -2,6 +2,7 @@ import type { Authorisation, AuthService } from "api.fluff4.me"
 import EndpointAuthRemove from "utility/endpoint/auth/EndpointAuthRemove"
 import EndpointSessionGet from "utility/endpoint/session/EndpointSessionGet"
 import popup from "utility/Popup"
+import State from "utility/State"
 import Store from "utility/Store"
 
 declare module "utility/Store" {
@@ -19,6 +20,7 @@ namespace Session {
 			Store.items.stateToken = stateToken
 
 		Store.items.sessionAuthServices = session?.data?.authorisations ?? undefined
+		Auth.state.value = session.data?.authorisations ? "has-authorisations" : "none"
 	}
 
 	export function getStateToken () {
@@ -26,6 +28,13 @@ namespace Session {
 	}
 
 	export namespace Auth {
+		export type State =
+			| "none"
+			| "has-authorisations"
+			| "logged-in"
+
+		export const state = State<State>("none")
+
 		export function getAll () {
 			return Store.items.sessionAuthServices ?? []
 		}

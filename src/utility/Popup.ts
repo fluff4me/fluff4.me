@@ -2,7 +2,7 @@ import Store from "utility/Store"
 
 declare module "utility/Store" {
 	interface ILocalStorage {
-		popupError?: PopupError
+		popupError: PopupError
 	}
 }
 

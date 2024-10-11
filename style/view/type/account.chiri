@@ -78,3 +78,5 @@
 				box-shadow: $box-shadow
 
 	&--authenticated:
+
+.account-view-form-create:

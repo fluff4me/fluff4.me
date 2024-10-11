@@ -62,7 +62,8 @@ const Masthead = Component.Builder("nav", (masthead, sidebar: Sidebar, view: Vie
 			.ariaLabel("masthead/user/notifications/alt"))
 		.append(Button()
 			.style("masthead-user-profile")
-			.ariaLabel("masthead/user/profile/alt"))
+			.ariaLabel("masthead/user/profile/alt")
+			.event.subscribe("click", () => navigate.toURL("/account")))
 		.appendTo(masthead)
 
 	return masthead.extend<MastheadExtensions>(masthead => ({}))

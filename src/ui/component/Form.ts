@@ -1,14 +1,6 @@
 import Component from "ui/Component"
 
-export enum FormClasses {
-	Main = "form",
-	Header = "form-header",
-	Content = "form-content",
-	Footer = "form-footer",
-}
-
 interface FormExtensions {
-	header: Component
 	content: Component
 	footer: Component
 }
@@ -16,19 +8,17 @@ interface FormExtensions {
 interface Form extends Component, FormExtensions { }
 
 const Form = Component.Builder((container): Form => {
-	const header = Component()
-		.classes.add(FormClasses.Header)
+	container.style("form")
 
 	const content = Component()
-		.classes.add(FormClasses.Content)
+		.style("form-content")
 
 	const footer = Component()
-		.classes.add(FormClasses.Footer)
+		.style("form-footer")
 
 	return container
-		.classes.add(FormClasses.Main)
-		.append(header, content, footer)
-		.extend(() => ({ header, content, footer }))
+		.append(content, footer)
+		.extend(() => ({ content, footer }))
 })
 
 export default Form
