@@ -17,3 +17,9 @@ description-404: Your adventure has come to a close, your questions left unanswe
 ### auth
 title: Log in or sign up
 description: fluff4.me does not store an email address or password for your account. You must authenticate with a third-party service to begin.
+
+### create
+title: Create account
+
+### update
+title: Update profile

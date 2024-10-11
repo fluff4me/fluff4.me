@@ -2,7 +2,6 @@ import Session from "model/Session"
 import Navigator from "navigation/Navigate"
 import style from "style"
 import Component from "ui/Component"
-import Link from "ui/component/Link"
 import Masthead from "ui/component/Masthead"
 import Sidebar from "ui/component/Sidebar"
 import UiEventBus from "ui/UiEventBus"
@@ -89,8 +88,6 @@ async function App (): Promise<App> {
 			navigate: Navigator(app),
 		}))
 		.appendTo(document.body)
-
-	Link.setNavigator(app.navigate)
 
 	await app.navigate.fromURL()
 

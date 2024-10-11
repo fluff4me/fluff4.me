@@ -13,6 +13,7 @@
 	component/link
 	component/button
 	component/checkbutton
+	component/form
 	component/flag
 	component/masthead
 	component/sidebar
@@ -20,4 +21,5 @@
 	view/type/error
 	view/type/debug
 	view/type/account
+	view/type/home
 	app
