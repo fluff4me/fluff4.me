@@ -1,0 +1,13 @@
+#each in 0..40 as var i:
+	.view-transition-#{i}:
+		@view-transition!old:
+			#animate .3s #{i * 0.1}s ease-out both:
+				to:
+					translate: 0 $space-5
+					opacity: 0
+
+		@view-transition!new:
+			#animate .5s #{i * 0.1}s ease-out backwards:
+				from:
+					translate: 0 $space-4
+					opacity: 0
