@@ -1,7 +1,6 @@
 .view:
 
 	&-container:
-		grid-area: content
 
 	&--hidden:
 

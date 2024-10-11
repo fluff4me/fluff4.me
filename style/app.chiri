@@ -5,10 +5,20 @@
 	%grid
 	grid-template-areas:
 		"masthead masthead masthead masthead masthead"
-		". sidebar content related ."
+		". sidebar content content ."
 	grid-template-rows:
 		auto
 		1fr
+	#int w = 300
 	grid-template-columns:
-		#int w = 300
-		1fr #{w}px calc(1920px - #{w}px * 2) #{w}px 1fr
+		1fr #{w}px minmax(auto, calc(1920px - #{w}px * 2)) auto 1fr
+
+	&-content:
+		%grid
+		%columns-subgrid
+		%overflow-auto-y
+		grid-area: content
+		grid-template-areas: "content related"
+
+		&-related:
+			width: #{w}px

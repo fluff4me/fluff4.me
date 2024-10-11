@@ -74,9 +74,16 @@ async function App (): Promise<App> {
 	const view = ViewContainer()
 	const masthead = Masthead(sidebar, view)
 
+	const related = Component()
+		.style("app-content-related")
+
+	const content = Component()
+		.style("app-content")
+		.append(view, related)
+
 	const app: App = Component()
 		.style("app")
-		.append(masthead, sidebar, view)
+		.append(masthead, sidebar, content)
 		.extend<AppExtensions>(app => ({
 			masthead, sidebar, view,
 			navigate: Navigator(app),
