@@ -1,7 +1,6 @@
 .block:
 	%block
 	%padding-4
-	%margin-4
 	%border-radius-2
 	%inset-border-1
 	%width-100
