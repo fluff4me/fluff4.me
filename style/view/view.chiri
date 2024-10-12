@@ -1,6 +1,7 @@
 .view:
 	%flex
-	%justify-content-center
+	%flex-column
+	%align-items-center
 
 	&-container:
 
