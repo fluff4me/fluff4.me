@@ -12,14 +12,23 @@ container/alt: main content
 title: Error {CODE}
 description-404: Your adventure has come to a close, your questions left unanswered, your goals unfulfilled. What will you do?
 
-## account
+## account/auth
 
-### auth
+### none
 title: Log in or sign up
 description: fluff4.me does not store an email address or password for your account. You must authenticate with a third-party service to begin.
 
-### create
+### has-authorisations
+title: Authorisations
+description: You are authenticated with a third-party service account not currently associated with a fluff4.me account. You may link additional third party services to log in or sign up.
+
+### logged-in
+title: Authorisations
+description: These third party service accounts are linked to your fluff4.me account and may be used to log in.
+
+
+## account/create
 title: Create account
 
-### update
+## account/update
 title: Update profile

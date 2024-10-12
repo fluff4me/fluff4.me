@@ -5,6 +5,9 @@ import type { Mutable } from "utility/Type"
 interface ReadableState<T> {
 	readonly value: T
 	readonly listening: boolean
+	/** Subscribe to state change events. Receive the initial state as an event. */
+	use (owner: Component, subscriber: (value: T, initial?: true) => any): this
+	/** Subscribe to state change events. The initial state is not sent as an event. */
 	subscribe (owner: Component, subscriber: (value: T) => any): this
 	subscribeManual (subscriber: (value: T) => any): this
 	unsubscribe (subscriber: (value: T) => any): this
@@ -44,6 +47,11 @@ function State<T> (defaultValue: T): State<T> {
 		emit: () => {
 			for (const subscriber of subscribers)
 				subscriber(result[SYMBOL_VALUE])
+			return result
+		},
+		use: (owner, subscriber) => {
+			result.subscribe(owner, subscriber)
+			subscriber(result[SYMBOL_VALUE], true)
 			return result
 		},
 		subscribe: (owner, subscriber) => {

@@ -4,6 +4,7 @@ import Arrays from "utility/Arrays"
 namespace ViewTransition {
 
 	const DATA_HAS_ID = "has-view-transition"
+	const DATA_HAS_SUBVIEW_ID = "has-subview-transition"
 	const DATA_ID = "view-transition-id"
 	const VIEW_TRANSITION_CLASS_VIEW_PREFIX = "view-transition-"
 	const VIEW_TRANSITION_CLASS_SUBVIEW = "subview-transition"
@@ -13,6 +14,12 @@ namespace ViewTransition {
 	let id = 0
 	export const Has = Component.Builder(component => {
 		component.element.setAttribute(`data-${DATA_HAS_ID}`, "")
+		component.and(HasSubview)
+		return component
+	})
+
+	export const HasSubview = Component.Builder(component => {
+		component.element.setAttribute(`data-${DATA_HAS_SUBVIEW_ID}`, "")
 		component.element.setAttribute(`data-${DATA_ID}`, `${id++}`)
 		return component
 	})
@@ -26,7 +33,7 @@ namespace ViewTransition {
 	}
 
 	export function reapply (type: "view" | "subview") {
-		let components = getComponents()
+		let components = getComponents(type)
 		for (const component of components) {
 			for (const prefix of [VIEW_TRANSITION_CLASS_VIEW_PREFIX])
 				for (let i = 0; i < VIEW_TRANSITION_CLASS_COUNT; i++)
@@ -56,8 +63,8 @@ namespace ViewTransition {
 			&& rect.right > -PADDING && rect.left < window.innerWidth + PADDING
 	}
 
-	function getComponents () {
-		return [...document.querySelectorAll(`[data-${DATA_HAS_ID}]`)]
+	function getComponents (type: "view" | "subview") {
+		return [...document.querySelectorAll(`[data-${type === "view" ? DATA_HAS_ID : DATA_HAS_SUBVIEW_ID}]`)]
 			.map(e => e.component)
 			.filter(Arrays.filterNullish)
 	}

@@ -1,8 +1,7 @@
 import Session from "model/Session"
 import type Component from "ui/Component"
 import Slot from "ui/component/Slot"
-import AccountViewFormCreate from "ui/view/account/AccountViewFormCreate"
-import AccountViewFormUpdate from "ui/view/account/AccountViewFormUpdate"
+import AccountViewForm from "ui/view/account/AccountViewForm"
 import AccountViewOAuthServices from "ui/view/account/AccountViewOAuthServices"
 import ViewTransition from "ui/view/component/ViewTransition"
 import View from "ui/view/View"
@@ -35,9 +34,9 @@ export default ViewDefinition({
 		function createForm (state: Session.Auth.State): Component | undefined {
 			switch (state) {
 				case "has-authorisations":
-					return AccountViewFormCreate()
+					return AccountViewForm("create")
 				case "logged-in":
-					return AccountViewFormUpdate()
+					return AccountViewForm("update")
 			}
 		}
 	},
