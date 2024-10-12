@@ -1,8 +1,9 @@
 .masthead:
 	%background-dark-a30
-	%height-5
 	%grid
 	%align-content-centre
+	%font-4
+	%padding-1-0
 	grid-area: masthead
 	grid-template-columns: subgrid
 	grid-template-areas: ". left mid right ."
@@ -34,7 +35,9 @@
 			#icon name="bars
 
 	&-home:
-		%font-5
+		#after: .heading-1
+
+		%font-inherit
 		%size-fit
 		%flex
 		%gap-2

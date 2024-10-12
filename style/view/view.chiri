@@ -1,4 +1,6 @@
 .view:
+	%flex
+	%justify-content-center
 
 	&-container:
 

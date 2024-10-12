@@ -4,6 +4,7 @@
 	%margin-4
 	%border-radius-2
 	%inset-border-1
+	max-width: 800px
 	box-shadow: #{box-shadow-inset-border-1}, #{box-shadow-1}
 	#string background-colour = "light-dark(#{alpha(0.2, $colour-0)}, #{alpha(0.02, $colour-0)})
 	#string border-colour = "light-dark(#{alpha(0.1, $colour-0)}, #{alpha(0.05, $colour-0)})

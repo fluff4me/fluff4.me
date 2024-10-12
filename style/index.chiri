@@ -7,11 +7,11 @@
 
 #import:
 	root
-	component/heading
 	component/paragraph
 	component/block
 	component/link
 	component/button
+	component/heading
 	component/checkbutton
 	component/form
 	component/flag
