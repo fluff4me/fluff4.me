@@ -25,6 +25,7 @@ namespace Session {
 
 	function updateState () {
 		Auth.state.value = Store.items.sessionAuthServices?.length ? "has-authorisations" : "none"
+		Auth.authorisations.value = Store.items.sessionAuthServices ?? []
 	}
 
 	export function getStateToken () {
@@ -38,6 +39,7 @@ namespace Session {
 			| "logged-in"
 
 		export const state = State<State>("none")
+		export const authorisations = State<Authorisation[]>([])
 
 		export function getAll () {
 			return Store.items.sessionAuthServices ?? []

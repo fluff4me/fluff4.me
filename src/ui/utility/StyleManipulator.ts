@@ -54,7 +54,7 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 				return component
 			},
 			bind (state, ...names) {
-				state.subscribe(component, active => {
+				state.use(component, active => {
 					if (active)
 						for (const name of names)
 							styles.add(name)

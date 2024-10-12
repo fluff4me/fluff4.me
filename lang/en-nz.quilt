@@ -20,7 +20,7 @@ description: fluff4.me does not store an email address or password for your acco
 
 ### has-authorisations
 title: Authorisations
-description: You are authenticated with a third-party service account not currently associated with a fluff4.me account. You may link additional third party services to log in or sign up.
+description: Your authorisation(s) are not currently associated with a fluff4.me account. You may link additional third party services to log in or sign up.
 
 ### logged-in
 title: Authorisations

@@ -34,7 +34,7 @@
 		%relative
 		%block
 		%size-100
-		$size: round(0.9lh, 2px)
+		$size: round(0.7lh, 2px)
 		size: $size
 
 		$box-shadow: 0 calc($size / 2) 0 0 currentcolor
@@ -46,7 +46,7 @@
 			%background-currentcolour
 			%height-50
 			box-shadow: $box-shadow
-			$left: calc(50% - $space-1 / 2 - $space-1)
+			$left: calc(50% - $space-1 / 2)
 			transform-origin: bottom center
 			#transition:
 				#{transition("top")},
@@ -57,12 +57,12 @@
 				#{transition("box-shadow")}
 
 		@before:
-			left: calc($left + round($size / 3, 1px) - $space-2)
+			left: calc($left + round($size / 3, 1px) - $space-1)
 			%rotate-45
 
 		@after:
 			%rotate-135
-			left: calc($left - round($size / 3, 1px) - $space-2)
+			left: calc($left - round($size / 3, 1px) - $space-1)
 			box-shadow: 0 0 0 0 currentcolor
 
 		&--authenticated:
@@ -75,6 +75,12 @@
 
 			@after:
 				box-shadow: $box-shadow
+
+	&-username:
+		%transparent
+
+		&--has-username:
+			%opacity-70
 
 	&--authenticated:
 

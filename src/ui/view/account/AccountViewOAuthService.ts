@@ -1,7 +1,8 @@
-import type { AuthService } from "api.fluff4.me"
+import { type AuthService } from "api.fluff4.me"
 import Session from "model/Session"
 import Component from "ui/Component"
 import Checkbutton from "ui/component/Checkbutton"
+import State from "utility/State"
 
 export default Component.Builder((component, service: AuthService) => {
 	const authedAtStart = !!Session.Auth.get(service.name)
@@ -18,13 +19,22 @@ export default Component.Builder((component, service: AuthService) => {
 		.append(Component()
 			.style("account-view-oauth-service-name")
 			.text.set(service.name))
-		.append()
 
 	const state = Component()
 		.style("account-view-oauth-service-state")
 		.style.toggle(authedAtStart, "account-view-oauth-service-state--authenticated")
 		.style.bind(button.hoveredOrFocused, "account-view-oauth-service-state--focus")
 		.appendTo(button)
+
+	const username = Component()
+		.style("account-view-oauth-service-username")
+		.appendTo(button)
+
+	const authorisationState = State.Map(Session.Auth.authorisations, authorisations =>
+		authorisations.find(authorisation => authorisation.service === service.name))
+
+	authorisationState.use(button, authorisation => username.text.set(authorisation?.display_name ?? ""))
+	username.style.bind(State.Truthy(authorisationState), "account-view-oauth-service-username--has-username")
 
 	button.event.subscribe("setChecked", (event, checked) => {
 		event.component.style.toggle(checked, "account-view-oauth-service--authenticated")
