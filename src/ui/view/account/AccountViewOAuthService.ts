@@ -24,7 +24,10 @@ export default Component.Builder((component, service: AuthService) => {
 		.style("account-view-oauth-service-state")
 		.style.toggle(authedAtStart, "account-view-oauth-service-state--authenticated")
 		.style.bind(button.hoveredOrFocused, "account-view-oauth-service-state--focus")
-		.appendTo(button)
+		.appendTo(Component()
+			.style("account-view-oauth-service-state-wrapper")
+			.style.bind(button.hoveredOrFocused, "account-view-oauth-service-state-wrapper--focus")
+			.appendTo(button))
 
 	const username = Component()
 		.style("account-view-oauth-service-username")
