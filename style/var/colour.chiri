@@ -1,4 +1,5 @@
 $colour-blue: #69b3e2
+$colour-blue-saturated: #0173ba
 $colour-pink: #d94e8f
 
 #for var i = 1, i < 100, set i++:

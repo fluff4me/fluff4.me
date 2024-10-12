@@ -1,3 +1,27 @@
 .form:
 	&-content:
+
 	&-footer:
+		%flex
+		%justify-content-end
+		%unmargin-4
+		%padding-inline-4
+		%padding-block-3
+		%margin-top-4
+		%border-top-1
+		$border-colour: $block-border-colour
+		background: light-dark(#{alpha(0.02, $dark-0)}, #{alpha(0.2, $dark-0)})
+		%background-unclip
+
+	&-submit:
+		#after: .button
+
+		$colour: $colour-blue-saturated
+		$button-background: $colour
+		colour: #{contrast($colour)}
+
+		::hover, ::focus:
+			$button-background: hsl(from $colour h s calc(l + 5))
+
+		::active:
+			$button-background: hsl(from $colour h calc(s - 40) calc(l - 15))

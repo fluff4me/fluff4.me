@@ -11,6 +11,7 @@ export default Component.Builder((component, service: AuthService) => {
 		.and(Checkbutton)
 		.setChecked(authedAtStart)
 		.style("account-view-oauth-service")
+		.ariaRole("button")
 		.style.toggle(authedAtStart, "account-view-oauth-service--authenticated")
 		.style.setVariable("colour", `#${service.colour.toString(16)}`)
 		.append(Component("img")
@@ -31,12 +32,16 @@ export default Component.Builder((component, service: AuthService) => {
 
 	const username = Component()
 		.style("account-view-oauth-service-username")
+		.ariaHidden()
 		.appendTo(button)
 
 	const authorisationState = State.Map(Session.Auth.authorisations, authorisations =>
 		authorisations.find(authorisation => authorisation.service === service.name))
 
-	authorisationState.use(button, authorisation => username.text.set(authorisation?.display_name ?? ""))
+	authorisationState.use(button, authorisation => {
+		button.ariaLabel(quilt => quilt[`view/account/auth/service/accessibility/${authorisation ? "disconnect" : "connect"}`](service.name, authorisation?.display_name))
+		username.text.set(authorisation?.display_name ?? "")
+	})
 	username.style.bind(State.Truthy(authorisationState), "account-view-oauth-service-username--has-username")
 
 	button.event.subscribe("setChecked", (event, checked) => {

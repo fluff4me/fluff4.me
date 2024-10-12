@@ -9,6 +9,10 @@ interface Heading extends Component, HeadingExtensions { }
 const Heading = Component.Builder("h1", (component) => {
 	component.style("heading")
 
+	component.text.state.use(component, text => component.id(text.toString().toLowerCase().replace(/\W+/g, "-")))
+
+	component.tabIndex("programmatic")
+
 	component.receiveAncestorInsertEvents()
 	component.event.subscribe(["insert", "ancestorInsert"], updateHeadingLevel)
 	component.rooted.subscribeManual(updateHeadingLevel)

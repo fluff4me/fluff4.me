@@ -9,7 +9,9 @@ $$button-background-highlight!colour
 	%no-select
 	%weight-bold
 	%border-radius-1
+	%font-family-inherit
 	%font-3
+	%colour-0
 	%box-shadow-1
 	$button-background: $background-interact-4
 	$button-background-highlight: hsl(from $button-background h s calc(l + 6))
@@ -20,6 +22,9 @@ $$button-background-highlight!colour
 		#{transition("translate")},
 		#{transition("box-shadow")}
 	#transition: $button-transition
+
+	&-text:
+		%font-vertical-align
 
 	::hover, ::focus:
 		$button-background: $background-interact-5

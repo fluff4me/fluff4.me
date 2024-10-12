@@ -13,7 +13,7 @@ interface MastheadExtensions {
 
 interface Masthead extends Component, MastheadExtensions { }
 
-const Masthead = Component.Builder("nav", (masthead, sidebar: Sidebar, view: ViewContainer) => {
+const Masthead = Component.Builder("header", (masthead, sidebar: Sidebar, view: ViewContainer) => {
 	masthead.style("masthead")
 
 	Button()
