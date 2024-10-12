@@ -20,8 +20,7 @@ const ViewContainer = (): ViewContainer => Component()
 			let view!: VIEW
 
 			if (container.view) {
-				ViewTransition.reapply()
-				const transition = document.startViewTransition(swap)
+				const transition = ViewTransition.perform("view", swap)
 				await transition.updateCallbackDone
 			} else {
 				await swap()
@@ -34,7 +33,6 @@ const ViewContainer = (): ViewContainer => Component()
 				view = await definition.create(params)
 				view.appendTo(container)
 				container.view = view
-				ViewTransition.reapply()
 			}
 		},
 	}))
