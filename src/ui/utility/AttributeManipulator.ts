@@ -1,25 +1,28 @@
+import type { Quilt } from "lang/en-nz"
 import quilt from "lang/en-nz"
 import type Component from "ui/Component"
-import type { QuiltHandler, SimpleQuiltKey } from "ui/utility/TextManipulator"
 
 interface AttributeManipulator<HOST> {
 	add (...attributes: string[]): HOST
 	set (attribute: string, value: string): HOST
-	use (attribute: string, keyOrHandler: SimpleQuiltKey | QuiltHandler): HOST
+	use (attribute: string, keyOrHandler: Quilt.SimpleKey | Quilt.Handler): HOST
 	refresh (): void
 	remove (...attributes: string[]): HOST
 	toggle (present: boolean, attribute: string, value: string): HOST
 }
 
 function AttributeManipulator (component: Component): AttributeManipulator<Component> {
-	let translationHandlers: Record<string, SimpleQuiltKey | QuiltHandler> | undefined
+	let translationHandlers: Record<string, Quilt.SimpleKey | Quilt.Handler> | undefined
 	const result: AttributeManipulator<Component> = {
 		add (...attributes) {
-			for (const attribute of attributes)
+			for (const attribute of attributes) {
+				delete translationHandlers?.[attribute]
 				component.element.setAttribute(attribute, "")
+			}
 			return component
 		},
 		set (attribute, value) {
+			delete translationHandlers?.[attribute]
 			component.element.setAttribute(attribute, value)
 			return component
 		},
@@ -40,8 +43,10 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 			}
 		},
 		remove (...attributes) {
-			for (const attribute of attributes)
+			for (const attribute of attributes) {
+				delete translationHandlers?.[attribute]
 				component.element.removeAttribute(attribute)
+			}
 			return component
 		},
 		toggle (present, attribute, value) {

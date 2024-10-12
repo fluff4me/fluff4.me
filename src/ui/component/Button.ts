@@ -1,17 +1,19 @@
 import Component from "ui/Component"
 
 interface ButtonExtensions {
+	readonly textWrapper: Component
 	setDisabled (disabled: boolean, reason: string): this
 }
 
 interface Button extends Component, ButtonExtensions { }
 
-const Button = Component.Builder("button", (component): Button => {
+const Button = Component.Builder("button", (button): Button => {
 	const disabledReasons = new Set<string>()
 
-	return component
+	return button
 		.style("button")
 		.extend<ButtonExtensions>(button => ({
+			textWrapper: undefined!,
 			setDisabled (disabled, reason) {
 				if (disabled)
 					disabledReasons.add(reason)
@@ -21,6 +23,9 @@ const Button = Component.Builder("button", (component): Button => {
 				return button
 			},
 		}))
+		.extendJIT("textWrapper", button => Component()
+			.style("button-text")
+			.appendTo(button))
 })
 
 export default Button

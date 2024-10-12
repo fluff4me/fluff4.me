@@ -14,13 +14,16 @@ description-404: Your adventure has come to a close, your questions left unanswe
 
 ## account/auth
 
+service/accessibility/connect: connect {0}
+service/accessibility/disconnect: disconnect {0} account {1}
+
 ### none
 title: Log in or sign up
 description: fluff4.me does not store an email address or password for your account. You must authenticate with a third-party service to begin.
 
 ### has-authorisations
 title: Authorisations
-description: Your authorisation(s) are not currently associated with a fluff4.me account. You may link additional third party services to log in or sign up.
+description: Your authorisation(s) are not currently associated with a fluff4.me account. You may authenticate with additional third party services to log in or sign up.
 
 ### logged-in
 title: Authorisations
@@ -29,6 +32,9 @@ description: These third party service accounts are linked to your fluff4.me acc
 
 ## account/create
 title: Create account
+description: The {#LINK(#AUTHORISATIONS):connected third party service accounts} will be used for login.
+submit: Sign Up!
 
 ## account/update
 title: Update profile
+submit: Save Changes

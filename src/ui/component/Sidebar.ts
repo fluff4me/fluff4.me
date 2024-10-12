@@ -13,7 +13,7 @@ interface SidebarExtensions {
 
 interface Sidebar extends Component, SidebarExtensions { }
 
-const Sidebar = Component.Builder("aside", (sidebar): Sidebar => {
+const Sidebar = Component.Builder("nav", (sidebar): Sidebar => {
 	sidebar.style("sidebar")
 
 	updateSidebarVisibility()

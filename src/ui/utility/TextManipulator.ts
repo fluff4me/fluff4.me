@@ -1,9 +1,7 @@
 import type { Quilt, Weave, Weft } from "lang/en-nz"
 import quilt from "lang/en-nz"
 import type Component from "ui/Component"
-
-export type SimpleQuiltKey = keyof { [KEY in keyof Quilt as Parameters<Quilt[KEY]>["length"] extends 0 ? KEY : never]: true }
-export type QuiltHandler = (quilt: Quilt) => Weave
+import State from "utility/State"
 
 export namespace QuiltHelper {
 	export function renderWeave (weave: Weave): Node[] {
@@ -19,28 +17,45 @@ export namespace QuiltHelper {
 		if (isPlaintextWeft(weft))
 			return document.createTextNode(weft.content)
 
-		const component = document.createElement("span")
+		let element: HTMLElement | undefined
+		const tag = weft.tag?.toLowerCase()
+		if (tag) {
+			if (tag.startsWith("link(")) {
+				const link = element = document.createElement("a")
+				const href = tag.slice(5, -1)
+				link.href = href
+				link.addEventListener("click", event => {
+					event.preventDefault()
+					navigate.toRawURL(href)
+				})
+			}
+		}
+
+		element ??= document.createElement("span")
 
 		if (Array.isArray(weft.content))
-			component.append(...weft.content.map(renderWeft))
+			element.append(...weft.content.map(renderWeft))
 		else
-			component.textContent = `${weft.content}`
+			element.textContent = `${weft.content}`
 
-		return component
+		return element
 	}
 }
 
 interface TextManipulator<HOST> {
+	readonly state: State<string | Weave>
 	set (text: string): HOST
-	use (keyOrHandler: SimpleQuiltKey | QuiltHandler): HOST
+	use (keyOrHandler: Quilt.SimpleKey | Quilt.Handler): HOST
 	refresh (): void
 }
 
 function TextManipulator (component: Component): TextManipulator<Component> {
-	let translationHandler: SimpleQuiltKey | QuiltHandler | undefined
+	let translationHandler: Quilt.SimpleKey | Quilt.Handler | undefined
 	const result: TextManipulator<Component> = {
+		state: State(""),
 		set (text) {
 			component.element.textContent = text
+			result.state.value = text
 			return component
 		},
 		use (handler) {
@@ -54,6 +69,7 @@ function TextManipulator (component: Component): TextManipulator<Component> {
 
 			const weave = typeof translationHandler === "string" ? quilt[translationHandler]() : translationHandler(quilt)
 			component.element.replaceChildren(...QuiltHelper.renderWeave(weave))
+			result.state.value = weave
 		},
 	}
 

@@ -1,7 +1,7 @@
+import type { Quilt } from "lang/en-nz"
 import quilt from "lang/en-nz"
 import Heading from "ui/component/Heading"
 import Paragraph from "ui/component/Paragraph"
-import type { SimpleQuiltKey } from "ui/utility/TextManipulator"
 import View from "ui/view/View"
 import ViewDefinition from "ui/view/ViewDefinition"
 
@@ -20,7 +20,7 @@ export default ViewDefinition({
 		const key = `view/error/description-${params.code}` as const
 		if (key in quilt)
 			Paragraph()
-				.text.use(key as SimpleQuiltKey)
+				.text.use(key as Quilt.SimpleKey)
 				.appendTo(view)
 
 		return view

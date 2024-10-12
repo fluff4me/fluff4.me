@@ -1,14 +1,18 @@
+import type { Quilt } from "lang/en-nz"
 import AttributeManipulator from "ui/utility/AttributeManipulator"
 import ClassManipulator from "ui/utility/ClassManipulator"
 import type { NativeEvents } from "ui/utility/EventManipulator"
 import EventManipulator from "ui/utility/EventManipulator"
 import StyleManipulator from "ui/utility/StyleManipulator"
-import type { QuiltHandler, SimpleQuiltKey } from "ui/utility/TextManipulator"
 import TextManipulator from "ui/utility/TextManipulator"
 import Define from "utility/Define"
 import Errors from "utility/Errors"
 import State from "utility/State"
 import type { AnyFunction, Mutable } from "utility/Type"
+
+type AriaRole =
+	| "button"
+	| "checkbox"
 
 const ELEMENT_TO_COMPONENT_MAP = new WeakMap<Element, Component>()
 
@@ -58,6 +62,8 @@ interface Component {
 
 	readonly element: HTMLElement
 
+	id (id?: string): this
+
 	/**
 	 * **Warning:** Replacing an element will leave any subscribed events on the original element, and not re-subscribe them on the new element.
 	 */
@@ -66,6 +72,7 @@ interface Component {
 	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT>, ...params: PARAMS): this & COMPONENT
 	extend<T> (extensionProvider: (component: this & T) => T): this & T
 	extendMagic<K extends keyof this, O extends this = this> (property: K, magic: (component: this) => { get (): O[K], set?(value: O[K]): void }): this
+	extendJIT<K extends keyof this, O extends this = this> (property: K, supplier: (component: this) => O[K]): this
 
 	appendTo (destination: Component | Element): this
 	prependTo (destination: Component | Element): this
@@ -78,8 +85,10 @@ interface Component {
 
 	receiveAncestorInsertEvents (): this
 
-	ariaLabel (keyOrHandler: SimpleQuiltKey | QuiltHandler): this
+	ariaRole (role?: AriaRole): this
+	ariaLabel (keyOrHandler?: Quilt.SimpleKey | Quilt.Handler): this
 	ariaHidden (): this
+	ariaChecked (state: State<boolean>): this
 
 	tabIndex (index?: "programmatic" | "auto" | number): this
 	focus (): this
@@ -125,6 +134,16 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			Define.magic(component, property, magic(component))
 			return component
 		},
+		extendJIT: (property, supplier) => {
+			Define.magic(component, property, {
+				get: () => {
+					const value = supplier(component)
+					Define.set(component, property, value)
+					return value
+				},
+			})
+			return component
+		},
 
 		get style () {
 			return Define.set(component, "style", StyleManipulator(component))
@@ -157,6 +176,14 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 		get active (): State<boolean> {
 			return Define.set(component, "active", State(false))
+		},
+
+		id: id => {
+			if (id)
+				component.element.setAttribute("id", id)
+			else
+				component.element.removeAttribute("id")
+			return component
 		},
 
 		remove (internal = false) {
@@ -229,8 +256,25 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 
-		ariaLabel: (keyOrHandler) => component.attributes.use("aria-label", keyOrHandler),
+		ariaRole: (role?: string) => {
+			if (!role)
+				return component.attributes.remove("role")
+
+			return component.attributes.set("role", role)
+		},
+		ariaLabel: (keyOrHandler) => {
+			if (!keyOrHandler)
+				return component.attributes.remove("aria-label")
+
+			return component.attributes.use("aria-label", keyOrHandler)
+		},
 		ariaHidden: () => component.attributes.set("aria-hidden", "true"),
+		ariaChecked: (state) => {
+			state.use(component, state => {
+				component.attributes.set("aria-checked", `${state}`)
+			})
+			return component
+		},
 
 		tabIndex: (index) => {
 			if (index === undefined)

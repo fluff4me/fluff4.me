@@ -20,6 +20,9 @@ namespace FocusListener {
 	}
 
 	function updateFocusState () {
+		if (document.activeElement && document.activeElement !== document.body && location.hash && document.activeElement.id !== location.hash.slice(1))
+			history.pushState(undefined, "", " ")
+
 		const focused = document.querySelector(":focus-visible") ?? undefined
 		if (focused === lastFocused)
 			return

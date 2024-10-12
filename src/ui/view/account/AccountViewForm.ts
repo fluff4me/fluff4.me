@@ -7,13 +7,13 @@ type AccountViewFormType =
 	| "update"
 
 export default Component.Builder((component, type: AccountViewFormType) => {
-	const block = component.and(Block).and(Form)
+	const form = component.and(Block).and(Form)
 
-	block.title.text.use(`view/account/${type}/title`)
-	// block.description.text.use("view/account/create/description")
+	form.title.text.use(`view/account/${type}/title`)
+	if (type === "create")
+		form.description.text.use("view/account/create/description")
 
-	Form()
-		.appendTo(block)
+	form.submit.textWrapper.text.use(`view/account/${type}/submit`)
 
-	return block
+	return form
 })
