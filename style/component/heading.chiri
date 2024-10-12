@@ -1,4 +1,6 @@
 .heading:
+	#after: .button
+
 	%relative
 	%margin-0
 	%weight-normal

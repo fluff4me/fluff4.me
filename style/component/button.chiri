@@ -12,7 +12,7 @@ $$button-background-highlight!colour
 	%font-3
 	%box-shadow-1
 	$button-background: $background-interact-4
-	$button-background-highlight: hsl(from $button-background h s calc(l + 8))
+	$button-background-highlight: hsl(from $button-background h s calc(l + 6))
 	background: radial-gradient(ellipse at left 20% top 20%, $button-background-highlight, $button-background)
 	$button-transition:
 		#{transition($$button-background)},
