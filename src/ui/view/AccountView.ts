@@ -29,6 +29,7 @@ export default ViewDefinition({
 		function updateAuthState (state = Session.Auth.state.value) {
 			form?.remove()
 			form = createForm(state)?.appendTo(accountFormSlot)
+			services.state.value = state
 		}
 
 		function createForm (state: Session.Auth.State): Component | undefined {
