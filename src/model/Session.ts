@@ -20,7 +20,11 @@ namespace Session {
 			Store.items.stateToken = stateToken
 
 		Store.items.sessionAuthServices = session?.data?.authorisations ?? undefined
-		Auth.state.value = session.data?.authorisations ? "has-authorisations" : "none"
+		updateState()
+	}
+
+	function updateState () {
+		Auth.state.value = Store.items.sessionAuthServices?.length ? "has-authorisations" : "none"
 	}
 
 	export function getStateToken () {
@@ -49,6 +53,7 @@ namespace Session {
 			Store.items.sessionAuthServices = Store.items.sessionAuthServices?.filter(auth => auth.id !== id)
 			if (!Store.items.sessionAuthServices?.length)
 				delete Store.items.sessionAuthServices
+			updateState()
 		}
 
 		export async function auth (service: AuthService) {
