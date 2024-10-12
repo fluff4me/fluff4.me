@@ -110,6 +110,31 @@ namespace State {
 
 		return result
 	}
+
+	export function Truthy (state: State<any>): State<boolean> {
+		return Generator(() => !!state.value)
+			.observe(state)
+	}
+
+	export function Falsy (state: State<any>): State<boolean> {
+		return Generator(() => !!state.value)
+			.observe(state)
+	}
+
+	export function Some (...anyOfStates: State<any>[]): State<boolean> {
+		return Generator(() => anyOfStates.some(state => state.value))
+			.observe(...anyOfStates)
+	}
+
+	export function Every (...anyOfStates: State<any>[]): State<boolean> {
+		return Generator(() => anyOfStates.every(state => state.value))
+			.observe(...anyOfStates)
+	}
+
+	export function Map<INPUT, OUTPUT> (input: State<INPUT>, outputGenerator: (input: INPUT) => OUTPUT): State<OUTPUT> {
+		return Generator(() => outputGenerator(input.value))
+			.observe(input)
+	}
 }
 
 export default State
