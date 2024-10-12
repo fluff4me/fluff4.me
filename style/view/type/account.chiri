@@ -31,50 +31,53 @@
 		%flex-grow
 
 	&-state:
-		%relative
-		%block
-		%size-100
-		$size: round(0.7lh, 2px)
-		size: $size
+		&-wrapper:
+			%relative
+			%block
+			%size-100
+			$size: round(0.7lh, 2px)
+			size: $size
+			#transition: #{transition("translate")}
 
-		$box-shadow: 0 calc($size / 2) 0 0 currentcolor
+			&--focus:
+				%translate-left-1
+
+		%block
+		%absolute
+		%inset-0
+		%rotate-45
+
 		@before, @after:
 			%block
 			%absolute
-			%width-1
+			%size-1
 			%opacity-0
 			%background-currentcolour
-			%height-50
-			box-shadow: $box-shadow
-			$left: calc(50% - $space-1 / 2)
-			transform-origin: bottom center
+			left: calc(50% - $space-1 / 2)
+			top: calc(50% - $space-1 / 2)
 			#transition:
 				#{transition("top")},
 				#{transition("left")},
 				#{transition("height")},
-				#{transition("border")},
-				#{transition("margin")},
-				#{transition("box-shadow")}
+				#{transition("width")}
 
 		@before:
-			left: calc($left + round($size / 3, 1px) - $space-1)
-			%rotate-45
+			%height-100
+			%top-0
 
 		@after:
-			%rotate-135
-			left: calc($left - round($size / 3, 1px) - $space-1)
-			box-shadow: 0 0 0 0 currentcolor
+			%width-50
+			%left-0
+			top: calc(100% - $space-1)
 
 		&--authenticated:
 			@before, @after:
 				%opacity-1
 
 		&--focus:
-			@before, @after:
-				left: $left
-
 			@after:
-				box-shadow: $box-shadow
+				%width-100
+				top: calc(50% - $space-1 / 2)
 
 	&-username:
 		%transparent
