@@ -11,3 +11,14 @@
 				from:
 					translate: 0 $space-4
 					opacity: 0
+
+.subview-transition:
+	@view-transition-class!old:
+		animation-timing-function: ease-out
+		animation-duration: .3s
+		animation-fill-mode: both
+
+	@view-transition-class!new:
+		animation-timing-function: ease-out
+		animation-duration: .5s
+		animation-fill-mode: backwards
