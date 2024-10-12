@@ -32,7 +32,7 @@ description: These third party service accounts are linked to your fluff4.me acc
 
 ## account/create
 title: Create account
-description: The {#LINK(#AUTHORISATIONS):connected third party service accounts} will be used for login.
+description: The {#LINK(#authorisations):connected third party service accounts} will be used for login.
 submit: Sign Up!
 
 ## account/update
