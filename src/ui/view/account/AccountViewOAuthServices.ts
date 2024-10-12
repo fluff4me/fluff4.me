@@ -5,14 +5,24 @@ import AccountViewOAuthService from "ui/view/account/AccountViewOAuthService"
 import ViewTransition from "ui/view/component/ViewTransition"
 import EndpointAuthServices from "utility/endpoint/auth/EndpointAuthServices"
 import Objects from "utility/Objects"
+import State from "utility/State"
 
-export default Component.Builder(async component => {
+interface AccountViewOAuthServicesExtensions {
+	state: State<Session.Auth.State>
+}
+
+interface AccountViewOAuthServices extends Component, AccountViewOAuthServicesExtensions { }
+
+const AccountViewOAuthServices = Component.Builder(async (component): Promise<AccountViewOAuthServices> => {
+	const state = State<Session.Auth.State>(Session.Auth.state.value)
+
 	const block = component
 		.and(Block)
 		.style("account-view-oauth-service-container")
+		.extend<AccountViewOAuthServicesExtensions>(() => ({ state }))
 
 	block.header.and(ViewTransition.HasSubview)
-	Session.Auth.state.use(component, state => {
+	state.use(component, state => {
 		block.title.text.use(`view/account/auth/${state}/title`)
 		block.description.text.use(`view/account/auth/${state}/description`)
 	})
@@ -35,3 +45,5 @@ export default Component.Builder(async component => {
 
 	return block
 })
+
+export default AccountViewOAuthServices
