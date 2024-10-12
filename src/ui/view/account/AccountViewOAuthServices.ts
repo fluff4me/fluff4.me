@@ -1,6 +1,8 @@
+import Session from "model/Session"
 import Component from "ui/Component"
 import Block from "ui/component/Block"
 import AccountViewOAuthService from "ui/view/account/AccountViewOAuthService"
+import ViewTransition from "ui/view/component/ViewTransition"
 import EndpointAuthServices from "utility/endpoint/auth/EndpointAuthServices"
 import Objects from "utility/Objects"
 
@@ -9,8 +11,11 @@ export default Component.Builder(async component => {
 		.and(Block)
 		.style("account-view-oauth-service-container")
 
-	block.title.text.use("view/account/auth/title")
-	block.description.text.use("view/account/auth/description")
+	block.header.and(ViewTransition.HasSubview)
+	Session.Auth.state.use(component, state => {
+		block.title.text.use(`view/account/auth/${state}/title`)
+		block.description.text.use(`view/account/auth/${state}/description`)
+	})
 
 	const list = Component()
 		.style("account-view-oauth-service-list")
