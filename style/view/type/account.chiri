@@ -34,7 +34,7 @@
 		%relative
 		%block
 		%size-100
-		$size: round(0.8lh, 2px)
+		$size: round(0.9lh, 2px)
 		size: $size
 
 		$box-shadow: 0 calc($size / 2) 0 0 currentcolor
@@ -43,8 +43,8 @@
 			%absolute
 			%width-1
 			%opacity-0
-			%height-50
 			%background-currentcolour
+			%height-50
 			box-shadow: $box-shadow
 			$left: calc(50% - $space-1 / 2 - $space-1)
 			transform-origin: bottom center

@@ -2,6 +2,8 @@
 	%flex
 	%flex-column
 	%align-items-center
+	%gap-4
+	%padding-4-0
 
 	&-container:
 
