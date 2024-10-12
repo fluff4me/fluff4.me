@@ -1,5 +1,6 @@
 import Session from "model/Session"
-import Component from "ui/Component"
+import type Component from "ui/Component"
+import Slot from "ui/component/Slot"
 import AccountViewFormCreate from "ui/view/account/AccountViewFormCreate"
 import AccountViewFormUpdate from "ui/view/account/AccountViewFormUpdate"
 import AccountViewOAuthServices from "ui/view/account/AccountViewOAuthServices"
@@ -11,7 +12,7 @@ export default ViewDefinition({
 	create: async () => {
 		const view = View("account")
 
-		const accountFormSlot = Component()
+		const accountFormSlot = Slot()
 			.appendTo(view)
 
 		let form: Component | undefined
