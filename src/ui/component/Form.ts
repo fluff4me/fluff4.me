@@ -9,8 +9,10 @@ interface FormExtensions {
 
 interface Form extends Component, FormExtensions { }
 
-const Form = Component.Builder((form): Form => {
+const Form = Component.Builder((form, label: Component): Form => {
 	form.style("form")
+		.ariaRole("form")
+		.ariaLabelledBy(label)
 
 	const content = Component()
 		.style("form-content")

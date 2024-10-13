@@ -4,7 +4,7 @@
 	%margin-right-4
 	%relative
 	%height-100
-	%box-sizing-border-box
+	%border-box
 	%transparent
 	%translate
 	$translate-x: -100%

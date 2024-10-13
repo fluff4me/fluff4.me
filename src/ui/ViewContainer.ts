@@ -13,6 +13,7 @@ interface ViewContainer extends Component, ViewContainerExtensions { }
 const ViewContainer = (): ViewContainer => Component()
 	.style("view-container")
 	.tabIndex("programmatic")
+	.ariaRole("main")
 	.ariaLabel("view/container/alt")
 	.extend<ViewContainerExtensions>(container => ({
 		view: undefined,

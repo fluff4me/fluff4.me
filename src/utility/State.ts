@@ -2,16 +2,20 @@ import type Component from "ui/Component"
 import Define from "utility/Define"
 import type { Mutable } from "utility/Type"
 
+export type UnsubscribeState = () => void
+
 interface ReadableState<T> {
 	readonly value: T
 	readonly listening: boolean
 	/** Subscribe to state change events. Receive the initial state as an event. */
-	use (owner: Component, subscriber: (value: T, initial?: true) => any): this
+	use (owner: Component, subscriber: (value: T, initial?: true) => any): UnsubscribeState
 	/** Subscribe to state change events. The initial state is not sent as an event. */
-	subscribe (owner: Component, subscriber: (value: T) => any): this
-	subscribeManual (subscriber: (value: T) => any): this
-	unsubscribe (subscriber: (value: T) => any): this
-	emit (): this
+	subscribe (owner: Component, subscriber: (value: T) => any): UnsubscribeState
+	subscribeManual (subscriber: (value: T) => any): UnsubscribeState
+	unsubscribe (subscriber: (value: T) => any): void
+	emit (): void
+
+	map<R> (mapper: (value: T) => R): State<R>
 }
 
 interface State<T> extends ReadableState<T> {
@@ -52,7 +56,7 @@ function State<T> (defaultValue: T): State<T> {
 		use: (owner, subscriber) => {
 			result.subscribe(owner, subscriber)
 			subscriber(result[SYMBOL_VALUE], true)
-			return result
+			return () => result.unsubscribe(subscriber)
 		},
 		subscribe: (owner, subscriber) => {
 			function onRemoved () {
@@ -66,18 +70,23 @@ function State<T> (defaultValue: T): State<T> {
 			fn[SYMBOL_UNSUBSCRIBE].add(onRemoved)
 			owner.removed.subscribeManual(onRemoved)
 			result.subscribeManual(subscriber)
-			return result
+			return () => {
+				result.unsubscribe(subscriber)
+				owner.removed.unsubscribe(onRemoved)
+			}
 		},
 		subscribeManual: subscriber => {
 			subscribers.push(subscriber)
 			result.listening = true
-			return result
+			return () => result.unsubscribe(subscriber)
 		},
 		unsubscribe: subscriber => {
 			subscribers = subscribers.filter(s => s !== subscriber)
 			result.listening = !subscribers.length
 			return result
 		},
+
+		map: mapper => State.Map(result, mapper),
 	}
 	return result
 }

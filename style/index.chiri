@@ -5,23 +5,31 @@
 	var/font
 	var/font/font-awesome
 
+#import: root
+
 #import:
-	root
 	component/slot
 	component/paragraph
 	component/block
 	component/link
 	component/button
+	component/text-input
 	component/heading
 	component/checkbutton
+	component/label
+	component/labelled-table
+	component/labelled-row
 	component/form
 	component/flag
 	component/masthead
 	component/sidebar
+
+#import:
 	view/view
 	view/transition
 	view/type/error
 	view/type/debug
 	view/type/account
 	view/type/home
-	app
+
+#import: app

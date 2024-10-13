@@ -7,12 +7,20 @@ import StyleManipulator from "ui/utility/StyleManipulator"
 import TextManipulator from "ui/utility/TextManipulator"
 import Define from "utility/Define"
 import Errors from "utility/Errors"
+import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
 import type { AnyFunction, Mutable } from "utility/Type"
+
+const SYMBOL_COMPONENT_BRAND = Symbol("COMPONENT_BRAND")
+export interface ComponentBrand<TYPE extends string> {
+	[SYMBOL_COMPONENT_BRAND]: TYPE
+}
 
 type AriaRole =
 	| "button"
 	| "checkbox"
+	| "form"
+	| "main"
 
 const ELEMENT_TO_COMPONENT_MAP = new WeakMap<Element, Component>()
 
@@ -45,6 +53,7 @@ interface ComponentEvents extends NativeEvents {
 
 interface Component {
 	readonly isComponent: true
+	readonly supers: any[]
 
 	readonly classes: ClassManipulator<this>
 	readonly attributes: AttributeManipulator<this>
@@ -59,10 +68,16 @@ interface Component {
 	readonly active: State<boolean>
 	readonly rooted: State<boolean>
 	readonly removed: State<boolean>
+	readonly id: State<string | undefined>
+	readonly name: State<string | undefined>
 
 	readonly element: HTMLElement
 
-	id (id?: string): this
+	setId (id?: string): this
+	setName (name?: string | State<string | undefined>): this
+
+	is<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): this is COMPONENT
+	is<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): this is COMPONENT
 
 	/**
 	 * **Warning:** Replacing an element will leave any subscribed events on the original element, and not re-subscribe them on the new element.
@@ -70,7 +85,8 @@ interface Component {
 	replaceElement (elementOrType: HTMLElement | keyof HTMLElementTagNameMap): this
 
 	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT>, ...params: PARAMS): this & COMPONENT
-	extend<T> (extensionProvider: (component: this & T) => T): this & T
+	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Extension<PARAMS, COMPONENT>, ...params: PARAMS): this & COMPONENT
+	extend<T> (extensionProvider: (component: this & T) => Omit<T, typeof SYMBOL_COMPONENT_BRAND>): this & T
 	extendMagic<K extends keyof this, O extends this = this> (property: K, magic: (component: this) => { get (): O[K], set?(value: O[K]): void }): this
 	extendJIT<K extends keyof this, O extends this = this> (property: K, supplier: (component: this) => O[K]): this
 
@@ -87,6 +103,7 @@ interface Component {
 
 	ariaRole (role?: AriaRole): this
 	ariaLabel (keyOrHandler?: Quilt.SimpleKey | Quilt.Handler): this
+	ariaLabelledBy (component?: Component): this
 	ariaHidden (): this
 	ariaChecked (state: State<boolean>): this
 
@@ -102,7 +119,12 @@ enum Classes {
 }
 
 function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
+
+	let unuseNameState: UnsubscribeState | undefined
+	let unuseAriaLabelledByIdState: UnsubscribeState | undefined
+
 	let component: Mutable<Component> = {
+		supers: [],
 		isComponent: true,
 		element: document.createElement(type),
 		removed: State(false),
@@ -125,11 +147,13 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 			return component
 		},
-		and (builder, ...params) {
+		is: (builder): this is any => component.supers.includes(builder),
+		and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Extension<PARAMS, COMPONENT>, ...params: PARAMS) {
 			component = builder.from(component, ...params)
+			component.supers.push(builder)
 			return component as any
 		},
-		extend: extension => Object.assign(component, extension(component as never)),
+		extend: extension => Object.assign(component, extension(component as never)) as never,
 		extendMagic: (property, magic) => {
 			Define.magic(component, property, magic(component))
 			return component
@@ -177,13 +201,43 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		get active (): State<boolean> {
 			return Define.set(component, "active", State(false))
 		},
+		get id (): State<string | undefined> {
+			return Define.set(component, "id", State(undefined))
+		},
+		get name (): State<string | undefined> {
+			return Define.set(component, "name", State(undefined))
+		},
 
-		id: id => {
-			if (id)
+		setId: id => {
+			if (id) {
 				component.element.setAttribute("id", id)
-			else
+				component.id.value = id
+			} else {
 				component.element.removeAttribute("id")
+				component.id.value = undefined
+			}
 			return component
+		},
+		setName: name => {
+			unuseNameState?.()
+			unuseNameState = undefined
+
+			if (name && typeof name !== "string")
+				unuseNameState = name.use(component, setName)
+			else
+				setName(name)
+
+			return component
+
+			function setName (name?: string) {
+				if (typeof name === "string") {
+					component.element.setAttribute("id", name)
+					component.name.value = name
+				} else {
+					component.element.removeAttribute("name")
+					component.name.value = undefined
+				}
+			}
 		},
 
 		remove (internal = false) {
@@ -268,6 +322,13 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 			return component.attributes.use("aria-label", keyOrHandler)
 		},
+		ariaLabelledBy: labelledBy => {
+			unuseAriaLabelledByIdState?.()
+			unuseAriaLabelledByIdState = labelledBy?.id.use(component, id => {
+				component.attributes.set("aria-labelledby", id)
+			})
+			return component
+		},
 		ariaHidden: () => component.attributes.set("aria-hidden", "true"),
 		ariaChecked: (state) => {
 			state.use(component, state => {
@@ -343,14 +404,12 @@ namespace Component {
 		return is(from) ? from.element as Node as NODE : from
 	}
 
-	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component> {
+	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component> extends Extension<PARAMS, BUILD_COMPONENT> {
 		(...params: PARAMS): BUILD_COMPONENT
-		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): COMPONENT & BUILD_COMPONENT
 	}
 
-	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component> {
+	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component> extends ExtensionAsync<PARAMS, BUILD_COMPONENT> {
 		(...params: PARAMS): Promise<BUILD_COMPONENT>
-		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): Promise<COMPONENT & BUILD_COMPONENT>
 	}
 
 	const defaultBuilder = (type?: keyof HTMLElementTagNameMap) => Component(type)
@@ -371,6 +430,22 @@ namespace Component {
 		return Object.assign(simpleBuilder, {
 			from: realBuilder,
 		})
+	}
+
+	export interface Extension<PARAMS extends any[], EXT_COMPONENT extends Component> {
+		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): COMPONENT & EXT_COMPONENT
+	}
+
+	export interface ExtensionAsync<PARAMS extends any[], EXT_COMPONENT extends Component> {
+		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): Promise<COMPONENT & EXT_COMPONENT>
+	}
+
+	export function Extension<PARAMS extends any[], COMPONENT extends Component> (builder: (component: Component, ...params: PARAMS) => COMPONENT): Extension<PARAMS, COMPONENT>
+	export function Extension<PARAMS extends any[], COMPONENT extends Component> (builder: (component: Component, ...params: PARAMS) => Promise<COMPONENT>): ExtensionAsync<PARAMS, COMPONENT>
+	export function Extension (builder: (component: Component, ...params: any[]) => Component | Promise<Component>) {
+		return {
+			from: builder,
+		} as Extension<any[], Component> | ExtensionAsync<any[], Component>
 	}
 
 }

@@ -1,0 +1,15 @@
+.labelled-row:
+	; %flex
+	%gap-3
+	%align-items-centre
+
+	&--in-labelled-table:
+		; #after: .labelled-row
+
+		%grid
+		%columns-subgrid
+		grid-column: 1/3
+
+	&-content:
+		%block
+		%relative

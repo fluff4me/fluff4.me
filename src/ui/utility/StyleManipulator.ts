@@ -1,6 +1,7 @@
 import style from "style"
 import type Component from "ui/Component"
 import type State from "utility/State"
+import type { UnsubscribeState } from "utility/State"
 
 type ComponentName = keyof typeof style
 
@@ -9,6 +10,7 @@ interface StyleManipulatorFunctions<HOST> {
 	toggle (...names: ComponentName[]): HOST
 	toggle (enabled: boolean, ...names: ComponentName[]): HOST
 	bind (state: State<boolean>, ...names: ComponentName[]): HOST
+	unbind (state?: State<boolean>): HOST
 	refresh (): HOST
 
 	setProperty (property: string, value: string | number): HOST
@@ -25,8 +27,9 @@ interface StyleManipulator<HOST> extends StyleManipulatorFunction<HOST>, StyleMa
 
 function StyleManipulator (component: Component): StyleManipulator<Component> {
 	const styles = new Set<ComponentName>()
+	const stateUnsubscribers = new WeakMap<State<boolean>, [UnsubscribeState, ComponentName[]]>()
 
-	return Object.assign(
+	const result: StyleManipulator<Component> = Object.assign(
 		((...names) => {
 			for (const name of names)
 				styles.add(name)
@@ -54,7 +57,9 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 				return component
 			},
 			bind (state, ...names) {
-				state.use(component, active => {
+				result.unbind(state)
+
+				const unsubscribe = state.use(component, active => {
 					if (active)
 						for (const name of names)
 							styles.add(name)
@@ -64,6 +69,18 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 
 					updateClasses(!active ? names : undefined)
 				})
+				stateUnsubscribers.set(state, [unsubscribe, names])
+				return component
+			},
+			unbind (state) {
+				const bound = state && stateUnsubscribers.get(state)
+				if (!bound)
+					return component
+
+				const [unsubscribe, names] = bound
+				unsubscribe?.()
+				stateUnsubscribers.delete(state)
+				result.remove(...names)
 				return component
 			},
 			refresh: () => updateClasses(),
@@ -84,6 +101,8 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 		} as StyleManipulatorFunctions<Component>,
 	)
 
+	return result
+
 	function updateClasses (deletedStyles?: ComponentName[]) {
 		const toAdd = [...styles].flatMap(component => style[component])
 		const toRemove = deletedStyles?.flatMap(component => style[component]).filter(cls => !toAdd.includes(cls))
@@ -92,6 +111,7 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 			component.element.classList.remove(...toRemove)
 
 		component.element.classList.add(...toAdd)
+		return component
 	}
 }
 

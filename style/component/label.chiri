@@ -1,0 +1,8 @@
+.label:
+
+	&-required:
+		@after:
+			content: "*"
+
+	&--invalid:
+		color: #f33
