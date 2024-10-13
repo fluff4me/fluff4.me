@@ -29,6 +29,14 @@ description: Your authorisation(s) are not currently associated with a fluff4.me
 title: Authorisations
 description: These third party service accounts are linked to your fluff4.me account and may be used to log in.
 
+## account/form
+name/label: Name
+name/hint: Your display name or penname — the name your comments and works are attributed to. This can be changed whenever you like, and doesn't have to be unique.
+vanity/label: Vanity
+vanity/hint: Your username, and what people use to {#B:@ping} you in comments. This {#I:can} be changed whenever you like, but {#B:must always be unique}.
+vanity/url-preview: Preview
+description/label: Description
+description/hint: This bio will appear on your profile above any works.
 
 ## account/create
 title: Create account

@@ -1,0 +1,4 @@
+.labelled-table:
+	%gap-3
+	%grid
+	grid-template-columns: auto 1fr

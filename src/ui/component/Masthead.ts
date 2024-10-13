@@ -23,9 +23,9 @@ const Masthead = Component.Builder("header", (masthead, sidebar: Sidebar, view: 
 		.appendTo(masthead)
 
 	const left = Component()
-		.append(Button()
+		.append(Component()
+			.and(Button)
 			.style("masthead-left-hamburger")
-			.tabIndex("programmatic")
 			.ariaHidden()
 			.event.subscribe("click", sidebar.toggle))
 		.style("masthead-left")
