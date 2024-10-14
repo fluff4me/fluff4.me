@@ -2,8 +2,6 @@
 	&-content:
 
 	&-footer:
-		%flex
-		%justify-content-end
 		%unmargin-4
 		%padding-inline-4
 		%padding-block-3

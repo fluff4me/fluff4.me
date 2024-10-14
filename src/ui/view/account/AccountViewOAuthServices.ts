@@ -37,8 +37,6 @@ const AccountViewOAuthServices = Component.Builder(async (component): Promise<Ac
 		return block
 	}
 
-	console.log(services.data)
-
 	for (const service of Objects.values(services.data))
 		AccountViewOAuthService(service)
 			.appendTo(list)

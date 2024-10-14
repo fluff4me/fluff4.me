@@ -1,9 +1,10 @@
 import Component from "ui/Component"
+import ActionRow from "ui/component/ActionRow"
 import Button from "ui/component/Button"
 
 interface FormExtensions {
 	content: Component
-	footer: Component
+	footer: ActionRow
 	submit: Button
 }
 
@@ -18,7 +19,7 @@ const Form = Component.Builder((form, label: Component): Form => {
 	const content = Component()
 		.style("form-content")
 
-	const footer = Component()
+	const footer = ActionRow()
 		.style("form-footer")
 
 	return form
@@ -30,7 +31,7 @@ const Form = Component.Builder((form, label: Component): Form => {
 		.extendJIT("submit", () => Button()
 			.style("form-submit")
 			.attributes.set("type", "submit")
-			.appendTo(footer))
+			.appendTo(footer.right))
 })
 
 export default Form

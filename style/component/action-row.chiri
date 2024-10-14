@@ -1,0 +1,23 @@
+.action-row:
+	%flex
+	%width-100
+	%gap-3
+	max-width: 800px
+
+	&-left:
+		%flex
+		%flex-grow
+		%justify-content-start
+		%gap-3
+
+	&-middle:
+		%flex
+		%flex-grow
+		%justify-content-centre
+		%gap-3
+
+	&-right:
+		%flex
+		%flex-grow
+		%justify-content-end
+		%gap-3
