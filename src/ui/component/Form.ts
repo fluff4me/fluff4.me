@@ -10,7 +10,8 @@ interface FormExtensions {
 interface Form extends Component, FormExtensions { }
 
 const Form = Component.Builder((form, label: Component): Form => {
-	form.style("form")
+	form.replaceElement("form")
+		.style("form")
 		.ariaRole("form")
 		.ariaLabelledBy(label)
 
@@ -28,6 +29,7 @@ const Form = Component.Builder((form, label: Component): Form => {
 		}))
 		.extendJIT("submit", () => Button()
 			.style("form-submit")
+			.attributes.set("type", "submit")
 			.appendTo(footer))
 })
 

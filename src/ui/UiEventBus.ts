@@ -44,7 +44,8 @@ const mouseKeyMap: Record<string, string> = {
 }
 
 function emitKeyEvent (e: RawEvent) {
-	const input = (e.target as HTMLElement).closest<HTMLElement>("input[type=text], textarea, [contenteditable]")
+	const target = e.target as HTMLElement
+	const input = target.closest<HTMLElement>("input[type=text], textarea, [contenteditable]")
 	let usedByInput = !!input
 
 	const eventKey = e.key ?? mouseKeyMap[e.button!]
@@ -108,6 +109,17 @@ function emitKeyEvent (e: RawEvent) {
 	if ((event.used && !usedByInput) || (usedByInput && cancelInput)) {
 		e.preventDefault()
 		lastUsed = Date.now()
+	}
+
+	if (usedByInput) {
+		if (e.type === "keydown" && eventKey === "Enter" && !event.shift && !event.alt) {
+			const form = target.closest("form")
+			if (form && target.tagName.toLowerCase() === "input" && !event.ctrl) {
+				e.preventDefault()
+			} else {
+				form?.requestSubmit()
+			}
+		}
 	}
 }
 
