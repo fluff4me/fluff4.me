@@ -1,3 +1,4 @@
+import EndpointAuthorCreate from "endpoint/author/EndpointAuthorCreate"
 import Session from "model/Session"
 import Component from "ui/Component"
 import Block from "ui/component/Block"
@@ -22,28 +23,46 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 	const table = LabelledTable().appendTo(form.content)
 
 	const nameInput = TextInput()
+		.setRequired()
+		.default.bind(Session.Auth.author.map(author => author?.name))
 	table.label(label => label.text.use("view/account/form/name/label"))
-		.content((content, label) => content.append(nameInput
-			.setLabel(label)
-			.setRequired()
-			.default.bind(Session.Auth.author.map(author => author?.name))))
+		.content((content, label) => content.append(nameInput.setLabel(label)))
 
+	const vanityInput = TextInput()
+		.placeholder.bind(nameInput.state
+			.map(name => filterVanity(name)))
+		.default.bind(Session.Auth.author.map(author => author?.vanity))
+		.filter(filterVanity)
 	table.label(label => label.text.use("view/account/form/vanity/label"))
-		.content((content, label) => content.append(TextInput()
-			.setLabel(label)
-			.placeholder.bind(nameInput.state
-				.map(name => filterVanity(name)))
-			.default.bind(Session.Auth.author.map(author => author?.vanity))
-			.filter(filterVanity)))
+		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
+	const descriptionInput = TextInput()
 	table.label(label => label.text.use("view/account/form/description/label"))
-		.content((content, label) => content.append(TextInput()
-			.setLabel(label)))
+		.content((content, label) => content.append(descriptionInput.setLabel(label)))
+
+	form.event.subscribe("submit", async event => {
+		event.preventDefault()
+
+		const response = await EndpointAuthorCreate.query({
+			body: {
+				name: nameInput.value,
+				vanity: vanityInput.value,
+				description: descriptionInput.value,
+			},
+		})
+
+		if (response instanceof Error) {
+			console.error(response)
+			return
+		}
+
+		Session.setAuthor(response.data)
+	})
 
 	return form
 
 	function filterVanity (vanity: string, textBefore = "", isFullText = true) {
-		vanity = vanity.toLowerCase().replace(/[\W_]+/g, "-")
+		vanity = vanity.replace(/[\W_]+/g, "-")
 		if (isFullText)
 			vanity = vanity.replace(/^-|-$/g, "")
 

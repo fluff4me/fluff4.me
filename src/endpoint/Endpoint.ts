@@ -24,12 +24,13 @@ interface EndpointQueryData {
 interface Endpoint<ROUTE extends keyof Paths> {
 	header (header: string, value: string): this
 	headers (headers: Record<string, string>): this
+	acceptJSON (): this
 	query: EndpointQuery<Paths[ROUTE]["body"], Paths[ROUTE]["response"]>
 }
 
 function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]["method"]) {
 	let headers: Record<string, string> | undefined
-	const endpoint = {
+	const endpoint: Endpoint<ROUTE> = {
 		header (header, value) {
 			headers ??= {}
 			headers[header] = value
@@ -39,7 +40,8 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 			headers = { ...headers, ...h }
 			return endpoint
 		},
-		async query (query?: EndpointQueryData) {
+		acceptJSON: () => endpoint.header("Accept", "application/json"),
+		query: (async (query?: EndpointQueryData) => {
 			const body = !query?.body ? undefined : JSON.stringify(query.body)
 			const response = await fetch(`${Env.API_ORIGIN}${route.slice(1)}`, {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -75,8 +77,8 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 			}
 
 			throw new Error(`Response type ${responseType} is not supported`)
-		},
-	} as Endpoint<ROUTE>
+		}) as Endpoint<ROUTE>["query"],
+	}
 
 	return endpoint
 }

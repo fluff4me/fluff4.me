@@ -1,4 +1,4 @@
-import type { Author } from "api.fluff4.me"
+import type { Author, AuthorWithAuthorisations } from "api.fluff4.me"
 import { type Authorisation, type AuthService, type Session } from "api.fluff4.me"
 import EndpointAuthRemove from "endpoint/auth/EndpointAuthRemove"
 import EndpointSessionGet from "endpoint/session/EndpointSessionGet"
@@ -21,6 +21,22 @@ namespace Session {
 			Store.items.stateToken = stateToken
 
 		Store.items.session = session?.data ?? undefined
+		updateState()
+	}
+
+	export function setAuthor (author: Author & Partial<AuthorWithAuthorisations>) {
+		const session = Store.items.session
+		if (!session)
+			return void refresh()
+
+		Store.items.session = {
+			...session,
+			author: {
+				...author,
+				authorisations: undefined,
+			} as Author,
+			authorisations: author.authorisations ?? session.authorisations,
+		}
 		updateState()
 	}
 
