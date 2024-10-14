@@ -1,12 +1,13 @@
-colour-scheme: light dark
+colour-scheme: dark
 overflow-x: hidden
-#string background-highlight = "color-mix(in lch, $background-2, #fff 5%)
-background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $background-2)
+#string background-highlight = "color-mix(in lch, $dark-2, #fff 5%)
+background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $dark-2)
 position: absolute
 inset: 0
-colour: $colour-3
+colour: $light-3
 view-transition-name: unset
 font-size: 1.2rem
+$button-colour: $light-0
 
 .body:
 	%margin-0
