@@ -1,4 +1,5 @@
-import type { Authorisation, AuthService } from "api.fluff4.me"
+import type { Author } from "api.fluff4.me"
+import { type Authorisation, type AuthService, type Session } from "api.fluff4.me"
 import EndpointAuthRemove from "utility/endpoint/auth/EndpointAuthRemove"
 import EndpointSessionGet from "utility/endpoint/session/EndpointSessionGet"
 import popup from "utility/Popup"
@@ -8,7 +9,7 @@ import Store from "utility/Store"
 declare module "utility/Store" {
 	interface ILocalStorage {
 		stateToken: string
-		sessionAuthServices: Authorisation[]
+		session: Session
 	}
 }
 
@@ -19,13 +20,14 @@ namespace Session {
 		if (stateToken)
 			Store.items.stateToken = stateToken
 
-		Store.items.sessionAuthServices = session?.data?.authorisations ?? undefined
+		Store.items.session = session?.data ?? undefined
 		updateState()
 	}
 
 	function updateState () {
-		Auth.state.value = Store.items.sessionAuthServices?.length ? "has-authorisations" : "none"
-		Auth.authorisations.value = Store.items.sessionAuthServices ?? []
+		Auth.state.value = Store.items.session?.authorisations?.length ? "has-authorisations" : "none"
+		Auth.authorisations.value = Store.items.session?.authorisations ?? []
+		Auth.author.value = Store.items.session?.author ?? undefined
 	}
 
 	export function getStateToken () {
@@ -40,21 +42,32 @@ namespace Session {
 
 		export const state = State<State>("none")
 		export const authorisations = State<Authorisation[]>([])
+		export const author = State<Author | undefined>(undefined, (a, b) => a?.vanity === b?.vanity)
 
 		export function getAll () {
-			return Store.items.sessionAuthServices ?? []
+			return Store.items.session?.authorisations ?? []
 		}
 
 		export function get (service: string) {
-			return Store.items.sessionAuthServices?.find(auth => auth.service === service)
+			return Store.items.session?.authorisations?.find(auth => auth.service === service)
 		}
 
 		export async function unauth (authOrId: Authorisation | string) {
 			const id = typeof authOrId === "string" ? authOrId : authOrId.id
 			await EndpointAuthRemove.query({ body: { id } })
-			Store.items.sessionAuthServices = Store.items.sessionAuthServices?.filter(auth => auth.id !== id)
-			if (!Store.items.sessionAuthServices?.length)
-				delete Store.items.sessionAuthServices
+
+			const session = Store.items.session
+			if (session?.authorisations) {
+				let authorisations: Authorisation[] | null = session.authorisations.filter(auth => auth.id !== id)
+				if (!authorisations.length)
+					authorisations = null
+
+				Store.items.session = {
+					...session,
+					authorisations,
+				}
+			}
+
 			updateState()
 		}
 

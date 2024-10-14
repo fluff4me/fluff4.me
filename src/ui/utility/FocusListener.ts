@@ -28,13 +28,13 @@ namespace FocusListener {
 			return
 
 		const lastFocusedComponent = lastFocused?.component
-		if (lastFocusedComponent?.focused.listening)
+		if (lastFocusedComponent)
 			lastFocusedComponent.focused.value = false
 
 		const oldAncestors = !lastFocusedComponent ? undefined : [...lastFocusedComponent.getAncestorComponents()]
 
 		const focusedComponent = focused?.component
-		if (focusedComponent?.focused.listening)
+		if (focusedComponent)
 			focusedComponent.focused.value = true
 
 		const newAncestors = !focusedComponent ? undefined : [...focusedComponent.getAncestorComponents()]
@@ -42,12 +42,12 @@ namespace FocusListener {
 		if (oldAncestors)
 			for (const ancestor of oldAncestors)
 				if (!newAncestors?.includes(ancestor))
-					if (ancestor.hasFocused.listening)
+					if (ancestor)
 						ancestor.hasFocused.value = false
 
 		if (newAncestors)
 			for (const ancestor of newAncestors)
-				if (ancestor.hasFocused.listening)
+				if (ancestor)
 					ancestor.hasFocused.value = true
 
 		lastFocused = focused

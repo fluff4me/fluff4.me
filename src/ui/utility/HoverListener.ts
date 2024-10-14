@@ -32,11 +32,11 @@ namespace HoverListener {
 
 			const newHovered = [...allHovered]
 			for (const element of lastHovered)
-				if (element.component?.hovered.listening && !newHovered.includes(element))
+				if (element.component && !newHovered.includes(element))
 					element.component.hovered.value = false
 
 			for (const element of newHovered)
-				if (element.component?.hovered.listening && !lastHovered.includes(element))
+				if (element.component && !lastHovered.includes(element))
 					element.component.hovered.value = true
 
 			lastHovered = newHovered
