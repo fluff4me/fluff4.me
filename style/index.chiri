@@ -19,6 +19,7 @@
 	component/label
 	component/labelled-table
 	component/labelled-row
+	component/action-row
 	component/form
 	component/flag
 	component/masthead

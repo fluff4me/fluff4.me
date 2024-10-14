@@ -2,6 +2,7 @@ import type { Author, AuthorWithAuthorisations } from "api.fluff4.me"
 import { type Authorisation, type AuthService, type Session } from "api.fluff4.me"
 import EndpointAuthRemove from "endpoint/auth/EndpointAuthRemove"
 import EndpointSessionGet from "endpoint/session/EndpointSessionGet"
+import EndpointSessionReset from "endpoint/session/EndpointSessionReset"
 import popup from "utility/Popup"
 import State from "utility/State"
 import Store from "utility/Store"
@@ -21,6 +22,12 @@ namespace Session {
 			Store.items.stateToken = stateToken
 
 		Store.items.session = session?.data ?? undefined
+		updateState()
+	}
+
+	export async function reset () {
+		await EndpointSessionReset.query()
+		delete Store.items.session
 		updateState()
 	}
 
