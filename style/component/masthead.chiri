@@ -7,7 +7,7 @@
 	grid-area: masthead
 	grid-template-columns: subgrid
 	grid-template-areas: ". left mid right ."
-	$border-colour: $background-3
+	$border-colour: $dark-3
 	box-shadow:
 		#{box-shadow-inset-border-bottom-1},
 		#{box-shadow-inset-bottom-1}

@@ -3,5 +3,5 @@ $colour-blue-saturated: #0173ba
 $colour-pink: #d94e8f
 
 #for var i = 1, i < 100, set i++:
-	%background-light-a#{i}: background: color-mix(in lch, $colour-0, transparent #{100 - i}%)
-	%background-dark-a#{i}: background: color-mix(in lch, $background-0, transparent #{100 - i}%)
+	%background-light-a#{i}: background: color-mix(in lch, $light-0, transparent #{100 - i}%)
+	%background-dark-a#{i}: background: color-mix(in lch, $dark-0, transparent #{100 - i}%)

@@ -11,5 +11,5 @@
 	%border-1
 	%border-radius-1
 	$border-colour: $block-border-colour
-	background: light-dark(#{alpha(0.02, $dark-0)}, #{alpha(0.2, $dark-0)})
+	background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
 	%background-unclip
