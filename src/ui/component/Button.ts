@@ -11,6 +11,7 @@ const Button = Component.Builder("button", (button): Button => {
 	const disabledReasons = new Set<string>()
 
 	return button
+		.attributes.set("type", "button")
 		.style("button")
 		.extend<ButtonExtensions>(button => ({
 			textWrapper: undefined!,

@@ -135,6 +135,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 			const oldElement = component.element
 
+			newElement.replaceChildren(...component.element.children)
 			if (component.element.parentNode)
 				component.element.replaceWith(newElement)
 
