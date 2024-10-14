@@ -1,4 +1,5 @@
 import EndpointAuthorCreate from "endpoint/author/EndpointAuthorCreate"
+import EndpointAuthorUpdate from "endpoint/author/EndpointAuthorUpdate"
 import Session from "model/Session"
 import Component from "ui/Component"
 import Block from "ui/component/Block"
@@ -43,7 +44,7 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 	form.event.subscribe("submit", async event => {
 		event.preventDefault()
 
-		const response = await EndpointAuthorCreate.query({
+		const response = await (type === "create" ? EndpointAuthorCreate : EndpointAuthorUpdate).query({
 			body: {
 				name: nameInput.value,
 				vanity: vanityInput.value,
