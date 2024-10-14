@@ -24,6 +24,7 @@ const Input = Component.Extension((component): Input => {
 		},
 		setLabel: label => {
 			component.setName(label?.for)
+			component.setId(label?.for)
 			label?.setInput(component)
 			return component
 		},

@@ -73,7 +73,7 @@ interface Component {
 
 	readonly element: HTMLElement
 
-	setId (id?: string): this
+	setId (id?: string | State<string | undefined>): this
 	setName (name?: string | State<string | undefined>): this
 
 	is<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): this is COMPONENT
@@ -120,6 +120,7 @@ enum Classes {
 
 function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
+	let unuseIdState: UnsubscribeState | undefined
 	let unuseNameState: UnsubscribeState | undefined
 	let unuseAriaLabelledByIdState: UnsubscribeState | undefined
 
@@ -210,14 +211,25 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 
 		setId: id => {
-			if (id) {
-				component.element.setAttribute("id", id)
-				component.id.value = id
-			} else {
-				component.element.removeAttribute("id")
-				component.id.value = undefined
-			}
+			unuseIdState?.()
+			unuseIdState = undefined
+
+			if (id && typeof id !== "string")
+				unuseIdState = id.use(component, setId)
+			else
+				setId(id)
+
 			return component
+
+			function setId (id?: string) {
+				if (id) {
+					component.element.setAttribute("id", id)
+					component.id.value = id
+				} else {
+					component.element.removeAttribute("id")
+					component.id.value = undefined
+				}
+			}
 		},
 		setName: name => {
 			unuseNameState?.()
@@ -231,8 +243,8 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 
 			function setName (name?: string) {
-				if (typeof name === "string") {
-					component.element.setAttribute("id", name)
+				if (name) {
+					component.element.setAttribute("name", name)
 					component.name.value = name
 				} else {
 					component.element.removeAttribute("name")
