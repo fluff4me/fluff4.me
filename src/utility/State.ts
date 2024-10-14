@@ -6,7 +6,9 @@ export type UnsubscribeState = () => void
 
 interface ReadableState<T> {
 	readonly value: T
-	readonly listening: boolean
+
+	readonly equals: <V extends T>(value: V) => boolean
+
 	/** Subscribe to state change events. Receive the initial state as an event. */
 	use (owner: Component, subscriber: (value: T, initial?: true) => any): UnsubscribeState
 	/** Subscribe to state change events. The initial state is not sent as an event. */
@@ -33,21 +35,21 @@ interface InternalState<T> {
 	[SYMBOL_VALUE]: T
 }
 
-function State<T> (defaultValue: T): State<T> {
+function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> {
 	let subscribers: ((value: T) => any)[] = []
 	const result: Mutable<State<T>> & InternalState<T> = {
 		[SYMBOL_VALUE]: defaultValue,
-		listening: false,
 		get value () {
 			return result[SYMBOL_VALUE]
 		},
 		set value (value: T) {
-			if (result[SYMBOL_VALUE] === value)
+			if (result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value))
 				return
 
 			result[SYMBOL_VALUE] = value
 			result.emit()
 		},
+		equals: value => result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value) || false,
 		emit: () => {
 			for (const subscriber of subscribers)
 				subscriber(result[SYMBOL_VALUE])
@@ -77,12 +79,10 @@ function State<T> (defaultValue: T): State<T> {
 		},
 		subscribeManual: subscriber => {
 			subscribers.push(subscriber)
-			result.listening = true
 			return () => result.unsubscribe(subscriber)
 		},
 		unsubscribe: subscriber => {
 			subscribers = subscribers.filter(s => s !== subscriber)
-			result.listening = !subscribers.length
 			return result
 		},
 
@@ -108,7 +108,7 @@ namespace State {
 			for (const state of states)
 				state.subscribeManual(() => {
 					const value = generate()
-					if (result[SYMBOL_VALUE] === value)
+					if (result.equals(value))
 						return
 
 					result[SYMBOL_VALUE] = value

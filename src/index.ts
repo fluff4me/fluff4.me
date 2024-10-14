@@ -1,6 +1,7 @@
 import App from "App"
 import Arrays from "utility/Arrays"
 import applyDOMRectPrototypes from "utility/DOMRect"
+import Elements from "utility/Elements"
 
 // view transition api fallback
 const noopViewTransition: ViewTransition = {
@@ -17,4 +18,5 @@ document.startViewTransition ??= cb => {
 
 applyDOMRectPrototypes()
 Arrays.applyPrototypes()
+Elements.applyPrototypes()
 void App()

@@ -1,3 +1,4 @@
+import Session from "model/Session"
 import Component from "ui/Component"
 import Block from "ui/component/Block"
 import Form from "ui/component/Form"
@@ -20,21 +21,35 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 
 	const table = LabelledTable().appendTo(form.content)
 
-	let nameInput!: TextInput
+	const nameInput = TextInput()
 	table.label(label => label.text.use("view/account/form/name/label"))
-		.content((content, label) => content.append(nameInput = TextInput()
+		.content((content, label) => content.append(nameInput
 			.setLabel(label)
-			.setRequired()))
+			.setRequired()
+			.default.bind(Session.Auth.author.map(author => author?.name))))
 
 	table.label(label => label.text.use("view/account/form/vanity/label"))
 		.content((content, label) => content.append(TextInput()
 			.setLabel(label)
 			.placeholder.bind(nameInput.state
-				.map(name => name.toLowerCase().replace(/\W+/, "-")))))
+				.map(name => filterVanity(name)))
+			.default.bind(Session.Auth.author.map(author => author?.vanity))
+			.filter(filterVanity)))
 
 	table.label(label => label.text.use("view/account/form/description/label"))
 		.content((content, label) => content.append(TextInput()
 			.setLabel(label)))
 
 	return form
+
+	function filterVanity (vanity: string, textBefore = "", isFullText = true) {
+		vanity = vanity.toLowerCase().replace(/[\W_]+/g, "-")
+		if (isFullText)
+			vanity = vanity.replace(/^-|-$/g, "")
+
+		if (textBefore.endsWith("-") && vanity.startsWith("-"))
+			return vanity.slice(1)
+
+		return vanity
+	}
 })
