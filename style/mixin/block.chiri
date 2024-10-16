@@ -1,0 +1,2 @@
+%block-border-shadow:
+	box-shadow: #{box-shadow-inset-border-1}, #{box-shadow-1}

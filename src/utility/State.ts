@@ -94,8 +94,9 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 namespace State {
 
 	export interface Generator<T> extends ReadableState<T> {
+		refresh (): this
 		observe (...states: State<any>[]): this
-		// unobserve (...states: State<any>[]): this
+		unobserve (...states: State<any>[]): this
 	}
 
 	export function Generator<T> (generate: () => T): Generator<T> {
@@ -104,16 +105,69 @@ namespace State {
 		Define.magic(result, "value", {
 			get: () => result[SYMBOL_VALUE],
 		})
+
+		result.refresh = () => {
+			const value = generate()
+			if (result.equals(value))
+				return result
+
+			result[SYMBOL_VALUE] = value
+			result.emit()
+			return result
+		}
+
 		result.observe = (...states) => {
 			for (const state of states)
-				state.subscribeManual(() => {
-					const value = generate()
-					if (result.equals(value))
-						return
+				state.subscribeManual(result.refresh)
+			return result
+		}
 
-					result[SYMBOL_VALUE] = value
-					result.emit()
-				})
+		result.unobserve = (...states) => {
+			for (const state of states)
+				state.unsubscribe(result.refresh)
+			return result
+		}
+
+		return result
+	}
+
+	export interface JIT<T> extends ReadableState<T> {
+		markDirty (): this
+		observe (...states: State<any>[]): this
+		unobserve (...states: State<any>[]): this
+	}
+
+	export function JIT<T> (generate: () => T): JIT<T> {
+		const result = State(undefined) as Mutable<JIT<T>> & InternalState<T>
+
+		let isCached = false
+		let cached: T | undefined
+		Define.magic(result, "value", {
+			get: () => {
+				if (!isCached) {
+					isCached = true
+					cached = generate()
+				}
+
+				return cached as T
+			},
+		})
+
+		result.markDirty = () => {
+			isCached = false
+			cached = undefined
+			return result
+		}
+
+		result.observe = (...states) => {
+			for (const state of states)
+				state.subscribeManual(result.markDirty)
+			return result
+		}
+
+		result.unobserve = (...states) => {
+			for (const state of states)
+				state.unsubscribe(result.markDirty)
 			return result
 		}
 

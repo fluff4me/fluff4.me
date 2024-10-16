@@ -1,3 +1,4 @@
+import quilt from "lang/en-nz"
 import Session from "model/Session"
 import Navigator from "navigation/Navigate"
 import style from "style"
@@ -7,6 +8,8 @@ import Sidebar from "ui/component/Sidebar"
 import UiEventBus from "ui/UiEventBus"
 import FocusListener from "ui/utility/FocusListener"
 import HoverListener from "ui/utility/HoverListener"
+import Mouse from "ui/utility/Mouse"
+import Viewport from "ui/utility/Viewport"
 import ViewContainer from "ui/ViewContainer"
 import Env from "utility/Env"
 import Store from "utility/Store"
@@ -66,6 +69,10 @@ async function App (): Promise<App> {
 
 	HoverListener.listen()
 	FocusListener.listen()
+	Mouse.listen()
+	Viewport.listen()
+
+	document.title = quilt["fluff4me/title"]().toString()
 
 	document.body.classList.add(...style.body)
 

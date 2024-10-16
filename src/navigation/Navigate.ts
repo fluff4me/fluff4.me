@@ -30,7 +30,7 @@ function Navigator (app: App): Navigator {
 					if (!params)
 						continue
 
-					await route.handler(app, params)
+					await route.handler(app, params as never)
 					handled = true
 					break
 				}

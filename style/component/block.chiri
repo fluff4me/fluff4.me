@@ -5,17 +5,10 @@
 	%inset-border-1
 	%width-100
 	%overflow-hidden
-	colour-scheme: light dark
-	colour: $colour-3
-	$button-colour: $dark-0
+	%block-border-shadow
+	%scheme-light-dark
 	max-width: 800px
-	box-shadow: #{box-shadow-inset-border-1}, #{box-shadow-1}
-	#string background-colour = "light-dark(#{alpha(0.7, $light-0)}, #{alpha(0.02, $colour-0)})
-	#string border-colour = "light-dark(#{alpha(0.2, $colour-0)}, #{alpha(0.05, $colour-0)})
-	$block-border-colour: #{border-colour}
-	$border-colour: $block-border-colour
-	#string background-highlight = "light-dark(color-mix(in lch, #{background-colour}, #fff 20%), color-mix(in lch, #{background-colour}, #fff2 50%))
-	background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, #{background-colour})
+	#block
 
 	&-header:
 		%block

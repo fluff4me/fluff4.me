@@ -1,9 +1,11 @@
+import Session from "model/Session"
 import Component from "ui/Component"
 import Button from "ui/component/Button"
 import Heading from "ui/component/Heading"
 import Link from "ui/component/Link"
 import Flag from "ui/component/masthead/Flag"
 import type Sidebar from "ui/component/Sidebar"
+import Slot from "ui/component/Slot"
 import type ViewContainer from "ui/ViewContainer"
 import Env from "utility/Env"
 
@@ -63,7 +65,27 @@ const Masthead = Component.Builder("header", (masthead, sidebar: Sidebar, view: 
 		.append(Button()
 			.style("masthead-user-profile")
 			.ariaLabel("masthead/user/profile/alt")
-			.event.subscribe("click", () => navigate.toURL("/account")))
+			.popover("hover", popover => popover
+				.anchor.add("aligned right", "off bottom")
+				.append(Slot()
+					.use(Session.Auth.author, (slot, author) => {
+						if (!author) {
+							return Button()
+								.text.use("masthead/user/profile/popover/login")
+								.event.subscribe("click", () => navigate.toURL("/account"))
+								.appendTo(slot)
+						}
+
+						Button()
+							.text.use("masthead/user/profile/popover/profile")
+							.event.subscribe("click", () => navigate.toURL(`/author/${author.vanity}`))
+							.appendTo(slot)
+
+						Button()
+							.text.use("masthead/user/profile/popover/account")
+							.event.subscribe("click", () => navigate.toURL("/account"))
+							.appendTo(slot)
+					}))))
 		.appendTo(masthead)
 
 	return masthead.extend<MastheadExtensions>(masthead => ({}))
