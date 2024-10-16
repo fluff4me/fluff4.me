@@ -1,6 +1,7 @@
 import type { RoutePathInput } from "navigation/Route"
 import Route from "navigation/Route"
 import AccountView from "ui/view/AccountView"
+import AuthorView from "ui/view/AuthorView"
 import DebugView from "ui/view/DebugView"
 import HomeView from "ui/view/HomeView"
 
@@ -8,6 +9,7 @@ const Routes = [
 	Route("/", HomeView.navigate),
 	Route("/account", AccountView.navigate),
 	Route("/debug", DebugView.navigate),
+	Route("/author/$vanity", AuthorView.navigate),
 ]
 
 export default Routes

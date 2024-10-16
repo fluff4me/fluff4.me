@@ -5,6 +5,12 @@
 	var/font
 	var/font/font-awesome
 
+#import:
+	macro/block
+
+#import:
+	mixin/block
+
 #import: root
 
 #import:
@@ -20,6 +26,7 @@
 	component/labelled-table
 	component/labelled-row
 	component/action-row
+	component/popover
 	component/form
 	component/flag
 	component/masthead
@@ -32,5 +39,6 @@
 	view/type/debug
 	view/type/account
 	view/type/home
+	view/type/author
 
 #import: app

@@ -1,4 +1,5 @@
 import type Component from "ui/Component"
+import Mouse from "ui/utility/Mouse"
 
 namespace HoverListener {
 	let lastHovered: Element[] = []
@@ -24,7 +25,7 @@ namespace HoverListener {
 	}
 
 	export function listen () {
-		document.addEventListener("mousemove", () => {
+		Mouse.onMove(() => {
 			const allHovered = document.querySelectorAll(":hover")
 			const hovered = allHovered[allHovered.length - 1]
 			if (hovered === lastHovered[lastHovered.length - 1])

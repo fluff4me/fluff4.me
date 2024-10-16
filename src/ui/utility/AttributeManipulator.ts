@@ -10,6 +10,8 @@ interface AttributeManipulator<HOST> {
 	refresh (): void
 	remove (...attributes: string[]): HOST
 	toggle (present: boolean, attribute: string, value?: string): HOST
+	copy (component: Component): HOST
+	copy (element: HTMLElement): HOST
 }
 
 function AttributeManipulator (component: Component): AttributeManipulator<Component> {
@@ -58,6 +60,15 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 		},
 		toggle (present, attribute, value = "") {
 			return this[present ? "set" : "remove"](attribute, value)
+		},
+		copy (element) {
+			if ("element" in element)
+				element = element.element
+
+			for (const attribute of element.attributes)
+				component.element.setAttribute(attribute.name, attribute.value)
+
+			return component
 		},
 	}
 

@@ -1,4 +1,5 @@
 import type { Quilt } from "lang/en-nz"
+import AnchorManipulator from "ui/utility/AnchorManipulator"
 import AttributeManipulator from "ui/utility/AttributeManipulator"
 import ClassManipulator from "ui/utility/ClassManipulator"
 import type { NativeEvents } from "ui/utility/EventManipulator"
@@ -51,7 +52,9 @@ interface ComponentEvents extends NativeEvents {
 	unroot (): any
 }
 
-interface Component {
+export interface ComponentExtensions { }
+
+interface BaseComponent {
 	readonly isComponent: true
 	readonly supers: any[]
 
@@ -60,6 +63,7 @@ interface Component {
 	readonly event: EventManipulator<this, ComponentEvents>
 	readonly text: TextManipulator<this>
 	readonly style: StyleManipulator<this>
+	readonly anchor: AnchorManipulator<this>
 
 	readonly hovered: State<boolean>
 	readonly focused: State<boolean>
@@ -70,8 +74,11 @@ interface Component {
 	readonly removed: State<boolean>
 	readonly id: State<string | undefined>
 	readonly name: State<string | undefined>
+	readonly rect: State.JIT<DOMRect>
 
 	readonly element: HTMLElement
+
+	setOwner (owner: Component): this
 
 	setId (id?: string | State<string | undefined>): this
 	setName (name?: string | State<string | undefined>): this
@@ -100,6 +107,7 @@ interface Component {
 	getAncestorComponents (): Generator<Component>
 
 	remove (): void
+	removeContents (): void
 
 	receiveAncestorInsertEvents (): this
 
@@ -114,11 +122,15 @@ interface Component {
 	blur (): this
 }
 
+interface Component extends BaseComponent, ComponentExtensions { }
+
 export type EventsOf<COMPONENT extends Component> = COMPONENT["event"] extends EventManipulator<any, infer EVENTS> ? EVENTS : never
 
 enum Classes {
 	ReceiveAncestorInsertEvents = "_receieve-ancestor-insert-events"
 }
+
+const componentExtensionsRegistry: ((component: Mutable<Component>) => any)[] = []
 
 function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
@@ -126,12 +138,21 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 	let unuseNameState: UnsubscribeState | undefined
 	let unuseAriaLabelledByIdState: UnsubscribeState | undefined
 
-	let component: Mutable<Component> = {
+	let owner: Component | undefined
+	let component = ({
 		supers: [],
 		isComponent: true,
 		element: document.createElement(type),
 		removed: State(false),
 		rooted: State(false),
+
+		setOwner: newOwner => {
+			owner?.event.unsubscribe("remove", component.remove)
+			owner = newOwner
+			owner.event.subscribe("remove", component.remove)
+			return component
+		},
+
 		replaceElement: (newElement) => {
 			if (typeof newElement === "string")
 				newElement = document.createElement(newElement)
@@ -144,10 +165,12 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 			component.element = newElement
 			type = component.element.tagName as keyof HTMLElementTagNameMap
-			component.style.refresh()
 
-			if (oldElement.classList.contains(Classes.ReceiveAncestorInsertEvents))
-				newElement.classList.add(Classes.ReceiveAncestorInsertEvents)
+			ELEMENT_TO_COMPONENT_MAP.delete(oldElement)
+			ELEMENT_TO_COMPONENT_MAP.set(newElement, component)
+
+			component.attributes.copy(oldElement)
+			component.style.refresh()
 
 			return component
 		},
@@ -193,6 +216,10 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		get text () {
 			return Define.set(component, "text", TextManipulator(component))
 		},
+		get anchor () {
+			return Define.set(component, "anchor", AnchorManipulator(component))
+		},
+
 		get hovered (): State<boolean> {
 			return Define.set(component, "hovered", State(false))
 		},
@@ -215,6 +242,12 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 		get name (): State<string | undefined> {
 			return Define.set(component, "name", State(undefined))
+		},
+		get rect (): State.JIT<DOMRect> {
+			const rectState = State.JIT(() => component.element.getBoundingClientRect())
+			this.receiveAncestorInsertEvents()
+			this.event.subscribe(["insert", "ancestorInsert"], rectState.markDirty)
+			return Define.set(component, "rect", rectState)
 		},
 
 		setId: id => {
@@ -277,6 +310,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 			component.event.emit("unroot")
 			component.event.emit("remove")
+			owner?.event.unsubscribe("remove", component.remove)
 		},
 		appendTo (destination) {
 			Component.element(destination).append(component.element)
@@ -312,6 +346,10 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 				updateRooted(component)
 			}
 
+			return component
+		},
+		removeContents () {
+			component.element.replaceChildren()
 			return component
 		},
 
@@ -377,7 +415,10 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			component.element.blur()
 			return component
 		},
-	}
+	} satisfies Pick<Component, keyof BaseComponent>) as any as Mutable<Component>
+
+	for (const extension of componentExtensionsRegistry)
+		extension(component)
 
 	if (!Component.is(component))
 		throw Errors.Impossible()
@@ -466,6 +507,10 @@ namespace Component {
 		return {
 			from: builder,
 		} as Extension<any[], Component> | ExtensionAsync<any[], Component>
+	}
+
+	export function extend (extension: (component: Mutable<Component>) => any) {
+		componentExtensionsRegistry.push(extension as (component: Mutable<Component>) => any)
 	}
 
 }
