@@ -23,6 +23,7 @@ type AriaRole =
 	| "checkbox"
 	| "form"
 	| "main"
+	| "navigation"
 
 const ELEMENT_TO_COMPONENT_MAP = new WeakMap<Element, Component>()
 

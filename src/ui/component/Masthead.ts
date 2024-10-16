@@ -67,6 +67,7 @@ const Masthead = Component.Builder("header", (masthead, sidebar: Sidebar, view: 
 			.ariaLabel("masthead/user/profile/alt")
 			.popover("hover", popover => popover
 				.anchor.add("aligned right", "off bottom")
+				.ariaRole("navigation")
 				.append(Slot()
 					.use(Session.Auth.author, (slot, author) => {
 						if (!author) {

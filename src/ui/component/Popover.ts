@@ -36,8 +36,10 @@ Component.extend(component => {
 			if (event === "hover")
 				component.hoveredOrFocused.subscribe(component, updatePopoverState)
 
-			const ariaLabel = component.attributes.getUsing("aria-label")
-			component.ariaLabel((quilt, { arg }) => quilt["component/popover"](arg(ariaLabel)))
+			const ariaLabel = component.attributes.getUsing("aria-label") ?? popover.attributes.get("aria-label")
+			const ariaRole = popover.attributes.getUsing("role") ?? popover.attributes.get("role")
+			component.ariaLabel((quilt, { arg }) => quilt["component/popover/button"](arg(ariaLabel), arg(ariaRole)))
+			popover.ariaLabel((quilt, { arg }) => quilt["component/popover"](arg(ariaLabel)))
 
 			let clickState = false
 			component.event.subscribe("click", () => {
