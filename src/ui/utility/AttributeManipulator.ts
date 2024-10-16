@@ -1,12 +1,13 @@
-import type { Quilt } from "lang/en-nz"
 import quilt from "lang/en-nz"
 import type Component from "ui/Component"
+import { QuiltHelper, type Quilt } from "ui/utility/TextManipulator"
 
 interface AttributeManipulator<HOST> {
 	get (attribute: string): string | undefined
 	add (...attributes: string[]): HOST
 	set (attribute: string, value?: string): HOST
 	use (attribute: string, keyOrHandler: Quilt.SimpleKey | Quilt.Handler): HOST
+	getUsing (attribute: string): Quilt.SimpleKey | Quilt.Handler | undefined
 	refresh (): void
 	remove (...attributes: string[]): HOST
 	toggle (present: boolean, attribute: string, value?: string): HOST
@@ -35,6 +36,9 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 				component.element.setAttribute(attribute, value)
 			return component
 		},
+		getUsing (attribute) {
+			return translationHandlers?.[attribute]
+		},
 		use (attribute, handler) {
 			translationHandlers ??= {}
 			translationHandlers[attribute] = handler
@@ -47,7 +51,7 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 
 			for (const attribute in translationHandlers) {
 				const translationHandler = translationHandlers[attribute]
-				const weave = typeof translationHandler === "string" ? quilt[translationHandler]() : translationHandler(quilt)
+				const weave = typeof translationHandler === "string" ? quilt[translationHandler]() : translationHandler(quilt, QuiltHelper)
 				component.element.setAttribute(attribute, weave.toString())
 			}
 		},

@@ -1,12 +1,15 @@
 fluff4me/alt: fluff 4 me
 fluff4me/title: fluff4.me / Tell your story!
 
+# component
+popover: open {0??details}
+
 # masthead
 skip-navigation: Skip Navigation
 user/notifications/alt: notifications
 
 ## user/profile
-alt: profile
+alt: profile navigation
 popover/login: Log In or Sign Up
 popover/profile: View Profile
 popover/account: Account Settings

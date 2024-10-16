@@ -2,6 +2,8 @@ import type Component from "ui/Component"
 import Define from "utility/Define"
 import type { Mutable } from "utility/Type"
 
+export type StateOr<T> = State<T> | T
+
 export type UnsubscribeState = () => void
 
 interface ReadableState<T> {
