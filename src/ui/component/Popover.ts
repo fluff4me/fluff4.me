@@ -4,6 +4,12 @@ import type State from "utility/State"
 import type { UnsubscribeState } from "utility/State"
 import Task from "utility/Task"
 
+const FOCUS_TRAP = Component()
+	.tabIndex("auto")
+	.ariaHidden()
+	.style.setProperty("display", "none")
+	.prependTo(document.body)
+
 interface PopoverComponentExtensions {
 	popover (event: "hover" | "click", initialiser: (popover: Popover) => any): this
 }
@@ -27,16 +33,30 @@ Component.extend(component => {
 				})
 				.appendTo(document.body)
 
-			switch (event) {
-				case "hover":
-					component.hoveredOrFocused.subscribe(component, updatePopoverState)
-					break
-			}
+			if (event === "hover")
+				component.hoveredOrFocused.subscribe(component, updatePopoverState)
+
+			const ariaLabel = component.attributes.getUsing("aria-label")
+			component.ariaLabel((quilt, { arg }) => quilt["component/popover"](arg(ariaLabel)))
 
 			let clickState = false
 			component.event.subscribe("click", () => {
-				clickState = !clickState
-				void updatePopoverState()
+				// always subscribe click because we need to handle it for keyboard navigation
+				if (!component.focused.value && event !== "click")
+					return
+
+				clickState = true
+				popover.show()
+				popover.focus()
+			})
+
+			popover.hasFocused.subscribe(component, hasFocused => {
+				if (hasFocused)
+					return
+
+				clickState = false
+				popover.hide()
+				component.focus()
 			})
 
 			return component
@@ -53,11 +73,15 @@ Component.extend(component => {
 				if (!shouldShow)
 					Mouse.offMove(updatePopoverState)
 
+				if (!shouldShow)
+					FOCUS_TRAP.style.setProperty("display", "none")
+
 				isShown = shouldShow
 				popover.toggle(shouldShow)
 				if (!shouldShow)
 					return
 
+				FOCUS_TRAP.style.setProperty("display", "inline")
 				await Task.yield()
 				popover.anchor.apply()
 			}
@@ -83,6 +107,7 @@ const Popover = Component.Builder((popover): Popover => {
 	let unbind: UnsubscribeState | undefined
 	return popover
 		.style("popover")
+		.tabIndex("programmatic")
 		.attributes.add("popover")
 		.extend<PopoverExtensions>(popover => ({
 			show: () => {

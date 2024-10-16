@@ -1,11 +1,32 @@
-import type { Quilt, Weave, Weft } from "lang/en-nz"
+import type { Quilt as QuiltBase, Weave, WeavingArg, Weft } from "lang/en-nz"
 import quilt from "lang/en-nz"
 import type Component from "ui/Component"
+import type { StateOr } from "utility/State"
 import State from "utility/State"
+
+export type Quilt = QuiltBase
+export namespace Quilt {
+	export type SimpleKey = QuiltBase.SimpleKey
+	export type Handler = (quilt: Quilt, helper: typeof QuiltHelper) => Weave
+}
 
 export namespace QuiltHelper {
 	export function renderWeave (weave: Weave): Node[] {
 		return weave.content.map(renderWeft)
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+	export function arg (arg: StateOr<WeavingArg | Quilt.SimpleKey | Quilt.Handler>) {
+		if (typeof arg === "object" && arg && "map" in arg)
+			arg = arg.value
+
+		if (typeof arg === "function")
+			arg = arg(quilt, QuiltHelper)
+
+		if (typeof arg === "string" && arg in quilt)
+			arg = quilt[arg as Quilt.SimpleKey]()
+
+		return arg
 	}
 
 	function isPlaintextWeft (weft: Weft): weft is Weft & { content: string } {
@@ -36,7 +57,7 @@ export namespace QuiltHelper {
 		if (Array.isArray(weft.content))
 			element.append(...weft.content.map(renderWeft))
 		else
-			element.textContent = `${weft.content}`
+			element.textContent = `${weft.content ?? ""}`
 
 		return element
 	}
@@ -67,7 +88,7 @@ function TextManipulator (component: Component): TextManipulator<Component> {
 			if (!translationHandler)
 				return
 
-			const weave = typeof translationHandler === "string" ? quilt[translationHandler]() : translationHandler(quilt)
+			const weave = typeof translationHandler === "string" ? quilt[translationHandler]() : translationHandler(quilt, QuiltHelper)
 			component.element.replaceChildren(...QuiltHelper.renderWeave(weave))
 			result.state.value = weave
 		},

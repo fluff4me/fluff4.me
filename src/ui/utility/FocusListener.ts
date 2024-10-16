@@ -14,11 +14,62 @@ namespace FocusListener {
 		return lastFocused?.component
 	}
 
-	export function listen () {
-		document.addEventListener("focusin", updateFocusState)
-		document.addEventListener("focusout", updateFocusState)
+	// interface QueuedFocusChange {
+	// 	type: "focus" | "blur"
+	// 	element: HTMLElement
+	// }
+
+	// let updatingFocusState = false
+	// let cursor = 0
+	// const queue: QueuedFocusChange[] = []
+	export function focus (element: HTMLElement) {
+		// if (updatingFocusState || exhaustingQueue) {
+		// 	queue.splice(cursor, 0, { type: "focus", element })
+		// 	cursor++
+		// 	return
+		// }
+
+		focusInternal(element)
 	}
 
+	function focusInternal (element: HTMLElement) {
+		if (document.querySelector(":focus-visible") === element)
+			return
+
+		element.focus()
+	}
+
+	export function blur (element: HTMLElement) {
+		// if (updatingFocusState || exhaustingQueue) {
+		// 	queue.splice(cursor, 0, { type: "blur", element })
+		// 	cursor++
+		// 	return
+		// }
+
+		blurInternal(element)
+	}
+
+	function blurInternal (element: HTMLElement) {
+		if (document.querySelector(":focus-visible") !== element)
+			return
+
+		element.blur()
+	}
+
+	export function listen () {
+		document.addEventListener("focusin", onFocusIn)
+		document.addEventListener("focusout", onFocusOut)
+	}
+
+	function onFocusIn () {
+		updateFocusState()
+	}
+	function onFocusOut (event: FocusEvent) {
+		if (event.relatedTarget === null)
+			updateFocusState()
+	}
+
+	// let exhaustingQueue = false
 	function updateFocusState () {
 		if (document.activeElement && document.activeElement !== document.body && location.hash && document.activeElement.id !== location.hash.slice(1))
 			history.pushState(undefined, "", " ")
@@ -27,17 +78,27 @@ namespace FocusListener {
 		if (focused === lastFocused)
 			return
 
+		// updatingFocusState = true
 		const lastFocusedComponent = lastFocused?.component
-		if (lastFocusedComponent)
-			lastFocusedComponent.focused.value = false
+		const focusedComponent = focused?.component
 
 		const oldAncestors = !lastFocusedComponent ? undefined : [...lastFocusedComponent.getAncestorComponents()]
-
-		const focusedComponent = focused?.component
-		if (focusedComponent)
-			focusedComponent.focused.value = true
-
 		const newAncestors = !focusedComponent ? undefined : [...focusedComponent.getAncestorComponents()]
+		const lastFocusedContainsFocused = lastFocused?.contains(focused ?? null)
+
+		lastFocused = focused
+		hasFocus.value = !!focused
+
+		if (lastFocusedComponent) {
+			lastFocusedComponent.focused.value = false
+			if (!lastFocusedContainsFocused)
+				lastFocusedComponent.hasFocused.value = false
+		}
+
+		if (focusedComponent) {
+			focusedComponent.focused.value = true
+			focusedComponent.hasFocused.value = true
+		}
 
 		if (oldAncestors)
 			for (const ancestor of oldAncestors)
@@ -50,8 +111,22 @@ namespace FocusListener {
 				if (ancestor)
 					ancestor.hasFocused.value = true
 
-		lastFocused = focused
-		hasFocus.value = !!focused
+		// updatingFocusState = false
+		// if (exhaustingQueue)
+		// 	return
+
+		// exhaustingQueue = true
+		// for (cursor = 0; cursor < queue.length; cursor++) {
+		// 	const change = queue[cursor]
+		// 	if (change.type === "blur")
+		// 		blurInternal(change.element)
+		// 	else if (change.type === "focus")
+		// 		focusInternal(change.element)
+		// }
+
+		// queue.splice(0, Infinity)
+		// cursor = 0
+		// exhaustingQueue = false
 	}
 
 }

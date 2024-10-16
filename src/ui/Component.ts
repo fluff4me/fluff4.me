@@ -1,10 +1,11 @@
-import type { Quilt } from "lang/en-nz"
 import AnchorManipulator from "ui/utility/AnchorManipulator"
 import AttributeManipulator from "ui/utility/AttributeManipulator"
 import ClassManipulator from "ui/utility/ClassManipulator"
 import type { NativeEvents } from "ui/utility/EventManipulator"
 import EventManipulator from "ui/utility/EventManipulator"
+import FocusListener from "ui/utility/FocusListener"
 import StyleManipulator from "ui/utility/StyleManipulator"
+import type { Quilt } from "ui/utility/TextManipulator"
 import TextManipulator from "ui/utility/TextManipulator"
 import Define from "utility/Define"
 import Errors from "utility/Errors"
@@ -408,11 +409,11 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 		focus: () => {
-			component.element.focus()
+			FocusListener.focus(component.element)
 			return component
 		},
 		blur: () => {
-			component.element.blur()
+			FocusListener.blur(component.element)
 			return component
 		},
 	} satisfies Pick<Component, keyof BaseComponent>) as any as Mutable<Component>
