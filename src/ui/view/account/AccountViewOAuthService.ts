@@ -1,7 +1,7 @@
 import { type AuthService } from "api.fluff4.me"
 import Session from "model/Session"
 import Component from "ui/Component"
-import Checkbutton from "ui/component/Checkbutton"
+import Checkbutton from "ui/component/core/Checkbutton"
 import State from "utility/State"
 
 export default Component.Builder((component, service: AuthService) => {

@@ -1,6 +1,6 @@
 import Component from "ui/Component"
-import ActionRow from "ui/component/ActionRow"
-import Button from "ui/component/Button"
+import ActionRow from "ui/component/core/ActionRow"
+import Button from "ui/component/core/Button"
 
 interface FormExtensions {
 	content: Component

@@ -1,7 +1,7 @@
 import type { Quilt } from "lang/en-nz"
 import quilt from "lang/en-nz"
-import Heading from "ui/component/Heading"
-import Paragraph from "ui/component/Paragraph"
+import Heading from "ui/component/core/Heading"
+import Paragraph from "ui/component/core/Paragraph"
 import View from "ui/view/View"
 import ViewDefinition from "ui/view/ViewDefinition"
 
