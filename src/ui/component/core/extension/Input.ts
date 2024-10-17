@@ -1,5 +1,5 @@
 import Component from "ui/Component"
-import type Label from "ui/component/Label"
+import type Label from "ui/component/core/Label"
 import State from "utility/State"
 
 export interface InputExtensions {

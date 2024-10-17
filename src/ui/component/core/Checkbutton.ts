@@ -1,6 +1,6 @@
 import type { EventsOf } from "ui/Component"
 import Component from "ui/Component"
-import Button from "ui/component/Button"
+import Button from "ui/component/core/Button"
 import type EventManipulator from "ui/utility/EventManipulator"
 import State from "utility/State"
 

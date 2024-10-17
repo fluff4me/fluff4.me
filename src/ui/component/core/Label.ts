@@ -1,6 +1,6 @@
 import type { ComponentBrand } from "ui/Component"
 import Component from "ui/Component"
-import type Input from "ui/component/extension/Input"
+import type Input from "ui/component/core/extension/Input"
 import State from "utility/State"
 
 interface LabelExtensions {

@@ -1,7 +1,7 @@
 import Component from "ui/Component"
-import type Label from "ui/component/Label"
-import type { AutoLabel } from "ui/component/Label"
-import LabelledRow from "ui/component/LabelledRow"
+import type Label from "ui/component/core/Label"
+import type { AutoLabel } from "ui/component/core/Label"
+import LabelledRow from "ui/component/core/LabelledRow"
 
 interface LabelledRowFactory<HOST extends LabelledTable> {
 	content (initialiser: (content: Component, label: Label, row: LabelledRow) => Component): HOST

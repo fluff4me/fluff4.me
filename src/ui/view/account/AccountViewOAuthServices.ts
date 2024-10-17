@@ -1,7 +1,7 @@
 import EndpointAuthServices from "endpoint/auth/EndpointAuthServices"
 import type Session from "model/Session"
 import Component from "ui/Component"
-import Block from "ui/component/Block"
+import Block from "ui/component/core/Block"
 import AccountViewOAuthService from "ui/view/account/AccountViewOAuthService"
 import ViewTransition from "ui/view/component/ViewTransition"
 import Objects from "utility/Objects"

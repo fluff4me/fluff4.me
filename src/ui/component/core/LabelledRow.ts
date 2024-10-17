@@ -1,6 +1,6 @@
 import Component from "ui/Component"
-import type Label from "ui/component/Label"
-import { AutoLabel } from "ui/component/Label"
+import type Label from "ui/component/core/Label"
+import { AutoLabel } from "ui/component/core/Label"
 import ViewTransition from "ui/view/component/ViewTransition"
 
 interface LabelledRowExtensions {
