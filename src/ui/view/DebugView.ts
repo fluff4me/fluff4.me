@@ -438,6 +438,67 @@ export default ViewDefinition({
 			},
 		}))
 
+		const tagButtons = Block().appendTo(view)
+
+		tagButtons.append(createButton({
+			name: "Create Tag Author",
+			async execute () {
+				await BUTTON_REGISTRY.createAuthor.execute("tagging test", "thetagger")
+				await BUTTON_REGISTRY.privilegeGrantAuthor.execute("thetagger", "TagGlobalCreate", "TagGlobalDelete", "TagGlobalUpdate", "TagCategoryCreate", "TagCategoryUpdate", "TagCategoryDelete")
+			},
+		}))
+
+		tagButtons.append(createButton({
+			name: "Tag Create Test",
+			async execute () {
+				await BUTTON_REGISTRY.tagCreateCategory.execute("Category One", "the first test category")
+				await BUTTON_REGISTRY.tagCreateCategory.execute("Category Two", "the second test category")
+				await BUTTON_REGISTRY.tagCreateCategory.execute("Category Three", "the third test category")
+				await BUTTON_REGISTRY.tagCreateGlobal.execute("Tag One", "test tag 1", "Category One")
+				await BUTTON_REGISTRY.tagUpdateGlobal.execute("Tag One: Category One", "Tag One Updated", "test tag 1 updated", "Category Two")
+				await BUTTON_REGISTRY.tagUpdateCategory.execute("Category One", "Category One Updated", "first test category updated")
+				await BUTTON_REGISTRY.tagRemoveCategory.execute("Category One Updated")
+				await BUTTON_REGISTRY.tagRemoveGlobal.execute("Tag One Updated: Category Two")
+				await BUTTON_REGISTRY.tagCreateGlobal.execute("tag conflict", "conflicting", "Category Two")
+				await BUTTON_REGISTRY.tagCreateGlobal.execute("tag conflict", "conflicting", "Category Three")
+				await BUTTON_REGISTRY.tagUpdateGlobal.execute("tag conflict: Category Three", undefined, undefined, "Category Two")
+			},
+		}))
+
+		tagButtons.append(createButton({
+			name: "Work Tag Test",
+			async execute () {
+				await BUTTON_REGISTRY.tagCreateGlobal.execute("Tag Two", "test tag 2", "Category Two")
+				await BUTTON_REGISTRY.tagCreateGlobal.execute("Tag Three", "test tag 2", "Category Two")
+				await BUTTON_REGISTRY.tagCreateGlobal.execute("Tag Four", "test tag 2", "Category Two")
+				await BUTTON_REGISTRY.createWork.execute("Tag Test Work", "test", "testwork", "Ongoing", "Public", ["Tag Two: Category Two", "Tag Three: Category Two"], ["custom tag 1", "custom tag 2"])
+				await BUTTON_REGISTRY.createWork.execute("Tag Test Work Two", "test2", "testworktwo", "Ongoing", "Public", ["Tag Two: Category Two", "Tag Three: Category Two"], ["custom tag 2", "custom tag 3"])
+				await BUTTON_REGISTRY.deleteWork.execute("thetagger", "testwork")
+			},
+		}))
+
+		tagButtons.append(createButton({
+			name: "manifest test",
+			async execute () {
+				await BUTTON_REGISTRY.tagGetAll.execute()
+			},
+		}))
+
+		tagButtons.append(createButton({
+			name: "manifest test 2",
+			async execute () {
+				await BUTTON_REGISTRY.tagCreateGlobal.execute("extra tag", "wow", "Category Three")
+				await BUTTON_REGISTRY.tagGetAll.execute()
+			},
+		}))
+
+		tagButtons.append(createButton({
+			name: "manifest test 3",
+			async execute () {
+				await BUTTON_REGISTRY.tagGetAll.execute(Date.now() / 1000)
+			},
+		}))
+
 		return view
 	},
 })

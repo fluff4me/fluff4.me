@@ -90,7 +90,7 @@ export const BUTTON_REGISTRY = {
 
 	createWork: {
 		name: "Create Work",
-		async execute (name: string, description: string, vanity: string, status?: string, visibility?: string) {
+		async execute (name: string, description: string, vanity: string, status?: string, visibility?: string, globalTags?: string[], customTags?: string[]) {
 			await fetch(`${Env.API_ORIGIN}work/create`, {
 				method: "POST",
 				credentials: "include",
@@ -103,6 +103,8 @@ export const BUTTON_REGISTRY = {
 					vanity: vanity,
 					status: status,
 					visibility: visibility,
+					global_tags: globalTags,
+					custom_tags: customTags,
 				}),
 			})
 		},
@@ -670,6 +672,126 @@ export const BUTTON_REGISTRY = {
 					visibility: visibility,
 					chapters: chapters,
 					tier_id: tier_id,
+				}),
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	tagCreateCategory: {
+		name: "Tag Create Category",
+		async execute (categoryName: string, categoryDescription: string) {
+			const response = await fetch(`${Env.API_ORIGIN}tag/create/category`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: categoryName,
+					description: categoryDescription,
+				}),
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	tagCreateGlobal: {
+		name: "Tag Create Global",
+		async execute (tagName: string, tagDescription: string, tagCategory: string) {
+			const response = await fetch(`${Env.API_ORIGIN}tag/create/global`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: tagName,
+					description: tagDescription,
+					category: tagCategory,
+				}),
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	tagUpdateCategory: {
+		name: "Tag Update Category",
+		async execute (vanity: string, categoryName?: string, categoryDescription?: string) {
+			const response = await fetch(`${Env.API_ORIGIN}tag/update/category/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: categoryName,
+					description: categoryDescription,
+				}),
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	tagUpdateGlobal: {
+		name: "Tag Update Global",
+		async execute (vanity: string, tagName?: string, tagDescription?: string, tagCategory?: string) {
+			const response = await fetch(`${Env.API_ORIGIN}tag/update/global/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: tagName,
+					description: tagDescription,
+					category: tagCategory,
+				}),
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	tagRemoveCategory: {
+		name: "Tag Remove Category",
+		async execute (vanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}tag/remove/category/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	tagRemoveGlobal: {
+		name: "Tag Remove Global",
+		async execute (vanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}tag/remove/global/${vanity}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	tagGetAll: {
+		name: "Tag Get All",
+		async execute (timestamp?: number) {
+			const response = await fetch(`${Env.API_ORIGIN}tag/get/global`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					updated_after: timestamp,
+
 				}),
 			}).then(response => response.json())
 			console.log(response)
