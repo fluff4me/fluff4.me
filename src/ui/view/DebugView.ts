@@ -492,13 +492,6 @@ export default ViewDefinition({
 			},
 		}))
 
-		tagButtons.append(createButton({
-			name: "manifest test 3",
-			async execute () {
-				await BUTTON_REGISTRY.tagGetAll.execute(Date.now() / 1000)
-			},
-		}))
-
 		return view
 	},
 })
