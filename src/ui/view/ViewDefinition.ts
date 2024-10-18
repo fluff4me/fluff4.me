@@ -7,7 +7,7 @@ interface ViewDefinitionBase<VIEW extends View, PARAMS extends object> {
 }
 
 interface ViewDefinition<VIEW extends View, PARAMS extends object> extends ViewDefinitionBase<VIEW, PARAMS> {
-	navigate (app: App, params: PARAMS): Promise<VIEW>
+	navigate (app: App, params: PARAMS): Promise<VIEW | undefined>
 }
 
 function ViewDefinition<VIEW extends View, PARAMS extends object> (definition: ViewDefinitionBase<VIEW, PARAMS>): ViewDefinition<VIEW, PARAMS> {

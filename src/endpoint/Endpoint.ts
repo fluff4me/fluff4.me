@@ -15,7 +15,7 @@ type EndpointQuery<ROUTE extends keyof Paths, BODY, RESPONSE> =
 		& ([keyof BODY] extends [never] ? {} : { body: BODY })
 		& (
 			ExtractData<SplitPath<ROUTE>> extends infer PARAMS ?
-			PARAMS extends Empty ? Empty
+			PARAMS extends Empty ? {}
 			: { params: PARAMS }
 			: never
 		)
