@@ -6,6 +6,7 @@ export type Mutable<T> = { -readonly [P in keyof T]: T[P] }
 export type Nullish = null | undefined
 export type Falsy = false | "" | 0 | 0n | Nullish
 export type PartialRecord<K extends keyof any, T> = { [P in K]?: T }
+export type Empty = Record<string, never>
 
 declare global {
 	interface ScreenOrientation {
