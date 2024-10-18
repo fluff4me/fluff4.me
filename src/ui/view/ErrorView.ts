@@ -7,6 +7,7 @@ import ViewDefinition from "ui/view/ViewDefinition"
 
 interface ErrorViewParams {
 	code: number
+	error?: Error
 }
 
 export default ViewDefinition({
