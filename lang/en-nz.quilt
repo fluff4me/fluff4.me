@@ -9,6 +9,8 @@ popover: {0??details}
 skip-navigation: Skip Navigation
 user/notifications/alt: notifications
 
+primary-nav/alt: primary
+
 ## user/profile
 alt: profile
 popover/login: Log In or Sign Up

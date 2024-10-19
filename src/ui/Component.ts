@@ -7,6 +7,7 @@ import FocusListener from "ui/utility/FocusListener"
 import StyleManipulator from "ui/utility/StyleManipulator"
 import type { Quilt } from "ui/utility/TextManipulator"
 import TextManipulator from "ui/utility/TextManipulator"
+import Viewport from "ui/utility/Viewport"
 import Define from "utility/Define"
 import Errors from "utility/Errors"
 import type { UnsubscribeState } from "utility/State"
@@ -249,6 +250,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			const rectState = State.JIT(() => component.element.getBoundingClientRect())
 			this.receiveAncestorInsertEvents()
 			this.event.subscribe(["insert", "ancestorInsert"], rectState.markDirty)
+			Viewport.size.subscribe(component, rectState.markDirty)
 			return Define.set(component, "rect", rectState)
 		},
 

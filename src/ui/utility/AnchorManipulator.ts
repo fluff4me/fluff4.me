@@ -1,6 +1,7 @@
 import type Component from "ui/Component"
 import Mouse from "ui/utility/Mouse"
 import Viewport from "ui/utility/Viewport"
+import type { UnsubscribeState } from "utility/State"
 import type { PartialRecord } from "utility/Type"
 
 ////////////////////////////////////
@@ -161,6 +162,9 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 		from = undefined
 	}
 
+	const subscribed: UnsubscribeState[] = []
+	const addSubscription = (use?: UnsubscribeState) => use && subscribed.push(use)
+
 	const result: AnchorManipulator<HOST> = {
 		isMouse: () => !locationPreference?.length,
 		from: component => {
@@ -196,12 +200,15 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			return host
 		},
 		markDirty: () => {
+			location = undefined
 			return host
 		},
 		get: () => {
-			if (location) {
+			if (location)
 				return location
-			}
+
+			for (const unuse of subscribed)
+				unuse()
 
 			const tooltipBox = host?.rect.value
 			if (tooltipBox && locationPreference && from) {
@@ -211,6 +218,8 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 					const xConf = preference.xAnchor
 					const xRef = resolveAnchorRef(preference.xRefSelector)
 					const xBox = xRef?.rect.value
+					addSubscription(xRef?.rect.subscribe(host, result.markDirty))
+
 					const xCenter = (xBox?.left ?? 0) + (xBox?.width ?? Viewport.size.value.w) / 2
 					const xRefX = (xConf.side === "right" ? xBox?.right : xConf.side === "left" ? xBox?.left : xCenter) ?? xCenter
 					let x: number
@@ -231,8 +240,7 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 					}
 
 					if (!xConf.sticky && tooltipBox.width < Viewport.size.value.w) {
-						const isXOffScreen = x - (alignment === "right" ? tooltipBox.width : 0) < 0
-							|| x + (alignment === "right" ? 0 : tooltipBox.width - 10) > Viewport.size.value.w
+						const isXOffScreen = x < 0 || x + tooltipBox.width > Viewport.size.value.w
 						if (isXOffScreen) {
 							continue
 						}
@@ -241,6 +249,8 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 					const yConf = preference.yAnchor
 					const yRef = resolveAnchorRef(preference.yRefSelector)
 					const yBox = yRef?.rect.value
+					addSubscription(yRef?.rect.subscribe(host, result.markDirty))
+
 					const yCenter = (yBox?.top ?? 0) + (yBox?.height ?? Viewport.size.value.h) / 2
 					const yRefY = (yConf.side === "bottom" ? yBox?.bottom : yConf.side === "top" ? yBox?.top : yCenter) ?? yCenter
 					let y: number

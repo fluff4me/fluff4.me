@@ -1,3 +1,8 @@
+#macro tablet:
+	#body!component content
+	:container root (width < calc(#{space-5} * 20)):
+		#include content
+
 colour-scheme: dark
 overflow-x: hidden
 #string background-highlight = "color-mix(in lch, $dark-2, #fff 5%)
@@ -8,7 +13,11 @@ colour: $light-3
 view-transition-name: unset
 font-size: 1.2rem
 $button-colour: $light-0
+container-name: root
+container-type: size
 
 .body:
 	%margin-0
 	%overflow-hidden
+	#tablet:
+		%overflow-auto-y

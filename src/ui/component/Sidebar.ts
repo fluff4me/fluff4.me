@@ -15,6 +15,7 @@ interface Sidebar extends Component, SidebarExtensions { }
 
 const Sidebar = Component.Builder("nav", (sidebar): Sidebar => {
 	sidebar.style("sidebar")
+		.ariaLabel("masthead/primary-nav/alt")
 
 	updateSidebarVisibility()
 	return sidebar.extend<SidebarExtensions>(sidebar => ({

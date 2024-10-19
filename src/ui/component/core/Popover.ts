@@ -69,6 +69,9 @@ Component.extend(component => {
 					|| (isShown && popover.rect.value.expand(100).intersects(Mouse.state.value))
 					|| clickState
 
+				if (isShown === shouldShow)
+					return
+
 				if (component.hoveredOrFocused.value && !isShown)
 					Mouse.onMove(updatePopoverState)
 
@@ -84,6 +87,7 @@ Component.extend(component => {
 					return
 
 				FOCUS_TRAP.style.setProperty("display", "inline")
+				popover.style.removeProperties("left", "top")
 				await Task.yield()
 				popover.anchor.apply()
 			}

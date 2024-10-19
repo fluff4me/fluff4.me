@@ -13,6 +13,9 @@
 	grid-template-columns:
 		1fr #{w}px minmax(auto, calc(1920px - #{w}px * 2)) auto 1fr
 
+	#tablet:
+		%contents
+
 	&-content:
 		%grid
 		%columns-subgrid
@@ -20,5 +23,25 @@
 		grid-area: content
 		grid-template-areas: "content related"
 
+		#tablet:
+			%block
+
 		&-related:
 			width: #{w}px
+
+			#tablet:
+				%hidden
+
+.masthead:
+	grid-area: masthead
+	grid-template-columns: subgrid
+	grid-template-areas: ". left mid right ."
+
+	#tablet:
+		grid-template-columns: 1fr auto 1fr
+		grid-template-areas: "left mid right"
+
+.sidebar:
+	grid-area: sidebar
+	#tablet:
+		%hidden

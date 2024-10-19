@@ -3,20 +3,27 @@ import Component from "ui/Component"
 import Button from "ui/component/core/Button"
 import Heading from "ui/component/core/Heading"
 import Link from "ui/component/core/Link"
+import type Popover from "ui/component/core/Popover"
 import Slot from "ui/component/core/Slot"
 import Flag from "ui/component/masthead/Flag"
-import type Sidebar from "ui/component/Sidebar"
+import PrimaryNav from "ui/component/PrimaryNav"
+import Sidebar from "ui/component/Sidebar"
+import Viewport from "ui/utility/Viewport"
 import type ViewContainer from "ui/ViewContainer"
 import Env from "utility/Env"
+import Task from "utility/Task"
 
 interface MastheadExtensions {
-
+	sidebar: Sidebar
 }
 
 interface Masthead extends Component, MastheadExtensions { }
 
-const Masthead = Component.Builder("header", (masthead, sidebar: Sidebar, view: ViewContainer) => {
+const Masthead = Component.Builder("header", (masthead, view: ViewContainer) => {
 	masthead.style("masthead")
+
+	const sidebar = Sidebar()
+	const nav = PrimaryNav()
 
 	Button()
 		.style("masthead-skip-nav")
@@ -24,16 +31,28 @@ const Masthead = Component.Builder("header", (masthead, sidebar: Sidebar, view: 
 		.event.subscribe("click", view.focus)
 		.appendTo(masthead)
 
+	let popover!: Popover
 	const left = Component()
 		.append(Component()
 			.and(Button)
-			.style("masthead-left-hamburger")
+			.style("masthead-left-hamburger", "masthead-left-hamburger-sidebar")
 			.ariaHidden()
 			.event.subscribe("click", sidebar.toggle))
+		.append(Button()
+			.style("masthead-left-hamburger", "masthead-left-hamburger-popover")
+			.ariaLabel("masthead/primary-nav/alt")
+			.popover("hover", p => popover = p
+				.anchor.add("aligned left", "off bottom")
+				.ariaRole("navigation")))
 		.style("masthead-left")
 		.appendTo(masthead)
 
 	sidebar.style.bind(masthead.hasFocused, "sidebar--visible-due-to-keyboard-navigation")
+
+	Viewport.size.use(masthead, async () => {
+		await Task.yield()
+		nav.appendTo(sidebar.element.clientWidth ? sidebar : popover)
+	})
 
 	const flag = Flag()
 		.style("masthead-home-logo")
@@ -89,7 +108,9 @@ const Masthead = Component.Builder("header", (masthead, sidebar: Sidebar, view: 
 					}))))
 		.appendTo(masthead)
 
-	return masthead.extend<MastheadExtensions>(masthead => ({}))
+	return masthead.extend<MastheadExtensions>(masthead => ({
+		sidebar,
+	}))
 })
 
 export default Masthead

@@ -6,17 +6,17 @@ export type StateOr<T> = State<T> | T
 
 export type UnsubscribeState = () => void
 
-interface ReadableState<T> {
+interface ReadableState<T, E = T> {
 	readonly value: T
 
 	readonly equals: <V extends T>(value: V) => boolean
 
 	/** Subscribe to state change events. Receive the initial state as an event. */
-	use (owner: Component, subscriber: (value: T, initial?: true) => any): UnsubscribeState
+	use (owner: Component, subscriber: (value: E, initial?: true) => any): UnsubscribeState
 	/** Subscribe to state change events. The initial state is not sent as an event. */
-	subscribe (owner: Component, subscriber: (value: T) => any): UnsubscribeState
-	subscribeManual (subscriber: (value: T) => any): UnsubscribeState
-	unsubscribe (subscriber: (value: T) => any): void
+	subscribe (owner: Component, subscriber: (value: E) => any): UnsubscribeState
+	subscribeManual (subscriber: (value: E) => any): UnsubscribeState
+	unsubscribe (subscriber: (value: E) => any): void
 	emit (): void
 
 	map<R> (mapper: (value: T) => R): State<R>
@@ -33,14 +33,16 @@ interface SubscriberFunction<T> {
 }
 
 const SYMBOL_VALUE = Symbol("VALUE")
+const SYMBOL_SUBSCRIBERS = Symbol("SUBSCRIBERS")
 interface InternalState<T> {
 	[SYMBOL_VALUE]: T
+	[SYMBOL_SUBSCRIBERS]: ((value: unknown) => any)[]
 }
 
 function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> {
-	let subscribers: ((value: T) => any)[] = []
 	const result: Mutable<State<T>> & InternalState<T> = {
 		[SYMBOL_VALUE]: defaultValue,
+		[SYMBOL_SUBSCRIBERS]: [],
 		get value () {
 			return result[SYMBOL_VALUE]
 		},
@@ -53,7 +55,7 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 		},
 		equals: value => result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value) || false,
 		emit: () => {
-			for (const subscriber of subscribers)
+			for (const subscriber of result[SYMBOL_SUBSCRIBERS])
 				subscriber(result[SYMBOL_VALUE])
 			return result
 		},
@@ -80,11 +82,11 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 			}
 		},
 		subscribeManual: subscriber => {
-			subscribers.push(subscriber)
+			result[SYMBOL_SUBSCRIBERS].push(subscriber as never)
 			return () => result.unsubscribe(subscriber)
 		},
 		unsubscribe: subscriber => {
-			subscribers = subscribers.filter(s => s !== subscriber)
+			result[SYMBOL_SUBSCRIBERS] = result[SYMBOL_SUBSCRIBERS].filter(s => s !== subscriber)
 			return result
 		},
 
@@ -97,8 +99,8 @@ namespace State {
 
 	export interface Generator<T> extends ReadableState<T> {
 		refresh (): this
-		observe (...states: State<any>[]): this
-		unobserve (...states: State<any>[]): this
+		observe (...states: ReadableState<any>[]): this
+		unobserve (...states: ReadableState<any>[]): this
 	}
 
 	export function Generator<T> (generate: () => T): Generator<T> {
@@ -133,10 +135,10 @@ namespace State {
 		return result
 	}
 
-	export interface JIT<T> extends ReadableState<T> {
+	export interface JIT<T> extends ReadableState<T, undefined> {
 		markDirty (): this
-		observe (...states: State<any>[]): this
-		unobserve (...states: State<any>[]): this
+		observe (...states: ReadableState<any>[]): this
+		unobserve (...states: ReadableState<any>[]): this
 	}
 
 	export function JIT<T> (generate: () => T): JIT<T> {
@@ -155,9 +157,16 @@ namespace State {
 			},
 		})
 
+		result.emit = () => {
+			for (const subscriber of result[SYMBOL_SUBSCRIBERS])
+				subscriber(undefined)
+			return result
+		}
+
 		result.markDirty = () => {
 			isCached = false
 			cached = undefined
+			result.emit()
 			return result
 		}
 
@@ -176,27 +185,27 @@ namespace State {
 		return result
 	}
 
-	export function Truthy (state: State<any>): State<boolean> {
+	export function Truthy (state: ReadableState<any>): Generator<boolean> {
 		return Generator(() => !!state.value)
 			.observe(state)
 	}
 
-	export function Falsy (state: State<any>): State<boolean> {
+	export function Falsy (state: ReadableState<any>): Generator<boolean> {
 		return Generator(() => !!state.value)
 			.observe(state)
 	}
 
-	export function Some (...anyOfStates: State<any>[]): State<boolean> {
+	export function Some (...anyOfStates: ReadableState<any>[]): Generator<boolean> {
 		return Generator(() => anyOfStates.some(state => state.value))
 			.observe(...anyOfStates)
 	}
 
-	export function Every (...anyOfStates: State<any>[]): State<boolean> {
+	export function Every (...anyOfStates: ReadableState<any>[]): Generator<boolean> {
 		return Generator(() => anyOfStates.every(state => state.value))
 			.observe(...anyOfStates)
 	}
 
-	export function Map<INPUT, OUTPUT> (input: State<INPUT>, outputGenerator: (input: INPUT) => OUTPUT): State<OUTPUT> {
+	export function Map<INPUT, OUTPUT> (input: ReadableState<INPUT>, outputGenerator: (input: INPUT) => OUTPUT): Generator<OUTPUT> {
 		return Generator(() => outputGenerator(input.value))
 			.observe(input)
 	}

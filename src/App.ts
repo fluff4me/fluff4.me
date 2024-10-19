@@ -4,7 +4,6 @@ import Navigator from "navigation/Navigate"
 import style from "style"
 import Component from "ui/Component"
 import Masthead from "ui/component/Masthead"
-import Sidebar from "ui/component/Sidebar"
 import UiEventBus from "ui/UiEventBus"
 import FocusListener from "ui/utility/FocusListener"
 import HoverListener from "ui/utility/HoverListener"
@@ -16,7 +15,6 @@ import Store from "utility/Store"
 
 interface AppExtensions {
 	navigate: Navigator
-	sidebar: Sidebar
 	view: ViewContainer
 }
 
@@ -76,9 +74,8 @@ async function App (): Promise<App> {
 
 	document.body.classList.add(...style.body)
 
-	const sidebar = Sidebar()
 	const view = ViewContainer()
-	const masthead = Masthead(sidebar, view)
+	const masthead = Masthead(view)
 
 	const related = Component()
 		.style("app-content-related")
@@ -89,10 +86,10 @@ async function App (): Promise<App> {
 
 	const app: App = Component()
 		.style("app")
-		.append(masthead, sidebar, content)
+		.append(masthead, masthead.sidebar, content)
 		.extend<AppExtensions>(app => ({
-			masthead, sidebar, view,
 			navigate: Navigator(app),
+			view,
 		}))
 		.appendTo(document.body)
 
