@@ -7,8 +7,16 @@
 	%overflow-hidden
 	%block-border-shadow
 	%scheme-light-dark
-	max-width: 800px
+	%border-box
+	#string max-width = "calc(#{space-5} * 12)
+	max-width: #{max-width}
 	#block
+
+	:container root (width <= #{max-width}):
+		%border-radius-0
+		box-shadow:
+			#{box-shadow-inset-border-block-1},
+			#{box-shadow-1}
 
 	&-header:
 		%block

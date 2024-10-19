@@ -1,5 +1,4 @@
 .sidebar:
-	grid-area: sidebar
 	%padding-4
 	%margin-right-4
 	%relative

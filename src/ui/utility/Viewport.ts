@@ -6,11 +6,10 @@ namespace Viewport {
 		w: number
 		h: number
 	}
-	const jit = State.JIT<Size>(() => ({ w: window.innerWidth, h: window.innerHeight }))
-	export const size: State<Size> = jit
+	export const size = State.JIT<Size>(() => ({ w: window.innerWidth, h: window.innerHeight }))
 
 	export function listen () {
-		window.addEventListener("resize", jit.markDirty)
+		window.addEventListener("resize", size.markDirty)
 	}
 }
 
