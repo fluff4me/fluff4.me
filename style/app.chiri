@@ -20,11 +20,13 @@
 		%grid
 		%columns-subgrid
 		%overflow-auto-y
+		%gutter-stable
 		grid-area: content
 		grid-template-areas: "content related"
 
 		#tablet:
 			%block
+			%overflow-visible
 
 		&-related:
 			width: #{w}px
