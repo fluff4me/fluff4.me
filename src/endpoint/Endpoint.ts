@@ -3,7 +3,12 @@ import Env from "utility/Env"
 import type { Empty } from "utility/Type"
 
 declare module "api.fluff4.me" {
+	interface Response<T> {
+		headers: Headers
+	}
+
 	interface ErrorResponse extends Error {
+		headers: Headers
 	}
 }
 
@@ -22,8 +27,8 @@ type EndpointQuery<ROUTE extends keyof Paths, BODY, RESPONSE> =
 	) extends infer QUERY ?
 
 	[keyof QUERY] extends [never]
-	? { (): Promise<RESPONSE & { headers: Headers }> }
-	: { (query: QUERY): Promise<RESPONSE & { headers: Headers }> }
+	? { (): Promise<RESPONSE> }
+	: { (query: QUERY): Promise<RESPONSE> }
 
 	: never
 
