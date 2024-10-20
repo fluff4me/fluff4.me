@@ -1,6 +1,7 @@
 #import: chiri:defaults
 
 #import:
+	var/number
 	var/colour
 	var/font
 	var/font/font-awesome
