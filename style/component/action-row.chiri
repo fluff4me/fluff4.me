@@ -2,7 +2,7 @@
 	%flex
 	%width-100
 	%gap-3
-	max-width: calc(#{space-5} * 12)
+	max-width: #{content-width}
 
 	&-left:
 		%flex

@@ -8,11 +8,10 @@
 	%block-border-shadow
 	%scheme-light-dark
 	%border-box
-	#string max-width = "calc(#{space-5} * 12)
-	max-width: #{max-width}
+	max-width: #{content-width}
 	#block
 
-	:container root (width <= #{max-width}):
+	:container root (width <= #{content-width}):
 		%border-radius-0
 		box-shadow:
 			#{box-shadow-inset-border-block-1},
