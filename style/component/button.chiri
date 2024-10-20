@@ -23,6 +23,10 @@ $$button-background-highlight!colour
 		#{transition("box-shadow")}
 	#transition: $button-transition
 
+	&-type-flush:
+		%box-shadow-none
+		$button-background: transparent
+
 	&-text:
 		%font-vertical-align
 
