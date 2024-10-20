@@ -7,7 +7,7 @@ interface LabelExtensions {
 	for: State<string | undefined>
 	setFor (inputName?: string): this
 	setRequired (required?: boolean | State<boolean>): this
-	setInput (input: Input): this
+	setInput (input?: Input): this
 }
 
 interface Label extends Component, LabelExtensions { }
@@ -35,9 +35,9 @@ const Label = Component.Builder("label", (label): Label => {
 			},
 			setInput: input => {
 				if (!label.is(AutoLabel))
-					label.setFor(input.name.value)
+					label.setFor(input?.name.value)
 
-				label.setRequired(input.required)
+				label.setRequired(input?.required)
 				return label
 			},
 		}))

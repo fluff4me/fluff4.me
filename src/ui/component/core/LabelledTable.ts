@@ -4,7 +4,7 @@ import type { AutoLabel } from "ui/component/core/Label"
 import LabelledRow from "ui/component/core/LabelledRow"
 
 interface LabelledRowFactory<HOST extends LabelledTable> {
-	content (initialiser: (content: Component, label: Label, row: LabelledRow) => Component): HOST
+	content (initialiser: (content: Component, label: Label, row: LabelledRow) => Component | undefined | void): HOST
 }
 
 interface LabelledTableExtensions {
@@ -28,7 +28,7 @@ const LabelledTable = Component.Builder((table): LabelledTable => {
 						.style("labelled-row--in-labelled-table")
 						.appendTo(table)
 					row.label = labelInitialiser!(row.label as AutoLabel, row)
-					row.content = contentInitialiser(row.content, row.label, row)
+					row.content = contentInitialiser(row.content, row.label, row) ?? row.content
 					labelInitialiser = undefined
 					return table
 				},

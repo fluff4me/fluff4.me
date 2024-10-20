@@ -28,6 +28,7 @@
 	component/labelled-row
 	component/action-row
 	component/popover
+	component/text-editor
 	component/form
 	component/flag
 	component/masthead

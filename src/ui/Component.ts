@@ -25,6 +25,8 @@ type AriaRole =
 	| "form"
 	| "main"
 	| "navigation"
+	| "toolbar"
+	| "textbox"
 
 const ELEMENT_TO_COMPONENT_MAP = new WeakMap<Element, Component>()
 
@@ -119,6 +121,7 @@ interface BaseComponent {
 	ariaLabelledBy (component?: Component): this
 	ariaHidden (): this
 	ariaChecked (state: State<boolean>): this
+	ariaControls (component?: Component): this
 
 	tabIndex (index?: "programmatic" | "auto" | number): this
 	focus (): this
@@ -140,6 +143,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 	let unuseIdState: UnsubscribeState | undefined
 	let unuseNameState: UnsubscribeState | undefined
 	let unuseAriaLabelledByIdState: UnsubscribeState | undefined
+	let unuseAriaControlsIdState: UnsubscribeState | undefined
 
 	let owner: Component | undefined
 	let component = ({
@@ -386,16 +390,20 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 		ariaLabelledBy: labelledBy => {
 			unuseAriaLabelledByIdState?.()
-			unuseAriaLabelledByIdState = labelledBy?.id.use(component, id => {
-				component.attributes.set("aria-labelledby", id)
-			})
+			unuseAriaLabelledByIdState = labelledBy?.id.use(component, id =>
+				component.attributes.set("aria-labelledby", id))
 			return component
 		},
 		ariaHidden: () => component.attributes.set("aria-hidden", "true"),
 		ariaChecked: (state) => {
-			state.use(component, state => {
-				component.attributes.set("aria-checked", `${state}`)
-			})
+			state.use(component, state =>
+				component.attributes.set("aria-checked", `${state}`))
+			return component
+		},
+		ariaControls: target => {
+			unuseAriaControlsIdState?.()
+			unuseAriaControlsIdState = target?.id.use(component, id =>
+				component.attributes.set("aria-controls", id))
 			return component
 		},
 
@@ -489,8 +497,18 @@ namespace Component {
 
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		const realBuilder = (component = initialBuilder(type), ...params: any[]) => builder(component, ...params)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-		const simpleBuilder = (...params: any[]) => realBuilder(undefined, ...params)
+		const simpleBuilder = (...params: any[]) => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			const component = realBuilder(undefined, ...params)
+			if (component instanceof Promise)
+				return component.then(component => {
+					component.supers.push(simpleBuilder)
+					return component
+				})
+
+			component.supers.push(simpleBuilder)
+			return component
+		}
 
 		return Object.assign(simpleBuilder, {
 			from: realBuilder,

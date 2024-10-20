@@ -1,0 +1,25 @@
+.text-editor:
+	%block
+	%width-100
+	%padding-2-3
+	%border-box
+	%border-1
+	%border-radius-1
+	%cursor-text
+	$border-colour: $block-border-colour
+	background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
+	%background-unclip
+
+	::focus:
+		outline: -webkit-focus-ring-color auto 1px
+
+	&-toolbar:
+		%block
+		%sticky
+		%top-0
+
+	&-document:
+		%block
+		%no-outline
+
+	&--required:
