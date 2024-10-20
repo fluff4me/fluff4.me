@@ -90,11 +90,12 @@ const Masthead = Component.Builder("header", (masthead, view: ViewContainer) => 
 				.append(Slot()
 					.use(Session.Auth.author, (slot, author) => {
 						if (!author) {
-							return Button()
+							Button()
 								.type("flush")
 								.text.use("masthead/user/profile/popover/login")
 								.event.subscribe("click", () => navigate.toURL("/account"))
 								.appendTo(slot)
+							return
 						}
 
 						Button()

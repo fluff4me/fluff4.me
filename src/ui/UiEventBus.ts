@@ -114,7 +114,7 @@ function emitKeyEvent (e: RawEvent) {
 	if (usedByInput) {
 		if (e.type === "keydown" && eventKey === "Enter" && !event.shift && !event.alt) {
 			const form = target.closest("form")
-			if (form && target.tagName.toLowerCase() === "input" && !event.ctrl) {
+			if (form && (target.tagName.toLowerCase() === "input" || target.closest("[contenteditable]")) && !event.ctrl) {
 				e.preventDefault()
 			} else {
 				form?.requestSubmit()

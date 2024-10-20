@@ -10,8 +10,10 @@ import HoverListener from "ui/utility/HoverListener"
 import Mouse from "ui/utility/Mouse"
 import Viewport from "ui/utility/Viewport"
 import ViewContainer from "ui/ViewContainer"
+import Async from "utility/Async"
 import Env from "utility/Env"
 import Store from "utility/Store"
+import Time from "utility/Time"
 
 interface AppExtensions {
 	navigate: Navigator
@@ -63,7 +65,10 @@ async function App (): Promise<App> {
 
 	// ViewManager.showByHash(URL.path ?? URL.hash);
 
-	await Session.refresh()
+	await Promise.race([
+		Session.refresh(),
+		Async.sleep(Time.seconds(2)),
+	])
 
 	HoverListener.listen()
 	FocusListener.listen()

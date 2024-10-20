@@ -61,14 +61,26 @@
 			reqs = []
 		}
 
+		const _requirements = reqs.slice(2).map(req => findModuleName(name, req))
 		/**
 		 * @type {Module}
 		 */
 		const module = {
 			_name: name,
 			_state: ModuleState.Unprocessed,
-			_requirements: reqs.slice(2).map(req => findModuleName(name, req)),
+			_requirements,
 			_initializer: fn,
+			_replace (newModule) {
+				if (typeof newModule !== "object" && typeof newModule !== "function")
+					throw new Error("Cannot assign module.exports to a non-object")
+
+				newModule._name = name
+				newModule._state = ModuleState.Unprocessed
+				newModule._requirements = _requirements
+				newModule._initializer = fn
+				newModule._replace = module._replace
+				moduleMap.set(name, newModule)
+			},
 		}
 		moduleMap.set(name, module)
 		for (const req of module._requirements)
@@ -90,9 +102,31 @@
 
 	/**
 	 * @param {string} name
+	 * @param {string[]} [requiredBy]
 	 */
-	function getModule (name) {
-		return moduleMap.get(name)
+	function getModule (name, requiredBy) {
+		let module = moduleMap.get(name)
+		if (!module) {
+			if (name.endsWith(".js"))
+				name = name.slice(0, -3)
+
+			if (name.startsWith(".")) {
+				let from = requiredBy[requiredBy.length - 1]
+				if (!from.includes("/"))
+					from += "/"
+
+				name = findModuleName(from, name)
+			}
+
+			module = moduleMap.get(name)
+			if (!module)
+				throw new Error(`Module "${name}" has not been declared and cannot be required`)
+		}
+
+		if (module._state === ModuleState.Unprocessed)
+			module = processModule(name, module, requiredBy)
+
+		return module
 	}
 
 	/**
@@ -103,18 +137,21 @@
 	}
 
 	/**
-	 * @param {Module} module 
-	 * @param  {...any} args 
+	 * @param {Module} module
+	 * @param {string[]} [requiredBy]
+	 * @param {...any} args 
 	 */
-	function initializeModule (module, ...args) {
+	function initializeModule (module, requiredBy, ...args) {
 		if (module._state)
 			throw new Error(`Module "${module._name}" has already been processed`)
 
 		try {
-			const result = module._initializer(getModule, module, ...args)
+			requiredBy = [...requiredBy, module._name]
+			const result = module._initializer(name => getModule(name, requiredBy), module, ...args)
 			if (module.default === undefined && result !== undefined)
 				module.default = result
 
+			module = moduleMap.get(module._name)
 			module._state = ModuleState.Processed
 
 		} catch (err) {
@@ -212,10 +249,10 @@
 				.map(req => processModule(req, undefined, [...requiredBy, name]))
 
 			module._state = ModuleState.Unprocessed
-			initializeModule(module, ...args)
+			initializeModule(module, requiredBy, ...args)
 		}
 
-		return module
+		return moduleMap.get(name)
 	}
 
 
