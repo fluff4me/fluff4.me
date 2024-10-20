@@ -5,7 +5,7 @@
 	%borderless
 	%backdrop-blur
 	%flex-column
-	%gap-3
+	%gap-2
 	%block-border-shadow
 	%scheme-light-dark
 	%transparent

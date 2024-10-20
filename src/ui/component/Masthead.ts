@@ -91,17 +91,20 @@ const Masthead = Component.Builder("header", (masthead, view: ViewContainer) => 
 					.use(Session.Auth.author, (slot, author) => {
 						if (!author) {
 							return Button()
+								.type("flush")
 								.text.use("masthead/user/profile/popover/login")
 								.event.subscribe("click", () => navigate.toURL("/account"))
 								.appendTo(slot)
 						}
 
 						Button()
+							.type("flush")
 							.text.use("masthead/user/profile/popover/profile")
 							.event.subscribe("click", () => navigate.toURL(`/author/${author.vanity}`))
 							.appendTo(slot)
 
 						Button()
+							.type("flush")
 							.text.use("masthead/user/profile/popover/account")
 							.event.subscribe("click", () => navigate.toURL("/account"))
 							.appendTo(slot)
