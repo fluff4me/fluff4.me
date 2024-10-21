@@ -535,6 +535,16 @@ namespace Component {
 		componentExtensionsRegistry.push(extension as (component: Mutable<Component>) => any)
 	}
 
+	/**
+	 * Returns the component for the given element, if it exists
+	 */
+	export function get (element?: unknown): Component | undefined {
+		if (!element || (typeof element !== "object" && typeof element !== "function"))
+			return undefined
+
+		return ELEMENT_TO_COMPONENT_MAP.get(element as Element)
+	}
+
 }
 
 export default Component

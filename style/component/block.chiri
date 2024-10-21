@@ -4,7 +4,6 @@
 	%border-radius-2
 	%inset-border-1
 	%width-100
-	%overflow-hidden
 	%block-border-shadow
 	%scheme-light-dark
 	%border-box
@@ -24,6 +23,7 @@
 		%padding-inline-4
 		%padding-block-2
 		%margin-bottom-4
+		%border-top-radius-2
 		$border-colour: $block-border-colour
 		background: light-dark(#{alpha(0.2, $light-0)}, #{alpha(0.02, $colour-0)})
 

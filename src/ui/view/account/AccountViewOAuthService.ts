@@ -47,6 +47,8 @@ export default Component.Builder((component, service: AuthService) => {
 	})
 
 	button.event.subscribe("click", async event => {
+		event.preventDefault()
+
 		let auth = Session.Auth.get(service.name)
 		if (auth)
 			await Session.Auth.unauth(auth.id)

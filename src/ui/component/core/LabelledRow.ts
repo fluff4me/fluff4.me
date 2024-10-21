@@ -14,7 +14,7 @@ const LabelledRow = Component.Builder((row): LabelledRow => {
 	row.style("labelled-row")
 	row.and(ViewTransition.HasSubview)
 
-	let label: Label = AutoLabel().appendTo(row)
+	let label: Label = AutoLabel().style("labelled-row-label").appendTo(row)
 	let content = Component().style("labelled-row-content").appendTo(row)
 
 	return row

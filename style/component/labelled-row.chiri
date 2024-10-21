@@ -8,7 +8,13 @@
 
 		%grid
 		%columns-subgrid
+		%align-items-start
 		grid-column: 1/3
+
+	&-label:
+		%sticky
+		%top-0
+		%padding-2-0
 
 	&-content:
 		%block

@@ -3,7 +3,7 @@ import type Component from "ui/Component"
 import type State from "utility/State"
 import type { UnsubscribeState } from "utility/State"
 
-type ComponentName = keyof typeof style
+export type ComponentName = keyof typeof style
 
 interface StyleManipulatorFunctions<HOST> {
 	remove (...names: ComponentName[]): HOST

@@ -2,6 +2,7 @@
 	%block
 	%width-100
 	%padding-2-3
+	%padding-top-0
 	%border-box
 	%border-1
 	%border-radius-1
@@ -10,16 +11,94 @@
 	background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
 	%background-unclip
 
-	::focus:
+	::focus, ::active:
 		outline: -webkit-focus-ring-color auto 1px
+		outline-offset: 1px
 
 	&-toolbar:
 		%block
+		%unmargin-0-3
 		%sticky
+		%border-bottom-1
+		%cursor-default
+		%z-index-fg
+		%backdrop-blur
+		%border-top-radius-1
 		%top-0
+		background: light-dark(#{alpha(0.05, $dark-0)}, #{alpha(0.2, $dark-0)})
+		$border-colour: light-dark(#{alpha(0.3, $dark-0)}, #{alpha(0.15, $light-0)})
+
+		#string size = "calc($space-2 + $space-1)
+		&-button:
+			%relative
+			%font-1
+			%border-box
+			%text-align-centre
+			%vertical-align-middle
+			padding: #{size} #{size}
+			@before:
+				%block
+				%absolute
+				%text-align-centre
+				%width-100
+				top: #{size}
+				left: ${additional-left-padding: 0px}
+
+			&--enabled:
+				@after:
+					%block
+					%absolute
+					%border-radius-1
+					%background-3
+					%inset-block-1
+					%z-index-bg
+					$width: calc(1em + #{size} * 2 - $space-1 * 2 - ($space-3 - #{size}))
+					width: $width
+					left: calc(50% - $width / 2 + ${additional-left-padding: 0px})
+
+		&-bold:
+			#icon name="bold
+			%padding-left-3
+			%border-top-left-radius-1
+			$additional-left-padding: calc($space-3 - #{size})
+
+		&-italic:
+			#icon name="italic
+		&-underline:
+			#icon name="underline
+		&-strikethrough:
+			#icon name="strikethrough
+		&-subscript:
+			#icon name="subscript
+		&-superscript:
+			#icon name="superscript
+		&-blockquote:
+			#icon name="quote-left
+		&-code:
+			#icon name="code
 
 	&-document:
 		%block
 		%no-outline
+
+		& p:
+
+		& blockquote:
+			%margin-left-0
+			%padding-left-3
+			box-shadow: inset $space-1 0 0 0 #{alpha(0.2, $colour-0)}
+
+		& code:
+			%border-radius-1
+			padding-inline: ${code-padding: $space-1}
+			margin-inline: ${code-padding: $space-1}
+			background: ${code-background: light-dark(#{alpha(0.15, $dark-0)}, #{alpha(0.3, $dark-0)})}
+
+		& pre:
+			%padding-2-3
+			%border-radius-2
+			$code-background: transparent
+			$code-padding: 0
+			background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
 
 	&--required:

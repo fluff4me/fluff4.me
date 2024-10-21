@@ -2504,6 +2504,8 @@
 	%padding-2-3
 	%font-3
 	%font-font-awesome
+	%content-box
+	%size-em
 	::hover, ::focus:
 		%box-shadow-none
 
