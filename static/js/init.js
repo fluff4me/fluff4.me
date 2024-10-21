@@ -148,8 +148,8 @@
 		try {
 			requiredBy = [...requiredBy, module._name]
 			const result = module._initializer(name => getModule(name, requiredBy), module, ...args)
-			if (module.default === undefined && result !== undefined)
-				module.default = result
+			if (module.default === undefined)
+				module.default = result ?? module
 
 			module = moduleMap.get(module._name)
 			module._state = ModuleState.Processed

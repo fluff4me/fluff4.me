@@ -125,6 +125,10 @@ namespace Arrays {
 	}
 
 	export function range (end: number): number[]
+	/**
+	 * End is exclusive
+	 */
+	export function range (start: number, end: number, step?: number): number[]
 	export function range (start: number, end?: number, step?: number): number[] {
 		if (step === 0)
 			throw new Error("Invalid step for range")
