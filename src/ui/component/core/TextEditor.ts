@@ -266,17 +266,18 @@ const TextEditor = Component.Builder((component): TextEditor => {
 								update (view, prevState) {
 									state.value = view.state
 
-									const id = "text-editor/format/inline"
-									Announcer.announce(id, announce => {
-										if (!isMarkActive(schema.marks.em) && !isMarkActive(schema.marks.strong))
-											announce("component/text-editor/formatting/none")
-										else {
-											if (isMarkActive(schema.marks.em))
-												announce("component/text-editor/formatting/emphasis")
-											if (isMarkActive(schema.marks.strong))
-												announce("component/text-editor/formatting/strong")
-										}
-									})
+									if (editor.document?.element.contains(document.activeElement)) {
+										Announcer.announce("text-editor/format/inline", announce => {
+											if (!isMarkActive(schema.marks.em) && !isMarkActive(schema.marks.strong))
+												announce("component/text-editor/formatting/none")
+											else {
+												if (isMarkActive(schema.marks.em))
+													announce("component/text-editor/formatting/emphasis")
+												if (isMarkActive(schema.marks.strong))
+													announce("component/text-editor/formatting/strong")
+											}
+										})
+									}
 								},
 							} satisfies PluginView
 						},
@@ -311,6 +312,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		editor.document?.setName(label?.for)
 		editor.document?.setId(label?.for)
 		label?.setId(label.for.map(v => `${v}-label`))
+		toolbar.ariaLabelledBy(label)
 		editor.document?.ariaLabelledBy(label)
 		editor.document?.attributes.toggle(editor.required.value, "aria-required", "true")
 	}
