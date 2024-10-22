@@ -27,6 +27,7 @@ type AriaRole =
 	| "navigation"
 	| "toolbar"
 	| "textbox"
+	| "group"
 
 const ELEMENT_TO_COMPONENT_MAP = new WeakMap<Element, Component>()
 

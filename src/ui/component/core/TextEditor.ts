@@ -12,6 +12,7 @@ import { Schema } from "prosemirror-model"
 import type { Command, PluginSpec, PluginView } from "prosemirror-state"
 import { EditorState, Plugin } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
+import Announcer from "ui/Announcer"
 import Component from "ui/Component"
 import Button from "ui/component/core/Button"
 import Checkbutton from "ui/component/core/Checkbutton"
@@ -177,15 +178,21 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	const toolbar = Component()
 		.style("text-editor-toolbar")
 		.ariaRole("toolbar")
-		.append(ToolbarButtonMark(schema.marks.strong).style("text-editor-toolbar-bold"))
-		.append(ToolbarButtonMark(schema.marks.em).style("text-editor-toolbar-italic"))
-		.append(ToolbarButtonMark(schema.marks.underline).style("text-editor-toolbar-underline"))
-		.append(ToolbarButtonMark(schema.marks.strikethrough).style("text-editor-toolbar-strikethrough"))
-		.append(ToolbarButtonMark(schema.marks.subscript).style("text-editor-toolbar-subscript"))
-		.append(ToolbarButtonMark(schema.marks.superscript).style("text-editor-toolbar-superscript"))
-		.append(ToolbarButtonMark(schema.marks.code).style("text-editor-toolbar-code"))
-		.append(ToolbarButtonWrap(schema.nodes.blockquote).style("text-editor-toolbar-blockquote"))
-		.append(ToolbarButtonBlockType(schema.nodes.code_block).style("text-editor-toolbar-code"))
+		.append(Component()
+			.ariaRole("group")
+			.ariaLabel("component/text-editor/toolbar/group/inline")
+			.append(ToolbarButtonMark(schema.marks.strong).style("text-editor-toolbar-bold").ariaLabel("component/text-editor/toolbar/button/strong"))
+			.append(ToolbarButtonMark(schema.marks.em).style("text-editor-toolbar-italic").ariaLabel("component/text-editor/toolbar/button/emphasis"))
+			.append(ToolbarButtonMark(schema.marks.underline).style("text-editor-toolbar-underline").ariaLabel("component/text-editor/toolbar/button/underline"))
+			.append(ToolbarButtonMark(schema.marks.strikethrough).style("text-editor-toolbar-strikethrough").ariaLabel("component/text-editor/toolbar/button/strikethrough"))
+			.append(ToolbarButtonMark(schema.marks.subscript).style("text-editor-toolbar-subscript").ariaLabel("component/text-editor/toolbar/button/subscript"))
+			.append(ToolbarButtonMark(schema.marks.superscript).style("text-editor-toolbar-superscript").ariaLabel("component/text-editor/toolbar/button/superscript"))
+			.append(ToolbarButtonMark(schema.marks.code).style("text-editor-toolbar-code").ariaLabel("component/text-editor/toolbar/button/code")))
+		.append(Component()
+			.ariaRole("group")
+			.ariaLabel("component/text-editor/toolbar/group/block")
+			.append(ToolbarButtonWrap(schema.nodes.blockquote).style("text-editor-toolbar-blockquote").ariaLabel("component/text-editor/toolbar/button/blockquote"))
+			.append(ToolbarButtonBlockType(schema.nodes.code_block).style("text-editor-toolbar-code").ariaLabel("component/text-editor/toolbar/button/codeblock")))
 		.appendTo(component)
 
 	let label: Label | undefined
@@ -258,6 +265,18 @@ const TextEditor = Component.Builder((component): TextEditor => {
 							return {
 								update (view, prevState) {
 									state.value = view.state
+
+									const id = "text-editor/format/inline"
+									Announcer.announce(id, announce => {
+										if (!isMarkActive(schema.marks.em) && !isMarkActive(schema.marks.strong))
+											announce("component/text-editor/formatting/none")
+										else {
+											if (isMarkActive(schema.marks.em))
+												announce("component/text-editor/formatting/emphasis")
+											if (isMarkActive(schema.marks.strong))
+												announce("component/text-editor/formatting/strong")
+										}
+									})
 								},
 							} satisfies PluginView
 						},
