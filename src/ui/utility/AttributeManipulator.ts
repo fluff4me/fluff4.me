@@ -4,7 +4,9 @@ import { QuiltHelper, type Quilt } from "ui/utility/TextManipulator"
 
 interface AttributeManipulator<HOST> {
 	get (attribute: string): string | undefined
+	/** Adds the given attributes with no values */
 	add (...attributes: string[]): HOST
+	/** Sets the attribute to `value`, or removes the attribute if `value` is `undefined` */
 	set (attribute: string, value?: string): HOST
 	use (attribute: string, keyOrHandler: Quilt.SimpleKey | Quilt.Handler): HOST
 	getUsing (attribute: string): Quilt.SimpleKey | Quilt.Handler | undefined
