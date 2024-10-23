@@ -36,6 +36,8 @@
 			%text-align-centre
 			%vertical-align-middle
 			padding: #{size} #{size}
+			background: $button-background
+			$button-background: transparent
 			@before:
 				%block
 				%absolute
@@ -44,25 +46,36 @@
 				top: #{size}
 				left: ${additional-left-padding: 0px}
 
+			::hover, ::focus, ::active:
+				$button-background: transparent
+
 			&--enabled:
 				@after:
 					%block
 					%absolute
 					%border-radius-1
-					%background-3
+					%background-4
 					%inset-block-1
 					%z-index-bg
 					$width: calc(1em + #{size} * 2 - $space-1 * 2 - ($space-3 - #{size}))
 					width: $width
 					left: calc(50% - $width / 2 + ${additional-left-padding: 0px})
 
-		&-bold:
+			&--has-popover:
+				%border-radius-0
+				::hover, ::focus:
+					%translate-y-0
+
+			&--has-popover-visible:
+				$button-background: $background-3
+
+		&-strong:
 			#icon name="bold
 			%padding-left-3
 			%border-top-left-radius-1
 			$additional-left-padding: calc($space-3 - #{size})
 
-		&-italic:
+		&-em:
 			#icon name="italic
 		&-underline:
 			#icon name="underline
@@ -74,8 +87,20 @@
 			#icon name="superscript
 		&-blockquote:
 			#icon name="quote-left
-		&-code:
+		&-code, &-code-block:
 			#icon name="code
+		&-link:
+			#icon name="link
+		&-other-formatting:
+			#dual-icon a="font" b="ellipsis-vertical
+
+		&-popover:
+			%padding-1
+			%flex-row
+			%border-radius-1
+			%gap-0
+			%margin-top-0
+			%unmargin-left-1
 
 	&-document:
 		%block

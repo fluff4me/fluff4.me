@@ -9,23 +9,28 @@ popover: {0??details}
 toolbar/group/inline: inline formatting
 toolbar/group/block: block formatting
 toolbar/button/strong: strong (bold)
-toolbar/button/emphasis: emphasis (italic)
+toolbar/button/em: emphasis (italic)
 toolbar/button/underline: underline
 toolbar/button/strikethrough: strikethrough
 toolbar/button/subscript: subscript
 toolbar/button/superscript: superscript
 toolbar/button/code: code
+toolbar/button/link: link
+
 toolbar/button/blockquote: quote block
-toolbar/button/codeblock: code block
+toolbar/button/code-block: code block
+
+toolbar/button/other-formatting: other formatting options
 
 formatting/none: no formatting
 formatting/strong: strong (bolded)
-formatting/emphasis: emphasised (italic)
+formatting/em: emphasised (italic)
 formatting/underline: underlined
 formatting/strikethrough: strikethrough
 formatting/subscript: subscript
 formatting/superscript: superscript
 formatting/code: code
+formatting/link: link
 
 # masthead
 skip-navigation: Skip Navigation

@@ -1,7 +1,8 @@
 import Component from "ui/Component"
+import HoverListener from "ui/utility/HoverListener"
 import Mouse from "ui/utility/Mouse"
-import type State from "utility/State"
 import type { UnsubscribeState } from "utility/State"
+import State from "utility/State"
 import Task from "utility/Task"
 
 const FOCUS_TRAP = Component()
@@ -11,18 +12,22 @@ const FOCUS_TRAP = Component()
 	.prependTo(document.body)
 
 interface PopoverComponentExtensions {
-	popover (event: "hover" | "click", initialiser: (popover: Popover) => any): this
+	/** Disallow any popovers to continue showing if this component is hovered */
+	clearPopover (): this
+	popover (event: "hover" | "click", initialiser: (popover: Popover, host: this) => any): this
 }
 
 Component.extend(component => {
 	component.extend<PopoverComponentExtensions>(component => ({
+		clearPopover: () => component
+			.attributes.set("data-clear-popover", "true"),
 		popover: (event, initialiser) => {
 			let isShown = false
 
 			const popover = Popover()
 				.anchor.from(component)
 				.setOwner(component)
-				.tweak(initialiser)
+				.tweak(initialiser, component)
 				.event.subscribe("toggle", e => {
 					const event = e as ToggleEvent & { component: Popover }
 					if (event.newState === "closed") {
@@ -66,7 +71,11 @@ Component.extend(component => {
 			async function updatePopoverState () {
 				const shouldShow = false
 					|| component.hoveredOrFocused.value
-					|| (isShown && popover.rect.value.expand(100).intersects(Mouse.state.value))
+					|| (true
+						&& isShown
+						&& popover.rect.value.expand(+popover.attributes.get("data-popover-mouse-padding")! || 100).intersects(Mouse.state.value)
+						&& (popover.element.contains(HoverListener.hovered() ?? null) || !HoverListener.hovered()?.closest("[data-clear-popover]"))
+					)
 					|| clickState
 
 				if (isShown === shouldShow)
@@ -100,11 +109,14 @@ declare module "ui/Component" {
 }
 
 interface PopoverExtensions {
+	visible: State<boolean>
 	show (): this
 	hide (): this
 	toggle (shown?: boolean): this
 	bind (state: State<boolean>): this
 	unbind (): this
+	/** Sets the distance the mouse can be from the popover before it hides, if it's shown due to hover */
+	setMousePadding (padding?: number): this
 }
 
 interface Popover extends Component, PopoverExtensions { }
@@ -116,24 +128,33 @@ const Popover = Component.Builder((popover): Popover => {
 		.tabIndex("programmatic")
 		.attributes.add("popover")
 		.extend<PopoverExtensions>(popover => ({
+			visible: State(false),
+			setMousePadding: (padding) =>
+				popover.attributes.set("data-popover-mouse-padding", padding === undefined ? undefined : `${padding}`),
 			show: () => {
 				unbind?.()
 				popover.element.togglePopover(true)
+				popover.visible.value = true
 				return popover
 			},
 			hide: () => {
 				unbind?.()
 				popover.element.togglePopover(false)
+				popover.visible.value = false
 				return popover
 			},
 			toggle: shown => {
 				unbind?.()
 				popover.element.togglePopover(shown)
+				popover.visible.value = shown ?? !popover.visible.value
 				return popover
 			},
 			bind: state => {
 				unbind?.()
-				unbind = state.use(popover, shown => popover.element.togglePopover(shown))
+				unbind = state.use(popover, shown => {
+					popover.element.togglePopover(shown)
+					popover.visible.value = shown
+				})
 				return popover
 			},
 			unbind: () => {

@@ -103,7 +103,7 @@ interface BaseComponent {
 	extendMagic<K extends keyof this, O extends this = this> (property: K, magic: (component: this) => { get (): O[K], set?(value: O[K]): void }): this
 	extendJIT<K extends keyof this, O extends this = this> (property: K, supplier: (component: this) => O[K]): this
 
-	tweak (tweaker: (component: this) => any): this
+	tweak<PARAMS extends any[]> (tweaker: (component: this, ...params: PARAMS) => any, ...params: PARAMS): this
 
 	appendTo (destination: Component | Element): this
 	prependTo (destination: Component | Element): this
@@ -204,8 +204,8 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 
-		tweak: tweaker => {
-			tweaker(component)
+		tweak: (tweaker, ...params) => {
+			tweaker(component, ...params)
 			return component
 		},
 

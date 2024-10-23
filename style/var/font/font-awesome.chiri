@@ -11,7 +11,7 @@
 	scale-factor=0.8
 
 ; https://fontawesome.com/search?o=r&m=free&s=solid&f=classic
-#macro icon:
+#function get-icon returns string:
 	#string name
 
 	#record!string icons = {
@@ -2499,6 +2499,9 @@
 		pix: "\e43a
 		steam-symbol: "\f3f6
 
+	#return icons[name]
+
+#macro icon-container:
 	%background-none
 	%box-shadow-none
 	%padding-2-3
@@ -2509,6 +2512,17 @@
 	::hover, ::focus:
 		%box-shadow-none
 
-	@before:
-		content: "#{icons[name]}"
+#macro icon:
+	#string name
 
+	#icon-container
+	@before:
+		content: "#{get-icon(name)}"
+
+#macro dual-icon:
+	#string a
+	#string b
+
+	#icon-container
+	@before:
+		content: "#{get-icon(a)} \00A0 #{get-icon(b)}"

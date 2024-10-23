@@ -19,9 +19,13 @@ import Checkbutton from "ui/component/core/Checkbutton"
 import type { InputExtensions } from "ui/component/core/extension/Input"
 import Input from "ui/component/core/extension/Input"
 import type Label from "ui/component/core/Label"
+import type Popover from "ui/component/core/Popover"
 import Slot from "ui/component/core/Slot"
+import type { Quilt } from "ui/utility/TextManipulator"
 import Arrays from "utility/Arrays"
+import Objects from "utility/Objects"
 import State from "utility/State"
+import type Strings from "utility/Strings"
 import w3cKeyname from "w3c-keyname"
 
 const baseKeyName = w3cKeyname.keyName
@@ -40,14 +44,19 @@ w3cKeyname.keyName = (event: Event) => {
 	return baseKeyName(event)
 }
 
-type BaseSchemaNodes = (typeof baseSchema) extends Schema<infer NODES, any> ? NODES : never
-type BaseSchemaMarks = (typeof baseSchema) extends Schema<any, infer MARKS> ? MARKS : never
+type Nodes<SCHEMA = typeof schema> = SCHEMA extends Schema<infer NODES, any> ? NODES : never
+type Marks<SCHEMA = typeof schema> = SCHEMA extends Schema<any, infer MARKS> ? MARKS : never
 const schema = new Schema({
-	nodes: {
-		...baseSchema.spec.nodes.toObject() as Record<BaseSchemaNodes, NodeSpec>,
-	},
+	nodes: Objects.filterNullish({
+		...baseSchema.spec.nodes.toObject() as Record<Nodes<typeof baseSchema>, NodeSpec>,
+		image: undefined,
+		heading: {
+			...baseSchema.spec.nodes.get("heading"),
+			content: "text*",
+		},
+	}),
 	marks: {
-		...baseSchema.spec.marks.toObject() as Record<BaseSchemaMarks, MarkSpec>,
+		...baseSchema.spec.marks.toObject() as Record<Marks<typeof baseSchema>, MarkSpec>,
 		underline: {
 			parseDOM: [
 				{ tag: "u" },
@@ -77,6 +86,9 @@ const schema = new Schema({
 	},
 })
 
+////////////////////////////////////
+//#region TODO Markdown stuff
+
 const markdownSpec: Record<string, ParseSpec> = {
 	...defaultMarkdownParser.tokens,
 	underline: {
@@ -85,6 +97,9 @@ const markdownSpec: Record<string, ParseSpec> = {
 }
 delete markdownSpec.image
 const markdownParser = new MarkdownParser(schema, MarkdownIt("commonmark", { html: true }), markdownSpec)
+
+//#endregion
+////////////////////////////////////
 
 interface TextEditorExtensions {
 	toolbar: Component
@@ -106,36 +121,62 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	////////////////////////////////////
 	//#region ToolbarButton
 
-	const ToolbarButtonMark = Component.Builder((_, mark: MarkType) => {
+	const ToolbarButtonMark = Component.Builder((_, type: Marks) => {
+		const mark = schema.marks[type]
 		const toggler = markToggler(mark)
 		const markActive = state.map(state => isMarkActive(mark))
 		return Checkbutton()
-			.style("text-editor-toolbar-button")
+			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`)
+			.ariaLabel(`component/text-editor/toolbar/button/${type}`)
 			.style.bind(markActive, "text-editor-toolbar-button--enabled")
 			.use(markActive)
+			.clearPopover()
 			.event.subscribe("click", event => {
 				event.preventDefault()
 				toggler()
 			})
 	})
 
-	const ToolbarButtonWrap = Component.Builder((_, node: NodeType) => {
+	type UsableNodes = keyof { [N in keyof Quilt as N extends `component/text-editor/toolbar/button/${infer N extends Strings.Replace<Nodes, "_", "-">}` ? N : never]: true }
+	const ToolbarButtonWrap = Component.Builder((_, type: UsableNodes) => {
+		const node = schema.nodes[type.replaceAll("-", "_")]
 		const wrap = wrapper(node)
 		return Button()
-			.style("text-editor-toolbar-button")
+			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`)
+			.ariaLabel(`component/text-editor/toolbar/button/${type}`)
+			.clearPopover()
 			.event.subscribe("click", event => {
 				event.preventDefault()
 				wrap()
 			})
 	})
 
-	const ToolbarButtonBlockType = Component.Builder((_, node: NodeType) => {
+	const ToolbarButtonBlockType = Component.Builder((_, type: UsableNodes) => {
+		const node = schema.nodes[type.replaceAll("-", "_")]
 		const toggle = blockTypeToggler(node)
 		return Button()
-			.style("text-editor-toolbar-button")
+			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`)
+			.ariaLabel(`component/text-editor/toolbar/button/${type}`)
+			.clearPopover()
 			.event.subscribe("click", event => {
 				event.preventDefault()
 				toggle()
+			})
+	})
+
+	type ButtonType = keyof { [N in keyof Quilt as N extends `component/text-editor/toolbar/button/${infer N}` ? N : never]: true }
+	const ToolbarButtonPopover = Component.Builder((_, type: ButtonType, initialiser: (popover: Popover) => any) => {
+		return Button()
+			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`, "text-editor-toolbar-button--has-popover")
+			.ariaLabel(`component/text-editor/toolbar/button/${type}`)
+			.popover("hover", (popover, button) => {
+				popover
+					.style("text-editor-toolbar-popover")
+					.anchor.add("aligned left", "off bottom")
+					.setMousePadding(20)
+					.tweak(initialiser)
+
+				button.style.bind(popover.visible, "text-editor-toolbar-button--has-popover-visible")
 			})
 	})
 
@@ -181,18 +222,20 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.append(Component()
 			.ariaRole("group")
 			.ariaLabel("component/text-editor/toolbar/group/inline")
-			.append(ToolbarButtonMark(schema.marks.strong).style("text-editor-toolbar-bold").ariaLabel("component/text-editor/toolbar/button/strong"))
-			.append(ToolbarButtonMark(schema.marks.em).style("text-editor-toolbar-italic").ariaLabel("component/text-editor/toolbar/button/emphasis"))
-			.append(ToolbarButtonMark(schema.marks.underline).style("text-editor-toolbar-underline").ariaLabel("component/text-editor/toolbar/button/underline"))
-			.append(ToolbarButtonMark(schema.marks.strikethrough).style("text-editor-toolbar-strikethrough").ariaLabel("component/text-editor/toolbar/button/strikethrough"))
-			.append(ToolbarButtonMark(schema.marks.subscript).style("text-editor-toolbar-subscript").ariaLabel("component/text-editor/toolbar/button/subscript"))
-			.append(ToolbarButtonMark(schema.marks.superscript).style("text-editor-toolbar-superscript").ariaLabel("component/text-editor/toolbar/button/superscript"))
-			.append(ToolbarButtonMark(schema.marks.code).style("text-editor-toolbar-code").ariaLabel("component/text-editor/toolbar/button/code")))
+			.append(ToolbarButtonMark("strong"))
+			.append(ToolbarButtonMark("em"))
+			.append(ToolbarButtonPopover("other-formatting", popover => popover
+				.append(ToolbarButtonMark("underline"))
+				.append(ToolbarButtonMark("strikethrough"))
+				.append(ToolbarButtonMark("subscript"))
+				.append(ToolbarButtonMark("superscript"))
+				.append(ToolbarButtonMark("code"))
+			)))
 		.append(Component()
 			.ariaRole("group")
 			.ariaLabel("component/text-editor/toolbar/group/block")
-			.append(ToolbarButtonWrap(schema.nodes.blockquote).style("text-editor-toolbar-blockquote").ariaLabel("component/text-editor/toolbar/button/blockquote"))
-			.append(ToolbarButtonBlockType(schema.nodes.code_block).style("text-editor-toolbar-code").ariaLabel("component/text-editor/toolbar/button/codeblock")))
+			.append(ToolbarButtonWrap("blockquote"))
+			.append(ToolbarButtonBlockType("code-block")))
 		.appendTo(component)
 
 	let label: Label | undefined
@@ -268,14 +311,19 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 									if (editor.document?.element.contains(document.activeElement)) {
 										Announcer.announce("text-editor/format/inline", announce => {
-											if (!isMarkActive(schema.marks.em) && !isMarkActive(schema.marks.strong))
-												announce("component/text-editor/formatting/none")
-											else {
-												if (isMarkActive(schema.marks.em))
-													announce("component/text-editor/formatting/emphasis")
-												if (isMarkActive(schema.marks.strong))
-													announce("component/text-editor/formatting/strong")
+											const markTypes = Object.keys(schema.marks) as Marks[]
+
+											let hadActive = false
+											for (const type of markTypes) {
+												if (!isMarkActive(schema.marks[type]))
+													continue
+
+												hadActive = true
+												announce(`component/text-editor/formatting/${type}`)
 											}
+
+											if (!hadActive)
+												announce("component/text-editor/formatting/none")
 										})
 									}
 								},
