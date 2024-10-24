@@ -4,7 +4,7 @@ import Navigator from "navigation/Navigate"
 import style from "style"
 import Component from "ui/Component"
 import Masthead from "ui/component/Masthead"
-import UiEventBus from "ui/UiEventBus"
+import InputBus from "ui/InputBus"
 import FocusListener from "ui/utility/FocusListener"
 import HoverListener from "ui/utility/HoverListener"
 import Mouse from "ui/utility/Mouse"
@@ -39,7 +39,7 @@ async function App (): Promise<App> {
 
 	await screen?.orientation?.lock?.("portrait-primary").catch(() => { })
 
-	UiEventBus.subscribe("keydown", event => {
+	InputBus.subscribe("keydown", event => {
 		if (event.use("F6"))
 			for (const stylesheet of document.querySelectorAll("link[rel=stylesheet]")) {
 				const href = stylesheet.getAttribute("href")!
@@ -50,7 +50,7 @@ async function App (): Promise<App> {
 		if (event.use("F4"))
 			document.documentElement.classList.add("persist-tooltips")
 	})
-	UiEventBus.subscribe("keyup", event => {
+	InputBus.subscribe("keyup", event => {
 		if (event.use("F4"))
 			document.documentElement.classList.remove("persist-tooltips")
 	})

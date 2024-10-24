@@ -1,4 +1,5 @@
 import Component from "ui/Component"
+import InputBus from "ui/InputBus"
 import HoverListener from "ui/utility/HoverListener"
 import Mouse from "ui/utility/Mouse"
 import type { UnsubscribeState } from "utility/State"
@@ -73,7 +74,10 @@ Component.extend(component => {
 					|| component.hoveredOrFocused.value
 					|| (true
 						&& isShown
-						&& popover.rect.value.expand(+popover.attributes.get("data-popover-mouse-padding")! || 100).intersects(Mouse.state.value)
+						&& (false
+							|| popover.rect.value.expand(+popover.attributes.get("data-popover-mouse-padding")! || 100).intersects(Mouse.state.value)
+							|| InputBus.isDown("F4")
+						)
 						&& (popover.element.contains(HoverListener.hovered() ?? null) || !HoverListener.hovered()?.closest("[data-clear-popover]"))
 					)
 					|| clickState

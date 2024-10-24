@@ -20,19 +20,12 @@ export interface IKeyUpEvent extends IKeyEvent {
 	usedAnotherKeyDuring: boolean
 }
 
-export interface IUiEventBusEvents {
+export interface IInputBusEvents {
 	keydown: IKeyEvent
 	keyup: IKeyUpEvent
 }
 
-const UiEventBus = EventManager.make<IUiEventBusEvents>()
-
-type RawEvent = Partial<KeyboardEvent> & Partial<MouseEvent> & (KeyboardEvent | MouseEvent)
-
-let lastUsed = 0
-const state: Record<string, number | undefined> = {}
-
-const mouseKeyMap: Record<string, string> = {
+const MOUSE_KEYNAME_MAP: Record<string, string> = {
 	[0]: "MouseLeft",
 	[1]: "MouseMiddle",
 	[2]: "MouseRight",
@@ -43,15 +36,30 @@ const mouseKeyMap: Record<string, string> = {
 	[`${undefined}`]: "Mouse?",
 }
 
+type RawEvent = Partial<KeyboardEvent> & Partial<MouseEvent> & (KeyboardEvent | MouseEvent)
+
+let lastUsed = 0
+const inputDownTime: Record<string, number | undefined> = {}
+
+const InputBus = Object.assign(
+	EventManager.make<IInputBusEvents>(),
+	{
+		getPressStart: (name: string) => inputDownTime[name],
+		getPressDuration: (name: string) => inputDownTime[name] === undefined ? undefined : Date.now() - inputDownTime[name],
+		isDown: (name: string) => !!inputDownTime[name],
+		isUp: (name: string) => !inputDownTime[name],
+	},
+)
+
 function emitKeyEvent (e: RawEvent) {
 	const target = e.target as HTMLElement
 	const input = target.closest<HTMLElement>("input[type=text], textarea, [contenteditable]")
 	let usedByInput = !!input
 
-	const eventKey = e.key ?? mouseKeyMap[e.button!]
+	const eventKey = e.key ?? MOUSE_KEYNAME_MAP[e.button!]
 	const eventType = e.type === "mousedown" ? "keydown" : e.type === "mouseup" ? "keyup" : e.type as "keydown" | "keyup"
 	if (eventType === "keydown")
-		state[eventKey] = Date.now()
+		inputDownTime[eventKey] = Date.now()
 
 	let cancelInput = false
 	const event: IKeyEvent & Partial<IKeyUpEvent> = {
@@ -100,11 +108,11 @@ function emitKeyEvent (e: RawEvent) {
 	}
 
 	if (eventType === "keyup") {
-		event.usedAnotherKeyDuring = lastUsed > (state[eventKey] ?? 0)
-		delete state[eventKey]
+		event.usedAnotherKeyDuring = lastUsed > (inputDownTime[eventKey] ?? 0)
+		delete inputDownTime[eventKey]
 	}
 
-	UiEventBus.emit(eventType, event)
+	InputBus.emit(eventType, event)
 
 	if ((event.used && !usedByInput) || (usedByInput && cancelInput)) {
 		e.preventDefault()
@@ -171,7 +179,7 @@ Object.defineProperty(MouseEvent.prototype, "use", {
 
 Object.defineProperty(MouseEvent.prototype, "matches", {
 	value: function (this: MouseEventInternal, key: string, ...modifiers: Modifier[]) {
-		if (mouseKeyMap[this.button] !== key)
+		if (MOUSE_KEYNAME_MAP[this.button] !== key)
 			return false
 
 		if (!modifiers.every(modifier => this[`${modifier}Key`]))
@@ -181,4 +189,4 @@ Object.defineProperty(MouseEvent.prototype, "matches", {
 	},
 })
 
-export default UiEventBus
+export default InputBus
