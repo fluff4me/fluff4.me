@@ -34,7 +34,7 @@ namespace Announcer {
 	function announceInternal (within: Component, id: string, announcer: (announce: Announcer) => any) {
 		const components: Component[] = []
 		announcer(keyOrHandler => {
-			components.push(Component()
+			components.push(Component("p")
 				.attributes.set("data-id", id)
 				.text.use(keyOrHandler))
 		})

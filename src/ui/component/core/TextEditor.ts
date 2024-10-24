@@ -7,7 +7,7 @@ import { history } from "prosemirror-history"
 import { keymap } from "prosemirror-keymap"
 import type { ParseSpec } from "prosemirror-markdown"
 import { schema as baseSchema, defaultMarkdownParser, defaultMarkdownSerializer, MarkdownParser } from "prosemirror-markdown"
-import type { MarkSpec, MarkType, NodeSpec, NodeType } from "prosemirror-model"
+import type { MarkSpec, MarkType, NodeSpec, NodeType, ResolvedPos } from "prosemirror-model"
 import { Schema } from "prosemirror-model"
 import type { Command, PluginSpec, PluginView } from "prosemirror-state"
 import { EditorState, Plugin } from "prosemirror-state"
@@ -69,7 +69,12 @@ const schema = new Schema({
 				{ tag: "s" },
 				{ style: "text-decoration=line-through", clearMark: m => m.type.name === "strikethrough" },
 			],
-			toDOM () { return ["s"] },
+			// toDOM () { return ["s"] },
+			toDOM () {
+				const span = document.createElement("span")
+				span.style.setProperty("text-decoration", "line-through")
+				return span
+			},
 		},
 		subscript: {
 			parseDOM: [
@@ -180,15 +185,16 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			})
 	})
 
-	function isMarkActive (type: MarkType) {
+	function isMarkActive (type: MarkType, pos?: ResolvedPos) {
 		if (!state.value)
 			return false
 
-		const { from, $from, to, empty } = state.value.selection
-		if (empty)
-			return !!type.isInSet(state.value.storedMarks || $from.marks())
+		const selection = state.value.selection
+		pos ??= !selection.empty ? undefined : selection.$from
+		if (pos)
+			return !!type.isInSet(state.value.storedMarks || pos.marks())
 
-		return state.value.doc.rangeHasMark(from, to, type)
+		return state.value.doc.rangeHasMark(selection.from, selection.to, type)
 	}
 
 	function wrapCmd (cmd: Command): () => void {
@@ -309,13 +315,15 @@ const TextEditor = Component.Builder((component): TextEditor => {
 								update (view, prevState) {
 									state.value = view.state
 
-									if (editor.document?.element.contains(document.activeElement)) {
-										Announcer.announce("text-editor/format/inline", announce => {
+									if (editor.mirror?.hasFocus() && editor.mirror.state.selection.empty) {
+										const pos = editor.mirror.state.doc.resolve(editor.mirror.state.selection.from + 1)
+
+										Announcer.interrupt("text-editor/format/inline", announce => {
 											const markTypes = Object.keys(schema.marks) as Marks[]
 
 											let hadActive = false
 											for (const type of markTypes) {
-												if (!isMarkActive(schema.marks[type]))
+												if (!isMarkActive(schema.marks[type], pos))
 													continue
 
 												hadActive = true
