@@ -16,22 +16,40 @@
 		outline-offset: 1px
 
 	&-toolbar:
+		%font-2
 		%block
 		%unmargin-0-3
 		%sticky
 		%border-bottom-1
 		%cursor-default
 		%z-index-fg
-		%backdrop-blur
 		%border-top-radius-1
 		%top-0
 		background: light-dark(#{alpha(0.05, $dark-0)}, #{alpha(0.2, $dark-0)})
 		$border-colour: light-dark(#{alpha(0.3, $dark-0)}, #{alpha(0.15, $light-0)})
 
+		#backdrop-blur-before:
+			%border-top-radius-1
+
 		#string size = "calc($space-2 + $space-1)
+		&-button-group:
+			@before:
+				%inline-block
+				%relative
+				%border-left-1
+				%border-colour-3
+				%margin-inline-1
+				%vertical-align-middle
+				%opacity-50
+				height: calc(1em + #{size} * 2)
+
+			:first:
+				@before:
+					content: none
+
 		&-button:
 			%relative
-			%font-1
+			%font-inherit
 			%border-box
 			%text-align-centre
 			%vertical-align-middle
@@ -48,6 +66,7 @@
 
 			::hover, ::focus, ::active:
 				$button-background: transparent
+				%z-index-fg
 
 			&--enabled:
 				@after:
@@ -63,17 +82,44 @@
 
 			&--has-popover:
 				%border-radius-0
+				%outline-none
+
 				::hover, ::focus:
 					%translate-y-0
 
+				@before:
+					%z-index-fg
+
+				@after:
+					%block
+					%absolute
+					%border-top-radius-1
+					%backdrop-filter-none
+					%translate-none
+					%uninset-1
+					%top-0
+					bottom: -1px
+					$border-colour: transparent
+					box-shadow:
+						#{box-shadow-inset-border-top-1},
+						#{box-shadow-inset-border-left-1},
+						#{box-shadow-inset-border-right-1}
+					#transition:
+						#{transition($$border-colour)},
+						#{transition("inset")},
+						#{transition("bottom")},
+						#{transition("backdrop-filter")}
+
 			&--has-popover-visible:
-				$button-background: $background-3
+				@after:
+					$border-colour: $block-border-colour
+					%untop-1
+					%backdrop-blur
+					$transition-duration: $transition-focus
 
 		&-strong:
 			#icon name="bold
-			%padding-left-3
 			%border-top-left-radius-1
-			$additional-left-padding: calc($space-3 - #{size})
 
 		&-em:
 			#icon name="italic
@@ -98,9 +144,16 @@
 			%padding-1
 			%flex-row
 			%border-radius-1
+			%border-top-radius-0
 			%gap-0
-			%margin-top-0
 			%unmargin-left-1
+			margin-top: 1px
+			$block-background: #{alpha(0.2, $background-1)}
+			border-top-colour: #{alpha(0.9, $background-1)}
+			box-shadow:
+				#{box-shadow-inset-border-bottom-1},
+				#{box-shadow-inset-border-left-1},
+				#{box-shadow-inset-border-right-1}
 
 	&-document:
 		%block

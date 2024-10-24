@@ -126,6 +126,10 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	////////////////////////////////////
 	//#region ToolbarButton
 
+	const ToolbarButtonGroup = Component.Builder(component => component
+		.ariaRole("group")
+		.style("text-editor-toolbar-button-group"))
+
 	const ToolbarButtonMark = Component.Builder((_, type: Marks) => {
 		const mark = schema.marks[type]
 		const toggler = markToggler(mark)
@@ -225,8 +229,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	const toolbar = Component()
 		.style("text-editor-toolbar")
 		.ariaRole("toolbar")
-		.append(Component()
-			.ariaRole("group")
+		.append(ToolbarButtonGroup()
 			.ariaLabel("component/text-editor/toolbar/group/inline")
 			.append(ToolbarButtonMark("strong"))
 			.append(ToolbarButtonMark("em"))
@@ -237,8 +240,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 				.append(ToolbarButtonMark("superscript"))
 				.append(ToolbarButtonMark("code"))
 			)))
-		.append(Component()
-			.ariaRole("group")
+		.append(ToolbarButtonGroup()
 			.ariaLabel("component/text-editor/toolbar/group/block")
 			.append(ToolbarButtonWrap("blockquote"))
 			.append(ToolbarButtonBlockType("code-block")))
