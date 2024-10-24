@@ -6,11 +6,19 @@
 	#string colour ??= $colour-3
 	#string button-colour ??= $colour-0
 
-	colour: #{colour}
-	$button-colour: #{button-colour}
-	#string background-colour = "light-dark(#{background-light}, #{background-dark})
-	#string border-colour = "light-dark(#{border-light}, #{border-dark})
+	$block-background-light: #{background-light}
+	$block-background-dark: #{background-dark}
+	$block-border-light: #{border-light}
+	$block-border-dark: #{border-dark}
+	$block-colour: #{colour}
+	$block-button-colour: #{button-colour}
+
+	colour: $block-colour
+	$button-colour: $block-button-colour
+	#string background-colour = "light-dark($block-background-light, $block-background-dark)
+	#string border-colour = "light-dark($block-border-light, $block-border-dark)
 	$block-border-colour: #{border-colour}
 	$border-colour: $block-border-colour
 	#string background-highlight = "light-dark(color-mix(in lch, #{background-colour}, #fff 20%), color-mix(in lch, #{background-colour}, #fff2 50%))
-	background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, #{background-colour})
+	$block-background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, #{background-colour})
+	background: $block-background
