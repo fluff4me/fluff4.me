@@ -243,7 +243,7 @@ Define(Transform.prototype, "stripNodeRecursively", function (from: NodeRange | 
 			let start = range.$from.pos
 			start = start <= nodePos ? start : start - 1
 			let end = range.$to.pos
-			end = end <= nodePos + node.nodeSize ? end - 1 : end - 2
+			end = end < nodePos + node.nodeSize ? end - 1 : end - 2
 			const newRange = tr.doc.resolve(start).blockRange(tr.doc.resolve(end))
 			if (!newRange)
 				throw new Error("Unable to continue stripping, unable to resolve new range")
