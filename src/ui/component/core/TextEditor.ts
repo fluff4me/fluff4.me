@@ -1,3 +1,4 @@
+import quilt from "lang/en-nz"
 import MarkdownIt from "markdown-it"
 import { baseKeymap, setBlockType, toggleMark, wrapIn } from "prosemirror-commands"
 import { dropCursor } from "prosemirror-dropcursor"
@@ -7,10 +8,11 @@ import { history } from "prosemirror-history"
 import { keymap } from "prosemirror-keymap"
 import type { ParseSpec } from "prosemirror-markdown"
 import { schema as baseSchema, defaultMarkdownParser, defaultMarkdownSerializer, MarkdownParser } from "prosemirror-markdown"
-import type { MarkSpec, MarkType, NodeSpec, NodeType, ResolvedPos } from "prosemirror-model"
-import { Schema } from "prosemirror-model"
+import type { Attrs, MarkSpec, MarkType, NodeSpec, NodeType } from "prosemirror-model"
+import { Fragment, Node, NodeRange, ResolvedPos, Schema } from "prosemirror-model"
 import type { Command, PluginSpec, PluginView } from "prosemirror-state"
 import { EditorState, Plugin } from "prosemirror-state"
+import { findWrapping, Transform } from "prosemirror-transform"
 import { EditorView } from "prosemirror-view"
 import Announcer from "ui/Announcer"
 import Component from "ui/Component"
@@ -23,10 +25,14 @@ import type Popover from "ui/component/core/Popover"
 import Slot from "ui/component/core/Slot"
 import type { Quilt } from "ui/utility/TextManipulator"
 import Arrays from "utility/Arrays"
+import Define from "utility/Define"
 import Objects from "utility/Objects"
 import State from "utility/State"
 import type Strings from "utility/Strings"
 import w3cKeyname from "w3c-keyname"
+
+////////////////////////////////////
+//#region Module Augmentation
 
 const baseKeyName = w3cKeyname.keyName
 w3cKeyname.keyName = (event: Event) => {
@@ -44,6 +50,215 @@ w3cKeyname.keyName = (event: Event) => {
 	return baseKeyName(event)
 }
 
+declare module "prosemirror-model" {
+	interface ResolvedPos {
+		closest (node: NodeType, startingAtDepth?: number): Node | undefined
+	}
+	interface Node {
+		pos (document: Node): number | undefined
+		range (document: Node): NodeRange | undefined
+		parent (document: Node): Node | undefined
+		depth (document: Node): number | undefined
+	}
+	interface Fragment {
+		pos (document: Node): number | undefined
+		range (document: Node): NodeRange | undefined
+		parent (document: Node): Node | undefined
+	}
+}
+
+Define(ResolvedPos.prototype, "closest", function (node, startingAtDepth) {
+	startingAtDepth ??= this.depth
+	for (let depth = startingAtDepth; depth >= 0; depth--) {
+		const current = this.node(depth)
+		if (current.type === node)
+			return current
+	}
+
+	return undefined
+})
+
+Define(Node.prototype, "pos", function (document) {
+	if (document === this)
+		return 0
+
+	let result: number | undefined
+	document.descendants((node, pos) => {
+		if (result !== undefined)
+			return false
+
+		if (node === this) {
+			result = pos
+			return false
+		}
+	})
+	return result
+})
+
+Define(Node.prototype, "parent", function (document) {
+	if (document === this)
+		return undefined
+
+	// eslint-disable-next-line @typescript-eslint/no-this-alias
+	const searchNode = this
+	return searchChildren(document)
+
+	function searchChildren (parent: Node) {
+		let result: Node | undefined
+		parent.forEach(child => {
+			result ??= (child === searchNode ? parent : undefined)
+				?? searchChildren(child)
+		})
+		return result
+	}
+})
+
+Define(Node.prototype, "depth", function (document) {
+	if (document === this)
+		return 0
+
+	// eslint-disable-next-line @typescript-eslint/no-this-alias
+	const searchNode = this
+	return searchChildren(document, 1)
+
+	function searchChildren (parent: Node, depth: number) {
+		let result: number | undefined
+		parent.forEach(child => {
+			result ??= (child === searchNode ? depth : undefined)
+				?? searchChildren(child, depth + 1)
+		})
+		return result
+	}
+})
+
+Define(Fragment.prototype, "pos", function (document) {
+	let result: number | undefined
+	document.descendants((node, pos) => {
+		if (result !== undefined)
+			return false
+
+		if (node.content === this) {
+			result = pos + 1
+			return false
+		}
+	})
+	return result
+})
+
+Define(Fragment.prototype, "range", function (document) {
+	const pos = this.pos(document)
+	if (!pos)
+		return undefined
+
+	const $from = document.resolve(pos)
+	const $to = document.resolve(pos + this.size)
+	const depth = this.parent(document)?.depth(document)
+	if (!depth)
+		return undefined
+
+	return new NodeRange($from, $to, depth)
+})
+
+Define(Fragment.prototype, "parent", function (document) {
+	if (document.content === this)
+		return document
+
+	let result: Node | undefined
+	document.descendants((node, pos) => {
+		if (result !== undefined)
+			return false
+
+		if (node.content === this) {
+			result = node
+			return false
+		}
+	})
+	return result
+})
+
+declare module "prosemirror-transform" {
+	interface Transform {
+		stripNodeRecursively (range: NodeRange, node: NodeType): this
+		stripNodeRecursively (within: Fragment, node: NodeType): this
+	}
+}
+
+Define(Transform.prototype, "stripNodeRecursively", function (from: NodeRange | Fragment, type: NodeType): Transform {
+	// eslint-disable-next-line @typescript-eslint/no-this-alias
+	const tr = this
+
+	let range = from instanceof Fragment ? from.range(tr.doc) : from
+	if (!range)
+		return this
+
+	while (stripRange());
+	return this
+
+	function stripRange (): boolean {
+		let stripped = false
+		range!.parent.forEach((node, pos, index) => {
+			if (stripped)
+				return
+
+			if (index >= range!.startIndex && index < range!.endIndex) {
+				if (node.type === type) {
+					stripNode(node, pos)
+					stripped = true
+					return
+				}
+
+				if (stripDescendants(node)) {
+					stripped = true
+					return
+				}
+			}
+		})
+
+		return stripped
+	}
+
+	function stripDescendants (node: Node | Fragment) {
+		let stripped = false
+		node.descendants((node, pos) => {
+			if (stripped)
+				return
+
+			if (node.type === type) {
+				stripNode(node, pos)
+				stripped = true
+				return
+			}
+		})
+		return stripped
+	}
+
+	function stripNode (node: Node, pos: number) {
+		const nodePos = node.pos(tr.doc)
+		if (nodePos === undefined)
+			throw new Error("Unable to continue stripping, no pos")
+
+		tr.replaceWith(nodePos, nodePos + node.nodeSize, node.content)
+
+		if (range) {
+			let start = range.$from.pos
+			start = start <= nodePos ? start : start - 1
+			let end = range.$to.pos
+			end = end <= nodePos + node.nodeSize ? end - 1 : end - 2
+			const newRange = tr.doc.resolve(start).blockRange(tr.doc.resolve(end))
+			if (!newRange)
+				throw new Error("Unable to continue stripping, unable to resolve new range")
+
+			range = newRange
+		}
+	}
+})
+
+//#endregion
+////////////////////////////////////
+
+////////////////////////////////////
+//#region Schema
+
 type Nodes<SCHEMA = typeof schema> = SCHEMA extends Schema<infer NODES, any> ? NODES : never
 type Marks<SCHEMA = typeof schema> = SCHEMA extends Schema<any, infer MARKS> ? MARKS : never
 const schema = new Schema({
@@ -53,6 +268,25 @@ const schema = new Schema({
 		heading: {
 			...baseSchema.spec.nodes.get("heading"),
 			content: "text*",
+		},
+		text_align: {
+			attrs: { align: { default: "left", validate: (value: any) => value === "left" || value === "center" || value === "right" } },
+			content: "block+",
+			group: "block",
+			defining: true,
+			parseDOM: [
+				{ tag: "center", getAttrs: () => ({ align: "center" }) },
+				{
+					tag: "*", getAttrs: (element: HTMLElement) => {
+						const textAlign = element.style.getPropertyValue("text-align")
+						if (!textAlign)
+							return false
+
+						return { align: textAlign }
+					},
+				},
+			],
+			toDOM: (node: Node) => ["div", { "style": `text-align:${node.attrs.align as string}` }, 0] as const,
 		},
 	}),
 	marks: {
@@ -91,6 +325,9 @@ const schema = new Schema({
 	},
 })
 
+//#endregion
+////////////////////////////////////
+
 ////////////////////////////////////
 //#region TODO Markdown stuff
 
@@ -121,10 +358,46 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	const isMarkdown = State<boolean>(false)
 	const content = State<string>("")
 
+	// eslint-disable-next-line prefer-const
+	let editor!: TextEditor
 	const state = State<EditorState | undefined>(undefined)
 
 	////////////////////////////////////
-	//#region ToolbarButton
+	//#region Announcements
+
+	state.subscribe(component, () => {
+		if (!editor.mirror?.hasFocus() || !editor.mirror.state.selection.empty)
+			return
+
+		const pos = editor.mirror.state.doc.resolve(editor.mirror.state.selection.from + 1)
+		Announcer.interrupt("text-editor/format/inline", announce => {
+			const markTypes = Object.keys(schema.marks) as Marks[]
+
+			let hadActive = false
+			for (const type of markTypes) {
+				if (!isMarkActive(schema.marks[type], pos))
+					continue
+
+				hadActive = true
+				announce(`component/text-editor/formatting/${type}`)
+			}
+
+			if (!hadActive)
+				announce("component/text-editor/formatting/none")
+		})
+	})
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Toolbar
+
+	////////////////////////////////////
+	//#region Components
+
+	type ButtonType = keyof { [N in Quilt.SimpleKey as N extends `component/text-editor/toolbar/button/${infer N}` ? N extends `${string}/${string}` ? never : N : never]: true }
+	type UnsimpleButtonType = keyof { [N in keyof Quilt as N extends `component/text-editor/toolbar/button/${infer N}` ? N extends `${string}/${string}` ? never : N : never]: true }
 
 	const ToolbarButtonGroup = Component.Builder(component => component
 		.ariaRole("group")
@@ -136,7 +409,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		const markActive = state.map(state => isMarkActive(mark))
 		return Checkbutton()
 			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`)
-			.ariaLabel(`component/text-editor/toolbar/button/${type}`)
+			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
 			.style.bind(markActive, "text-editor-toolbar-button--enabled")
 			.use(markActive)
 			.clearPopover()
@@ -147,12 +420,13 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	})
 
 	type UsableNodes = keyof { [N in keyof Quilt as N extends `component/text-editor/toolbar/button/${infer N extends Strings.Replace<Nodes, "_", "-">}` ? N : never]: true }
-	const ToolbarButtonWrap = Component.Builder((_, type: UsableNodes) => {
-		const node = schema.nodes[type.replaceAll("-", "_")]
-		const wrap = wrapper(node)
+	const ToolbarButtonWrap = Component.Builder((_, type: UsableNodes) =>
+		ToolbarButtonWrapAny(type, schema.nodes[type.replaceAll("-", "_")]))
+	const ToolbarButtonWrapAny = Component.Builder((_, type: ButtonType, node: NodeType, attrs?: Attrs) => {
+		const wrap = wrapper(node, attrs)
 		return Button()
 			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`)
-			.ariaLabel(`component/text-editor/toolbar/button/${type}`)
+			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
 			.clearPopover()
 			.event.subscribe("click", event => {
 				event.preventDefault()
@@ -165,7 +439,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		const toggle = blockTypeToggler(node)
 		return Button()
 			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`)
-			.ariaLabel(`component/text-editor/toolbar/button/${type}`)
+			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
 			.clearPopover()
 			.event.subscribe("click", event => {
 				event.preventDefault()
@@ -173,11 +447,13 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			})
 	})
 
-	type ButtonType = keyof { [N in keyof Quilt as N extends `component/text-editor/toolbar/button/${infer N}` ? N : never]: true }
-	const ToolbarButtonPopover = Component.Builder((_, type: ButtonType, initialiser: (popover: Popover) => any) => {
+	const ToolbarButtonPopover = Component.Builder((_, type: ButtonType, initialiser: (popover: Popover) => any) =>
+		ToolbarButtonPopoverNoLabel(type, initialiser)
+			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`))
+
+	const ToolbarButtonPopoverNoLabel = Component.Builder((_, type: UnsimpleButtonType, initialiser: (popover: Popover) => any) => {
 		return Button()
 			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`, "text-editor-toolbar-button--has-popover")
-			.ariaLabel(`component/text-editor/toolbar/button/${type}`)
 			.popover("hover", (popover, button) => {
 				popover
 					.style("text-editor-toolbar-popover")
@@ -189,25 +465,16 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			})
 	})
 
-	function isMarkActive (type: MarkType, pos?: ResolvedPos) {
-		if (!state.value)
-			return false
-
-		const selection = state.value.selection
-		pos ??= !selection.empty ? undefined : selection.$from
-		if (pos)
-			return !!type.isInSet(state.value.storedMarks || pos.marks())
-
-		return state.value.doc.rangeHasMark(selection.from, selection.to, type)
-	}
-
+	let inTransaction = false
 	function wrapCmd (cmd: Command): () => void {
 		return () => {
 			if (!state.value)
 				return
 
+			inTransaction = true
 			cmd(state.value, editor.mirror?.dispatch, editor.mirror)
 			editor.document?.focus()
+			inTransaction = false
 		}
 	}
 
@@ -215,8 +482,47 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		return wrapCmd(toggleMark(type))
 	}
 
-	function wrapper (node: NodeType) {
-		return wrapCmd(wrapIn(node))
+	function wrapper (node: NodeType, attrs?: Attrs) {
+		if (node === schema.nodes.text_align)
+			return wrapCmd((state, dispatch) => {
+				const { $from, $to } = state.selection
+				let range = $from.blockRange($to)
+				if (range) {
+					const textAlignBlock = $from.closest(schema.nodes.text_align, range.depth)
+					if (textAlignBlock && !range.startIndex && range.endIndex === textAlignBlock.childCount) {
+						const pos = textAlignBlock.pos(state.doc)
+						if (pos === undefined)
+							return false
+
+						if (dispatch) dispatch(state.tr
+							.setNodeMarkup(pos, undefined, attrs)
+							.stripNodeRecursively(textAlignBlock.content, schema.nodes.text_align)
+							.scrollIntoView())
+						return true
+					}
+				}
+
+				const wrapping = range && findWrapping(range, node, attrs)
+				if (!wrapping)
+					return false
+
+				if (dispatch) {
+					const tr = state.tr
+
+					tr.wrap(range!, wrapping)
+					range = tr.doc.resolve($from.pos + 1).blockRange(tr.doc.resolve($to.pos + 1))
+					if (!range)
+						throw new Error("Unable to strip nodes, unable to resolve new range")
+
+					tr.stripNodeRecursively(range, schema.nodes.text_align)
+					tr.scrollIntoView()
+
+					dispatch(tr)
+				}
+				return true
+			})
+
+		return wrapCmd(wrapIn(node, attrs))
 	}
 
 	function blockTypeToggler (node: NodeType) {
@@ -230,7 +536,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.style("text-editor-toolbar")
 		.ariaRole("toolbar")
 		.append(ToolbarButtonGroup()
-			.ariaLabel("component/text-editor/toolbar/group/inline")
+			.ariaLabel.use("component/text-editor/toolbar/group/inline")
 			.append(ToolbarButtonMark("strong"))
 			.append(ToolbarButtonMark("em"))
 			.append(ToolbarButtonPopover("other-formatting", popover => popover
@@ -241,17 +547,42 @@ const TextEditor = Component.Builder((component): TextEditor => {
 				.append(ToolbarButtonMark("code"))
 			)))
 		.append(ToolbarButtonGroup()
-			.ariaLabel("component/text-editor/toolbar/group/block")
-			.append(ToolbarButtonWrap("blockquote"))
+			.ariaLabel.use("component/text-editor/toolbar/group/block")
+			.append(
+				ToolbarButtonPopoverNoLabel("align", popover => popover
+					.append(ToolbarButtonWrapAny("align-left", schema.nodes.text_align, { align: "left" }))
+					.append(ToolbarButtonWrapAny("align-centre", schema.nodes.text_align, { align: "center" }))
+					.append(ToolbarButtonWrapAny("align-right", schema.nodes.text_align, { align: "right" }))
+				)
+					.tweak(button => {
+						state.use(button, () => {
+							const align = !editor?.mirror?.hasFocus() && !inTransaction ? "left" : getAlign() ?? "mixed"
+							button.ariaLabel.set(quilt["component/text-editor/toolbar/button/align"](
+								quilt[`component/text-editor/toolbar/button/align/currently/${align}`]()
+							).toString())
+							button.style.remove("text-editor-toolbar-align-left", "text-editor-toolbar-align-centre", "text-editor-toolbar-align-right", "text-editor-toolbar-align-mixed")
+							button.style(`text-editor-toolbar-align-${align}`)
+						})
+					})
+			))
+		.append(ToolbarButtonGroup()
+			.ariaLabel.use("component/text-editor/toolbar/group/block-type")
+			.append(ToolbarButtonBlockType("paragraph"))
 			.append(ToolbarButtonBlockType("code-block")))
+		.append(ToolbarButtonGroup()
+			.ariaLabel.use("component/text-editor/toolbar/group/wrapper")
+			.append(ToolbarButtonWrap("blockquote")))
 		.appendTo(component)
 
+	//#endregion
+	////////////////////////////////////
+
 	let label: Label | undefined
-	const unuseLabel = () => {
-		label?.event.unsubscribe("remove", unuseLabel)
+	const stopUsingLabel = () => {
+		label?.event.unsubscribe("remove", stopUsingLabel)
 		label = undefined
 	}
-	const editor = component
+	editor = component
 		.and(Input)
 		.style("text-editor")
 		.event.subscribe("click", (event) => {
@@ -271,7 +602,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			},
 			setLabel (newLabel) {
 				label = newLabel
-				label?.event.subscribe("remove", unuseLabel)
+				label?.event.subscribe("remove", stopUsingLabel)
 				refresh()
 				return editor
 			},
@@ -290,6 +621,9 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			}))
 
 	return editor
+
+	////////////////////////////////////
+	//#region ProseMirror Init
 
 	function createDefaultView (slot: Slot) {
 		const view = new EditorView(slot.element, {
@@ -316,26 +650,8 @@ const TextEditor = Component.Builder((component): TextEditor => {
 							return {
 								update (view, prevState) {
 									state.value = view.state
-
-									if (editor.mirror?.hasFocus() && editor.mirror.state.selection.empty) {
-										const pos = editor.mirror.state.doc.resolve(editor.mirror.state.selection.from + 1)
-
-										Announcer.interrupt("text-editor/format/inline", announce => {
-											const markTypes = Object.keys(schema.marks) as Marks[]
-
-											let hadActive = false
-											for (const type of markTypes) {
-												if (!isMarkActive(schema.marks[type], pos))
-													continue
-
-												hadActive = true
-												announce(`component/text-editor/formatting/${type}`)
-											}
-
-											if (!hadActive)
-												announce("component/text-editor/formatting/none")
-										})
-									}
+									if (state.value === prevState)
+										state.emit()
 								},
 							} satisfies PluginView
 						},
@@ -365,6 +681,9 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		}
 	}
 
+	//#endregion
+	////////////////////////////////////
+
 	function refresh () {
 		label?.setInput(editor.document)
 		editor.document?.setName(label?.for)
@@ -373,6 +692,38 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		toolbar.ariaLabelledBy(label)
 		editor.document?.ariaLabelledBy(label)
 		editor.document?.attributes.toggle(editor.required.value, "aria-required", "true")
+	}
+
+	function isMarkActive (type: MarkType, pos?: ResolvedPos) {
+		if (!state.value)
+			return false
+
+		const selection = state.value.selection
+		pos ??= !selection.empty ? undefined : selection.$from
+		if (pos)
+			return !!type.isInSet(state.value.storedMarks || pos.marks())
+
+		return state.value.doc.rangeHasMark(selection.from, selection.to, type)
+	}
+
+	function getAlign (pos?: ResolvedPos): "left" | "centre" | "right" | undefined {
+		if (!state.value)
+			return undefined
+
+		const selection = state.value.selection
+		pos ??= !selection.empty ? undefined : selection.$from
+		if (pos) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			const align = pos.closest(schema.nodes.text_align)?.attrs.align ?? "left"
+			return align === "center" ? "centre" : align
+		}
+
+		const align1 = getAlign(selection.$from)
+		const align2 = getAlign(selection.$to)
+		if (align1 === align2)
+			return align1
+
+		return undefined
 	}
 })
 

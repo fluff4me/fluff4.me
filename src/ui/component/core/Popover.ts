@@ -44,8 +44,8 @@ Component.extend(component => {
 
 			const ariaLabel = component.attributes.getUsing("aria-label") ?? popover.attributes.get("aria-label")
 			const ariaRole = popover.attributes.getUsing("role") ?? popover.attributes.get("role")
-			component.ariaLabel((quilt, { arg }) => quilt["component/popover/button"](arg(ariaLabel), arg(ariaRole)))
-			popover.ariaLabel((quilt, { arg }) => quilt["component/popover"](arg(ariaLabel)))
+			component.ariaLabel.use((quilt, { arg }) => quilt["component/popover/button"](arg(ariaLabel), arg(ariaRole)))
+			popover.ariaLabel.use((quilt, { arg }) => quilt["component/popover"](arg(ariaLabel)))
 
 			let clickState = false
 			component.event.subscribe("click", () => {
@@ -125,9 +125,9 @@ interface PopoverExtensions {
 
 interface Popover extends Component, PopoverExtensions { }
 
-const Popover = Component.Builder((popover): Popover => {
+const Popover = Component.Builder((component): Popover => {
 	let unbind: UnsubscribeState | undefined
-	return popover
+	const popover = component
 		.style("popover")
 		.tabIndex("programmatic")
 		.attributes.add("popover")
@@ -166,6 +166,12 @@ const Popover = Component.Builder((popover): Popover => {
 				return popover
 			},
 		}))
+
+	popover.event.subscribe("toggle", event => {
+		popover.visible.value = event.newState === "open"
+	})
+
+	return popover
 })
 
 export default Popover

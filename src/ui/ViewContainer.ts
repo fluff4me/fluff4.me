@@ -16,7 +16,7 @@ const ViewContainer = (): ViewContainer => Component()
 	.style("view-container")
 	.tabIndex("programmatic")
 	.ariaRole("main")
-	.ariaLabel("view/container/alt")
+	.ariaLabel.use("view/container/alt")
 	.extend<ViewContainerExtensions>(container => ({
 		view: undefined,
 		show: async <VIEW extends View, PARAMS extends object> (definition: ViewDefinition<VIEW, PARAMS>, params: PARAMS) => {

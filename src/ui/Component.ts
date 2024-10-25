@@ -4,8 +4,8 @@ import ClassManipulator from "ui/utility/ClassManipulator"
 import type { NativeEvents } from "ui/utility/EventManipulator"
 import EventManipulator from "ui/utility/EventManipulator"
 import FocusListener from "ui/utility/FocusListener"
+import StringApplicator from "ui/utility/StringApplicator"
 import StyleManipulator from "ui/utility/StyleManipulator"
-import type { Quilt } from "ui/utility/TextManipulator"
 import TextManipulator from "ui/utility/TextManipulator"
 import Viewport from "ui/utility/Viewport"
 import Define from "utility/Define"
@@ -118,7 +118,7 @@ interface BaseComponent {
 	receiveAncestorInsertEvents (): this
 
 	ariaRole (role?: AriaRole): this
-	ariaLabel (keyOrHandler?: Quilt.SimpleKey | Quilt.Handler): this
+	ariaLabel: StringApplicator.Optional<this>
 	ariaLabelledBy (component?: Component): this
 	ariaHidden (): this
 	ariaChecked (state: State<boolean>): this
@@ -383,11 +383,8 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 			return component.attributes.set("role", role)
 		},
-		ariaLabel: (keyOrHandler) => {
-			if (!keyOrHandler)
-				return component.attributes.remove("aria-label")
-
-			return component.attributes.use("aria-label", keyOrHandler)
+		get ariaLabel () {
+			return Define.set(component, "ariaLabel", StringApplicator(component as Component, value => component.attributes.set("aria-label", value)))
 		},
 		ariaLabelledBy: labelledBy => {
 			unuseAriaLabelledByIdState?.()

@@ -56,6 +56,8 @@ export namespace QuiltHelper {
 
 		if (Array.isArray(weft.content))
 			element.append(...weft.content.map(renderWeft))
+		else if (typeof weft.content === "object" && weft.content)
+			element.append(...renderWeave(weft.content))
 		else
 			element.textContent = `${weft.content ?? ""}`
 

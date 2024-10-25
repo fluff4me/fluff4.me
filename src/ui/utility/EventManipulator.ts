@@ -16,7 +16,7 @@ interface EventManipulator<HOST, EVENTS> {
 	unsubscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 }
 
-export type NativeEvents = { [KEY in keyof HTMLElementEventMap]: (event: HTMLElementEventMap[KEY]) => any }
+export type NativeEvents = { [KEY in keyof HTMLElementEventMap]: (event: KEY extends "toggle" ? ToggleEvent : HTMLElementEventMap[KEY]) => any }
 
 interface EventDetail {
 	result: any[]
