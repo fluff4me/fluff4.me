@@ -6,8 +6,8 @@ popover/button: open {0??details}{ 1??}
 popover: {0??details}
 
 ## text-editor
+
 toolbar/group/inline: inline formatting
-toolbar/group/block: block formatting
 toolbar/button/strong: strong (bold)
 toolbar/button/em: emphasis (italic)
 toolbar/button/underline: underline
@@ -17,8 +17,22 @@ toolbar/button/superscript: superscript
 toolbar/button/code: code
 toolbar/button/link: link
 
-toolbar/button/blockquote: quote block
+toolbar/group/block: block formatting
+toolbar/button/align: text align (currently {0})
+toolbar/button/align-left: align left
+toolbar/button/align-centre: centre
+toolbar/button/align-right: align right
+toolbar/button/align/currently/left: aligned left
+toolbar/button/align/currently/right: aligned right
+toolbar/button/align/currently/centre: centred
+toolbar/button/align/currently/mixed: mixed
+
+toolbar/group/block-type: block types
 toolbar/button/code-block: code block
+toolbar/button/paragraph: paragraph
+
+toolbar/group/wrapper: block wrappers
+toolbar/button/blockquote: wrap in block quote
 
 toolbar/button/other-formatting: other formatting options
 

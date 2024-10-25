@@ -133,12 +133,26 @@
 			#icon name="superscript
 		&-blockquote:
 			#icon name="quote-left
+		&-paragraph:
+			#icon name="paragraph
 		&-code, &-code-block:
 			#icon name="code
 		&-link:
 			#icon name="link
+		&-align-left:
+			#icon name="align-left
+		&-align-right:
+			#icon name="align-right
+		&-align-centre:
+			#icon name="align-center
+		&-align-justify:
+			#icon name="align-justify
+		&-align-mixed:
+			#icon name="asterisk
 		&-other-formatting:
 			#dual-icon a="font" b="ellipsis-vertical
+
+		&-align:
 
 		&-popover:
 			%padding-1

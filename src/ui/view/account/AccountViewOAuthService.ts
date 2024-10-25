@@ -42,7 +42,7 @@ export default Component.Builder((component, service: AuthService) => {
 		.appendTo(button)
 
 	authorisationState.use(button, authorisation => {
-		button.ariaLabel(quilt => quilt[`view/account/auth/service/accessibility/${authorisation ? "disconnect" : "connect"}`](service.name, authorisation?.display_name))
+		button.ariaLabel.use(quilt => quilt[`view/account/auth/service/accessibility/${authorisation ? "disconnect" : "connect"}`](service.name, authorisation?.display_name))
 		username.text.set(authorisation?.display_name ?? "")
 	})
 

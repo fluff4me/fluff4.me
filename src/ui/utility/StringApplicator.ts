@@ -1,10 +1,10 @@
-import type { Quilt } from "lang/en-nz"
 import quilt from "lang/en-nz"
 import type Component from "ui/Component"
+import { QuiltHelper, type Quilt } from "ui/utility/TextManipulator"
 import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
 
-interface StringApplicator<HOST extends Component> {
+interface StringApplicator<HOST> {
 	state: State<string>
 	set (value: string): HOST
 	use (translation: Quilt.SimpleKey | Quilt.Handler): HOST
@@ -13,9 +13,9 @@ interface StringApplicator<HOST extends Component> {
 	refresh (): void
 }
 
-function StringApplicator<HOST extends Component> (host: HOST, apply: (value?: string) => any): StringApplicator.Optional<HOST>
-function StringApplicator<HOST extends Component> (host: HOST, defaultValue: string, apply: (value: string) => any): StringApplicator<HOST>
-function StringApplicator<HOST extends Component> (host: HOST, defaultValueOrApply: string | undefined | ((value?: string) => any), apply?: (value: string) => any): StringApplicator.Optional<HOST> {
+function StringApplicator<HOST> (host: HOST, apply: (value?: string) => any): StringApplicator.Optional<HOST>
+function StringApplicator<HOST> (host: HOST, defaultValue: string, apply: (value: string) => any): StringApplicator<HOST>
+function StringApplicator<HOST> (host: HOST, defaultValueOrApply: string | undefined | ((value?: string) => any), apply?: (value: string) => any): StringApplicator.Optional<HOST> {
 	const defaultValue = !apply ? undefined : defaultValueOrApply as string
 	apply ??= defaultValueOrApply as (value?: string) => any
 
@@ -44,7 +44,7 @@ function StringApplicator<HOST extends Component> (host: HOST, defaultValueOrApp
 		bind: state => {
 			translationHandler = undefined
 			unbind?.()
-			unbind = state?.use(host, setInternal)
+			unbind = state?.use(host as Component, setInternal)
 			if (!state)
 				setInternal(defaultValue)
 			return host
@@ -58,7 +58,7 @@ function StringApplicator<HOST extends Component> (host: HOST, defaultValueOrApp
 			if (!translationHandler)
 				return
 
-			setInternal(translationHandler(quilt).toString())
+			setInternal(translationHandler(quilt, QuiltHelper).toString())
 		},
 	}
 
@@ -74,7 +74,7 @@ function StringApplicator<HOST extends Component> (host: HOST, defaultValueOrApp
 
 namespace StringApplicator {
 
-	export interface Optional<HOST extends Component> extends Omit<StringApplicator<HOST>, "state" | "set" | "bind"> {
+	export interface Optional<HOST> extends Omit<StringApplicator<HOST>, "state" | "set" | "bind"> {
 		state: State<string | undefined>
 		set (value?: string): HOST
 		bind (state?: State<string | undefined>): HOST
