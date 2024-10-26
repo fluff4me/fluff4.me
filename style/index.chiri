@@ -12,7 +12,9 @@
 #import:
 	mixin/block
 
-#import: root
+#import:
+	root
+	misc
 
 #import:
 	component/slot
