@@ -99,13 +99,13 @@ interface BaseComponent {
 	 */
 	replaceElement (elementOrType: HTMLElement | keyof HTMLElementTagNameMap): this
 
-	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT>, ...params: PARAMS): this & COMPONENT
-	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Extension<PARAMS, COMPONENT>, ...params: PARAMS): this & COMPONENT
+	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT>, ...params: NoInfer<PARAMS>): this & COMPONENT
+	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Extension<PARAMS, COMPONENT>, ...params: NoInfer<PARAMS>): this & COMPONENT
 	extend<T> (extensionProvider: (component: this & T) => Omit<T, typeof SYMBOL_COMPONENT_BRAND>): this & T
 	extendMagic<K extends keyof this, O extends this = this> (property: K, magic: (component: this) => { get (): O[K], set?(value: O[K]): void }): this
 	extendJIT<K extends keyof this, O extends this = this> (property: K, supplier: (component: this) => O[K]): this
 
-	tweak<PARAMS extends any[]> (tweaker: (component: this, ...params: PARAMS) => any, ...params: PARAMS): this
+	tweak<PARAMS extends any[]> (tweaker?: (component: this, ...params: PARAMS) => any, ...params: PARAMS): this
 
 	appendTo (destination: Component | Element): this
 	prependTo (destination: Component | Element): this
@@ -207,7 +207,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 
 		tweak: (tweaker, ...params) => {
-			tweaker(component, ...params)
+			tweaker?.(component, ...params)
 			return component
 		},
 

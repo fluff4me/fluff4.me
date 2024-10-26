@@ -12,17 +12,22 @@ const FOCUS_TRAP = Component()
 	.style.setProperty("display", "none")
 	.prependTo(document.body)
 
+interface PopoverComponentRegisteredExtensions {
+	popover: Popover
+	tweakPopover (initialiser: (popover: Popover, button: this) => any): this
+}
+
 interface PopoverComponentExtensions {
 	/** Disallow any popovers to continue showing if this component is hovered */
 	clearPopover (): this
-	popover (event: "hover" | "click", initialiser: (popover: Popover, host: this) => any): this
+	setPopover (event: "hover" | "click", initialiser: (popover: Popover, host: this) => any): this & PopoverComponentRegisteredExtensions
 }
 
 Component.extend(component => {
 	component.extend<PopoverComponentExtensions>(component => ({
 		clearPopover: () => component
 			.attributes.set("data-clear-popover", "true"),
-		popover: (event, initialiser) => {
+		setPopover: (event, initialiser) => {
 			let isShown = false
 
 			const popover = Popover()
@@ -67,7 +72,13 @@ Component.extend(component => {
 				component.focus()
 			})
 
-			return component
+			return component.extend<PopoverComponentRegisteredExtensions>(component => ({
+				popover,
+				tweakPopover: (initialiser) => {
+					initialiser(popover, component)
+					return component
+				},
+			}))
 
 			async function updatePopoverState () {
 				const shouldShow = false
