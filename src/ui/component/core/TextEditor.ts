@@ -12,7 +12,7 @@ import type { Attrs, MarkSpec, MarkType, NodeSpec, NodeType } from "prosemirror-
 import { Fragment, Node, NodeRange, ResolvedPos, Schema } from "prosemirror-model"
 import type { Command, PluginSpec, PluginView } from "prosemirror-state"
 import { EditorState, Plugin } from "prosemirror-state"
-import { findWrapping, Transform } from "prosemirror-transform"
+import { findWrapping, liftTarget, Transform } from "prosemirror-transform"
 import { EditorView } from "prosemirror-view"
 import Announcer from "ui/Announcer"
 import Component from "ui/Component"
@@ -152,11 +152,7 @@ Define(Fragment.prototype, "range", function (document) {
 
 	const $from = document.resolve(pos)
 	const $to = document.resolve(pos + this.size)
-	const depth = this.parent(document)?.depth(document)
-	if (!depth)
-		return undefined
-
-	return new NodeRange($from, $to, depth)
+	return new NodeRange($from, $to, Math.min($from.depth, $to.depth))
 })
 
 Define(Fragment.prototype, "parent", function (document) {
@@ -178,12 +174,12 @@ Define(Fragment.prototype, "parent", function (document) {
 
 declare module "prosemirror-transform" {
 	interface Transform {
-		stripNodeRecursively (range: NodeRange, node: NodeType): this
-		stripNodeRecursively (within: Fragment, node: NodeType): this
+		stripNodeType (range: NodeRange, node: NodeType): this
+		stripNodeType (within: Fragment, node: NodeType): this
 	}
 }
 
-Define(Transform.prototype, "stripNodeRecursively", function (from: NodeRange | Fragment, type: NodeType): Transform {
+Define(Transform.prototype, "stripNodeType", function (from: NodeRange | Fragment, type: NodeType): Transform {
 	// eslint-disable-next-line @typescript-eslint/no-this-alias
 	const tr = this
 
@@ -202,7 +198,7 @@ Define(Transform.prototype, "stripNodeRecursively", function (from: NodeRange | 
 
 			if (index >= range!.startIndex && index < range!.endIndex) {
 				if (node.type === type) {
-					stripNode(node, pos)
+					stripNode(node)
 					stripped = true
 					return
 				}
@@ -224,7 +220,7 @@ Define(Transform.prototype, "stripNodeRecursively", function (from: NodeRange | 
 				return
 
 			if (node.type === type) {
-				stripNode(node, pos)
+				stripNode(node)
 				stripped = true
 				return
 			}
@@ -232,12 +228,18 @@ Define(Transform.prototype, "stripNodeRecursively", function (from: NodeRange | 
 		return stripped
 	}
 
-	function stripNode (node: Node, pos: number) {
+	function stripNode (node: Node) {
 		const nodePos = node.pos(tr.doc)
 		if (nodePos === undefined)
 			throw new Error("Unable to continue stripping, no pos")
 
-		tr.replaceWith(nodePos, nodePos + node.nodeSize, node.content)
+		const liftRange = node.content.range(tr.doc)
+		if (!liftRange)
+			throw new Error("Unable to continue stripping, unable to resolve node range")
+
+		const depth = liftTarget(liftRange)
+		if (depth !== null)
+			tr.lift(liftRange, depth)
 
 		if (range) {
 			let start = range.$from.pos
@@ -496,7 +498,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 						if (dispatch) dispatch(state.tr
 							.setNodeMarkup(pos, undefined, attrs)
-							.stripNodeRecursively(textAlignBlock.content, schema.nodes.text_align)
+							.stripNodeType(textAlignBlock.content, schema.nodes.text_align)
 							.scrollIntoView())
 						return true
 					}
@@ -514,7 +516,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 					if (!range)
 						throw new Error("Unable to strip nodes, unable to resolve new range")
 
-					tr.stripNodeRecursively(range, schema.nodes.text_align)
+					tr.stripNodeType(range, schema.nodes.text_align)
 					tr.scrollIntoView()
 
 					dispatch(tr)
