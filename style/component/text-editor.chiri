@@ -56,6 +56,7 @@
 			padding: #{size} #{size}
 			background: $button-background
 			$button-background: transparent
+			z-index: 1
 			@before:
 				%block
 				%absolute
@@ -66,7 +67,7 @@
 
 			::hover, ::focus, ::active:
 				$button-background: transparent
-				%z-index-fg
+				z-index: 2
 
 			&--enabled:
 				@after:

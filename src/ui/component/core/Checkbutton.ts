@@ -11,6 +11,7 @@ interface CheckbuttonEvents extends EventsOf<Button> {
 }
 
 interface CheckbuttonExtensions {
+	readonly input: Component
 	readonly checked: State<boolean>
 	isChecked (): boolean
 	setChecked (checked: boolean): this
@@ -41,6 +42,7 @@ const Checkbutton = Component.Builder("label", (component): Checkbutton => {
 		.ariaRole("checkbox")
 		.append(input)
 		.extend<CheckbuttonExtensions>(() => ({
+			input,
 			checked: state,
 			isChecked: () => inputElement.checked,
 			setChecked: (checked: boolean) => {
