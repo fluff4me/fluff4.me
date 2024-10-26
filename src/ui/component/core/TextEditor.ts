@@ -285,8 +285,13 @@ const schema = new Schema({
 						if (!textAlign)
 							return false
 
-						return { align: textAlign }
+						return {
+							align: textAlign === "justify" || textAlign === "start" ? "left"
+								: textAlign === "end" ? "right"
+									: textAlign,
+						}
 					},
+					priority: 51,
 				},
 			],
 			toDOM: (node: Node) => ["div", Objects.filterNullish({
