@@ -41,7 +41,7 @@ const Masthead = Component.Builder("header", (masthead, view: ViewContainer) => 
 		.append(Button()
 			.style("masthead-left-hamburger", "masthead-left-hamburger-popover")
 			.ariaLabel.use("masthead/primary-nav/alt")
-			.popover("hover", p => popover = p
+			.setPopover("hover", p => popover = p
 				.anchor.add("aligned left", "off bottom")
 				.ariaRole("navigation")))
 		.style("masthead-left")
@@ -84,7 +84,7 @@ const Masthead = Component.Builder("header", (masthead, view: ViewContainer) => 
 		.append(Button()
 			.style("masthead-user-profile")
 			.ariaLabel.use("masthead/user/profile/alt")
-			.popover("hover", popover => popover
+			.setPopover("hover", popover => popover
 				.anchor.add("aligned right", "off bottom")
 				.ariaRole("navigation")
 				.append(Slot()

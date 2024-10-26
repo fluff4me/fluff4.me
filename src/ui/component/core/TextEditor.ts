@@ -21,7 +21,6 @@ import Checkbutton from "ui/component/core/Checkbutton"
 import type { InputExtensions } from "ui/component/core/extension/Input"
 import Input from "ui/component/core/extension/Input"
 import type Label from "ui/component/core/Label"
-import type Popover from "ui/component/core/Popover"
 import RadioButton from "ui/component/core/RadioButton"
 import Slot from "ui/component/core/Slot"
 import type { Quilt } from "ui/utility/TextManipulator"
@@ -54,8 +53,11 @@ w3cKeyname.keyName = (event: Event) => {
 declare module "prosemirror-model" {
 	interface ResolvedPos {
 		closest (node: NodeType, startingAtDepth?: number): Node | undefined
+		closest (node: NodeType, attrs?: Attrs, startingAtDepth?: number): Node | undefined
 	}
 	interface Node {
+		matches (type?: NodeType, attrs?: Attrs): boolean
+		hasAttrs (attrs: Attrs): boolean
 		pos (document: Node): number | undefined
 		range (document: Node): NodeRange | undefined
 		parent (document: Node): Node | undefined
@@ -68,15 +70,30 @@ declare module "prosemirror-model" {
 	}
 }
 
-Define(ResolvedPos.prototype, "closest", function (node, startingAtDepth) {
+Define(ResolvedPos.prototype, "closest", function (node, attrsOrStartingAtDepth, startingAtDepth) {
+	if (typeof attrsOrStartingAtDepth === "number") {
+		startingAtDepth = attrsOrStartingAtDepth
+		attrsOrStartingAtDepth = undefined
+	}
+
+	const attrs = attrsOrStartingAtDepth
+
 	startingAtDepth ??= this.depth
 	for (let depth = startingAtDepth; depth >= 0; depth--) {
 		const current = this.node(depth)
-		if (current.type === node)
+		if (current.type === node && (!attrs || current.hasAttrs(attrs)))
 			return current
 	}
 
 	return undefined
+})
+
+Define(Node.prototype, "hasAttrs", function (attrs) {
+	for (const [attr, val] of Object.entries(attrs))
+		if (this.attrs[attr] !== val)
+			return false
+
+	return true
 })
 
 Define(Node.prototype, "pos", function (document) {
@@ -339,6 +356,12 @@ const schema = new Schema({
 //#endregion
 ////////////////////////////////////
 
+const BLOCK_TYPES = [
+	"paragraph",
+	"code_block",
+] satisfies Nodes[]
+type BlockType = (typeof BLOCK_TYPES)[number]
+
 ////////////////////////////////////
 //#region TODO Markdown stuff
 
@@ -408,21 +431,49 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	//#region Components
 
 	type ButtonType = keyof { [N in Quilt.SimpleKey as N extends `component/text-editor/toolbar/button/${infer N}` ? N extends `${string}/${string}` ? never : N : never]: true }
-	type UnsimpleButtonType = keyof { [N in keyof Quilt as N extends `component/text-editor/toolbar/button/${infer N}` ? N extends `${string}/${string}` ? never : N : never]: true }
+
+	const ToolbarButtonTypeMark = Component.Extension((component, type: Marks) => {
+		const mark = schema.marks[type]
+		return component
+			.style(`text-editor-toolbar-${type}`)
+			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
+			.extend<{ mark: MarkType }>(() => ({ mark }))
+	})
+
+	type ButtonTypeNodes = keyof { [N in keyof Quilt as N extends `component/text-editor/toolbar/button/${infer N extends Strings.Replace<Nodes, "_", "-">}` ? N : never]: true }
+	const ToolbarButtonTypeNode = Component.Extension((component, type: ButtonTypeNodes) => {
+		const node = schema.nodes[type.replaceAll("-", "_")]
+		return component
+			.style(`text-editor-toolbar-${type}`)
+			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
+			.extend<{ node: NodeType }>(() => ({ node }))
+	})
+
+	const ToolbarButtonTypeOther = Component.Extension((component, type: Exclude<ButtonType, ButtonTypeNodes | Marks>) => {
+		return component
+			.style(`text-editor-toolbar-${type}`)
+			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
+	})
 
 	const ToolbarButtonGroup = Component.Builder(component => component
 		.ariaRole("group")
 		.style("text-editor-toolbar-button-group"))
 
-	const ToolbarButtonMark = Component.Builder((_, type: Marks) => {
-		const mark = schema.marks[type]
-		const toggler = markToggler(mark)
-		const markActive = state.map(state => isMarkActive(mark))
+	const ToolbarButton = Component.Builder((_, handler: () => any) => {
+		return Button()
+			.style("text-editor-toolbar-button")
+			.clearPopover()
+			.event.subscribe("click", event => {
+				event.preventDefault()
+				handler()
+			})
+	})
+
+	const ToolbarCheckbutton = Component.Builder((_, state: State<boolean>, toggler: () => any) => {
 		return Checkbutton()
-			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`)
-			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
-			.style.bind(markActive, "text-editor-toolbar-button--enabled")
-			.use(markActive)
+			.style("text-editor-toolbar-button")
+			.style.bind(state, "text-editor-toolbar-button--enabled")
+			.use(state)
 			.clearPopover()
 			.event.subscribe("click", event => {
 				event.preventDefault()
@@ -430,51 +481,56 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			})
 	})
 
-	type UsableNodes = keyof { [N in keyof Quilt as N extends `component/text-editor/toolbar/button/${infer N extends Strings.Replace<Nodes, "_", "-">}` ? N : never]: true }
-	const ToolbarButtonWrap = Component.Builder((_, type: UsableNodes) =>
-		ToolbarButtonWrapAny(type, schema.nodes[type.replaceAll("-", "_")]))
-	const ToolbarButtonWrapAny = Component.Builder((_, type: ButtonType, node: NodeType, attrs?: Attrs) => {
-		const wrap = wrapper(node, attrs)
-		return Button()
-			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`)
-			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
+	const ToolbarRadioButton = Component.Builder((_, name: string, state: State<boolean>, toggler: () => any) => {
+		return RadioButton()
+			.style("text-editor-toolbar-button")
+			.setName(name)
+			.style.bind(state, "text-editor-toolbar-button--enabled")
+			.use(state)
 			.clearPopover()
 			.event.subscribe("click", event => {
 				event.preventDefault()
-				wrap()
+				toggler()
 			})
 	})
 
-	const ToolbarButtonBlockType = Component.Builder((_, type: UsableNodes) => {
+	const ToolbarButtonMark = Component.Builder((_, type: Marks) => {
+		const mark = schema.marks[type]
+		const toggler = markToggler(mark)
+		const markActive = state.map(state => isMarkActive(mark))
+		return ToolbarCheckbutton(markActive, toggler)
+			.and(ToolbarButtonTypeMark, type)
+	})
+
+	type Align = "left" | "centre" | "right"
+	const ToolbarButtonAlign = Component.Builder((_, align: Align) => {
+		const toggler = wrapper(schema.nodes.text_align, { align: align === "centre" ? "center" : align })
+		const alignActive = state.map(state => isAlignActive(align))
+		return ToolbarRadioButton(`text-editor-${id}-text-align`, alignActive, toggler)
+			.and(ToolbarButtonTypeOther, `align-${align}`)
+	})
+
+	const ToolbarButtonBlockType = Component.Builder((_, type: ButtonTypeNodes) => {
 		const node = schema.nodes[type.replaceAll("-", "_")]
 		const toggle = blockTypeToggler(node)
 		const typeActive = state.map(state => isTypeActive(node))
-		return RadioButton()
-			.setName(`text-editor-${id}-block-type`)
-			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`)
-			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
-			.style.bind(typeActive, "text-editor-toolbar-button--enabled")
-			.use(typeActive)
-			.clearPopover()
-			.event.subscribe("click", event => {
-				event.preventDefault()
-				toggle()
-			})
+		return ToolbarRadioButton(`text-editor-${id}-block-type`, typeActive, toggle)
+			.and(ToolbarButtonTypeNode, type)
 	})
 
-	const ToolbarButtonPopover = Component.Builder((_, type: ButtonType, initialiser: (popover: Popover) => any) =>
-		ToolbarButtonPopoverNoLabel(type, initialiser)
-			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`))
+	const ToolbarButtonWrap = Component.Builder((_, type: ButtonTypeNodes) =>
+		ToolbarButton(wrapper(schema.nodes[type.replaceAll("-", "_")]))
+			.and(ToolbarButtonTypeNode, type))
 
-	const ToolbarButtonPopoverNoLabel = Component.Builder((_, type: UnsimpleButtonType, initialiser: (popover: Popover) => any) => {
+	const ToolbarButtonPopover = Component.Builder(() => {
+
 		return Button()
-			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`, "text-editor-toolbar-button--has-popover")
-			.popover("hover", (popover, button) => {
+			.style("text-editor-toolbar-button", "text-editor-toolbar-button--has-popover")
+			.setPopover("hover", (popover, button) => {
 				popover
 					.style("text-editor-toolbar-popover")
 					.anchor.add("aligned left", "off bottom")
 					.setMousePadding(20)
-					.tweak(initialiser)
 
 				button.style.bind(popover.visible, "text-editor-toolbar-button--has-popover-visible")
 			})
@@ -554,21 +610,25 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.ariaLabel.use("component/text-editor/toolbar/group/inline")
 			.append(ToolbarButtonMark("strong"))
 			.append(ToolbarButtonMark("em"))
-			.append(ToolbarButtonPopover("other-formatting", popover => popover
-				.append(ToolbarButtonMark("underline"))
-				.append(ToolbarButtonMark("strikethrough"))
-				.append(ToolbarButtonMark("subscript"))
-				.append(ToolbarButtonMark("superscript"))
-				.append(ToolbarButtonMark("code"))
-			)))
+			.append(ToolbarButtonPopover()
+				.and(ToolbarButtonTypeOther, "other-formatting")
+				.tweakPopover(popover => popover
+					.append(ToolbarButtonMark("underline"))
+					.append(ToolbarButtonMark("strikethrough"))
+					.append(ToolbarButtonMark("subscript"))
+					.append(ToolbarButtonMark("superscript"))
+					.append(ToolbarButtonMark("code"))
+				)))
 		.append(ToolbarButtonGroup()
 			.ariaLabel.use("component/text-editor/toolbar/group/block")
 			.append(
-				ToolbarButtonPopoverNoLabel("align", popover => popover
-					.append(ToolbarButtonWrapAny("align-left", schema.nodes.text_align, { align: "left" }))
-					.append(ToolbarButtonWrapAny("align-centre", schema.nodes.text_align, { align: "center" }))
-					.append(ToolbarButtonWrapAny("align-right", schema.nodes.text_align, { align: "right" }))
-				)
+				ToolbarButtonPopover()
+					.tweakPopover(popover => popover
+						.ariaRole("radiogroup")
+						.append(ToolbarButtonAlign("left"))
+						.append(ToolbarButtonAlign("centre"))
+						.append(ToolbarButtonAlign("right"))
+					)
 					.tweak(button => {
 						state.use(button, () => {
 							const align = !editor?.mirror?.hasFocus() && !inTransaction ? "left" : getAlign() ?? "mixed"
@@ -581,10 +641,25 @@ const TextEditor = Component.Builder((component): TextEditor => {
 					})
 			))
 		.append(ToolbarButtonGroup()
-			.ariaLabel.use("component/text-editor/toolbar/group/block-type")
-			.ariaRole("radiogroup")
-			.append(ToolbarButtonBlockType("paragraph"))
-			.append(ToolbarButtonBlockType("code-block")))
+			.ariaRole()
+			.append(ToolbarButtonPopover()
+				.tweakPopover(popover => popover
+					.ariaRole("radiogroup")
+					.append(ToolbarButtonBlockType("paragraph"))
+					.append(ToolbarButtonBlockType("code-block"))
+				)
+				.tweak(button => {
+					state.use(button, () => {
+						const blockType = !editor?.mirror?.hasFocus() && !inTransaction ? "paragraph" : getBlockType() ?? "mixed"
+						button.ariaLabel.set(quilt["component/text-editor/toolbar/button/block-type"](
+							quilt[`component/text-editor/toolbar/button/block-type/currently/${blockType}`]()
+						).toString())
+						button.style.remove("text-editor-toolbar-mixed", ...BLOCK_TYPES
+							.map(type => type.replaceAll("_", "-") as BlockTypeR)
+							.map(type => `text-editor-toolbar-${type}` as const))
+						button.style(`text-editor-toolbar-${blockType}`)
+					})
+				})))
 		.append(ToolbarButtonGroup()
 			.ariaLabel.use("component/text-editor/toolbar/group/wrapper")
 			.append(ToolbarButtonWrap("blockquote")))
@@ -738,7 +813,69 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		return found
 	}
 
-	function getAlign (pos?: ResolvedPos): "left" | "centre" | "right" | undefined {
+	type BlockTypeR = Strings.Replace<BlockType, "_", "-">
+	function getBlockType (pos: ResolvedPos): BlockTypeR
+	function getBlockType (pos?: ResolvedPos): BlockTypeR | undefined
+	function getBlockType (pos?: ResolvedPos): BlockTypeR | undefined {
+		if (!state.value)
+			return undefined
+
+		const selection = state.value.selection
+		pos ??= !selection.empty ? undefined : selection.$from
+		if (pos) {
+			for (const blockType of BLOCK_TYPES)
+				if (isTypeActive(schema.nodes[blockType], pos))
+					return blockType.replaceAll("_", "-") as BlockTypeR
+		}
+
+		const types = new Set<BlockTypeR>()
+		state.value.doc.nodesBetween(selection.from, selection.to, (node, pos) => {
+			if (node.type !== schema.nodes.text)
+				return
+
+			const $pos = state.value?.doc.resolve(pos)
+			if (!$pos)
+				return
+
+			for (const blockType of BLOCK_TYPES)
+				if (isTypeActive(schema.nodes[blockType], $pos)) {
+					types.add(blockType.replaceAll("_", "-") as BlockTypeR)
+					return
+				}
+		})
+
+		if (!types.size)
+			return getBlockType(selection.$from)
+
+		if (types.size > 1)
+			return undefined
+
+		const [type] = types
+		return type
+	}
+
+	function isAlignActive (align: Align | "center", pos?: ResolvedPos) {
+		if (!state.value)
+			return false
+
+		align = align === "centre" ? "center" : align
+
+		const selection = state.value.selection
+		pos ??= !selection.empty ? undefined : selection.$from
+		if (pos)
+			return (pos.closest(schema.nodes.text_align)?.attrs.align ?? "left") === align
+
+		let found = false
+		state.value.doc.nodesBetween(selection.from, selection.to, (node, pos) => {
+			const resolved = state.value?.doc.resolve(pos)
+			found ||= !resolved ? align === "left" : isAlignActive(align, resolved)
+		})
+		return found
+	}
+
+	function getAlign (pos: ResolvedPos): Align
+	function getAlign (pos?: ResolvedPos): Align | undefined
+	function getAlign (pos?: ResolvedPos): Align | undefined {
 		if (!state.value)
 			return undefined
 
@@ -750,12 +887,23 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			return align === "center" ? "centre" : align
 		}
 
-		const align1 = getAlign(selection.$from)
-		const align2 = getAlign(selection.$to)
-		if (align1 === align2)
-			return align1
+		const aligns = new Set<Align>()
+		state.value.doc.nodesBetween(selection.from, selection.to, (node, pos) => {
+			if (node.type === schema.nodes.text) {
+				const $pos = state.value?.doc.resolve(pos)
+				if ($pos)
+					aligns.add(getAlign($pos))
+			}
+		})
 
-		return undefined
+		if (!aligns.size)
+			return getAlign(selection.$from)
+
+		if (aligns.size > 1)
+			return undefined
+
+		const [align] = aligns
+		return align
 	}
 })
 

@@ -27,9 +27,12 @@ toolbar/button/align/currently/right: aligned right
 toolbar/button/align/currently/centre: centred
 toolbar/button/align/currently/mixed: mixed
 
-toolbar/group/block-type: block types
+toolbar/button/block-type: block type (currently {0})
 toolbar/button/code-block: code block
 toolbar/button/paragraph: paragraph
+toolbar/button/block-type/currently/code-block: code block
+toolbar/button/block-type/currently/paragraph: paragraph
+toolbar/button/block-type/currently/mixed: mixed
 
 toolbar/group/wrapper: block wrappers
 toolbar/button/blockquote: wrap in block quote
