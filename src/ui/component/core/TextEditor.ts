@@ -22,6 +22,7 @@ import type { InputExtensions } from "ui/component/core/extension/Input"
 import Input from "ui/component/core/extension/Input"
 import type Label from "ui/component/core/Label"
 import type Popover from "ui/component/core/Popover"
+import RadioButton from "ui/component/core/RadioButton"
 import Slot from "ui/component/core/Slot"
 import type { Quilt } from "ui/utility/TextManipulator"
 import Arrays from "utility/Arrays"
@@ -442,9 +443,13 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	const ToolbarButtonBlockType = Component.Builder((_, type: UsableNodes) => {
 		const node = schema.nodes[type.replaceAll("-", "_")]
 		const toggle = blockTypeToggler(node)
-		return Button()
+		const typeActive = state.map(state => isTypeActive(node))
+		return RadioButton()
+			.setName(`text-editor-${id}-block-type`)
 			.style("text-editor-toolbar-button", `text-editor-toolbar-${type}`)
 			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
+			.style.bind(typeActive, "text-editor-toolbar-button--enabled")
+			.use(typeActive)
 			.clearPopover()
 			.event.subscribe("click", event => {
 				event.preventDefault()
@@ -572,6 +577,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			))
 		.append(ToolbarButtonGroup()
 			.ariaLabel.use("component/text-editor/toolbar/group/block-type")
+			.ariaRole("radiogroup")
 			.append(ToolbarButtonBlockType("paragraph"))
 			.append(ToolbarButtonBlockType("code-block")))
 		.append(ToolbarButtonGroup()
@@ -709,6 +715,22 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			return !!type.isInSet(state.value.storedMarks || pos.marks())
 
 		return state.value.doc.rangeHasMark(selection.from, selection.to, type)
+	}
+
+	function isTypeActive (type: NodeType, pos?: ResolvedPos) {
+		if (!state.value)
+			return false
+
+		const selection = state.value.selection
+		pos ??= !selection.empty ? undefined : selection.$from
+		if (pos)
+			return !!pos.closest(type)
+
+		let found = false
+		state.value.doc.nodesBetween(selection.from, selection.to, node => {
+			found ||= node.type === type
+		})
+		return found
 	}
 
 	function getAlign (pos?: ResolvedPos): "left" | "centre" | "right" | undefined {

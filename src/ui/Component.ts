@@ -28,6 +28,8 @@ type AriaRole =
 	| "toolbar"
 	| "textbox"
 	| "group"
+	| "radio"
+	| "radiogroup"
 
 const ELEMENT_TO_COMPONENT_MAP = new WeakMap<Element, Component>()
 
