@@ -288,7 +288,10 @@ const schema = new Schema({
 					},
 				},
 			],
-			toDOM: (node: Node) => ["div", { "style": `text-align:${node.attrs.align as string}` }, 0] as const,
+			toDOM: (node: Node) => ["div", Objects.filterNullish({
+				"class": node.attrs.align === "left" ? "align-left" : undefined,
+				"style": `text-align:${node.attrs.align as string}`,
+			}), 0] as const,
 		},
 	}),
 	marks: {
