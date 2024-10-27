@@ -13,8 +13,10 @@ interface StyleManipulatorFunctions<HOST> {
 	unbind (state?: State<boolean>): HOST
 	refresh (): HOST
 
-	setProperty (property: string, value: string | number): HOST
-	setVariable (variable: string, value: string | number): HOST
+	setProperty (property: string, value?: string | number | null): HOST
+	setVariable (variable: string, value?: string | number | null): HOST
+	bindProperty (property: string, state: State<string | number | undefined | null>): HOST
+	bindVariable (variable: string, state: State<string | number | undefined | null>): HOST
 	removeProperties (...properties: string[]): HOST
 }
 
@@ -28,6 +30,7 @@ interface StyleManipulator<HOST> extends StyleManipulatorFunction<HOST>, StyleMa
 function StyleManipulator (component: Component): StyleManipulator<Component> {
 	const styles = new Set<ComponentName>()
 	const stateUnsubscribers = new WeakMap<State<boolean>, [UnsubscribeState, ComponentName[]]>()
+	const unbindPropertyState: Record<string, UnsubscribeState | undefined> = {}
 
 	const result: StyleManipulator<Component> = Object.assign(
 		((...names) => {
@@ -86,12 +89,20 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 			refresh: () => updateClasses(),
 
 			setProperty (property, value) {
-				component.element.style.setProperty(property, `${value}`)
+				unbindPropertyState[property]?.()
+				setProperty(property, value)
 				return component
 			},
 			setVariable (variable, value) {
-				component.element.style.setProperty(`--${variable}`, `${value}`)
+				return result.setProperty(`--${variable}`, value)
+			},
+			bindProperty (property, state) {
+				unbindPropertyState[property]?.()
+				unbindPropertyState[property] = state.use(component, value => setProperty(property, value))
 				return component
+			},
+			bindVariable (variable, state) {
+				return result.bindProperty(`--${variable}`, state)
 			},
 			removeProperties (...properties) {
 				for (const property of properties)
@@ -112,6 +123,13 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 
 		component.element.classList.add(...toAdd)
 		return component
+	}
+
+	function setProperty (property: string, value?: string | number | null) {
+		if (value === undefined || value === null)
+			component.element.style.removeProperty(property)
+		else
+			component.element.style.setProperty(property, `${value}`)
 	}
 }
 

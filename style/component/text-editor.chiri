@@ -1,9 +1,6 @@
 .text-editor:
-	%block
+	%grid
 	%width-100
-	%padding-2-3
-	%padding-top-0
-	%border-box
 	%border-1
 	%border-radius-1
 	%cursor-text
@@ -18,7 +15,6 @@
 	&-toolbar:
 		%font-2
 		%block
-		%unmargin-0-3
 		%sticky
 		%border-bottom-1
 		%cursor-default
@@ -68,6 +64,9 @@
 			::hover, ::focus, ::active:
 				$button-background: transparent
 				z-index: 2
+
+			&--hidden:
+				%hidden
 
 			&--enabled:
 				@after:
@@ -138,12 +137,14 @@
 			#icon name="superscript
 		&-blockquote:
 			#icon name="quote-left
+		&-bullet-list:
+			#icon name="list-ul
+		&-ordered-list:
+			#icon name="list-ol
+		&-lift:
+			#icon name="outdent
 		&-paragraph:
 			#icon name="paragraph
-		&-list-ul:
-			#icon name="list-ul
-		&-list-ol:
-			#icon name="list-ol
 		&-heading:
 			#icon name="heading
 		#each in 1...6 as var i:
@@ -207,6 +208,9 @@
 	&-document:
 		%block
 		%no-outline
+		%overflow-auto-x
+		%padding-2-3
+		scrollbar-width: none
 
 		& p:
 			margin-block: round(up, 1em, 1px)
@@ -233,6 +237,22 @@
 			$code-background: transparent
 			$code-padding: 0
 			background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
+
+		&-scrollbar-proxy:
+			%block
+			%sticky
+			%bottom-0
+			%overflow-auto-x
+			%backdrop-blur
+			%border-bottom-radius-1
+			scrollbar-colour: $colour-5 transparent
+			@before:
+				%block
+				width: $content-width
+				height: 1px
+
+			::hover:
+				scrollbar-colour: $colour-3 transparent
 
 	&--required:
 

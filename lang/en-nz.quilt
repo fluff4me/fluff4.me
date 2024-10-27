@@ -36,6 +36,9 @@ toolbar/button/block-type/currently/paragraph: paragraph
 toolbar/button/block-type/currently/mixed: mixed
 
 toolbar/group/wrapper: block wrappers
+toolbar/button/lift: unwrap
+toolbar/button/bullet-list: wrap in list
+toolbar/button/ordered-list: wrap in ordered list
 toolbar/button/blockquote: wrap in block quote
 
 toolbar/group/insert: insert
