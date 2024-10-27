@@ -15,6 +15,8 @@ font-size: 1.2rem
 $button-colour: $light-0
 container-name: root
 container-type: size
+$caret-colour: $colour-0
+caret-colour: $caret-colour
 
 .body:
 	%margin-0

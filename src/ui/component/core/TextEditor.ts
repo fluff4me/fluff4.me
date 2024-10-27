@@ -412,13 +412,14 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		if (!editor.mirror?.hasFocus() || !editor.mirror.state.selection.empty)
 			return
 
-		const pos = editor.mirror.state.doc.resolve(editor.mirror.state.selection.from + 1)
+		const pos = editor.mirror.state.selection.from + 1
+		const $pos = editor.mirror.state.doc.resolve(pos > editor.mirror.state.doc.content.size ? pos - 1 : pos)
 		Announcer.interrupt("text-editor/format/inline", announce => {
 			const markTypes = Object.keys(schema.marks) as Marks[]
 
 			let hadActive = false
 			for (const type of markTypes) {
-				if (!isMarkActive(schema.marks[type], pos))
+				if (!isMarkActive(schema.marks[type], $pos))
 					continue
 
 				hadActive = true
@@ -701,6 +702,13 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.append(ToolbarButtonGroup()
 			.ariaLabel.use("component/text-editor/toolbar/group/wrapper")
 			.append(ToolbarButtonWrap("blockquote")))
+		.append(ToolbarButtonGroup()
+			.ariaLabel.use("component/text-editor/toolbar/group/insert")
+			.append(ToolbarButton(wrapCmd((state, dispatch) => {
+				dispatch?.(state.tr.replaceSelectionWith(schema.nodes.horizontal_rule.create()))
+				return true
+			}))
+				.and(ToolbarButtonTypeOther, "hr")))
 		.appendTo(component)
 
 	//#endregion

@@ -140,6 +140,10 @@
 			#icon name="quote-left
 		&-paragraph:
 			#icon name="paragraph
+		&-list-ul:
+			#icon name="list-ul
+		&-list-ol:
+			#icon name="list-ol
 		&-heading:
 			#icon name="heading
 		#each in 1...6 as var i:
@@ -163,6 +167,18 @@
 			#icon name="asterisk
 		&-other-formatting:
 			#dual-icon a="font" b="ellipsis-vertical
+		&-hr:
+			#icon-container
+			@before:
+				%absolute
+				$width: 1.3em
+				width: $width
+				left: calc(50% - $width / 2)
+				$height: 0.13em
+				height: $height
+				top: calc(50% - $height / 2)
+				border-radius: calc($height / 2)
+				background: currentcolor
 
 		&-popover:
 			%padding-1
@@ -193,6 +209,12 @@
 		%no-outline
 
 		& p:
+			margin-block: round(up, 1em, 1px)
+
+		& hr:
+			; to match paragraph sizes
+			margin-block-start: round(up, 1em + 0.5lh, 1px)
+			margin-block-end: round(up, 1em + 0.5lh - 1px, 1px)
 
 		& blockquote:
 			%margin-left-0
@@ -213,3 +235,21 @@
 			background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
 
 	&--required:
+
+.ProseMirror-gapcursor:
+	content: ""
+	display: block
+	position: absolute
+	margin-top: round(up, 0px - (1em + 0.5lh) / 2, 1px)
+	width: round(1lh, 1px)
+	height: 0
+	border-top: 1px solid $caret-colour
+	#animate 1.1s steps(2, jump-none) infinite:
+		to: opacity: 0
+
+.ProseMirror-hideselection:
+	caret-colour: transparent
+
+.ProseMirror-selectednode:
+	outline: -webkit-focus-ring-color auto 1px
+	outline-offset: $space-1

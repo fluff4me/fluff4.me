@@ -16,6 +16,7 @@ toolbar/button/subscript: subscript
 toolbar/button/superscript: superscript
 toolbar/button/code: code
 toolbar/button/link: link
+toolbar/button/other-formatting: other formatting options
 
 toolbar/group/block: block formatting
 toolbar/button/align: text align (currently {0})
@@ -37,7 +38,8 @@ toolbar/button/block-type/currently/mixed: mixed
 toolbar/group/wrapper: block wrappers
 toolbar/button/blockquote: wrap in block quote
 
-toolbar/button/other-formatting: other formatting options
+toolbar/group/insert: insert
+toolbar/button/hr: horizontal rule
 
 formatting/none: no formatting
 formatting/strong: strong (bolded)
