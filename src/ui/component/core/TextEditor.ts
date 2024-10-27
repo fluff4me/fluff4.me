@@ -1,6 +1,6 @@
 import quilt from "lang/en-nz"
 import MarkdownIt from "markdown-it"
-import { baseKeymap, setBlockType, toggleMark, wrapIn } from "prosemirror-commands"
+import { baseKeymap, lift, setBlockType, toggleMark, wrapIn } from "prosemirror-commands"
 import { dropCursor } from "prosemirror-dropcursor"
 import { buildInputRules, buildKeymap } from "prosemirror-example-setup"
 import { gapCursor } from "prosemirror-gapcursor"
@@ -11,6 +11,7 @@ import type { ParseSpec } from "prosemirror-markdown"
 import { schema as baseSchema, defaultMarkdownParser, defaultMarkdownSerializer, MarkdownParser } from "prosemirror-markdown"
 import type { Attrs, MarkSpec, MarkType, NodeSpec, NodeType } from "prosemirror-model"
 import { Fragment, Node, NodeRange, ResolvedPos, Schema } from "prosemirror-model"
+import { wrapInList } from "prosemirror-schema-list"
 import type { Command, PluginSpec, PluginView } from "prosemirror-state"
 import { EditorState, Plugin } from "prosemirror-state"
 import { findWrapping, liftTarget, Transform } from "prosemirror-transform"
@@ -543,6 +544,10 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		ToolbarButton(wrapper(schema.nodes[type.replaceAll("-", "_")]))
 			.and(ToolbarButtonTypeNode, type))
 
+	const ToolbarButtonList = Component.Builder((_, type: Extract<ButtonTypeNodes, `${string}-list`>) =>
+		ToolbarButton(listWrapper(schema.nodes[type.replaceAll("-", "_")]))
+			.and(ToolbarButtonTypeNode, type))
+
 	const ToolbarButtonPopover = Component.Builder((_, align: "left" | "centre" | "right") => {
 		return Button()
 			.style("text-editor-toolbar-button", "text-editor-toolbar-button--has-popover")
@@ -629,6 +634,10 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		return wrapCmd(setBlockType(node, attrs))
 	}
 
+	function listWrapper (node: NodeType, attrs?: Attrs) {
+		return wrapCmd(wrapInList(node, attrs))
+	}
+
 	//#endregion
 	////////////////////////////////////
 
@@ -675,7 +684,6 @@ const TextEditor = Component.Builder((component): TextEditor => {
 				.tweakPopover(popover => popover
 					.ariaRole("radiogroup")
 					.append(ToolbarButtonBlockType("paragraph"))
-					.append(ToolbarButtonBlockType("code-block"))
 					.append(ToolbarButtonPopover("centre")
 						.style("text-editor-toolbar-heading")
 						.tweakPopover(popover => popover
@@ -686,6 +694,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 							.append(ToolbarButtonHeading(5))
 							.append(ToolbarButtonHeading(6))
 						))
+					.append(ToolbarButtonBlockType("code-block"))
 				)
 				.tweak(button => {
 					state.use(button, () => {
@@ -701,7 +710,12 @@ const TextEditor = Component.Builder((component): TextEditor => {
 				})))
 		.append(ToolbarButtonGroup()
 			.ariaLabel.use("component/text-editor/toolbar/group/wrapper")
-			.append(ToolbarButtonWrap("blockquote")))
+			.append(ToolbarButton(wrapCmd(lift)).and(ToolbarButtonTypeOther, "lift")
+				.style.bind(state.map(component, value => !value || !lift(value)), "text-editor-toolbar-button--hidden"))
+			.append(ToolbarButtonWrap("blockquote"))
+			.append(ToolbarButtonList("bullet-list"))
+			.append(ToolbarButtonList("ordered-list"))
+		)
 		.append(ToolbarButtonGroup()
 			.ariaLabel.use("component/text-editor/toolbar/group/insert")
 			.append(ToolbarButton(wrapCmd((state, dispatch) => {
@@ -745,6 +759,13 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			},
 		}))
 
+	const scrollbarProxy: Component = Component()
+		.style("text-editor-document-scrollbar-proxy")
+		.style.bindVariable("content-width",
+			state.map(component, () => `${editor.document?.element.scrollWidth ?? 0}px`))
+		.event.subscribe("scroll", () =>
+			editor.document?.element.scrollTo({ left: scrollbarProxy.element.scrollLeft, behavior: "instant" }))
+
 	editor
 		.append(toolbar)
 		.append(Slot()
@@ -756,6 +777,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 				return createDefaultView(slot)
 			}))
+		.append(scrollbarProxy)
 
 	return editor
 
@@ -834,6 +856,8 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.style("text-editor-document")
 			.setId(`text-editor-${id}`)
 			.attributes.set("aria-multiline", "true")
+			.event.subscribe("scroll", () =>
+				scrollbarProxy.element.scrollTo({ left: editor.document?.element.scrollLeft ?? 0, behavior: "instant" }))
 
 		toolbar.ariaControls(editor.document)
 		refresh()
