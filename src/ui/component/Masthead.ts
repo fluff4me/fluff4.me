@@ -41,6 +41,7 @@ const Masthead = Component.Builder("header", (masthead, view: ViewContainer) => 
 		.append(Button()
 			.style("masthead-left-hamburger", "masthead-left-hamburger-popover")
 			.ariaLabel.use("masthead/primary-nav/alt")
+			.clearPopover()
 			.setPopover("hover", p => popover = p
 				.anchor.add("aligned left", "off bottom")
 				.ariaRole("navigation")))
@@ -59,6 +60,7 @@ const Masthead = Component.Builder("header", (masthead, view: ViewContainer) => 
 
 	const homeLink = Link("/")
 		.ariaLabel.use("fluff4me/alt")
+		.clearPopover()
 		.append(Heading()
 			.and(Button)
 			.style("masthead-home")
@@ -80,9 +82,11 @@ const Masthead = Component.Builder("header", (masthead, view: ViewContainer) => 
 		.style("masthead-user")
 		.append(Button()
 			.style("masthead-user-notifications")
+			.clearPopover()
 			.ariaLabel.use("masthead/user/notifications/alt"))
 		.append(Button()
 			.style("masthead-user-profile")
+			.clearPopover()
 			.ariaLabel.use("masthead/user/profile/alt")
 			.setPopover("hover", popover => popover
 				.anchor.add("aligned right", "off bottom")

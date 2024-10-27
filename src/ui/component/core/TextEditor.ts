@@ -21,6 +21,7 @@ import Checkbutton from "ui/component/core/Checkbutton"
 import type { InputExtensions } from "ui/component/core/extension/Input"
 import Input from "ui/component/core/extension/Input"
 import type Label from "ui/component/core/Label"
+import Popover from "ui/component/core/Popover"
 import RadioButton from "ui/component/core/RadioButton"
 import Slot from "ui/component/core/Slot"
 import type { Quilt } from "ui/utility/TextManipulator"
@@ -86,6 +87,13 @@ Define(ResolvedPos.prototype, "closest", function (node, attrsOrStartingAtDepth,
 	}
 
 	return undefined
+})
+
+Define(Node.prototype, "matches", function (type, attrs): boolean {
+	if (type !== undefined && this.type !== type)
+		return false
+
+	return attrs === undefined || this.hasAttrs(attrs)
 })
 
 Define(Node.prototype, "hasAttrs", function (attrs) {
@@ -459,45 +467,48 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.ariaRole("group")
 		.style("text-editor-toolbar-button-group"))
 
-	const ToolbarButton = Component.Builder((_, handler: () => any) => {
+	const ToolbarButton = Component.Builder((_, handler: (component: Component) => any) => {
 		return Button()
 			.style("text-editor-toolbar-button")
 			.clearPopover()
+			.receiveFocusedClickEvents()
 			.event.subscribe("click", event => {
 				event.preventDefault()
-				handler()
+				handler(event.component)
 			})
 	})
 
-	const ToolbarCheckbutton = Component.Builder((_, state: State<boolean>, toggler: () => any) => {
+	const ToolbarCheckbutton = Component.Builder((_, state: State<boolean>, toggler: (component: Component) => any) => {
 		return Checkbutton()
 			.style("text-editor-toolbar-button")
 			.style.bind(state, "text-editor-toolbar-button--enabled")
 			.use(state)
 			.clearPopover()
+			.receiveFocusedClickEvents()
 			.event.subscribe("click", event => {
 				event.preventDefault()
-				toggler()
+				toggler(event.component)
 			})
 	})
 
-	const ToolbarRadioButton = Component.Builder((_, name: string, state: State<boolean>, toggler: () => any) => {
+	const ToolbarRadioButton = Component.Builder((_, name: string, state: State<boolean>, toggler: (component: Component) => any) => {
 		return RadioButton()
 			.style("text-editor-toolbar-button")
 			.setName(name)
 			.style.bind(state, "text-editor-toolbar-button--enabled")
 			.use(state)
 			.clearPopover()
+			.receiveFocusedClickEvents()
 			.event.subscribe("click", event => {
 				event.preventDefault()
-				toggler()
+				toggler(event.component)
 			})
 	})
 
 	const ToolbarButtonMark = Component.Builder((_, type: Marks) => {
 		const mark = schema.marks[type]
 		const toggler = markToggler(mark)
-		const markActive = state.map(state => isMarkActive(mark))
+		const markActive = state.map(component, state => isMarkActive(mark))
 		return ToolbarCheckbutton(markActive, toggler)
 			.and(ToolbarButtonTypeMark, type)
 	})
@@ -505,7 +516,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	type Align = "left" | "centre" | "right"
 	const ToolbarButtonAlign = Component.Builder((_, align: Align) => {
 		const toggler = wrapper(schema.nodes.text_align, { align: align === "centre" ? "center" : align })
-		const alignActive = state.map(state => isAlignActive(align))
+		const alignActive = state.map(component, state => isAlignActive(align))
 		return ToolbarRadioButton(`text-editor-${id}-text-align`, alignActive, toggler)
 			.and(ToolbarButtonTypeOther, `align-${align}`)
 	})
@@ -513,39 +524,55 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	const ToolbarButtonBlockType = Component.Builder((_, type: ButtonTypeNodes) => {
 		const node = schema.nodes[type.replaceAll("-", "_")]
 		const toggle = blockTypeToggler(node)
-		const typeActive = state.map(state => isTypeActive(node))
+		const typeActive = state.map(component, state => isTypeActive(node))
 		return ToolbarRadioButton(`text-editor-${id}-block-type`, typeActive, toggle)
 			.and(ToolbarButtonTypeNode, type)
+	})
+
+	const ToolbarButtonHeading = Component.Builder((_, level: number) => {
+		const node = schema.nodes.heading
+		const toggle = blockTypeToggler(node, { level })
+		const typeActive = state.map(component, state => isTypeActive(node, { level }))
+		return ToolbarRadioButton(`text-editor-${id}-block-type`, typeActive, toggle)
+			.style(`text-editor-toolbar-h${level as 1}`)
 	})
 
 	const ToolbarButtonWrap = Component.Builder((_, type: ButtonTypeNodes) =>
 		ToolbarButton(wrapper(schema.nodes[type.replaceAll("-", "_")]))
 			.and(ToolbarButtonTypeNode, type))
 
-	const ToolbarButtonPopover = Component.Builder(() => {
-
+	const ToolbarButtonPopover = Component.Builder((_, align: "left" | "centre" | "right") => {
 		return Button()
 			.style("text-editor-toolbar-button", "text-editor-toolbar-button--has-popover")
+			.clearPopover()
 			.setPopover("hover", (popover, button) => {
 				popover
 					.style("text-editor-toolbar-popover")
-					.anchor.add("aligned left", "off bottom")
+					.style.bind(popover.popoverParent.nonNullish(popover), "text-editor-toolbar-popover-sub", `text-editor-toolbar-popover-sub--${align}`)
+					.anchor.add(align === "centre" ? align : `aligned ${align}`, "off bottom")
+					.style.toggle(align === "left", "text-editor-toolbar-popover--left")
+					.style.toggle(align === "right", "text-editor-toolbar-popover--right")
 					.setMousePadding(20)
 
 				button.style.bind(popover.visible, "text-editor-toolbar-button--has-popover-visible")
 			})
+			.receiveAncestorInsertEvents()
+			.event.subscribe(["insert", "ancestorInsert"], event =>
+				event.component.style.toggle(!!event.component.closest(Popover), "text-editor-toolbar-button--has-popover--within-popover"))
 	})
 
 	let inTransaction = false
-	function wrapCmd (cmd: Command): () => void {
-		return () => {
+	function wrapCmd (cmd: Command): (component: Component) => void {
+		return (component: Component) => {
 			if (!state.value)
 				return
 
 			inTransaction = true
 			cmd(state.value, editor.mirror?.dispatch, editor.mirror)
-			editor.document?.focus()
 			inTransaction = false
+
+			if (!component.hasFocused.value)
+				editor.document?.focus()
 		}
 	}
 
@@ -596,8 +623,8 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		return wrapCmd(wrapIn(node, attrs))
 	}
 
-	function blockTypeToggler (node: NodeType) {
-		return wrapCmd(setBlockType(node))
+	function blockTypeToggler (node: NodeType, attrs?: Attrs) {
+		return wrapCmd(setBlockType(node, attrs))
 	}
 
 	//#endregion
@@ -610,7 +637,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.ariaLabel.use("component/text-editor/toolbar/group/inline")
 			.append(ToolbarButtonMark("strong"))
 			.append(ToolbarButtonMark("em"))
-			.append(ToolbarButtonPopover()
+			.append(ToolbarButtonPopover("left")
 				.and(ToolbarButtonTypeOther, "other-formatting")
 				.tweakPopover(popover => popover
 					.append(ToolbarButtonMark("underline"))
@@ -622,7 +649,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.append(ToolbarButtonGroup()
 			.ariaLabel.use("component/text-editor/toolbar/group/block")
 			.append(
-				ToolbarButtonPopover()
+				ToolbarButtonPopover("centre")
 					.tweakPopover(popover => popover
 						.ariaRole("radiogroup")
 						.append(ToolbarButtonAlign("left"))
@@ -642,11 +669,21 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			))
 		.append(ToolbarButtonGroup()
 			.ariaRole()
-			.append(ToolbarButtonPopover()
+			.append(ToolbarButtonPopover("centre")
 				.tweakPopover(popover => popover
 					.ariaRole("radiogroup")
 					.append(ToolbarButtonBlockType("paragraph"))
 					.append(ToolbarButtonBlockType("code-block"))
+					.append(ToolbarButtonPopover("centre")
+						.style("text-editor-toolbar-heading")
+						.tweakPopover(popover => popover
+							.append(ToolbarButtonHeading(1))
+							.append(ToolbarButtonHeading(2))
+							.append(ToolbarButtonHeading(3))
+							.append(ToolbarButtonHeading(4))
+							.append(ToolbarButtonHeading(5))
+							.append(ToolbarButtonHeading(6))
+						))
 				)
 				.tweak(button => {
 					state.use(button, () => {
@@ -779,7 +816,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		label?.setInput(editor.document)
 		editor.document?.setName(label?.for)
 		editor.document?.setId(label?.for)
-		label?.setId(label.for.map(v => `${v}-label`))
+		label?.setId(label.for.map(component, v => `${v}-label`))
 		toolbar.ariaLabelledBy(label)
 		editor.document?.ariaLabelledBy(label)
 		editor.document?.attributes.toggle(editor.required.value, "aria-required", "true")
@@ -797,18 +834,18 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		return state.value.doc.rangeHasMark(selection.from, selection.to, type)
 	}
 
-	function isTypeActive (type: NodeType, pos?: ResolvedPos) {
+	function isTypeActive (type: NodeType, attrs?: Attrs, pos?: ResolvedPos) {
 		if (!state.value)
 			return false
 
 		const selection = state.value.selection
 		pos ??= !selection.empty ? undefined : selection.$from
 		if (pos)
-			return !!pos.closest(type)
+			return !!pos.closest(type, attrs)
 
 		let found = false
 		state.value.doc.nodesBetween(selection.from, selection.to, node => {
-			found ||= node.type === type
+			found ||= node.matches(type, attrs)
 		})
 		return found
 	}
@@ -826,6 +863,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			for (const blockType of BLOCK_TYPES)
 				if (isTypeActive(schema.nodes[blockType], pos))
 					return blockType.replaceAll("_", "-") as BlockTypeR
+			return "paragraph"
 		}
 
 		const types = new Set<BlockTypeR>()

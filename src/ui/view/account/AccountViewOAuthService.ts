@@ -7,10 +7,10 @@ import State from "utility/State"
 export default Component.Builder((component, service: AuthService) => {
 	const authedAtStart = !!Session.Auth.get(service.name)
 
-	const authorisationState = State.Map(Session.Auth.authorisations, authorisations =>
+	const authorisationState = State.Map(component, Session.Auth.authorisations, authorisations =>
 		authorisations.find(authorisation => authorisation.service === service.name))
 
-	const isAuthed = State.Truthy(authorisationState)
+	const isAuthed = State.Truthy(component, authorisationState)
 
 	const button = component
 		.and(Checkbutton)
