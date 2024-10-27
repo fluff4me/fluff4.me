@@ -39,7 +39,7 @@ async function App (): Promise<App> {
 
 	await screen?.orientation?.lock?.("portrait-primary").catch(() => { })
 
-	InputBus.subscribe("keydown", event => {
+	InputBus.subscribe("down", event => {
 		if (event.use("F6"))
 			for (const stylesheet of document.querySelectorAll("link[rel=stylesheet]")) {
 				const href = stylesheet.getAttribute("href")!
@@ -50,7 +50,7 @@ async function App (): Promise<App> {
 		if (event.use("F4"))
 			document.documentElement.classList.add("persist-tooltips")
 	})
-	InputBus.subscribe("keyup", event => {
+	InputBus.subscribe("up", event => {
 		if (event.use("F4"))
 			document.documentElement.classList.remove("persist-tooltips")
 	})

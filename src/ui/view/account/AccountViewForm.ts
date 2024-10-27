@@ -25,14 +25,14 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 
 	const nameInput = TextInput()
 		.setRequired()
-		.default.bind(Session.Auth.author.map(author => author?.name))
+		.default.bind(Session.Auth.author.map(component, author => author?.name))
 	table.label(label => label.text.use("view/account/form/name/label"))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
 	const vanityInput = TextInput()
 		.placeholder.bind(nameInput.state
-			.map(name => filterVanity(name)))
-		.default.bind(Session.Auth.author.map(author => author?.vanity))
+			.map(component, name => filterVanity(name)))
+		.default.bind(Session.Auth.author.map(component, author => author?.vanity))
 		.filter(filterVanity)
 	table.label(label => label.text.use("view/account/form/vanity/label"))
 		.content((content, label) => content.append(vanityInput.setLabel(label)))

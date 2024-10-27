@@ -1,8 +1,27 @@
+import Component from "ui/Component"
 import { EventManager } from "utility/EventManager"
+
+enum Classes {
+	ReceiveFocusedClickEvents = "_receieve-focused-click-events",
+}
+
+interface InputBusComponentExtensions {
+	receiveFocusedClickEvents (): this
+}
+
+declare module "ui/Component" {
+	interface ComponentExtensions extends InputBusComponentExtensions { }
+}
+
+Component.extend(component => {
+	component.extend<InputBusComponentExtensions>(component => ({
+		receiveFocusedClickEvents: () => component.classes.add(Classes.ReceiveFocusedClickEvents),
+	}))
+})
 
 type Modifier = "ctrl" | "shift" | "alt"
 
-export interface IKeyEvent {
+export interface IInputEvent {
 	key: string
 	ctrl: boolean
 	shift: boolean
@@ -16,13 +35,13 @@ export interface IKeyEvent {
 	hovering (selector?: string): HTMLElement | undefined
 }
 
-export interface IKeyUpEvent extends IKeyEvent {
+export interface IInputUpEvent extends IInputEvent {
 	usedAnotherKeyDuring: boolean
 }
 
 export interface IInputBusEvents {
-	keydown: IKeyEvent
-	keyup: IKeyUpEvent
+	down: IInputEvent
+	up: IInputUpEvent
 }
 
 const MOUSE_KEYNAME_MAP: Record<string, string> = {
@@ -56,13 +75,27 @@ function emitKeyEvent (e: RawEvent) {
 	const input = target.closest<HTMLElement>("input[type=text], textarea, [contenteditable]")
 	let usedByInput = !!input
 
+	const isClick = true
+		&& !usedByInput
+		&& e.type === "keydown"
+		&& (e.key === "Enter" || e.key === "Space")
+		&& !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey
+		&& target.classList.contains(Classes.ReceiveFocusedClickEvents)
+	if (isClick) {
+		const result = target.component?.event.emit("click")
+		if (result?.defaultPrevented) {
+			e.preventDefault()
+			return
+		}
+	}
+
 	const eventKey = e.key ?? MOUSE_KEYNAME_MAP[e.button!]
 	const eventType = e.type === "mousedown" ? "keydown" : e.type === "mouseup" ? "keyup" : e.type as "keydown" | "keyup"
 	if (eventType === "keydown")
 		inputDownTime[eventKey] = Date.now()
 
 	let cancelInput = false
-	const event: IKeyEvent & Partial<IKeyUpEvent> = {
+	const event: IInputEvent & Partial<IInputUpEvent> = {
 		key: eventKey,
 		ctrl: e.ctrlKey,
 		shift: e.shiftKey,
@@ -112,7 +145,7 @@ function emitKeyEvent (e: RawEvent) {
 		delete inputDownTime[eventKey]
 	}
 
-	InputBus.emit(eventType, event)
+	InputBus.emit(eventType === "keydown" ? "down" : "up", event)
 
 	if ((event.used && !usedByInput) || (usedByInput && cancelInput)) {
 		e.preventDefault()

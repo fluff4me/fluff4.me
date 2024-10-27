@@ -112,6 +112,9 @@ interface BaseComponent {
 	append (...contents: (Component | Node)[]): this
 	prepend (...contents: (Component | Node)[]): this
 
+	closest<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): COMPONENT | undefined
+	closest<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): COMPONENT | undefined
+
 	getAncestorComponents (): Generator<Component>
 
 	remove (): void
@@ -242,7 +245,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		get hoveredOrFocused (): State<boolean> {
 			return Define.set(component, "hoveredOrFocused",
 				State.Generator(() => component.hovered.value || component.focused.value)
-					.observe(component.hovered, component.focused))
+					.observe(component, component.hovered, component.focused))
 		},
 		get active (): State<boolean> {
 			return Define.set(component, "active", State(false))
@@ -362,6 +365,16 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		removeContents () {
 			component.element.replaceChildren()
 			return component
+		},
+
+		closest (builder) {
+			let cursor: HTMLElement | null = component.element
+			while (cursor) {
+				cursor = cursor.parentElement
+				const component = cursor?.component
+				if (component?.is(builder))
+					return component
+			}
 		},
 
 		*getAncestorComponents () {

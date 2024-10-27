@@ -19,7 +19,8 @@ interface ReadableState<T, E = T> {
 	unsubscribe (subscriber: (value: E) => any): void
 	emit (): void
 
-	map<R> (mapper: (value: T) => R): State<R>
+	map<R> (owner: Component, mapper: (value: T) => R): State<R>
+	nonNullish (owner: Component): State<boolean>
 }
 
 interface State<T> extends ReadableState<T> {
@@ -90,7 +91,8 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 			return result
 		},
 
-		map: mapper => State.Map(result, mapper),
+		map: (owner, mapper) => State.Map(owner, result, mapper),
+		nonNullish: owner => State.NonNullish(owner, result),
 	}
 	return result
 }
@@ -99,7 +101,8 @@ namespace State {
 
 	export interface Generator<T> extends ReadableState<T> {
 		refresh (): this
-		observe (...states: ReadableState<any>[]): this
+		observe (owner: Component, ...states: ReadableState<any>[]): this
+		observeManual (...states: ReadableState<any>[]): this
 		unobserve (...states: ReadableState<any>[]): this
 	}
 
@@ -120,7 +123,20 @@ namespace State {
 			return result
 		}
 
-		result.observe = (...states) => {
+		result.observe = (owner, ...states) => {
+			for (const state of states)
+				state.subscribeManual(result.refresh)
+			owner.event.subscribe("remove", onRemove)
+			return result
+
+			function onRemove () {
+				owner.event.unsubscribe("remove", onRemove)
+				for (const state of states)
+					state.unsubscribe(result.refresh)
+			}
+		}
+
+		result.observeManual = (...states) => {
 			for (const state of states)
 				state.subscribeManual(result.refresh)
 			return result
@@ -185,29 +201,34 @@ namespace State {
 		return result
 	}
 
-	export function Truthy (state: ReadableState<any>): Generator<boolean> {
+	export function Truthy (owner: Component, state: ReadableState<any>): Generator<boolean> {
 		return Generator(() => !!state.value)
-			.observe(state)
+			.observe(owner, state)
 	}
 
-	export function Falsy (state: ReadableState<any>): Generator<boolean> {
-		return Generator(() => !!state.value)
-			.observe(state)
+	export function NonNullish (owner: Component, state: ReadableState<any>): Generator<boolean> {
+		return Generator(() => state.value !== undefined && state.value !== null)
+			.observe(owner, state)
 	}
 
-	export function Some (...anyOfStates: ReadableState<any>[]): Generator<boolean> {
+	export function Falsy (owner: Component, state: ReadableState<any>): Generator<boolean> {
+		return Generator(() => !!state.value)
+			.observe(owner, state)
+	}
+
+	export function Some (owner: Component, ...anyOfStates: ReadableState<any>[]): Generator<boolean> {
 		return Generator(() => anyOfStates.some(state => state.value))
-			.observe(...anyOfStates)
+			.observe(owner, ...anyOfStates)
 	}
 
-	export function Every (...anyOfStates: ReadableState<any>[]): Generator<boolean> {
+	export function Every (owner: Component, ...anyOfStates: ReadableState<any>[]): Generator<boolean> {
 		return Generator(() => anyOfStates.every(state => state.value))
-			.observe(...anyOfStates)
+			.observe(owner, ...anyOfStates)
 	}
 
-	export function Map<INPUT, OUTPUT> (input: ReadableState<INPUT>, outputGenerator: (input: INPUT) => OUTPUT): Generator<OUTPUT> {
+	export function Map<INPUT, OUTPUT> (owner: Component, input: ReadableState<INPUT>, outputGenerator: (input: INPUT) => OUTPUT): Generator<OUTPUT> {
 		return Generator(() => outputGenerator(input.value))
-			.observe(input)
+			.observe(owner, input)
 	}
 }
 

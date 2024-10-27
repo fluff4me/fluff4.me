@@ -118,6 +118,10 @@
 					%backdrop-blur
 					$transition-duration: $transition-focus
 
+			&--has-popover--within-popover:
+				@after:
+					backdrop-filter: none
+
 		&-strong:
 			#icon name="bold
 			%border-top-left-radius-1
@@ -136,6 +140,13 @@
 			#icon name="quote-left
 		&-paragraph:
 			#icon name="paragraph
+		&-heading:
+			#icon name="heading
+		#each in 1...6 as var i:
+			&-h#{i}:
+				#icon name="#{i}
+		&-h2:
+			#icon name="2
 		&-code, &-code-block:
 			#icon name="code
 		&-link:
@@ -159,7 +170,6 @@
 			%border-radius-1
 			%border-top-radius-0
 			%gap-0
-			%unmargin-left-1
 			margin-top: 1px
 			$block-background: #{alpha(0.2, $background-1)}
 			border-top-colour: #{alpha(0.9, $background-1)}
@@ -167,6 +177,16 @@
 				#{box-shadow-inset-border-bottom-1},
 				#{box-shadow-inset-border-left-1},
 				#{box-shadow-inset-border-right-1}
+
+			&--left: %unmargin-left-1
+			&--right: %unmargin-right-1
+
+			&-sub:
+				&--left: %border-top-right-radius-1
+				&--right: %border-top-left-radius-1
+				&--centre:
+					border-top-right-radius: $space-1
+					border-top-left-radius: $space-1
 
 	&-document:
 		%block

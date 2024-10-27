@@ -2,16 +2,12 @@ import type Component from "ui/Component"
 import State from "utility/State"
 
 namespace FocusListener {
-	let lastFocused: Element | undefined
 
 	export const hasFocus = State<boolean>(false)
-
-	export function focused (): Element | undefined {
-		return lastFocused
-	}
+	export const focused = State<Element | undefined>(undefined)
 
 	export function focusedComponent (): Component | undefined {
-		return lastFocused?.component
+		return focused.value?.component
 	}
 
 	// interface QueuedFocusChange {
@@ -74,20 +70,20 @@ namespace FocusListener {
 		if (document.activeElement && document.activeElement !== document.body && location.hash && document.activeElement.id !== location.hash.slice(1))
 			history.pushState(undefined, "", " ")
 
-		const focused = document.querySelector(":focus-visible") ?? undefined
-		if (focused === lastFocused)
+		const newFocused = document.querySelector(":focus-visible") ?? undefined
+		if (newFocused === focused.value)
 			return
 
 		// updatingFocusState = true
-		const lastFocusedComponent = lastFocused?.component
-		const focusedComponent = focused?.component
+		const lastFocusedComponent = focused.value?.component
+		const focusedComponent = newFocused?.component
 
 		const oldAncestors = !lastFocusedComponent ? undefined : [...lastFocusedComponent.getAncestorComponents()]
 		const newAncestors = !focusedComponent ? undefined : [...focusedComponent.getAncestorComponents()]
-		const lastFocusedContainsFocused = lastFocused?.contains(focused ?? null)
+		const lastFocusedContainsFocused = focused.value?.contains(newFocused ?? null)
 
-		lastFocused = focused
-		hasFocus.value = !!focused
+		focused.value = newFocused
+		hasFocus.value = !!newFocused
 
 		if (lastFocusedComponent) {
 			lastFocusedComponent.focused.value = false

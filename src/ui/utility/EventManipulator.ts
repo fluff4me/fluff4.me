@@ -11,7 +11,7 @@ type EventHandler<HOST, EVENTS, EVENT extends keyof EVENTS> = (...params: EventP
 type ResolveEvent<EVENT extends Arrays.Or<PropertyKey>> = EVENT extends PropertyKey[] ? EVENT[number] : EVENT
 
 interface EventManipulator<HOST, EVENTS> {
-	emit<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[]
+	emit<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean }
 	subscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 	unsubscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 }
@@ -34,7 +34,7 @@ function EventManipulator (component: Component): EventManipulator<Component, Na
 			const detail: EventDetail = { result: [], params }
 			const eventObject = new CustomEvent(event, { detail })
 			component.element.dispatchEvent(eventObject)
-			return detail.result
+			return Object.assign(detail.result, { defaultPrevented: eventObject.defaultPrevented }) as any
 		},
 		subscribe (events, handler) {
 			if ((handler as EventHandlerRegistered)[SYMBOL_REGISTERED_FUNCTION]) {
