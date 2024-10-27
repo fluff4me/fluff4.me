@@ -5,6 +5,7 @@ import { dropCursor } from "prosemirror-dropcursor"
 import { buildInputRules, buildKeymap } from "prosemirror-example-setup"
 import { gapCursor } from "prosemirror-gapcursor"
 import { history } from "prosemirror-history"
+import { InputRule, inputRules } from "prosemirror-inputrules"
 import { keymap } from "prosemirror-keymap"
 import type { ParseSpec } from "prosemirror-markdown"
 import { schema as baseSchema, defaultMarkdownParser, defaultMarkdownSerializer, MarkdownParser } from "prosemirror-markdown"
@@ -753,12 +754,41 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	////////////////////////////////////
 	//#region ProseMirror Init
 
+	function markInputRule (
+		regexp: RegExp,
+		markType: MarkType,
+		getAttrs: Attrs | null | ((matches: RegExpMatchArray) => Attrs | null) = null,
+		getContent: string | Fragment | Node | readonly Node[] | ((matches: RegExpMatchArray) => string | Fragment | Node | readonly Node[]),
+	) {
+		return new InputRule(regexp, (state, match, start, end) => {
+			const attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs
+			const content = getContent instanceof Function ? getContent(match) : getContent
+			const tr = state.tr
+			tr.replaceWith(start, end, typeof content === "string" ? schema.text(content) : content)
+			const mark = markType.create(attrs)
+			tr.addMark(tr.mapping.map(start), tr.mapping.map(end), mark)
+			tr.removeStoredMark(mark)
+			return tr
+		})
+	}
+
 	function createDefaultView (slot: Slot) {
 		const view = new EditorView(slot.element, {
 			state: EditorState.create({
 				doc: markdownParser.parse(content.value),
 				plugins: [
 					buildInputRules(schema),
+					inputRules({
+						rules: [
+							markInputRule(/\*\*([^*]+?)\*\*/, schema.marks.strong, undefined, match => match[1]),
+							markInputRule(/__([^_]+?)__/, schema.marks.underline, undefined, match => match[1]),
+							markInputRule(/\/\/([^/]+?)\/\//, schema.marks.em, undefined, match => match[1]),
+							markInputRule(/`([^`]+?)`/, schema.marks.code, undefined, match => match[1]),
+							markInputRule(/\[(.+?)\]\(([^ ]+?)(?:[  ](?:\((.+?)\)|["'“”‘’](.+?)["'“”‘’]))?\)/, schema.marks.link,
+								([match, text, href, title1, title2]) => ({ href, title: title1 || title2 || undefined }),
+								match => match[1]),
+						],
+					}),
 					keymap(buildKeymap(schema, {})),
 					keymap(baseKeymap),
 					keymap({
