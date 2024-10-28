@@ -308,6 +308,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 			function setName (name?: string) {
 				if (name) {
+					name = name.replace(/[^\w-]+/g, "-").toLowerCase()
 					component.element.setAttribute("name", name)
 					component.name.value = name
 				} else {

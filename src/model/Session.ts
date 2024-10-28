@@ -5,6 +5,7 @@ import EndpointSessionGet from "endpoint/session/EndpointSessionGet"
 import EndpointSessionReset from "endpoint/session/EndpointSessionReset"
 import popup from "utility/Popup"
 import State from "utility/State"
+import type { ILocalStorage } from "utility/Store"
 import Store from "utility/Store"
 
 declare module "utility/Store" {
@@ -15,11 +16,21 @@ declare module "utility/Store" {
 }
 
 namespace Session {
+
+	const clearedWithSessionChange: (keyof ILocalStorage)[] = []
+	export function setClearedWithSessionChange (...keys: (keyof ILocalStorage)[]) {
+		clearedWithSessionChange.push(...keys)
+	}
+
 	export async function refresh () {
 		const session = await EndpointSessionGet.query()
 		const stateToken = session.headers.get("State-Token")
 		if (stateToken)
 			Store.items.stateToken = stateToken
+
+		if (Store.items.session?.created !== session.data?.created)
+			for (const key of clearedWithSessionChange)
+				Store.delete(key)
 
 		Store.items.session = session?.data ?? undefined
 		updateState()
