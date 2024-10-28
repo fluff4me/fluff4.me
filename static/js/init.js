@@ -12,7 +12,15 @@
 	}
 
 	/**
-	 * @typedef {(getModule: (module: string) => any, module: Module, ...args: any[]) => any} ModuleInitializer
+	 * @typedef {(module: string) => any} ModuleGetter
+	 */
+
+	/**
+	 * @typedef {(modules: string[], resolve: (module: any) => void, reject: (err?: any) => any) => void} ModuleGetterAsync
+	 */
+
+	/**
+	 * @typedef {(getModule: ModuleGetter | ModuleGetterAsync, module: Module, ...args: any[]) => any} ModuleInitializer
 	 */
 
 	/**
@@ -70,6 +78,7 @@
 			_state: ModuleState.Unprocessed,
 			_requirements,
 			_initializer: fn,
+			_init: document.currentScript.dataset.init === name,
 			_replace (newModule) {
 				if (typeof newModule !== "object" && typeof newModule !== "function")
 					throw new Error("Cannot assign module.exports to a non-object")
@@ -147,7 +156,22 @@
 
 		try {
 			requiredBy = [...requiredBy, module._name]
-			const result = module._initializer(name => getModule(name, requiredBy), module, ...args)
+
+			/**
+			 * @param {string | string[]} nameOrNames
+			 * @param {(module: any) => void} [resolve]
+			 * @param {(err?: any) => void} [reject]
+			 */
+			function require (nameOrNames, resolve, reject) {
+				if (Array.isArray(nameOrNames)) {
+					const results = nameOrNames.map(name => getModule(name, requiredBy))
+					return resolve(results.length === 1 ? results[0] : results)
+				}
+
+				return getModule(nameOrNames, requiredBy)
+			}
+
+			const result = module._initializer(require, module, ...args)
 			if (module.default === undefined)
 				module.default = result ?? module
 
@@ -201,7 +225,8 @@
 		}
 
 		for (const [name, module] of moduleMap.entries())
-			processModule(name, module)
+			if (module._init)
+				processModule(name, module)
 
 		initialProcessCompleted = true
 	}

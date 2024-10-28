@@ -239,6 +239,7 @@
 		%padding-2-3
 		%scrollbar-none
 		%relative
+		%white-space-pre-wrap
 
 		& p:
 			margin-block: round(up, 1em, 1px)

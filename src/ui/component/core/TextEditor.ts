@@ -1,5 +1,7 @@
 import quilt from "lang/en-nz"
+import type { StateInline, Token } from "markdown-it"
 import MarkdownIt from "markdown-it"
+import Session from "model/Session"
 import { baseKeymap, lift, setBlockType, toggleMark, wrapIn } from "prosemirror-commands"
 import { dropCursor } from "prosemirror-dropcursor"
 import { buildInputRules, buildKeymap } from "prosemirror-example-setup"
@@ -8,7 +10,7 @@ import { history, redo, undo } from "prosemirror-history"
 import { InputRule, inputRules } from "prosemirror-inputrules"
 import { keymap } from "prosemirror-keymap"
 import type { ParseSpec } from "prosemirror-markdown"
-import { schema as baseSchema, defaultMarkdownParser, defaultMarkdownSerializer, MarkdownParser } from "prosemirror-markdown"
+import { schema as baseSchema, defaultMarkdownParser, defaultMarkdownSerializer, MarkdownParser, MarkdownSerializer } from "prosemirror-markdown"
 import type { Attrs, MarkSpec, MarkType, NodeSpec, NodeType } from "prosemirror-model"
 import { Fragment, Node, NodeRange, ResolvedPos, Schema } from "prosemirror-model"
 import { wrapInList } from "prosemirror-schema-list"
@@ -31,9 +33,18 @@ import ViewTransition from "ui/view/component/ViewTransition"
 import Arrays from "utility/Arrays"
 import Define from "utility/Define"
 import Objects from "utility/Objects"
+import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
+import Store from "utility/Store"
 import type Strings from "utility/Strings"
+import Time from "utility/Time"
+import type { PartialRecord } from "utility/Type"
 import w3cKeyname from "w3c-keyname"
+
+type NodeViewDesc = Exclude<ReturnType<Exclude<(globalThis.Node)["pmViewDesc"], undefined>["nearestDesc"]>, undefined>
+
+function vars (...params: any[]): void { }
+function types<A extends any[]> (): void { }
 
 ////////////////////////////////////
 //#region Module Augmentation
@@ -53,6 +64,9 @@ w3cKeyname.keyName = (event: Event) => {
 
 	return baseKeyName(event)
 }
+
+////////////////////////////////////
+//#region ProseMirror
 
 declare module "prosemirror-model" {
 	interface ResolvedPos {
@@ -285,6 +299,27 @@ Define(Transform.prototype, "stripNodeType", function (from: NodeRange | Fragmen
 })
 
 //#endregion
+types<[ResolvedPos, Node, Fragment, Transform]>()
+////////////////////////////////////
+
+interface TextEditorDraft {
+	name: string
+	body: string
+	created: number
+}
+
+declare module "utility/Store" {
+	interface ILocalStorage {
+		textEditorDrafts: TextEditorDraft[]
+	}
+}
+
+Session.setClearedWithSessionChange("textEditorDrafts")
+
+//#endregion
+vars(w3cKeyname.keyName)
+types<[ResolvedPos, Node, Fragment, Transform]>()
+types<[TextEditorDraft]>()
 ////////////////////////////////////
 
 ////////////////////////////////////
@@ -365,6 +400,385 @@ const schema = new Schema({
 })
 
 //#endregion
+vars(schema)
+types<[Marks, Nodes]>()
+////////////////////////////////////
+
+////////////////////////////////////
+//#region Markdown
+
+const REGEX_ATTRIBUTE = (() => {
+	const attr_name = "[a-zA-Z_:][a-zA-Z0-9:._-]*"
+	const unquoted = "[^\"'=<>`\\x00-\\x20]+"
+	const single_quoted = "'[^']*'"
+	const double_quoted = '"[^"]*"'
+	const attr_value = `(?:${unquoted}|${single_quoted}|${double_quoted})`
+	const attribute = `(${attr_name})(?:\\s*=\\s*(${attr_value}))(?= |$)`
+	return new RegExp(attribute, "g")
+})()
+
+const REGEX_CSS_PROPERTY = /^[-a-zA-Z_][a-zA-Z0-9_-]*$/
+
+const markdown = MarkdownIt("commonmark", { html: true })
+markdown.inline.ruler.enable("strikethrough")
+markdown.inline.ruler2.enable("strikethrough")
+
+////////////////////////////////////
+//#region Underline Parse
+// Based on https://github.com/markdown-it/markdown-it/blob/0fe7ccb4b7f30236fb05f623be6924961d296d3d/lib/rules_inline/strikethrough.mjs
+
+markdown.inline.ruler.before("emphasis", "underline", function underline_tokenize (state, silent) {
+	const start = state.pos
+	const marker = state.src.charCodeAt(start)
+
+	if (silent || marker !== 0x5F/* _ */)
+		return false
+
+	const scanned = state.scanDelims(state.pos, true)
+	let len = scanned.length
+	if (len < 2)
+		return false
+
+	const ch = String.fromCharCode(marker)
+
+	let token: Token
+	if (len % 2) {
+		token = state.push("text", "", 0)
+		token.content = ch
+		len--
+	}
+
+	for (let i = 0; i < len; i += 2) {
+		token = state.push("text", "", 0)
+		token.content = ch + ch
+
+		state.delimiters.push({
+			marker,
+			length: 0,     // disable "rule of 3" length checks meant for emphasis
+			token: state.tokens.length - 1,
+			end: -1,
+			open: scanned.can_open,
+			close: scanned.can_close,
+		})
+	}
+
+	state.pos += scanned.length
+	return true
+})
+
+markdown.inline.ruler2.before("emphasis", "underline", function underline_postProcess (state) {
+	const tokens_meta = state.tokens_meta
+	const max = state.tokens_meta.length
+
+	postProcess(state, state.delimiters)
+
+	for (let curr = 0; curr < max; curr++) {
+		const delimiters = tokens_meta[curr]?.delimiters
+		if (delimiters)
+			postProcess(state, delimiters)
+	}
+
+	state.delimiters = state.delimiters.filter(delim => delim.marker !== 0x5F/* _ */)
+	return true
+
+	function postProcess (state: StateInline, delimiters: StateInline.Delimiter[]) {
+		let token: Token
+		const loneMarkers: number[] = []
+		const max = delimiters.length
+
+		for (let i = 0; i < max; i++) {
+			const startDelim = delimiters[i]
+
+			if (startDelim.marker !== 0x5F/* _ */)
+				continue
+
+			if (startDelim.end === -1)
+				continue
+
+			const endDelim = delimiters[startDelim.end]
+
+			token = state.tokens[startDelim.token]
+			token.type = "u_open"
+			token.tag = "u"
+			token.nesting = 1
+			token.markup = "__"
+			token.content = ""
+
+			token = state.tokens[endDelim.token]
+			token.type = "u_close"
+			token.tag = "u"
+			token.nesting = -1
+			token.markup = "__"
+			token.content = ""
+
+			if (state.tokens[endDelim.token - 1].type === "text" &&
+				state.tokens[endDelim.token - 1].content === "_") {
+				loneMarkers.push(endDelim.token - 1)
+			}
+		}
+
+		// If a marker sequence has an odd number of characters, it's splitted
+		// like this: `_____` -> `_` + `__` + `__`, leaving one marker at the
+		// start of the sequence.
+		//
+		// So, we have to move all those markers after subsequent u_close tags.
+		//
+		while (loneMarkers.length) {
+			const i = loneMarkers.pop() ?? 0
+			let j = i + 1
+
+			while (j < state.tokens.length && state.tokens[j].type === "u_close") {
+				j++
+			}
+
+			j--
+
+			if (i !== j) {
+				token = state.tokens[j]
+				state.tokens[j] = state.tokens[i]
+				state.tokens[i] = token
+			}
+		}
+	}
+})
+
+//#endregion
+////////////////////////////////////
+
+interface MarkdownHTMLTokenRemapSpec {
+	getAttrs: (token: FluffToken) => Attrs | true | undefined
+}
+
+const markdownHTMLRegistry: PartialRecord<Nodes, MarkdownHTMLTokenRemapSpec> = {
+	text_align: {
+		getAttrs: token => {
+			const align = token.style?.get("text-align")
+			if (!["left", "center", "right"].includes(align!))
+				return undefined
+
+			return { align }
+		},
+	},
+}
+
+const decodeHTMLEntities = (text: string) =>
+	new DOMParser().parseFromString(text, "text/html").body.textContent ?? ""
+
+interface FluffToken extends Token {
+	depth: number
+	skipped?: true
+	style?: Map<string, string>
+	nodeAttrs?: Attrs
+}
+
+const originalParse = markdown.parse
+markdown.parse = (src, env) => {
+	const rawTokens = originalParse.call(markdown, src, env) as FluffToken[]
+
+	const tokens: FluffToken[] = []
+	// the `depth` of the parent `_open` token
+	let depth = 0
+	for (const token of rawTokens) {
+		if (token.type !== "html_block") {
+			token.depth = token.nesting === -1 ? depth : depth + 1
+			depth += token.nesting
+			tokens.push(token)
+			continue
+		}
+
+		let tag = token.content.trim()
+		if (!tag.startsWith("<") || !tag.endsWith(">")) {
+			console.warn("Invalid HTML in markdown:", tag)
+			token.skipped = true
+			continue
+		}
+
+		tag = tag.slice(1, -1)
+		const closing = tag.startsWith("/")
+		token.nesting = closing ? -1 : 1
+
+		const attrsStartIndex = tag.indexOf(" ") + 1
+		const type = !attrsStartIndex ? tag : tag.slice(0, attrsStartIndex - 1)
+		if (attrsStartIndex && !closing) {
+			const attrString = tag.slice(attrsStartIndex)
+
+			token.attrs = [...attrString.matchAll(REGEX_ATTRIBUTE)]
+				.map(([, attribute, value]) => {
+					value = value.startsWith("'") || value.startsWith('"') ? value.slice(1, -1) : value
+					return [attribute.toLowerCase(), decodeHTMLEntities(value)] as const
+				})
+
+			token.style = parseStyleAttributeValue(token.attrGet("style"))
+		}
+
+		token.content = type
+		if (closing) {
+			const opening = tokens.findLast(token => token.depth === depth)
+			if (!opening) {
+				console.warn("Invalid HTML in markdown:", tag)
+				token.skipped = true
+				continue
+			}
+
+			token.type = `${opening.type.slice(0, -5)}_close`
+			token.depth = depth
+			tokens.push(token)
+			depth += token.nesting
+			continue
+		}
+
+		for (const [nodeType, spec] of Object.entries(markdownHTMLRegistry)) {
+			const attrs = spec.getAttrs(token)
+			if (attrs) {
+				token.type = nodeType
+				if (attrs !== true)
+					token.nodeAttrs = attrs
+				break
+			}
+		}
+
+		token.type = `${token.type}_open`
+		depth += token.nesting
+		token.depth = depth
+		tokens.push(token)
+	}
+
+	return tokens
+}
+
+const markdownParser = new MarkdownParser(schema, markdown, Objects.filterNullish({
+	...defaultMarkdownParser.tokens,
+	image: undefined,
+
+	u: {
+		mark: "underline",
+	},
+	s: {
+		mark: "strikethrough",
+	},
+
+	...Object.entries(markdownHTMLRegistry)
+		.toObject(([tokenType, spec]) => [tokenType, ({
+			block: tokenType,
+			getAttrs: (token) => (token as FluffToken).nodeAttrs ?? {},
+		} satisfies ParseSpec)]),
+} satisfies Record<string, ParseSpec | undefined>))
+
+const markdownSerializer = new MarkdownSerializer(
+	{
+		...defaultMarkdownSerializer.nodes,
+		text_align: (state, node, parent, index) => {
+			state.write(`<div style="text-align:${node.attrs.align}">\n\n`)
+			state.renderContent(node)
+			state.write("</div>")
+			state.closeBlock(node)
+		},
+	},
+	{
+		...defaultMarkdownSerializer.marks,
+		strikethrough: {
+			open: "~~",
+			close: "~~",
+			expelEnclosingWhitespace: true,
+		},
+		underline: {
+			open: "__",
+			close: "__",
+			expelEnclosingWhitespace: true,
+		},
+	},
+)
+
+function parseStyleAttributeValue (style: string): Map<string, string>
+function parseStyleAttributeValue (style?: string | null): Map<string, string> | undefined
+function parseStyleAttributeValue (style?: string | null) {
+	if (style === undefined || style === null)
+		return undefined
+
+	const styles = new Map<string, string>()
+	let key = ""
+	let value = ""
+	let inValue = false
+	let isEscaped = false
+	let isQuoted = false
+	let quoteChar = ""
+	let parenCount = 0
+
+	for (let i = 0; i < style.length; i++) {
+		const char = style[i]
+		if (char === "\\") {
+			isEscaped = true
+			continue
+		}
+
+		if (isEscaped) {
+			value += char
+			isEscaped = false
+			continue
+		}
+
+		if ((char === '"' || char === "'") && !isQuoted) {
+			isQuoted = true
+			quoteChar = char
+			continue
+		}
+
+		if (char === quoteChar && isQuoted) {
+			isQuoted = false
+			continue
+		}
+
+		if (char === "(" && !isQuoted) {
+			parenCount++
+			value += char
+			continue
+		}
+
+		if (char === ")" && !isQuoted) {
+			parenCount--
+			value += char
+			continue
+		}
+
+		if (char === ":" && !isQuoted && parenCount === 0) {
+			inValue = true
+			continue
+		}
+
+		if (char === ";" && !isQuoted && parenCount === 0) {
+			if (key && value) {
+				key = key.trim()
+				if (!REGEX_CSS_PROPERTY.test(key))
+					console.warn(`Invalid CSS property "${key}"`)
+				else
+					styles.set(key, value.trim())
+				key = ""
+				value = ""
+			}
+			inValue = false
+			continue
+		}
+
+		if (inValue) {
+			value += char
+		} else {
+			key += char
+		}
+	}
+
+	if (key && value) {
+		key = key.trim()
+		if (!REGEX_CSS_PROPERTY.test(key))
+			console.warn(`Invalid CSS property "${key}"`)
+		else
+			styles.set(key, value.trim())
+	}
+
+	return styles
+}
+
+//#endregion
+vars(REGEX_ATTRIBUTE, REGEX_CSS_PROPERTY, markdownParser, markdownSerializer, parseStyleAttributeValue)
 ////////////////////////////////////
 
 const BLOCK_TYPES = [
@@ -373,25 +787,11 @@ const BLOCK_TYPES = [
 ] satisfies Nodes[]
 type BlockType = (typeof BLOCK_TYPES)[number]
 
-////////////////////////////////////
-//#region TODO Markdown stuff
-
-const markdownSpec: Record<string, ParseSpec> = {
-	...defaultMarkdownParser.tokens,
-	underline: {
-		mark: "underline",
-	},
-}
-delete markdownSpec.image
-const markdownParser = new MarkdownParser(schema, MarkdownIt("commonmark", { html: true }), markdownSpec)
-
-//#endregion
-////////////////////////////////////
-
 interface TextEditorExtensions {
 	toolbar: Component
 	document?: Input
 	mirror?: EditorView
+	getMarkdown (): string
 }
 
 interface TextEditor extends Input, TextEditorExtensions { }
@@ -444,6 +844,10 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	//#region Components
 
 	type ButtonType = keyof { [N in Quilt.SimpleKey as N extends `component/text-editor/toolbar/button/${infer N}` ? N extends `${string}/${string}` ? never : N : never]: true }
+	type ButtonTypeNodes = keyof { [N in keyof Quilt as N extends `component/text-editor/toolbar/button/${infer N extends Strings.Replace<Nodes, "_", "-">}` ? N : never]: true }
+
+	////////////////////////////////////
+	//#region Types
 
 	const ToolbarButtonTypeMark = Component.Extension((component, type: Marks) => {
 		const mark = schema.marks[type]
@@ -453,7 +857,6 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.extend<{ mark: MarkType }>(() => ({ mark }))
 	})
 
-	type ButtonTypeNodes = keyof { [N in keyof Quilt as N extends `component/text-editor/toolbar/button/${infer N extends Strings.Replace<Nodes, "_", "-">}` ? N : never]: true }
 	const ToolbarButtonTypeNode = Component.Extension((component, type: ButtonTypeNodes) => {
 		const node = schema.nodes[type.replaceAll("-", "_")]
 		return component
@@ -467,6 +870,13 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.style(`text-editor-toolbar-${type}`)
 			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
 	})
+
+	//#endregion
+	vars(ToolbarButtonTypeMark, ToolbarButtonTypeNode, ToolbarButtonTypeOther)
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Components
 
 	const ToolbarButtonGroup = Component.Builder(component => component
 		.ariaRole("group")
@@ -510,6 +920,33 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			})
 	})
 
+	const ToolbarButtonPopover = Component.Builder((_, align: "left" | "centre" | "right") => {
+		return Button()
+			.style("text-editor-toolbar-button", "text-editor-toolbar-button--has-popover")
+			.clearPopover()
+			.setPopover("hover", (popover, button) => {
+				popover
+					.style("text-editor-toolbar-popover")
+					.style.bind(popover.popoverParent.nonNullish, "text-editor-toolbar-popover-sub", `text-editor-toolbar-popover-sub--${align}`)
+					.anchor.add(align === "centre" ? align : `aligned ${align}`, "off bottom")
+					.style.toggle(align === "left", "text-editor-toolbar-popover--left")
+					.style.toggle(align === "right", "text-editor-toolbar-popover--right")
+					.setMousePadding(20)
+
+				button.style.bind(popover.visible, "text-editor-toolbar-button--has-popover-visible")
+			})
+			.receiveAncestorInsertEvents()
+			.event.subscribe(["insert", "ancestorInsert"], event =>
+				event.component.style.toggle(!!event.component.closest(Popover), "text-editor-toolbar-button--has-popover--within-popover"))
+	})
+
+	//#endregion
+	vars(ToolbarButtonGroup, ToolbarButton, ToolbarCheckbutton, ToolbarRadioButton, ToolbarButtonPopover)
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Specifics
+
 	const ToolbarButtonMark = Component.Builder((_, type: Marks) => {
 		const mark = schema.marks[type]
 		const toggler = markToggler(mark)
@@ -550,25 +987,13 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		ToolbarButton(listWrapper(schema.nodes[type.replaceAll("-", "_")]))
 			.and(ToolbarButtonTypeNode, type))
 
-	const ToolbarButtonPopover = Component.Builder((_, align: "left" | "centre" | "right") => {
-		return Button()
-			.style("text-editor-toolbar-button", "text-editor-toolbar-button--has-popover")
-			.clearPopover()
-			.setPopover("hover", (popover, button) => {
-				popover
-					.style("text-editor-toolbar-popover")
-					.style.bind(popover.popoverParent.nonNullish, "text-editor-toolbar-popover-sub", `text-editor-toolbar-popover-sub--${align}`)
-					.anchor.add(align === "centre" ? align : `aligned ${align}`, "off bottom")
-					.style.toggle(align === "left", "text-editor-toolbar-popover--left")
-					.style.toggle(align === "right", "text-editor-toolbar-popover--right")
-					.setMousePadding(20)
+	//#endregion
+	vars(ToolbarButtonMark, ToolbarButtonAlign, ToolbarButtonBlockType, ToolbarButtonHeading, ToolbarButtonWrap, ToolbarButtonList)
+	types<[Align]>()
+	////////////////////////////////////
 
-				button.style.bind(popover.visible, "text-editor-toolbar-button--has-popover-visible")
-			})
-			.receiveAncestorInsertEvents()
-			.event.subscribe(["insert", "ancestorInsert"], event =>
-				event.component.style.toggle(!!event.component.closest(Popover), "text-editor-toolbar-button--has-popover--within-popover"))
-	})
+	////////////////////////////////////
+	//#region Commands
 
 	let inTransaction = false
 	function wrapCmd (cmd: Command): (component: Component) => void {
@@ -641,6 +1066,14 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	}
 
 	//#endregion
+	vars(wrapCmd, markToggler, wrapper, blockTypeToggler, listWrapper)
+	////////////////////////////////////
+
+	//#endregion
+	vars(ToolbarButtonTypeMark, ToolbarButtonTypeNode, ToolbarButtonTypeOther)
+	vars(ToolbarButtonGroup, ToolbarButton, ToolbarCheckbutton, ToolbarRadioButton, ToolbarButtonPopover)
+	vars(ToolbarButtonMark, ToolbarButtonAlign, ToolbarButtonBlockType, ToolbarButtonHeading, ToolbarButtonWrap, ToolbarButtonList)
+	types<[ButtonType, ButtonTypeNodes, Align]>()
 	////////////////////////////////////
 
 	const toolbar = Component()
@@ -742,12 +1175,19 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.appendTo(component)
 
 	//#endregion
+	vars(toolbar)
 	////////////////////////////////////
 
+	////////////////////////////////////
+	//#region Main UI
+
 	let label: Label | undefined
+	let unsubscribeLabelFor: UnsubscribeState | undefined
 	const stopUsingLabel = () => {
 		label?.event.unsubscribe("remove", stopUsingLabel)
 		label = undefined
+		unsubscribeLabelFor?.()
+		unsubscribeLabelFor = undefined
 	}
 	editor = component
 		.and(Input)
@@ -773,8 +1213,13 @@ const TextEditor = Component.Builder((component): TextEditor => {
 				label = newLabel
 				label?.event.subscribe("remove", stopUsingLabel)
 				refresh()
+
+				// the moment a name is assigned to the editor, attempt to replace the doc with a local draft (if it exists)
+				unsubscribeLabelFor = label?.for.use(editor, loadLocal)
+
 				return editor
 			},
+			getMarkdown: () => !state.value ? "" : markdownSerializer.serialize(state.value?.doc),
 		}))
 
 	const scrollbarProxy: Component = Component()
@@ -803,6 +1248,18 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.append(toolbar)
 		.append(editorSlot)
 		.append(scrollbarProxy)
+
+	state.use(editor, state => {
+		const name = editor.document?.name.value
+		if (!name)
+			return
+
+		saveLocal(name, state?.doc)
+	})
+
+	//#endregion
+	vars(editorSlot, editor, scrollbarProxy)
+	////////////////////////////////////
 
 	return editor
 
@@ -889,7 +1346,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		refresh()
 
 		return () => {
-			content.value = defaultMarkdownSerializer.serialize(view.state.doc)
+			content.value = markdownSerializer.serialize(view.state.doc)
 			editor.mirror = undefined
 			editor.document = undefined
 			refresh()
@@ -900,6 +1357,9 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	//#endregion
 	////////////////////////////////////
 
+	////////////////////////////////////
+	//#region Events/Actions
+
 	function refresh () {
 		label?.setInput(editor.document)
 		editor.document?.setName(label?.for)
@@ -909,6 +1369,62 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		editor.document?.ariaLabelledBy(label)
 		editor.document?.attributes.toggle(editor.required.value, "aria-required", "true")
 	}
+
+	function toggleFullscreen () {
+		ViewTransition.perform("subview", () => {
+			isFullscreen.value = !isFullscreen.value
+			editor.rect.markDirty()
+		})
+	}
+
+	function contextualiseEditorName (name: string) {
+		return `${location.pathname}#${name}`
+	}
+
+	function loadLocal (name?: string) {
+		if (!name)
+			return
+
+		name = contextualiseEditorName(name)
+		const draft = Store.items.textEditorDrafts?.find(draft => draft.name === name)
+		if (!draft)
+			return
+
+		// hack to fix it not redrawing when calling updateState now?
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		((editor.mirror as any)?.docView as NodeViewDesc).dirty = 2 // CONTENT_DIRTY
+
+		editor.mirror?.updateState(EditorState.create({
+			plugins: editor.mirror.state.plugins.slice(),
+			doc: markdownParser.parse(draft.body),
+		}))
+	}
+
+	function saveLocal (name: string, doc?: Node) {
+		if (!name)
+			return
+
+		name = contextualiseEditorName(name)
+		const body = !doc ? "" : markdownSerializer.serialize(doc)
+		Store.items.textEditorDrafts = [
+			...!body ? [] : [{ name, body, created: Date.now() }],
+
+			...(Store.items.textEditorDrafts ?? [])
+				.filter(draft => true
+					&& draft.name !== name // keep old drafts that don't share names with the new draft
+					&& Date.now() - draft.created < Time.days(1) // keep old drafts only if they were made in the last day
+					&& true),
+		]
+			// disallow more than 4 drafts due to localstorage limitations with using localStorage
+			// this won't be necessary when drafts are stored in indexeddb
+			.slice(0, 4)
+	}
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region State
 
 	function isMarkActive (type: MarkType, pos?: ResolvedPos) {
 		if (!state.value)
@@ -1032,12 +1548,8 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		return align
 	}
 
-	function toggleFullscreen () {
-		ViewTransition.perform("subview", () => {
-			isFullscreen.value = !isFullscreen.value
-			editor.rect.markDirty()
-		})
-	}
+	//#endregion
+	////////////////////////////////////
 })
 
 export default TextEditor

@@ -55,6 +55,10 @@ declare global {
 		toObject<MAPPER extends (value: T) => readonly [KEY, VALUE, ...any[]], KEY extends string | number, VALUE> (mapper: MAPPER): Record<KEY, VALUE>
 		toObject<MAPPER extends (value: T) => readonly [KEY, VALUE, ...any[]], KEY extends string | number, VALUE> (mapper?: MAPPER): Record<KEY, VALUE> | (T extends readonly [infer KEY extends string | number, infer VALUE, ...any[]] ? Record<KEY, VALUE> : never)
 
+		toMap (): T extends readonly [infer KEY, infer VALUE, ...any[]] ? Map<KEY, VALUE> : never
+		toMap<MAPPER extends (value: T) => readonly [KEY, VALUE, ...any[]], KEY, VALUE> (mapper: MAPPER): Map<KEY, VALUE>
+		toMap<MAPPER extends (value: T) => readonly [KEY, VALUE, ...any[]], KEY, VALUE> (mapper?: MAPPER): Map<KEY, VALUE> | (T extends readonly [infer KEY, infer VALUE, ...any[]] ? Map<KEY, VALUE> : never)
+
 		distinct (): this
 		distinct (mapper: (value: T) => any): this
 
@@ -201,7 +205,7 @@ namespace Arrays {
 	}
 
 	export function applyPrototypes () {
-		Define(Array.prototype, "findLast", function (predicate) {
+		Define(Array.prototype, "findLast", function (predicate): any {
 			if (this.length > 0)
 				for (let i = this.length - 1; i >= 0; i--)
 					if (predicate(this[i], i, this))
@@ -220,7 +224,7 @@ namespace Arrays {
 		})
 
 		const originalSort = Array.prototype.sort
-		Define(Array.prototype, "sort", function (...sorters) {
+		Define(Array.prototype, "sort", function (...sorters): any[] {
 			if (this.length <= 1)
 				return this
 
@@ -243,18 +247,22 @@ namespace Arrays {
 			})
 		})
 
-		Define(Array.prototype, "collect", function (collector, ...args) {
+		Define(Array.prototype, "collect", function (collector, ...args): any {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			return collector?.(this, ...args)
 		})
 
-		Define(Array.prototype, "splat", function (collector, ...args) {
+		Define(Array.prototype, "splat", function (collector, ...args): any {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			return collector?.(...this, ...args)
 		})
 
-		Define(Array.prototype, "toObject", function (mapper) {
+		Define(Array.prototype, "toObject", function (mapper): Record<string | number, any> {
 			return Object.fromEntries(mapper ? this.map(mapper) : this)
+		})
+
+		Define(Array.prototype, "toMap", function (mapper): Map<any, any> {
+			return new Map(mapper ? this.map(mapper) : this)
 		})
 
 		Define(Array.prototype, "distinct", function <T> (this: T[], mapper?: (value: T) => any) {

@@ -13,17 +13,19 @@ const Slot = Component.Builder((slot): Slot => {
 	slot.style("slot")
 
 	let cleanup: SlotCleanup | undefined
-	return slot.extend<SlotExtensions>(slot => ({
-		use: (state, initialiser) => {
-			state.use(slot, value => {
-				cleanup?.()
-				slot.removeContents()
-				cleanup = initialiser(slot, value) ?? undefined
-			})
+	return slot
+		.extend<SlotExtensions>(slot => ({
+			use: (state, initialiser) => {
+				state.use(slot, value => {
+					cleanup?.()
+					slot.removeContents()
+					cleanup = initialiser(slot, value) ?? undefined
+				})
 
-			return slot
-		},
-	}))
+				return slot
+			},
+		}))
+		.event.subscribe("remove", () => cleanup?.())
 })
 
 export default Slot
