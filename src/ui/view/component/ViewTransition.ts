@@ -24,26 +24,29 @@ namespace ViewTransition {
 		return component
 	})
 
+	let i = 0
+	let queuedUnapply: number | undefined
 	export function perform (type: "view" | "subview", swap: () => any) {
+		queuedUnapply = undefined
 		reapply(type)
-		return document.startViewTransition(async () => {
+		const transition = document.startViewTransition(async () => {
 			await swap()
 			reapply(type)
 		})
+
+		const id = queuedUnapply = i++
+		void transition.finished.then(() => {
+			if (queuedUnapply !== id)
+				// another view transition started, no unapply
+				return
+
+			unapply(type)
+		})
+		return transition
 	}
 
 	export function reapply (type: "view" | "subview") {
-		let components = getComponents(type)
-		for (const component of components) {
-			for (const prefix of [VIEW_TRANSITION_CLASS_VIEW_PREFIX])
-				for (let i = 0; i < VIEW_TRANSITION_CLASS_COUNT; i++)
-					component.classes.remove(`${prefix}${i}`)
-
-			component.classes.remove(VIEW_TRANSITION_CLASS_SUBVIEW)
-			component.element.style.removeProperty("view-transition-name")
-		}
-
-		components = components.filter(isInView)
+		const components = getComponents(type).filter(isInView)
 		let i = 0
 		if (type === "view")
 			for (const component of components)
@@ -54,6 +57,17 @@ namespace ViewTransition {
 				const id = +component.element.getAttribute(`data-${DATA_ID}`)! || 0
 				component.element.style.viewTransitionName = `${VIEW_TRANSITION_CLASS_SUBVIEW}-${id}`
 			}
+	}
+
+	export function unapply (type: "view" | "subview") {
+		for (const component of getComponents(type)) {
+			for (const prefix of [VIEW_TRANSITION_CLASS_VIEW_PREFIX])
+				for (let i = 0; i < VIEW_TRANSITION_CLASS_COUNT; i++)
+					component.classes.remove(`${prefix}${i}`)
+
+			component.classes.remove(VIEW_TRANSITION_CLASS_SUBVIEW)
+			component.element.style.removeProperty("view-transition-name")
+		}
 	}
 
 	function isInView (component: Component): boolean {

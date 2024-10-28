@@ -20,7 +20,10 @@ interface ReadableState<T, E = T> {
 	emit (): void
 
 	map<R> (owner: Component, mapper: (value: T) => R): State<R>
-	nonNullish (owner: Component): State<boolean>
+	nonNullish: State<boolean>
+	truthy: State<boolean>
+	falsy: State<boolean>
+	not: State<boolean>
 }
 
 interface State<T> extends ReadableState<T> {
@@ -92,9 +95,33 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 		},
 
 		map: (owner, mapper) => State.Map(owner, result, mapper),
-		nonNullish: owner => State.NonNullish(owner, result),
+		get nonNullish () {
+			return Define.set(result, "nonNullish", State
+				.Generator(() => result.value !== undefined && result.value !== null)
+				.observeManual(result))
+		},
+		get truthy () {
+			return Define.set(result, "truthy", State
+				.Generator(() => !!result.value)
+				.observeManual(result))
+		},
+		get not () {
+			return getNot()
+		},
+		get falsy () {
+			return getNot()
+		},
 	}
 	return result
+
+	function getNot () {
+		const not = State
+			.Generator(() => !result.value)
+			.observeManual(result)
+		Define.set(result, "not", not)
+		Define.set(result, "falsy", not)
+		return not
+	}
 }
 
 namespace State {

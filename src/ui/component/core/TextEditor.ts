@@ -4,7 +4,7 @@ import { baseKeymap, lift, setBlockType, toggleMark, wrapIn } from "prosemirror-
 import { dropCursor } from "prosemirror-dropcursor"
 import { buildInputRules, buildKeymap } from "prosemirror-example-setup"
 import { gapCursor } from "prosemirror-gapcursor"
-import { history } from "prosemirror-history"
+import { history, redo, undo } from "prosemirror-history"
 import { InputRule, inputRules } from "prosemirror-inputrules"
 import { keymap } from "prosemirror-keymap"
 import type { ParseSpec } from "prosemirror-markdown"
@@ -27,6 +27,7 @@ import Popover from "ui/component/core/Popover"
 import RadioButton from "ui/component/core/RadioButton"
 import Slot from "ui/component/core/Slot"
 import type { Quilt } from "ui/utility/TextManipulator"
+import ViewTransition from "ui/view/component/ViewTransition"
 import Arrays from "utility/Arrays"
 import Define from "utility/Define"
 import Objects from "utility/Objects"
@@ -401,6 +402,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 	const isMarkdown = State<boolean>(false)
 	const content = State<string>("")
+	const isFullscreen = State<boolean>(false)
 
 	// eslint-disable-next-line prefer-const
 	let editor!: TextEditor
@@ -555,7 +557,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.setPopover("hover", (popover, button) => {
 				popover
 					.style("text-editor-toolbar-popover")
-					.style.bind(popover.popoverParent.nonNullish(popover), "text-editor-toolbar-popover-sub", `text-editor-toolbar-popover-sub--${align}`)
+					.style.bind(popover.popoverParent.nonNullish, "text-editor-toolbar-popover-sub", `text-editor-toolbar-popover-sub--${align}`)
 					.anchor.add(align === "centre" ? align : `aligned ${align}`, "off bottom")
 					.style.toggle(align === "left", "text-editor-toolbar-popover--left")
 					.style.toggle(align === "right", "text-editor-toolbar-popover--right")
@@ -643,86 +645,100 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 	const toolbar = Component()
 		.style("text-editor-toolbar")
+		.style.bind(isFullscreen, "text-editor-toolbar--fullscreen")
 		.ariaRole("toolbar")
-		.append(ToolbarButtonGroup()
-			.ariaLabel.use("component/text-editor/toolbar/group/inline")
-			.append(ToolbarButtonMark("strong"))
-			.append(ToolbarButtonMark("em"))
-			.append(ToolbarButtonPopover("left")
-				.and(ToolbarButtonTypeOther, "other-formatting")
-				.tweakPopover(popover => popover
-					.append(ToolbarButtonMark("underline"))
-					.append(ToolbarButtonMark("strikethrough"))
-					.append(ToolbarButtonMark("subscript"))
-					.append(ToolbarButtonMark("superscript"))
-					.append(ToolbarButtonMark("code"))
-				)))
-		.append(ToolbarButtonGroup()
-			.ariaLabel.use("component/text-editor/toolbar/group/block")
-			.append(
-				ToolbarButtonPopover("centre")
+		.append(Component()
+			.style("text-editor-toolbar-left")
+			.append(ToolbarButtonGroup()
+				.ariaLabel.use("component/text-editor/toolbar/group/inline")
+				.append(ToolbarButtonMark("strong"))
+				.append(ToolbarButtonMark("em"))
+				.append(ToolbarButtonPopover("left")
+					.and(ToolbarButtonTypeOther, "other-formatting")
+					.tweakPopover(popover => popover
+						.append(ToolbarButtonMark("underline"))
+						.append(ToolbarButtonMark("strikethrough"))
+						.append(ToolbarButtonMark("subscript"))
+						.append(ToolbarButtonMark("superscript"))
+						.append(ToolbarButtonMark("code"))
+					)))
+			.append(ToolbarButtonGroup()
+				.ariaLabel.use("component/text-editor/toolbar/group/block")
+				.append(
+					ToolbarButtonPopover("centre")
+						.tweakPopover(popover => popover
+							.ariaRole("radiogroup")
+							.append(ToolbarButtonAlign("left"))
+							.append(ToolbarButtonAlign("centre"))
+							.append(ToolbarButtonAlign("right"))
+						)
+						.tweak(button => {
+							state.use(button, () => {
+								const align = !editor?.mirror?.hasFocus() && !inTransaction ? "left" : getAlign() ?? "mixed"
+								button.ariaLabel.set(quilt["component/text-editor/toolbar/button/align"](
+									quilt[`component/text-editor/toolbar/button/align/currently/${align}`]()
+								).toString())
+								button.style.remove("text-editor-toolbar-align-left", "text-editor-toolbar-align-centre", "text-editor-toolbar-align-right", "text-editor-toolbar-align-mixed")
+								button.style(`text-editor-toolbar-align-${align}`)
+							})
+						})
+				))
+			.append(ToolbarButtonGroup()
+				.ariaRole()
+				.append(ToolbarButtonPopover("centre")
 					.tweakPopover(popover => popover
 						.ariaRole("radiogroup")
-						.append(ToolbarButtonAlign("left"))
-						.append(ToolbarButtonAlign("centre"))
-						.append(ToolbarButtonAlign("right"))
+						.append(ToolbarButtonBlockType("paragraph"))
+						.append(ToolbarButtonPopover("centre")
+							.style("text-editor-toolbar-heading")
+							.tweakPopover(popover => popover
+								.append(ToolbarButtonHeading(1))
+								.append(ToolbarButtonHeading(2))
+								.append(ToolbarButtonHeading(3))
+								.append(ToolbarButtonHeading(4))
+								.append(ToolbarButtonHeading(5))
+								.append(ToolbarButtonHeading(6))
+							))
+						.append(ToolbarButtonBlockType("code-block"))
 					)
 					.tweak(button => {
 						state.use(button, () => {
-							const align = !editor?.mirror?.hasFocus() && !inTransaction ? "left" : getAlign() ?? "mixed"
-							button.ariaLabel.set(quilt["component/text-editor/toolbar/button/align"](
-								quilt[`component/text-editor/toolbar/button/align/currently/${align}`]()
+							const blockType = !editor?.mirror?.hasFocus() && !inTransaction ? "paragraph" : getBlockType() ?? "mixed"
+							button.ariaLabel.set(quilt["component/text-editor/toolbar/button/block-type"](
+								quilt[`component/text-editor/toolbar/button/block-type/currently/${blockType}`]()
 							).toString())
-							button.style.remove("text-editor-toolbar-align-left", "text-editor-toolbar-align-centre", "text-editor-toolbar-align-right", "text-editor-toolbar-align-mixed")
-							button.style(`text-editor-toolbar-align-${align}`)
+							button.style.remove("text-editor-toolbar-mixed", ...BLOCK_TYPES
+								.map(type => type.replaceAll("_", "-") as BlockTypeR)
+								.map(type => `text-editor-toolbar-${type}` as const))
+							button.style(`text-editor-toolbar-${blockType}`)
 						})
-					})
+					})))
+			.append(ToolbarButtonGroup()
+				.ariaLabel.use("component/text-editor/toolbar/group/wrapper")
+				.append(ToolbarButton(wrapCmd(lift)).and(ToolbarButtonTypeOther, "lift")
+					.style.bind(state.map(component, value => !value || !lift(value)), "text-editor-toolbar-button--hidden"))
+				.append(ToolbarButtonWrap("blockquote"))
+				.append(ToolbarButtonList("bullet-list"))
+				.append(ToolbarButtonList("ordered-list"))
+			)
+			.append(ToolbarButtonGroup()
+				.ariaLabel.use("component/text-editor/toolbar/group/insert")
+				.append(ToolbarButton(wrapCmd((state, dispatch) => {
+					dispatch?.(state.tr.replaceSelectionWith(schema.nodes.horizontal_rule.create()))
+					return true
+				}))
+					.and(ToolbarButtonTypeOther, "hr"))))
+		.append(Component()
+			.style("text-editor-toolbar-right")
+			.append(ToolbarButtonGroup()
+				.ariaLabel.use("component/text-editor/toolbar/group/actions")
+				.append(ToolbarButton(wrapCmd(undo)).and(ToolbarButtonTypeOther, "undo"))
+				.append(ToolbarButton(wrapCmd(redo)).and(ToolbarButtonTypeOther, "redo"))
+				.append(ToolbarButton(toggleFullscreen)
+					.style.bind(isFullscreen.not, "text-editor-toolbar-fullscreen")
+					.style.bind(isFullscreen, "text-editor-toolbar-unfullscreen")
+					.ariaLabel.bind(isFullscreen.map(component, fullscreen => quilt[`component/text-editor/toolbar/button/${fullscreen ? "fullscreen" : "unfullscreen"}`]().toString())))
 			))
-		.append(ToolbarButtonGroup()
-			.ariaRole()
-			.append(ToolbarButtonPopover("centre")
-				.tweakPopover(popover => popover
-					.ariaRole("radiogroup")
-					.append(ToolbarButtonBlockType("paragraph"))
-					.append(ToolbarButtonPopover("centre")
-						.style("text-editor-toolbar-heading")
-						.tweakPopover(popover => popover
-							.append(ToolbarButtonHeading(1))
-							.append(ToolbarButtonHeading(2))
-							.append(ToolbarButtonHeading(3))
-							.append(ToolbarButtonHeading(4))
-							.append(ToolbarButtonHeading(5))
-							.append(ToolbarButtonHeading(6))
-						))
-					.append(ToolbarButtonBlockType("code-block"))
-				)
-				.tweak(button => {
-					state.use(button, () => {
-						const blockType = !editor?.mirror?.hasFocus() && !inTransaction ? "paragraph" : getBlockType() ?? "mixed"
-						button.ariaLabel.set(quilt["component/text-editor/toolbar/button/block-type"](
-							quilt[`component/text-editor/toolbar/button/block-type/currently/${blockType}`]()
-						).toString())
-						button.style.remove("text-editor-toolbar-mixed", ...BLOCK_TYPES
-							.map(type => type.replaceAll("_", "-") as BlockTypeR)
-							.map(type => `text-editor-toolbar-${type}` as const))
-						button.style(`text-editor-toolbar-${blockType}`)
-					})
-				})))
-		.append(ToolbarButtonGroup()
-			.ariaLabel.use("component/text-editor/toolbar/group/wrapper")
-			.append(ToolbarButton(wrapCmd(lift)).and(ToolbarButtonTypeOther, "lift")
-				.style.bind(state.map(component, value => !value || !lift(value)), "text-editor-toolbar-button--hidden"))
-			.append(ToolbarButtonWrap("blockquote"))
-			.append(ToolbarButtonList("bullet-list"))
-			.append(ToolbarButtonList("ordered-list"))
-		)
-		.append(ToolbarButtonGroup()
-			.ariaLabel.use("component/text-editor/toolbar/group/insert")
-			.append(ToolbarButton(wrapCmd((state, dispatch) => {
-				dispatch?.(state.tr.replaceSelectionWith(schema.nodes.horizontal_rule.create()))
-				return true
-			}))
-				.and(ToolbarButtonTypeOther, "hr")))
 		.appendTo(component)
 
 	//#endregion
@@ -735,7 +751,9 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	}
 	editor = component
 		.and(Input)
+		.and(ViewTransition.HasSubview)
 		.style("text-editor")
+		.style.bind(isFullscreen, "text-editor--fullscreen")
 		.event.subscribe("click", (event) => {
 			const target = Component.get(event.target)
 			if (target !== toolbar && !target?.is(TextEditor))
@@ -761,22 +779,29 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 	const scrollbarProxy: Component = Component()
 		.style("text-editor-document-scrollbar-proxy")
+		.style.bind(isFullscreen, "text-editor-document-scrollbar-proxy--fullscreen")
 		.style.bindVariable("content-width",
 			state.map(component, () => `${editor.document?.element.scrollWidth ?? 0}px`))
 		.event.subscribe("scroll", () =>
 			editor.document?.element.scrollTo({ left: scrollbarProxy.element.scrollLeft, behavior: "instant" }))
 
+	const editorSlot = Slot()
+		.style.bind(isFullscreen, "text-editor-document-slot--fullscreen")
+		.use(isMarkdown, (slot, isMarkdown) => {
+			if (isMarkdown) {
+				state.value = undefined
+				return
+			}
+
+			return createDefaultView(slot)
+		})
+
+	editorSlot.style.bindVariable("content-width",
+		state.map(component, () => `${editorSlot.element.scrollWidth ?? 0}px`))
+
 	editor
 		.append(toolbar)
-		.append(Slot()
-			.use(isMarkdown, (slot, isMarkdown) => {
-				if (isMarkdown) {
-					state.value = undefined
-					return
-				}
-
-				return createDefaultView(slot)
-			}))
+		.append(editorSlot)
 		.append(scrollbarProxy)
 
 	return editor
@@ -854,6 +879,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.replaceElement(editor.mirror.dom)
 			.ariaRole("textbox")
 			.style("text-editor-document")
+			.style.bind(isFullscreen, "text-editor-document--fullscreen")
 			.setId(`text-editor-${id}`)
 			.attributes.set("aria-multiline", "true")
 			.event.subscribe("scroll", () =>
@@ -1004,6 +1030,13 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 		const [align] = aligns
 		return align
+	}
+
+	function toggleFullscreen () {
+		ViewTransition.perform("subview", () => {
+			isFullscreen.value = !isFullscreen.value
+			editor.rect.markDirty()
+		})
 	}
 })
 

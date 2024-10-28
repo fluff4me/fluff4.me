@@ -25,7 +25,9 @@ $$button-background-highlight!colour
 
 	&-type-flush:
 		%box-shadow-none
-		$button-background: transparent
+
+		:not::hover, :not::focus:
+			$button-background: transparent
 
 	&-text:
 		%font-vertical-align

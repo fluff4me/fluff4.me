@@ -56,6 +56,7 @@ interface ComponentEvents extends NativeEvents {
 	remove (): any
 	insert (): any
 	ancestorInsert (): any
+	ancestorRectDirty (): any
 	root (): any
 	unroot (): any
 }
@@ -139,7 +140,8 @@ interface Component extends BaseComponent, ComponentExtensions { }
 export type EventsOf<COMPONENT extends Component> = COMPONENT["event"] extends EventManipulator<any, infer EVENTS> ? EVENTS : never
 
 enum Classes {
-	ReceiveAncestorInsertEvents = "_receieve-ancestor-insert-events"
+	ReceiveAncestorInsertEvents = "_receieve-ancestor-insert-events",
+	ReceiveAncestorRectDirtyEvents = "_receieve-ancestor-rect-dirty-events",
 }
 
 const componentExtensionsRegistry: ((component: Mutable<Component>) => any)[] = []
@@ -258,8 +260,16 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 		get rect (): State.JIT<DOMRect> {
 			const rectState = State.JIT(() => component.element.getBoundingClientRect())
+			const oldMarkDirty = rectState.markDirty
+			rectState.markDirty = () => {
+				oldMarkDirty()
+				for (const descendant of this.element.getElementsByClassName(Classes.ReceiveAncestorRectDirtyEvents))
+					descendant.component?.event.emit("ancestorRectDirty")
+				return rectState
+			}
 			this.receiveAncestorInsertEvents()
-			this.event.subscribe(["insert", "ancestorInsert"], rectState.markDirty)
+			this.classes.add(Classes.ReceiveAncestorRectDirtyEvents)
+			this.event.subscribe(["insert", "ancestorInsert", "ancestorRectDirty"], rectState.markDirty)
 			Viewport.size.subscribe(component, rectState.markDirty)
 			return Define.set(component, "rect", rectState)
 		},
