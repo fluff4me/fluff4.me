@@ -44,6 +44,12 @@ toolbar/button/blockquote: wrap in block quote
 toolbar/group/insert: insert
 toolbar/button/hr: horizontal rule
 
+toolbar/group/actions: actions
+toolbar/button/undo: undo
+toolbar/button/redo: redo
+toolbar/button/fullscreen: fullscreen
+toolbar/button/unfullscreen: exit fullscreen
+
 formatting/none: no formatting
 formatting/strong: strong (bolded)
 formatting/em: emphasised (italic)

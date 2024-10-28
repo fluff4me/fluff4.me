@@ -7,6 +7,7 @@
 	$border-colour: $block-border-colour
 	background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
 	%background-unclip
+	$fullscreen-padding-inline: round(up, 50vw - #{content-width} / 2, 1px)
 
 	::focus, ::active:
 		outline: -webkit-focus-ring-color auto 1px
@@ -14,7 +15,7 @@
 
 	&-toolbar:
 		%font-2
-		%block
+		%flex
 		%sticky
 		%border-bottom-1
 		%cursor-default
@@ -26,6 +27,18 @@
 
 		#backdrop-blur-before:
 			%border-top-radius-1
+
+		&--fullscreen:
+			padding-inline: $fullscreen-padding-inline
+
+		&-left:
+			%block
+			%grow
+
+		&-right:
+			%block
+			%grow
+			%text-align-right
 
 		#string size = "calc($space-2 + $space-1)
 		&-button-group:
@@ -181,6 +194,15 @@
 				border-radius: calc($height / 2)
 				background: currentcolor
 
+		&-undo:
+			#icon rotate="-90deg" name="arrow-turn-up
+		&-redo:
+			#icon rotate="-90deg" name="arrow-turn-down
+		&-fullscreen:
+			#icon name="expand
+		&-unfullscreen:
+			#icon name="compress
+
 		&-popover:
 			%padding-1
 			%flex-row
@@ -205,12 +227,18 @@
 					border-top-right-radius: $space-1
 					border-top-left-radius: $space-1
 
+	&-document-slot--fullscreen:
+		%block
+		%overflow-auto
+		%scrollbar-auto
+
 	&-document:
 		%block
 		%no-outline
 		%overflow-auto-x
 		%padding-2-3
-		scrollbar-width: none
+		%scrollbar-none
+		%relative
 
 		& p:
 			margin-block: round(up, 1em, 1px)
@@ -238,6 +266,25 @@
 			$code-padding: 0
 			background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
 
+		&--fullscreen:
+			%overflow-visible
+			max-width: #{content-width}
+			padding-inline: $fullscreen-padding-inline
+
+			@before:
+				%block
+				%absolute
+				%height-100
+				%z-index-fg
+				%pointer-events-none
+				width: #{content-width}
+				box-shadow: 0 0 0 max(100vw, ${content-width: 100vw}) #{alpha(0.80, $background-2)}
+
+			@after:
+				%block
+				%width-100
+				height: 30vh
+
 		&-scrollbar-proxy:
 			%block
 			%sticky
@@ -254,7 +301,22 @@
 			::hover:
 				scrollbar-colour: $colour-3 transparent
 
+			&--fullscreen:
+				%hidden
+
 	&--required:
+
+	&--fullscreen:
+		%fixed
+		%inset-0
+		%outline-none
+		grid-template-rows: auto 1fr
+
+		@before:
+			%absolute
+			%inset-0
+			%background-2
+			%z-index-bg
 
 .ProseMirror-gapcursor:
 	content: ""

@@ -2514,15 +2514,21 @@
 
 #macro icon:
 	#string name
+	#string rotate?
 
 	#icon-container
 	@before:
 		content: "#{get-icon(name)}"
+		#if exists rotate:
+			rotate: #{rotate}
 
 #macro dual-icon:
 	#string a
 	#string b
+	#string rotate?
 
 	#icon-container
 	@before:
 		content: "#{get-icon(a)} \00A0 #{get-icon(b)}"
+		#if exists rotate:
+			rotate: #{rotate}
