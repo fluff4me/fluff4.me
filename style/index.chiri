@@ -17,6 +17,9 @@
 	misc
 
 #import:
+	class/transition
+
+#import:
 	component/slot
 	component/paragraph
 	component/block
@@ -30,6 +33,7 @@
 	component/labelled-row
 	component/action-row
 	component/popover
+	component/dialog
 	component/text-editor
 	component/form
 	component/flag
@@ -38,7 +42,6 @@
 
 #import:
 	view/view
-	view/transition
 	view/type/error
 	view/type/debug
 	view/type/account

@@ -61,9 +61,9 @@ interface ComponentEvents extends NativeEvents {
 	unroot (): any
 }
 
-export interface ComponentExtensions { }
+export interface ComponentExtensions<ELEMENT extends HTMLElement = HTMLElement> { }
 
-interface BaseComponent {
+interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 	readonly isComponent: true
 	readonly supers: any[]
 
@@ -85,8 +85,9 @@ interface BaseComponent {
 	readonly name: State<string | undefined>
 	readonly rect: State.JIT<DOMRect>
 
-	readonly element: HTMLElement
+	readonly element: ELEMENT
 
+	/** Causes this element to be removed when its owner is removed */
 	setOwner (owner: Component): this
 
 	setId (id?: string | State<string | undefined>): this
@@ -135,7 +136,7 @@ interface BaseComponent {
 	blur (): this
 }
 
-interface Component extends BaseComponent, ComponentExtensions { }
+interface Component<ELEMENT extends HTMLElement = HTMLElement> extends BaseComponent<ELEMENT>, ComponentExtensions<ELEMENT> { }
 
 export type EventsOf<COMPONENT extends Component> = COMPONENT["event"] extends EventManipulator<any, infer EVENTS> ? EVENTS : never
 
@@ -146,6 +147,9 @@ enum Classes {
 
 const componentExtensionsRegistry: ((component: Mutable<Component>) => any)[] = []
 
+function Component<TYPE extends keyof HTMLElementTagNameMap> (type: TYPE): Component<HTMLElementTagNameMap[TYPE]>
+function Component (): Component<HTMLSpanElement>
+function Component (type?: keyof HTMLElementTagNameMap): Component
 function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 	let unuseIdState: UnsubscribeState | undefined
@@ -326,7 +330,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 				component?: Component & { remove (internal: boolean): void }
 			}
 
-			if (!internal)
+			if (internal !== true)
 				for (const descendant of component.element.querySelectorAll<HTMLElementRemovable>("*"))
 					descendant.component?.remove(true)
 

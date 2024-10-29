@@ -1,0 +1,15 @@
+.dialog:
+	%size-100
+	%borderless
+	%margin-0
+	%padding-0
+	%max-size-none
+	%background-none
+
+	&--open:
+		%block
+		%relative
+		%z-index-fg
+
+	&--fullscreen:
+		%inset-0

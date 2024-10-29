@@ -22,6 +22,7 @@ import Announcer from "ui/Announcer"
 import Component from "ui/Component"
 import Button from "ui/component/core/Button"
 import Checkbutton from "ui/component/core/Checkbutton"
+import Dialog from "ui/component/core/Dialog"
 import type { InputExtensions } from "ui/component/core/extension/Input"
 import Input from "ui/component/core/extension/Input"
 import type Label from "ui/component/core/Label"
@@ -1170,7 +1171,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 				.append(ToolbarButton(toggleFullscreen)
 					.style.bind(isFullscreen.not, "text-editor-toolbar-fullscreen")
 					.style.bind(isFullscreen, "text-editor-toolbar-unfullscreen")
-					.ariaLabel.bind(isFullscreen.map(component, fullscreen => quilt[`component/text-editor/toolbar/button/${fullscreen ? "fullscreen" : "unfullscreen"}`]().toString())))
+					.ariaLabel.bind(isFullscreen.map(component, fullscreen => quilt[`component/text-editor/toolbar/button/${fullscreen ? "unfullscreen" : "fullscreen"}`]().toString())))
 			))
 		.appendTo(component)
 
@@ -1189,8 +1190,8 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		unsubscribeLabelFor?.()
 		unsubscribeLabelFor = undefined
 	}
-	editor = component
-		.and(Input)
+
+	const actualEditor = Component()
 		.and(ViewTransition.HasSubview)
 		.style("text-editor")
 		.style.bind(isFullscreen, "text-editor--fullscreen")
@@ -1201,6 +1202,11 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 			editor.document?.focus()
 		})
+		.append(toolbar)
+
+	editor = Slot()
+		.and(Input)
+		.append(actualEditor)
 		.extend<TextEditorExtensions & Partial<InputExtensions>>(editor => ({
 			toolbar,
 			setRequired (required = true) {
@@ -1222,15 +1228,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			getMarkdown: () => !state.value ? "" : markdownSerializer.serialize(state.value?.doc),
 		}))
 
-	const scrollbarProxy: Component = Component()
-		.style("text-editor-document-scrollbar-proxy")
-		.style.bind(isFullscreen, "text-editor-document-scrollbar-proxy--fullscreen")
-		.style.bindVariable("content-width",
-			state.map(component, () => `${editor.document?.element.scrollWidth ?? 0}px`))
-		.event.subscribe("scroll", () =>
-			editor.document?.element.scrollTo({ left: scrollbarProxy.element.scrollLeft, behavior: "instant" }))
-
-	const editorSlot = Slot()
+	const documentSlot = Slot()
 		.style.bind(isFullscreen, "text-editor-document-slot--fullscreen")
 		.use(isMarkdown, (slot, isMarkdown) => {
 			if (isMarkdown) {
@@ -1240,14 +1238,19 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 			return createDefaultView(slot)
 		})
+		.appendTo(actualEditor)
 
-	editorSlot.style.bindVariable("content-width",
-		state.map(component, () => `${editorSlot.element.scrollWidth ?? 0}px`))
+	const scrollbarProxy: Component = Component()
+		.style("text-editor-document-scrollbar-proxy")
+		.style.bind(isFullscreen, "text-editor-document-scrollbar-proxy--fullscreen")
+		.style.bindVariable("content-width",
+			state.map(component, () => `${editor.document?.element.scrollWidth ?? 0}px`))
+		.event.subscribe("scroll", () =>
+			editor.document?.element.scrollTo({ left: scrollbarProxy.element.scrollLeft, behavior: "instant" }))
+		.appendTo(actualEditor)
 
-	editor
-		.append(toolbar)
-		.append(editorSlot)
-		.append(scrollbarProxy)
+	documentSlot.style.bindVariable("content-width",
+		state.map(component, () => `${documentSlot.element.scrollWidth ?? 0}px`))
 
 	state.use(editor, state => {
 		const name = editor.document?.name.value
@@ -1257,8 +1260,16 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		saveLocal(name, state?.doc)
 	})
 
+	const fullscreenDialog = Dialog()
+		.and(Slot)
+		.style.remove("slot")
+		.setFullscreen()
+		.setOwner(editor)
+		.bind(isFullscreen)
+		.appendTo(document.body)
+
 	//#endregion
-	vars(editorSlot, editor, scrollbarProxy)
+	vars(editor, actualEditor, documentSlot, scrollbarProxy, fullscreenDialog)
 	////////////////////////////////////
 
 	return editor
@@ -1373,7 +1384,8 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	function toggleFullscreen () {
 		ViewTransition.perform("subview", () => {
 			isFullscreen.value = !isFullscreen.value
-			editor.rect.markDirty()
+			actualEditor.appendTo(isFullscreen.value ? fullscreenDialog : editor)
+			actualEditor.rect.markDirty()
 		})
 	}
 

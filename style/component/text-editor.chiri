@@ -250,7 +250,7 @@
 			margin-block-end: round(up, 1em + 0.5lh - 1px, 1px)
 
 		& blockquote:
-			%margin-left-0
+			%margin-inline-0
 			%padding-left-3
 			box-shadow: inset $space-1 0 0 0 #{alpha(0.2, $colour-0)}
 
@@ -307,17 +307,29 @@
 
 	&--required:
 
+.text-editor:
 	&--fullscreen:
-		%fixed
+		#after:
+			.text-editor
+			.subview-transition
+
+		%absolute
 		%inset-0
 		%outline-none
+		%borderless
+		%background-none
+		%z-index-fg
 		grid-template-rows: auto 1fr
+		view-transition-class: subview-transition text-editor--fullscreen
 
 		@before:
 			%absolute
 			%inset-0
 			%background-2
 			%z-index-bg
+
+		@view-transition-class!group:
+			%z-index-fg
 
 .ProseMirror-gapcursor:
 	content: ""
