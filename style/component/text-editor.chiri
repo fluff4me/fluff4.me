@@ -291,7 +291,6 @@
 			%sticky
 			%bottom-0
 			%overflow-auto-x
-			%backdrop-blur
 			%border-bottom-radius-1
 			scrollbar-colour: $colour-5 transparent
 			@before:
@@ -304,6 +303,9 @@
 
 			&--fullscreen:
 				%hidden
+
+			&--visible:
+				%backdrop-blur
 
 	&--required:
 

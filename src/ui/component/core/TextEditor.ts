@@ -30,6 +30,7 @@ import Popover from "ui/component/core/Popover"
 import RadioButton from "ui/component/core/RadioButton"
 import Slot from "ui/component/core/Slot"
 import type { Quilt } from "ui/utility/TextManipulator"
+import Viewport from "ui/utility/Viewport"
 import ViewTransition from "ui/view/component/ViewTransition"
 import Arrays from "utility/Arrays"
 import Define from "utility/Define"
@@ -1240,17 +1241,21 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		})
 		.appendTo(actualEditor)
 
+	const contentWidth = State.Generator(() => `${editor.document?.element.scrollWidth ?? 0}px`)
+		.observe(component, state, Viewport.size)
+
 	const scrollbarProxy: Component = Component()
 		.style("text-editor-document-scrollbar-proxy")
 		.style.bind(isFullscreen, "text-editor-document-scrollbar-proxy--fullscreen")
-		.style.bindVariable("content-width",
-			state.map(component, () => `${editor.document?.element.scrollWidth ?? 0}px`))
+		.style.bind(contentWidth.map(component, () => (editor.document?.element.scrollWidth ?? 0) > (editor.document?.rect.value.width ?? 0)), "text-editor-document-scrollbar-proxy--visible")
+		.style.bindVariable("content-width", contentWidth)
 		.event.subscribe("scroll", () =>
 			editor.document?.element.scrollTo({ left: scrollbarProxy.element.scrollLeft, behavior: "instant" }))
 		.appendTo(actualEditor)
 
-	documentSlot.style.bindVariable("content-width",
-		state.map(component, () => `${documentSlot.element.scrollWidth ?? 0}px`))
+	const fullscreenContentWidth = State.Generator(() => `${documentSlot.element.scrollWidth ?? 0}px`)
+		.observe(component, state, Viewport.size)
+	documentSlot.style.bindVariable("content-width", fullscreenContentWidth)
 
 	state.use(editor, state => {
 		const name = editor.document?.name.value
