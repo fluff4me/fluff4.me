@@ -26,6 +26,7 @@ module.exports = /** @type {import("eslint").Linter.BaseConfig & import("@typesc
 		"no-inner-declarations": ["off"],
 		"no-unexpected-multiline": ["off"], // sometimes i want to do zero indexing on a new line
 		"semi": ["warn", "never"],
+		"no-cond-assign": ["off"], // i have literally never had a bug due to this before, so loosening this restriction
 
 		// typescript-eslint
 		"@typescript-eslint/no-unused-vars": ["off"], // literally just what typescript already has, no thanks
