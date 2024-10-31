@@ -66,6 +66,9 @@ declare global {
 		findMap<RETURN> (predicate: (value: T, index: number, obj: T[]) => boolean, mapper: (value: T, index: number, obj: T[]) => RETURN): RETURN | undefined
 
 		groupBy<GROUP> (grouper: (value: T, index: number, obj: T[]) => GROUP): [GROUP, T[]][]
+
+		filterInPlace: Array<T>["filter"]
+		mapInPlace: Array<T>["filter"]
 	}
 }
 
@@ -297,6 +300,16 @@ namespace Arrays {
 				(result[String(grouper(this[i], i, this))] ??= []).push(this[i])
 
 			return Object.entries(result)
+		})
+
+		Define(Array.prototype, "filterInPlace", function (filter): any[] {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			return this.splice(0, Infinity, ...this.filter(filter))
+		})
+
+		Define(Array.prototype, "mapInPlace", function (mapper): any[] {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			return this.splice(0, Infinity, ...this.map(mapper))
 		})
 	}
 }

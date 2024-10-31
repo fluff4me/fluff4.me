@@ -38,7 +38,8 @@ import Objects from "utility/Objects"
 import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
 import Store from "utility/Store"
-import type Strings from "utility/Strings"
+import MarkdownItHTML from "utility/string/MarkdownItHTML"
+import type Strings from "utility/string/Strings"
 import Time from "utility/Time"
 import type { PartialRecord } from "utility/Type"
 import w3cKeyname from "w3c-keyname"
@@ -421,7 +422,9 @@ const REGEX_ATTRIBUTE = (() => {
 
 const REGEX_CSS_PROPERTY = /^[-a-zA-Z_][a-zA-Z0-9_-]*$/
 
-const markdown = MarkdownIt("commonmark", { html: true })
+const markdown = new MarkdownIt("commonmark", { html: true, breaks: true })
+MarkdownItHTML.use(markdown, MarkdownItHTML.Options()
+	.disallowTags("img", "figure", "figcaption", "map", "area"))
 markdown.inline.ruler.enable("strikethrough")
 markdown.inline.ruler2.enable("strikethrough")
 
@@ -548,10 +551,10 @@ markdown.inline.ruler2.before("emphasis", "underline", function underline_postPr
 ////////////////////////////////////
 
 interface MarkdownHTMLTokenRemapSpec {
-	getAttrs: (token: FluffToken) => Attrs | true | undefined
+	getAttrs: (token: MarkdownItHTML.Token) => Attrs | true | undefined
 }
 
-const markdownHTMLRegistry: PartialRecord<Nodes, MarkdownHTMLTokenRemapSpec> = {
+const markdownHTMLNodeRegistry: PartialRecord<Nodes, MarkdownHTMLTokenRemapSpec> = {
 	text_align: {
 		getAttrs: token => {
 			const align = token.style?.get("text-align")
@@ -563,13 +566,10 @@ const markdownHTMLRegistry: PartialRecord<Nodes, MarkdownHTMLTokenRemapSpec> = {
 	},
 }
 
-const decodeHTMLEntities = (text: string) =>
-	new DOMParser().parseFromString(text, "text/html").body.textContent ?? ""
+// const markdownHTMLMarkRegistry: PartialRecord<Marks, MarkdownHTMLTokenRemapSpec> = {
+// }
 
-interface FluffToken extends Token {
-	depth: number
-	skipped?: true
-	style?: Map<string, string>
+interface FluffToken extends MarkdownItHTML.Token {
 	nodeAttrs?: Attrs
 }
 
@@ -578,58 +578,28 @@ markdown.parse = (src, env) => {
 	const rawTokens = originalParse.call(markdown, src, env) as FluffToken[]
 
 	const tokens: FluffToken[] = []
-	// the `depth` of the parent `_open` token
-	let depth = 0
+	// the `level` of the parent `_open` token
+	let level = 0
 	for (const token of rawTokens) {
-		if (token.type !== "html_block") {
-			token.depth = token.nesting === -1 ? depth : depth + 1
-			depth += token.nesting
+		if (token.type !== "html_block_open" && token.type !== "html_block_close") {
 			tokens.push(token)
 			continue
 		}
 
-		let tag = token.content.trim()
-		if (!tag.startsWith("<") || !tag.endsWith(">")) {
-			console.warn("Invalid HTML in markdown:", tag)
-			token.skipped = true
-			continue
-		}
-
-		tag = tag.slice(1, -1)
-		const closing = tag.startsWith("/")
-		token.nesting = closing ? -1 : 1
-
-		const attrsStartIndex = tag.indexOf(" ") + 1
-		const type = !attrsStartIndex ? tag : tag.slice(0, attrsStartIndex - 1)
-		if (attrsStartIndex && !closing) {
-			const attrString = tag.slice(attrsStartIndex)
-
-			token.attrs = [...attrString.matchAll(REGEX_ATTRIBUTE)]
-				.map(([, attribute, value]) => {
-					value = value.startsWith("'") || value.startsWith('"') ? value.slice(1, -1) : value
-					return [attribute.toLowerCase(), decodeHTMLEntities(value)] as const
-				})
-
-			token.style = parseStyleAttributeValue(token.attrGet("style"))
-		}
-
-		token.content = type
-		if (closing) {
-			const opening = tokens.findLast(token => token.depth === depth)
+		if (token.nesting < 0) {
+			const opening = tokens.findLast(token => token.level === level)
 			if (!opening) {
-				console.warn("Invalid HTML in markdown:", tag)
-				token.skipped = true
+				console.warn("Invalid HTML in markdown:", token.raw)
 				continue
 			}
 
 			token.type = `${opening.type.slice(0, -5)}_close`
-			token.depth = depth
 			tokens.push(token)
-			depth += token.nesting
+			level = token.level
 			continue
 		}
 
-		for (const [nodeType, spec] of Object.entries(markdownHTMLRegistry)) {
+		for (const [nodeType, spec] of Object.entries(markdownHTMLNodeRegistry)) {
 			const attrs = spec.getAttrs(token)
 			if (attrs) {
 				token.type = nodeType
@@ -640,8 +610,7 @@ markdown.parse = (src, env) => {
 		}
 
 		token.type = `${token.type}_open`
-		depth += token.nesting
-		token.depth = depth
+		level = token.level
 		tokens.push(token)
 	}
 
@@ -659,7 +628,7 @@ const markdownParser = new MarkdownParser(schema, markdown, Objects.filterNullis
 		mark: "strikethrough",
 	},
 
-	...Object.entries(markdownHTMLRegistry)
+	...Object.entries(markdownHTMLNodeRegistry)
 		.toObject(([tokenType, spec]) => [tokenType, ({
 			block: tokenType,
 			getAttrs: (token) => (token as FluffToken).nodeAttrs ?? {},
@@ -670,7 +639,7 @@ const markdownSerializer = new MarkdownSerializer(
 	{
 		...defaultMarkdownSerializer.nodes,
 		text_align: (state, node, parent, index) => {
-			state.write(`<div style="text-align:${node.attrs.align}">\n\n`)
+			state.write(`<div style="text-align:${node.attrs.align}">\n`)
 			state.renderContent(node)
 			state.write("</div>")
 			state.closeBlock(node)
