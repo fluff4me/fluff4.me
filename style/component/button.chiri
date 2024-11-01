@@ -26,7 +26,7 @@ $$button-background-highlight!colour
 	&-type-flush:
 		%box-shadow-none
 
-		:not::hover, :not::focus:
+		:not ::hover ::focus:
 			$button-background: transparent
 
 	&-text:
