@@ -1,5 +1,6 @@
-fluff4me/alt: fluff 4 me
 fluff4me/title: fluff4.me / Tell your story!
+
+home/label: home
 
 # component
 popover/button: open {0??details}{ 1??}

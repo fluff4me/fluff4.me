@@ -29,6 +29,7 @@ import type Label from "ui/component/core/Label"
 import Popover from "ui/component/core/Popover"
 import RadioButton from "ui/component/core/RadioButton"
 import Slot from "ui/component/core/Slot"
+import StringApplicator from "ui/utility/StringApplicator"
 import type { Quilt } from "ui/utility/TextManipulator"
 import Viewport from "ui/utility/Viewport"
 import ViewTransition from "ui/view/component/ViewTransition"
@@ -337,6 +338,14 @@ const schema = new Schema({
 		heading: {
 			...baseSchema.spec.nodes.get("heading"),
 			content: "text*",
+			toDOM (node: Node) {
+				const heading = Component(`h${node.attrs.level as 1}`)
+				heading.style("markdown-heading", `markdown-heading-${node.attrs.level as 1}`)
+				return {
+					dom: heading.element,
+					contentDOM: heading.element,
+				}
+			},
 		},
 		text_align: {
 			attrs: { align: { default: "left", validate: (value: any) => value === "left" || value === "center" || value === "right" } },
@@ -762,7 +771,8 @@ interface TextEditorExtensions {
 	toolbar: Component
 	document?: Input
 	mirror?: EditorView
-	getMarkdown (): string
+	default: StringApplicator.Optional<this>
+	useMarkdown (): string
 }
 
 interface TextEditor extends Input, TextEditorExtensions { }
@@ -1178,6 +1188,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.and(Input)
 		.append(actualEditor)
 		.extend<TextEditorExtensions & Partial<InputExtensions>>(editor => ({
+			default: StringApplicator(editor, value => loadFromMarkdown(value)),
 			toolbar,
 			setRequired (required = true) {
 				editor.style.toggle(required, "text-editor--required")
@@ -1195,7 +1206,10 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 				return editor
 			},
-			getMarkdown: () => !state.value ? "" : markdownSerializer.serialize(state.value?.doc),
+			useMarkdown: () => {
+				clearLocal()
+				return !state.value ? "" : markdownSerializer.serialize(state.value?.doc)
+			},
 		}))
 
 	const documentSlot = Slot()
@@ -1227,11 +1241,8 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	documentSlot.style.bindVariable("content-width", fullscreenContentWidth)
 
 	state.use(editor, state => {
-		const name = editor.document?.name.value
-		if (!name)
-			return
-
-		saveLocal(name, state?.doc)
+		saveLocal(undefined, state?.doc)
+		toolbar.rect.markDirty()
 	})
 
 	const fullscreenDialog = Dialog()
@@ -1320,6 +1331,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.and(Input)
 			.replaceElement(editor.mirror.dom)
 			.ariaRole("textbox")
+			.classes.add("markdown")
 			.style("text-editor-document")
 			.style.bind(isFullscreen, "text-editor-document--fullscreen")
 			.setId(`text-editor-${id}`)
@@ -1367,7 +1379,26 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		return `${location.pathname}#${name}`
 	}
 
-	function loadLocal (name?: string) {
+	function clearLocal (name = editor.document?.name.value) {
+		if (!name)
+			return
+
+		name = contextualiseEditorName(name)
+		Store.items.textEditorDrafts = Store.items.textEditorDrafts?.filter(draft => draft.name !== name)
+	}
+
+	function loadFromMarkdown (markdown = "") {
+		// hack to fix it not redrawing when calling updateState now?
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		((editor.mirror as any)?.docView as NodeViewDesc).dirty = 2 // CONTENT_DIRTY
+
+		editor.mirror?.updateState(EditorState.create({
+			plugins: editor.mirror.state.plugins.slice(),
+			doc: markdownParser.parse(markdown),
+		}))
+	}
+
+	function loadLocal (name = editor.document?.name.value) {
 		if (!name)
 			return
 
@@ -1376,22 +1407,18 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		if (!draft)
 			return
 
-		// hack to fix it not redrawing when calling updateState now?
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-		((editor.mirror as any)?.docView as NodeViewDesc).dirty = 2 // CONTENT_DIRTY
-
-		editor.mirror?.updateState(EditorState.create({
-			plugins: editor.mirror.state.plugins.slice(),
-			doc: markdownParser.parse(draft.body),
-		}))
+		loadFromMarkdown(draft.body)
 	}
 
-	function saveLocal (name: string, doc?: Node) {
+	function saveLocal (name = editor.document?.name.value, doc?: Node) {
 		if (!name)
 			return
 
 		name = contextualiseEditorName(name)
 		const body = !doc ? "" : markdownSerializer.serialize(doc)
+		if (body === editor.default.state.value)
+			return clearLocal()
+
 		Store.items.textEditorDrafts = [
 			...!body ? [] : [{ name, body, created: Date.now() }],
 

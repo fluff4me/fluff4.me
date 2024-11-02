@@ -1,10 +1,12 @@
 import EndpointAuthorCreate from "endpoint/author/EndpointAuthorCreate"
 import EndpointAuthorUpdate from "endpoint/author/EndpointAuthorUpdate"
+import quilt from "lang/en-nz"
 import Session from "model/Session"
 import Component from "ui/Component"
 import Block from "ui/component/core/Block"
 import Form from "ui/component/core/Form"
 import LabelledTable from "ui/component/core/LabelledTable"
+import TextEditor from "ui/component/core/TextEditor"
 import TextInput from "ui/component/core/TextInput"
 
 type AccountViewFormType =
@@ -16,6 +18,7 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 	const form = block.and(Form, block.title)
 
 	form.title.text.use(`view/account/${type}/title`)
+	form.setName(quilt[`view/account/${type}/title`]().toString())
 	if (type === "create")
 		form.description.text.use("view/account/create/description")
 
@@ -37,7 +40,8 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 	table.label(label => label.text.use("view/account/form/vanity/label"))
 		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
-	const descriptionInput = TextInput()
+	const descriptionInput = TextEditor()
+		.default.bind(Session.Auth.author.map(component, author => author?.description.body))
 	table.label(label => label.text.use("view/account/form/description/label"))
 		.content((content, label) => content.append(descriptionInput.setLabel(label)))
 
@@ -48,7 +52,7 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 			body: {
 				name: nameInput.value,
 				vanity: vanityInput.value,
-				description: descriptionInput.value,
+				description: descriptionInput.useMarkdown(),
 			},
 		})
 

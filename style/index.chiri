@@ -17,6 +17,7 @@
 	misc
 
 #import:
+	class/markdown
 	class/transition
 
 #import:
@@ -39,6 +40,7 @@
 	component/flag
 	component/masthead
 	component/sidebar
+	component/author
 
 #import:
 	view/view

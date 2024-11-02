@@ -20,7 +20,7 @@ const Block = Component.Builder((component): Block => {
 			header: undefined!,
 			description: undefined!,
 		}))
-		.extendJIT("header", block => Component().style("block-header").prependTo(block))
+		.extendJIT("header", block => Component("hgroup").style("block-header").prependTo(block))
 		.extendJIT("title", block => Heading().style("block-title").prependTo(block.header))
 		.extendJIT("description", block => Paragraph().style("block-description").appendTo(block.header))
 })

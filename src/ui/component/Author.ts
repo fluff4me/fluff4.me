@@ -1,10 +1,22 @@
-import type { Author } from "api.fluff4.me"
+import type { AuthorFull } from "api.fluff4.me"
 import Component from "ui/Component"
 import Block from "ui/component/core/Block"
 
-export default Component.Builder((component, author: Author) => {
+export default Component.Builder((component, author: AuthorFull) => {
+	component.style("author")
+
 	const block = component.and(Block)
-	block.title.text.set(author.name)
-	block.description.text.set(`@${author.vanity}`)
+	block.title
+		.style("author-name")
+		.text.set(author.name)
+	block.description
+		.style("author-vanity")
+		.text.set(`@${author.vanity}`)
+
+	Component()
+		.style("author-description")
+		.setMarkdownContent(author.description.body)
+		.appendTo(block)
+
 	return block
 }) 

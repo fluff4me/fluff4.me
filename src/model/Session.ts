@@ -1,4 +1,4 @@
-import type { Author, AuthorWithAuthorisations } from "api.fluff4.me"
+import type { AuthorAuthorised, AuthorFull } from "api.fluff4.me"
 import { type Authorisation, type AuthService, type Session } from "api.fluff4.me"
 import EndpointAuthRemove from "endpoint/auth/EndpointAuthRemove"
 import EndpointSessionGet from "endpoint/session/EndpointSessionGet"
@@ -42,7 +42,7 @@ namespace Session {
 		updateState()
 	}
 
-	export function setAuthor (author: Author & Partial<AuthorWithAuthorisations>) {
+	export function setAuthor (author: AuthorFull & Partial<AuthorAuthorised>) {
 		const session = Store.items.session
 		if (!session)
 			return void refresh()
@@ -52,7 +52,7 @@ namespace Session {
 			author: {
 				...author,
 				authorisations: undefined,
-			} as Author,
+			} as AuthorFull,
 			authorisations: author.authorisations ?? session.authorisations,
 		}
 		updateState()
@@ -76,7 +76,7 @@ namespace Session {
 
 		export const state = State<State>("none")
 		export const authorisations = State<Authorisation[]>([])
-		export const author = State<Author | undefined>(undefined, (a, b) => a?.vanity === b?.vanity)
+		export const author = State<AuthorFull | undefined>(undefined, (a, b) => a?.vanity === b?.vanity)
 
 		export function getAll () {
 			return Store.items.session?.authorisations ?? []
