@@ -123,6 +123,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 	removeContents (): void
 
 	receiveAncestorInsertEvents (): this
+	emitInsert (): this
 
 	ariaRole (role?: AriaRole): this
 	ariaLabel: StringApplicator.Optional<this>
@@ -178,7 +179,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 			const oldElement = component.element
 
-			newElement.replaceChildren(...component.element.children)
+			newElement.replaceChildren(...component.element.childNodes)
 			if (component.element.parentNode)
 				component.element.replaceWith(newElement)
 
@@ -343,25 +344,20 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 		appendTo (destination) {
 			Component.element(destination).append(component.element)
-			updateRooted(component)
-			emitInsert(component)
+			component.emitInsert()
 			return component
 		},
 		prependTo (destination) {
 			Component.element(destination).prepend(component.element)
-			updateRooted(component)
-			emitInsert(component)
+			component.emitInsert()
 			return component
 		},
 		append (...contents) {
 			const elements = contents.map(Component.element)
 			component.element.append(...elements)
 
-			for (const element of elements) {
-				const component = (element as Element).component
-				emitInsert(component)
-				updateRooted(component)
-			}
+			for (const element of elements)
+				(element as Element).component?.emitInsert()
 
 			return component
 		},
@@ -369,11 +365,8 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			const elements = contents.map(Component.element)
 			component.element.prepend(...elements)
 
-			for (const element of elements) {
-				const component = (element as Element).component
-				emitInsert(component)
-				updateRooted(component)
-			}
+			for (const element of elements)
+				(element as Element).component?.emitInsert()
 
 			return component
 		},
@@ -404,6 +397,11 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 		receiveAncestorInsertEvents: () => {
 			component.element.classList.add(Classes.ReceiveAncestorInsertEvents)
+			return component
+		},
+		emitInsert: () => {
+			updateRooted(component)
+			emitInsert(component)
 			return component
 		},
 

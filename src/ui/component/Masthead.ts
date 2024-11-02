@@ -1,7 +1,6 @@
 import Session from "model/Session"
 import Component from "ui/Component"
 import Button from "ui/component/core/Button"
-import Heading from "ui/component/core/Heading"
 import Link from "ui/component/core/Link"
 import type Popover from "ui/component/core/Popover"
 import Slot from "ui/component/core/Slot"
@@ -59,14 +58,15 @@ const Masthead = Component.Builder("header", (masthead, view: ViewContainer) => 
 		.style("masthead-home-logo")
 
 	const homeLink = Link("/")
-		.ariaLabel.use("fluff4me/alt")
+		.ariaLabel.use("home/label")
 		.clearPopover()
-		.append(Heading()
+		.append(Component()
 			.and(Button)
-			.style("masthead-home")
+			.style("masthead-home", "heading", "heading-1")
 			.append(flag)
 			.append(Component("img")
 				.style("masthead-home-logo-wordmark")
+				.ariaHidden()
 				.attributes.set("src", `${Env.URL_ORIGIN}image/logo-wordmark.svg`)))
 		.appendTo(left)
 

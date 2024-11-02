@@ -241,32 +241,6 @@
 		%relative
 		%white-space-pre-wrap
 
-		& p:
-			margin-block: round(up, 1em, 1px)
-
-		& hr:
-			; to match paragraph sizes
-			margin-block-start: round(up, 1em + 0.5lh, 1px)
-			margin-block-end: round(up, 1em + 0.5lh - 1px, 1px)
-
-		& blockquote:
-			%margin-inline-0
-			%padding-left-3
-			box-shadow: inset $space-1 0 0 0 #{alpha(0.2, $colour-0)}
-
-		& code:
-			%border-radius-1
-			padding-inline: ${code-padding: $space-1}
-			margin-inline: ${code-padding: $space-1}
-			background: ${code-background: light-dark(#{alpha(0.15, $dark-0)}, #{alpha(0.3, $dark-0)})}
-
-		& pre:
-			%padding-2-3
-			%border-radius-2
-			$code-background: transparent
-			$code-padding: 0
-			background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
-
 		&--fullscreen:
 			%overflow-visible
 			max-width: #{content-width}

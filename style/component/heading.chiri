@@ -1,4 +1,4 @@
-.heading:
+.heading, .markdown-heading:
 	#after: .button
 
 	%relative
@@ -8,6 +8,10 @@
 	%text-shadow
 	margin-left: -0.05em
 	min-width: 3em
+
+.heading:
+	#after: .button
+
 	; #outline colour=$background-2
 
 	#dec slant = 0.05
@@ -33,3 +37,18 @@
 	&-1:
 		%font-6
 		%font-righteous
+
+.markdown-heading:
+	margin-top: round(up, 1rem, 1px)
+	line-height: 1cap
+
+	&-1, &-2, &-3, &-4, &-5, &-6:
+		#after: .markdown-heading
+		%weight-bolder
+
+	&-1: font-size: 2.5em
+	&-2: font-size: 2.25em
+	&-3: font-size: 2em
+	&-4: font-size: 1.75em
+	&-5: font-size: 1.5em
+	&-6: font-size: 1.25em
