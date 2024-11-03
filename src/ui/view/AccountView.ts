@@ -18,14 +18,14 @@ export default ViewDefinition({
 		const state = State<Session.Auth.State>(Session.Auth.state.value)
 
 		Slot()
-			.use(state, (slot, state) => { createForm(state)?.appendTo(slot) })
+			.use(state, (slot, state) => { createForm()?.appendTo(slot) })
 			.appendTo(view)
 
 		const services = await AccountViewOAuthServices(state)
 		services.appendTo(view)
 
 		Slot()
-			.use(state, (slot, state) => { createActionRow(state)?.appendTo(slot) })
+			.use(state, (slot, state) => { createActionRow()?.appendTo(slot) })
 			.appendTo(view)
 
 		Session.Auth.state.subscribe(view, () =>
@@ -39,8 +39,8 @@ export default ViewDefinition({
 			state.value = newState
 		}
 
-		function createForm (state: Session.Auth.State): Form | undefined {
-			switch (state) {
+		function createForm (): Form | undefined {
+			switch (state.value) {
 				case "has-authorisations":
 					return AccountViewForm("create")
 				case "logged-in":
@@ -48,8 +48,8 @@ export default ViewDefinition({
 			}
 		}
 
-		function createActionRow (state: Session.Auth.State): ActionRow | undefined {
-			switch (state) {
+		function createActionRow (): ActionRow | undefined {
+			switch (state.value) {
 				case "logged-in":
 					return ActionRow()
 						.tweak(row => row.right

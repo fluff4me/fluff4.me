@@ -33,6 +33,7 @@
 	component/labelled-table
 	component/labelled-row
 	component/action-row
+	component/action-heading
 	component/popover
 	component/dialog
 	component/text-editor
@@ -49,5 +50,7 @@
 	view/type/account
 	view/type/home
 	view/type/author
+	view/type/work
+	view/type/work-edit
 
 #import: app

@@ -12,6 +12,7 @@
 .heading:
 	#after: .button
 
+	%font-righteous
 	; #outline colour=$background-2
 
 	#dec slant = 0.05
@@ -33,10 +34,7 @@
 
 	#for var i = 1, i <= 6, set i++:
 		&-#{i}:
-
-	&-1:
-		%font-6
-		%font-righteous
+			%font-#{7 - i}
 
 .markdown-heading:
 	margin-top: round(up, 1rem, 1px)

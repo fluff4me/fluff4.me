@@ -7,7 +7,7 @@ import type ViewDefinition from "ui/view/ViewDefinition"
 
 interface ViewContainerExtensions {
 	view?: View
-	show<VIEW extends View, PARAMS extends object> (view: ViewDefinition<VIEW, PARAMS>, params: PARAMS): Promise<VIEW | undefined>
+	show<VIEW extends View, PARAMS extends object | undefined> (view: ViewDefinition<VIEW, PARAMS>, params: PARAMS): Promise<VIEW | undefined>
 }
 
 interface ViewContainer extends Component, ViewContainerExtensions { }
@@ -19,7 +19,7 @@ const ViewContainer = (): ViewContainer => Component()
 	.ariaLabel.use("view/container/alt")
 	.extend<ViewContainerExtensions>(container => ({
 		view: undefined,
-		show: async <VIEW extends View, PARAMS extends object> (definition: ViewDefinition<VIEW, PARAMS>, params: PARAMS) => {
+		show: async <VIEW extends View, PARAMS extends object | undefined> (definition: ViewDefinition<VIEW, PARAMS>, params: PARAMS) => {
 			let view: VIEW | undefined
 
 			if (container.view) {

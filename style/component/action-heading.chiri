@@ -1,0 +1,9 @@
+.action-heading:
+
+	&-heading:
+		#after:
+			.heading
+			#each in 1...6 as int i:
+				.heading-#{i}
+
+		%font-6
