@@ -2,6 +2,27 @@ import Component from "ui/Component"
 import MarkdownContent from "ui/utility/MarkdownContent"
 import type { ComponentName } from "ui/utility/StyleManipulator"
 
+interface ComponentHeadingExtensions {
+	containsHeading (): boolean
+	setContainsHeading (): this
+}
+
+declare module "ui/Component" {
+	interface ComponentExtensions extends ComponentHeadingExtensions { }
+}
+
+export enum HeadingClasses {
+	_ContainsHeading = "_contains-heading",
+}
+
+Component.extend(component => component.extend<ComponentHeadingExtensions>(component => ({
+	containsHeading: () => component.classes.has(HeadingClasses._ContainsHeading),
+	setContainsHeading () {
+		component.classes.add(HeadingClasses._ContainsHeading)
+		return component
+	},
+})))
+
 type HeadingStylePrefix = keyof {
 	[KEY in ComponentName as (
 		KEY extends `${infer PREFIX}-1` ?
@@ -21,7 +42,7 @@ interface HeadingExtensions {
 
 interface Heading extends Component, HeadingExtensions { }
 
-const Heading = Component.Builder("h1", (component) => {
+const Heading = Component.Builder("h1", (component): Heading => {
 	component.style("heading")
 
 	component.text.state.use(component, text => component.setId(text.toString().toLowerCase().replace(/\W+/g, "-")))
@@ -114,7 +135,7 @@ function computeHeadingLevel (node?: Node): number | undefined {
 		const heading = getPreviousSiblingHeading(currentNode)
 		if (heading) {
 			const level = getHeadingLevel(heading)
-			if (!incrementHeading)
+			if (!incrementHeading && level !== 1)
 				return level
 
 			if (level === undefined || level > 6)
@@ -146,6 +167,12 @@ function getPreviousSiblingHeading (node?: Node): HTMLElement | undefined {
 			return siblingElement
 
 		if (siblingElement.tagName === "HGROUP") {
+			const [heading] = siblingElement.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6, [role='heading']")
+			if (heading)
+				return heading
+		}
+
+		if (siblingElement.component?.containsHeading()) {
 			const [heading] = siblingElement.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6, [role='heading']")
 			if (heading)
 				return heading

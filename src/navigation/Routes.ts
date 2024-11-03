@@ -4,12 +4,18 @@ import AccountView from "ui/view/AccountView"
 import AuthorView from "ui/view/AuthorView"
 import DebugView from "ui/view/DebugView"
 import HomeView from "ui/view/HomeView"
+import WorkEditView from "ui/view/WorkEditView"
 
 const Routes = [
-	Route("/", HomeView.navigate),
-	Route("/account", AccountView.navigate),
 	Route("/debug", DebugView.navigate),
+
+	Route("/", HomeView.navigate),
+
+	Route("/account", AccountView.navigate),
 	Route("/author/$vanity", AuthorView.navigate),
+
+	Route("/work/new", WorkEditView.navigate),
+	Route("/work/$author/$vanity/edit", WorkEditView.navigate),
 ]
 
 export default Routes

@@ -1,5 +1,6 @@
-import EndpointAuthorCreate from "endpoint/author/EndpointAuthorCreate"
-import EndpointAuthorUpdate from "endpoint/author/EndpointAuthorUpdate"
+import type { Work } from "api.fluff4.me"
+import EndpointWorkCreate from "endpoint/work/EndpointWorkCreate"
+import EndpointWorkUpdate from "endpoint/work/EndpointWorkUpdate"
 import quilt from "lang/en-nz"
 import Session from "model/Session"
 import Component from "ui/Component"
@@ -8,21 +9,20 @@ import Form from "ui/component/core/Form"
 import LabelledTable from "ui/component/core/LabelledTable"
 import TextEditor from "ui/component/core/TextEditor"
 import TextInput from "ui/component/core/TextInput"
+import type State from "utility/State"
 
-type AccountViewFormType =
-	| "create"
-	| "update"
-
-export default Component.Builder((component, type: AccountViewFormType) => {
+export default Component.Builder((component, state: State<Work | undefined>) => {
 	const block = component.and(Block)
 	const form = block.and(Form, block.title)
 
-	form.title.text.use(`view/account/${type}/title`)
-	form.setName(quilt[`view/account/${type}/title`]().toString())
-	if (type === "create")
-		form.description.text.use("view/account/create/description")
+	const type = state.value ? "update" : "create"
 
-	form.submit.textWrapper.text.use(`view/account/${type}/submit`)
+	form.title.text.use(`view/work-edit/${type}/title`)
+	form.setName(quilt[`view/work-edit/${type}/title`]().toString())
+	// if (params.type === "create")
+	// 	form.description.text.use("view/work-edit/create/description")
+
+	form.submit.textWrapper.text.use(`view/work-edit/${type}/submit`)
 
 	const table = LabelledTable().appendTo(form.content)
 
@@ -48,20 +48,46 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 	form.event.subscribe("submit", async event => {
 		event.preventDefault()
 
-		const response = await (type === "create" ? EndpointAuthorCreate : EndpointAuthorUpdate).query({
-			body: {
-				name: nameInput.value,
-				vanity: vanityInput.value,
-				description: descriptionInput.useMarkdown(),
-			},
-		})
+		const response = await (() => {
+			switch (type) {
+				case "create":
+					return EndpointWorkCreate.query({
+						body: {
+							name: nameInput.value,
+							vanity: vanityInput.value,
+							description: descriptionInput.useMarkdown(),
+						},
+					})
+
+				case "update": {
+					if (!state.value)
+						return
+
+					const authorVanity = Session.Auth.author.value?.vanity
+					if (!authorVanity)
+						return new Error("Cannot update a work when not signed in")
+
+					return EndpointWorkUpdate.query({
+						params: {
+							author: authorVanity,
+							vanity: state.value.vanity,
+						},
+						body: {
+							name: nameInput.value,
+							vanity: vanityInput.value,
+							description: descriptionInput.useMarkdown(),
+						},
+					})
+				}
+			}
+		})()
 
 		if (response instanceof Error) {
 			console.error(response)
 			return
 		}
 
-		Session.setAuthor(response.data)
+		state.value = response?.data
 	})
 
 	return form

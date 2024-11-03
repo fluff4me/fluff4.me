@@ -1,12 +1,13 @@
 import type App from "App"
+import type { Empty } from "utility/Type"
 
-type RouteHandler<PARAMS extends object> = (app: App, params: PARAMS) => any
+type RouteHandler<PARAMS extends object | undefined> = (app: App, params: PARAMS) => any
 
-interface RouteDefinition<PARAMS extends object> {
+interface RouteDefinition<PARAMS extends object | undefined> {
 	handler: RouteHandler<PARAMS>
 }
 
-interface Route<PATH extends string, PARAMS extends object> extends RouteDefinition<PARAMS> {
+interface Route<PATH extends string, PARAMS extends object | undefined> extends RouteDefinition<PARAMS> {
 	path: PATH
 	match: (path: string) => PARAMS | undefined
 }
@@ -25,7 +26,12 @@ export type RoutePathInput<PATH extends string> = SplitPath<PATH> extends infer 
 	: never
 	: never
 
-function Route<PATH extends `/${string}`, PARAMS extends ExtractData<SplitPath<PATH>>> (path: PATH, route: RouteHandler<PARAMS> | RouteDefinition<PARAMS>): Route<PATH, PARAMS> {
+type RouteParams<PATH extends string> =
+	ExtractData<SplitPath<PATH>> extends infer PARAMS ?
+	| Empty extends PARAMS ? undefined : PARAMS
+	: never
+
+function Route<PATH extends `/${string}`, PARAMS extends RouteParams<PATH>> (path: PATH, route: RouteHandler<PARAMS> | RouteDefinition<PARAMS>): Route<PATH, PARAMS> {
 	const segments = (path.startsWith("/") ? path.slice(1) : path).split("/")
 	const varGroups: string[] = []
 	let regexString = "^"
@@ -71,7 +77,7 @@ function Route<PATH extends `/${string}`, PARAMS extends ExtractData<SplitPath<P
 				params[groupName] = group
 			}
 
-			return params as PARAMS
+			return params as any as PARAMS
 		},
 	}
 }

@@ -2,6 +2,17 @@ fluff4me/title: fluff4.me / Tell your story!
 
 home/label: home
 
+# shared
+
+## form
+name/label: Name
+name/hint: Your display name or penname — the name your comments and works are attributed to. This can be changed whenever you like, and doesn't have to be unique.
+vanity/label: Vanity
+vanity/hint: Your username, and what people use to {#B:@ping} you in comments. This {#I:can} be changed whenever you like, but {#B:must always be unique}.
+vanity/url-preview: Preview
+description/label: Description
+description/hint: This bio will appear on your profile above any works.
+
 # component
 popover/button: open {0??details}{ 1??}
 popover: {0??details}
@@ -100,15 +111,6 @@ description: Your authorisation(s) are not currently associated with a fluff4.me
 title: Authorisations
 description: These third party service accounts are linked to your fluff4.me account and may be used to log in.
 
-## account/form
-name/label: Name
-name/hint: Your display name or penname — the name your comments and works are attributed to. This can be changed whenever you like, and doesn't have to be unique.
-vanity/label: Vanity
-vanity/hint: Your username, and what people use to {#B:@ping} you in comments. This {#I:can} be changed whenever you like, but {#B:must always be unique}.
-vanity/url-preview: Preview
-description/label: Description
-description/hint: This bio will appear on your profile above any works.
-
 ## account/create
 title: Create account
 description: The {#LINK(#authorisations):connected third party service accounts} will be used for login.
@@ -116,4 +118,21 @@ submit: Sign Up!
 
 ## account/update
 title: Update profile
+submit: Save Changes
+
+## author
+
+### works
+title: Works
+action/new: New Work
+
+## work-edit
+action/delete: Delete Work
+
+## work-edit/create
+title: Create work
+submit: Create!
+
+## work-edit/update
+title: Edit Work
 submit: Save Changes

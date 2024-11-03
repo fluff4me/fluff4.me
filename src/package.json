@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"dependencies": {
-		"api.fluff4.me": "^1.0.98",
+		"api.fluff4.me": "^1.0.101",
 		"prosemirror-example-setup": "1.2.3",
 		"prosemirror-markdown": "1.13.1",
 		"prosemirror-state": "1.4.3",
