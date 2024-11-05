@@ -62,7 +62,7 @@ const Masthead = Component.Builder("header", (masthead, view: ViewContainer) => 
 		.clearPopover()
 		.append(Component()
 			.and(Button)
-			.style("masthead-home", "heading", "heading-1")
+			.style("masthead-home", "heading")
 			.append(flag)
 			.append(Component("img")
 				.style("masthead-home-logo-wordmark")
