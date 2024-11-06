@@ -10,7 +10,7 @@ export interface IButtonImplementation<ARGS extends any[]> {
 export const BUTTON_REGISTRY = {
 	createAuthor: {
 		name: "Create Author",
-		async execute (name: string, vanity: string) {
+		async execute (name: string, vanity: string, description?: string) {
 			const response = await fetch(`${Env.API_ORIGIN}author/create`, {
 				method: "POST",
 				credentials: "include",
@@ -21,6 +21,7 @@ export const BUTTON_REGISTRY = {
 				body: JSON.stringify({
 					name: name,
 					vanity: vanity,
+					description: description,
 				}),
 			}).then(response => response.json())
 			console.log(response)
@@ -153,6 +154,16 @@ export const BUTTON_REGISTRY = {
 		},
 	},
 
+	getAllWorksByAuthor: {
+		name: "View All Works By Author",
+		async execute (label: string, author: string) {
+			const response = await fetch(`${Env.API_ORIGIN}works/${author}`, {
+				credentials: "include",
+			}).then(response => response.json())
+			console.log(label, response)
+		},
+	},
+
 	createChapter: {
 		name: "Create Chapter",
 		async execute (author: string, work_url: string, name: string, body: string, visibility?: string) {
@@ -210,6 +221,16 @@ export const BUTTON_REGISTRY = {
 				credentials: "include",
 			}).then(response => response.json())
 			console.log(label, response)
+		},
+	},
+
+	getAllChapters: {
+		name: "Get All Chapters",
+		async execute (author: string, vanity: string, page: number = 0) {
+			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${vanity}/chapters?page=${page}`, {
+				credentials: "include",
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -584,8 +605,8 @@ export const BUTTON_REGISTRY = {
 
 	createCommentChapter: {
 		name: "Create Comment Chapter",
-		async execute (vanity: string, index: string, body: string, parent_id?: string) {
-			await fetch(`${Env.API_ORIGIN}work/${vanity}/chapter/${index}/comment/add`, {
+		async execute (author: string, vanity: string, index: string, body: string, parent_id?: string) {
+			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${vanity}/chapter/${index}/comment/add`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -595,14 +616,15 @@ export const BUTTON_REGISTRY = {
 					body,
 					parent_id,
 				}),
-			})
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
 	updateCommentChapter: {
 		name: "Update Comment Chapter",
 		async execute (id: string, comment_body: string) {
-			await fetch(`${Env.API_ORIGIN}comment/update/chapter`, {
+			const response = await fetch(`${Env.API_ORIGIN}comment/update/chapter`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -612,7 +634,8 @@ export const BUTTON_REGISTRY = {
 					comment_id: id,
 					body: comment_body,
 				}),
-			})
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -646,6 +669,16 @@ export const BUTTON_REGISTRY = {
 				}),
 			}).then(response => response.json())
 			console.log(label, response)
+		},
+	},
+
+	getAllComments: {
+		name: "Get All Comments",
+		async execute (author: string, vanity: string, index: string) {
+			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${vanity}/chapter/${index}/comments`, {
+				credentials: "include",
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -710,6 +743,38 @@ export const BUTTON_REGISTRY = {
 					description: tagDescription,
 					category: tagCategory,
 				}),
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	tagPromoteCustom: {
+		name: "Tag Promote Custom",
+		async execute (tagName: string, newDescription: string, newCategory: string) {
+			const response = await fetch(`${Env.API_ORIGIN}tag/promote/${tagName}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					description: newDescription,
+					category: newCategory,
+				}),
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	tagDemoteGlobal: {
+		name: "Tag Demote Global",
+		async execute (tagName: string) {
+			const response = await fetch(`${Env.API_ORIGIN}tag/demote/${tagName}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
 			}).then(response => response.json())
 			console.log(response)
 		},
@@ -780,12 +845,25 @@ export const BUTTON_REGISTRY = {
 		},
 	},
 
-	tagGetAll: {
-		name: "Tag Get All",
+	tagGetManifest: {
+		name: "Tag Get Manifest",
 		async execute () {
-			const response = await fetch(`${Env.API_ORIGIN}tag/get/global`, {
+			const response = await fetch(`${Env.API_ORIGIN}manifest/tags`, {
 				method: "GET",
 				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	manifestFormLengthGet: {
+		name: "Form Length Manifest",
+		async execute () {
+			const response = await fetch(`${Env.API_ORIGIN}manifest/form/lengths`, {
+				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
 				},
