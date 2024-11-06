@@ -177,15 +177,17 @@ interface Popover extends Component, PopoverExtensions { }
 const Popover = Component.Builder((component): Popover => {
 	let mousePadding: number | undefined
 	let unbind: UnsubscribeState | undefined
+	const visible = State(false)
 	const popover = component
 		.style("popover")
 		.tabIndex("programmatic")
 		.attributes.set("popover", "manual")
 		.extend<PopoverExtensions>(popover => ({
-			visible: State(false),
+			visible,
 			popoverChildren: State([]),
 			popoverParent: State(undefined),
-			popoverHasFocus: FocusListener.focused.map(popover, containsPopoverDescendant),
+			popoverHasFocus: FocusListener.focused.map(popover, focused =>
+				visible.value && containsPopoverDescendant(focused)),
 
 			setMousePadding: (padding) => {
 				mousePadding = padding

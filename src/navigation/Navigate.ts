@@ -12,6 +12,7 @@ interface Navigator {
 	fromURL (): Promise<void>
 	toURL (route: RoutePath): Promise<void>
 	toRawURL (url: string): boolean
+	logIn (): Promise<void>
 }
 
 function Navigator (app: App): Navigator {
@@ -21,8 +22,11 @@ function Navigator (app: App): Navigator {
 			if (location.href === lastURL?.href)
 				return
 
+			const oldURL = lastURL
+			lastURL = new URL(location.href)
+
 			let errored = false
-			if (location.pathname !== lastURL?.pathname) {
+			if (location.pathname !== oldURL?.pathname) {
 				const url = location.pathname
 				let handled = false
 				for (const route of Routes) {
@@ -53,8 +57,6 @@ function Navigator (app: App): Navigator {
 				element.scrollIntoView()
 				element.focus()
 			}
-
-			lastURL = new URL(location.href)
 		},
 		toURL: async (url: string) => {
 			if (url !== location.pathname)
@@ -88,6 +90,7 @@ function Navigator (app: App): Navigator {
 			console.error(`Unsupported raw URL to navigate to: "${url}"`)
 			return false
 		},
+		logIn: () => app.logIn(),
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises

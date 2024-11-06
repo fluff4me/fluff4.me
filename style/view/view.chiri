@@ -7,6 +7,39 @@
 
 	&-container:
 
+		&-ephemeral:
+			%flex-column
+			%right-0
+			%border-left-radius-2
+			%scheme-light-dark
+			%backdrop-blur
+			#block
+				background-light = alpha(0.7, $light-2)
+			background: #{alpha(0.8, color-mix(in lch, $background-2, $background-3 70%))}
+			box-shadow: #{box-shadow-inset-border-left-1}, #{box-shadow-inset-border-block-1}, #{box-shadow-left-2}
+			top: calc($masthead-height - 1px)
+			height: calc(100% - $masthead-height + 1px)
+			min-width: 70vw
+
+			&--open:
+				%flex
+
+			&-close:
+				%align-self-end
+				#icon name="xmark
+
+			@view-transition!old:
+				#animate .3s ease-out both:
+					to:
+						translate: $space-5 0
+						opacity: 0
+
+			@view-transition!new:
+				#animate .5s ease-out backwards:
+					from:
+						translate: $space-4 0
+						opacity: 0
+
 	&--hidden:
 
 #macro view:

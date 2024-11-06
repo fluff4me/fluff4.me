@@ -1,5 +1,4 @@
 .dialog:
-	%size-100
 	%borderless
 	%margin-0
 	%padding-0
@@ -12,4 +11,10 @@
 		%z-index-fg
 
 	&--fullscreen:
+		%size-100
 		%inset-0
+
+	&--not-modal:
+		%fixed
+		%inset-auto
+		z-index: 999999999

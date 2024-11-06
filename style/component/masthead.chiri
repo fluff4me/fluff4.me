@@ -2,9 +2,12 @@
 	%background-dark-a30
 	%grid
 	%align-content-centre
-	%font-4
+	%font-3
 	%padding-1-0
+	%border-box
 	$border-colour: $dark-3
+	height: $masthead-height
+	line-height: 1.2em
 	box-shadow:
 		#{box-shadow-inset-border-bottom-1},
 		#{box-shadow-inset-bottom-1}
@@ -42,7 +45,7 @@
 	&-home:
 		#after: .heading-1
 
-		%font-inherit
+		%font-4
 		%size-fit
 		%flex
 		%gap-2
