@@ -1,4 +1,4 @@
-import type { Work } from "api.fluff4.me"
+import type { WorkFull } from "api.fluff4.me"
 import EndpointWorkGet from "endpoint/work/EndpointWorkGet"
 import ActionRow from "ui/component/core/ActionRow"
 import Button from "ui/component/core/Button"
@@ -16,14 +16,16 @@ interface WorkEditViewParams {
 
 export default ViewDefinition({
 	create: async (params: WorkEditViewParams | undefined) => {
+		await navigate.logIn()
+
 		const view = View("work-edit")
 
 		const work = params && await EndpointWorkGet.query({ params })
 		if (work instanceof Error)
 			throw work
 
-		const state = State<Work | undefined>(work?.data)
-		const stateInternal = State<Work | undefined>(work?.data)
+		const state = State<WorkFull | undefined>(work?.data)
+		const stateInternal = State<WorkFull | undefined>(work?.data)
 
 		Slot()
 			.use(state, (slot) => { WorkEditForm(stateInternal)?.appendTo(slot) })

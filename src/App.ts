@@ -9,6 +9,7 @@ import FocusListener from "ui/utility/FocusListener"
 import HoverListener from "ui/utility/HoverListener"
 import Mouse from "ui/utility/Mouse"
 import Viewport from "ui/utility/Viewport"
+import AccountView from "ui/view/AccountView"
 import ViewContainer from "ui/ViewContainer"
 import Async from "utility/Async"
 import Env from "utility/Env"
@@ -18,6 +19,7 @@ import Time from "utility/Time"
 interface AppExtensions {
 	navigate: Navigator
 	view: ViewContainer
+	logIn (): Promise<void>
 }
 
 interface App extends Component, AppExtensions { }
@@ -95,6 +97,19 @@ async function App (): Promise<App> {
 		.extend<AppExtensions>(app => ({
 			navigate: Navigator(app),
 			view,
+			logIn: async () => {
+				if (Session.Auth.author.value)
+					return
+
+				const accountView = await view.showEphemeral(AccountView, undefined)
+				if (accountView)
+					await Session.Auth.await(accountView)
+
+				if (accountView?.removed.value)
+					return
+
+				await view.hideEphemeral()
+			},
 		}))
 		.appendTo(document.body)
 

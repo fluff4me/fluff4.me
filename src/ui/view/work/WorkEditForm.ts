@@ -1,4 +1,4 @@
-import type { Work } from "api.fluff4.me"
+import type { WorkFull } from "api.fluff4.me"
 import EndpointWorkCreate from "endpoint/work/EndpointWorkCreate"
 import EndpointWorkUpdate from "endpoint/work/EndpointWorkUpdate"
 import quilt from "lang/en-nz"
@@ -11,7 +11,7 @@ import TextEditor from "ui/component/core/TextEditor"
 import TextInput from "ui/component/core/TextInput"
 import type State from "utility/State"
 
-export default Component.Builder((component, state: State<Work | undefined>) => {
+export default Component.Builder((component, state: State<WorkFull | undefined>) => {
 	const block = component.and(Block)
 	const form = block.and(Form, block.title)
 

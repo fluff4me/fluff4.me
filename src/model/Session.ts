@@ -3,6 +3,7 @@ import { type Authorisation, type AuthService, type Session } from "api.fluff4.m
 import EndpointAuthRemove from "endpoint/auth/EndpointAuthRemove"
 import EndpointSessionGet from "endpoint/session/EndpointSessionGet"
 import EndpointSessionReset from "endpoint/session/EndpointSessionReset"
+import type Component from "ui/Component"
 import popup from "utility/Popup"
 import State from "utility/State"
 import type { ILocalStorage } from "utility/Store"
@@ -109,6 +110,22 @@ namespace Session {
 			await popup(`Login Using ${service.name}`, service.url_begin, 600, 900)
 				.then(() => true).catch(err => { console.warn(err); return false })
 			await Session.refresh()
+		}
+
+		export async function await (owner: Component) {
+			if (state.value === "logged-in")
+				return true
+
+			return new Promise<void>(resolve => {
+				state.subscribe(owner, handleStateChange)
+				function handleStateChange (value: State) {
+					if (value !== "logged-in")
+						return
+
+					resolve()
+					state.unsubscribe(handleStateChange)
+				}
+			})
 		}
 	}
 

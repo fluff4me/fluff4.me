@@ -3,7 +3,8 @@ import type View from "ui/view/View"
 import type { PromiseOr } from "utility/Type"
 
 interface ViewDefinitionBase<VIEW extends View, PARAMS extends object | undefined> {
-	create (params: PARAMS): PromiseOr<VIEW>
+	prepare?(params: PARAMS): PromiseOr<void>
+	create (params: PARAMS): PromiseOr<VIEW | undefined>
 }
 
 interface ViewDefinition<VIEW extends View, PARAMS extends object | undefined> extends ViewDefinitionBase<VIEW, PARAMS> {
