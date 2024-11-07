@@ -4,6 +4,9 @@ home/label: home
 
 # shared
 
+## action
+login-or-signup: Log In or Sign Up
+
 ## form
 name/label: Name
 name/hint: Your display name or penname — the name your comments and works are attributed to. This can be changed whenever you like, and doesn't have to be unique.
@@ -80,12 +83,18 @@ primary-nav/alt: primary
 
 ## user/profile
 alt: profile
-popover/login: Log In or Sign Up
+popover/login=shared/action/login-or-signup
 popover/profile: View Profile
 popover/account: Account Settings
 
 # view
 container/alt: main content
+
+## shared
+### login-required
+title: Log-in required
+description: You must log in or sign up to view this content.
+action=shared/action/login-or-signup
 
 ## error
 title: Error {CODE}

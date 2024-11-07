@@ -29,7 +29,7 @@ const Form = Component.Builder((form, label: Component): Form => {
 			submit: undefined!,
 		}))
 		.extendJIT("submit", () => Button()
-			.style("form-submit")
+			.type("primary")
 			.attributes.set("type", "submit")
 			.appendTo(footer.right))
 })

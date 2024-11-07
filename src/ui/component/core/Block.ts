@@ -1,7 +1,7 @@
 import Component from "ui/Component"
 import Heading from "ui/component/core/Heading"
 import Paragraph from "ui/component/core/Paragraph"
-import ViewTransition from "ui/view/component/ViewTransition"
+import ViewTransition from "ui/view/shared/ext/ViewTransition"
 
 interface BlockExtensions {
 	readonly header: Component
