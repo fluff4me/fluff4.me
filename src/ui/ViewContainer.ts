@@ -55,11 +55,21 @@ const ViewContainer = (): ViewContainer => {
 					await loginPromise
 
 					if (needsLogin && Session.Auth.state.value !== "logged-in") {
+						let setLoggedIn!: () => void
+						const loggedIn = new Promise<void>(resolve => setLoggedIn = resolve)
 						ViewTransition.perform("view", async () => {
 							hideEphemeral()
-							await swapAdd(RequireLoginView)
+							const view = await swapAdd(RequireLoginView)
+							if (!view)
+								return
+
+							Session.Auth.state.subscribe(view, state => {
+								if (state === "logged-in")
+									setLoggedIn()
+							})
 						})
-						return
+
+						await loggedIn
 					}
 				}
 
@@ -98,6 +108,8 @@ const ViewContainer = (): ViewContainer => {
 						shownView.appendTo(container)
 						container.view = shownView
 					}
+
+					return shownView
 				}
 			},
 
