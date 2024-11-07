@@ -28,20 +28,20 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 
 	const nameInput = TextInput()
 		.setRequired()
-		.default.bind(Session.Auth.author.map(component, author => author?.name))
+		.default.bind(state.map(component, work => work?.name))
 	table.label(label => label.text.use("shared/form/name/label"))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
 	const vanityInput = TextInput()
 		.placeholder.bind(nameInput.state
 			.map(component, name => filterVanity(name)))
-		.default.bind(Session.Auth.author.map(component, author => author?.vanity))
+		.default.bind(state.map(component, work => work?.vanity))
 		.filter(filterVanity)
 	table.label(label => label.text.use("shared/form/vanity/label"))
 		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
 	const descriptionInput = TextEditor()
-		.default.bind(Session.Auth.author.map(component, author => author?.description.body))
+		.default.bind(state.map(component, work => work?.description.body))
 	table.label(label => label.text.use("shared/form/description/label"))
 		.content((content, label) => content.append(descriptionInput.setLabel(label)))
 

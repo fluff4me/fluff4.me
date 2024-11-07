@@ -9,4 +9,4 @@ export const weavewatch = Task("weavewatch", () =>
 			env: {
 			},
 		},
-		"weaving", "./lang", "--watch", "--out", "./docs", "--outTypes", "./src"))
+		"weaving", "./lang", "--watch", "--out", "./docs", "--outTypes", "./src", "--outWhitespace"))

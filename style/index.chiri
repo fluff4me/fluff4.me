@@ -52,5 +52,6 @@
 	view/type/author
 	view/type/work
 	view/type/work-edit
+	view/type/require-login
 
 #import: app

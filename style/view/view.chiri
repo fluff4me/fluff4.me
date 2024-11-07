@@ -15,7 +15,7 @@
 			%backdrop-blur
 			#block
 				background-light = alpha(0.7, $light-2)
-			background: #{alpha(0.8, color-mix(in lch, $background-2, $background-3 70%))}
+			background: #{alpha(0.9, color-mix(in lch, $background-2, $background-3 70%))}
 			box-shadow: #{box-shadow-inset-border-left-1}, #{box-shadow-inset-border-block-1}, #{box-shadow-left-2}
 			top: calc($masthead-height - 1px)
 			height: calc(100% - $masthead-height + 1px)

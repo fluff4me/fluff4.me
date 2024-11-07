@@ -29,6 +29,18 @@ $$button-background-highlight!colour
 		:not ::hover ::focus:
 			$button-background: transparent
 
+	&-type-primary:
+		$colour: $colour-blue-saturated
+		$button-background: $colour
+		colour: #{contrast($colour)}
+
+		::hover, ::focus:
+			$button-background: hsl(from $colour h s calc(l + 5))
+
+		::active:
+			$button-background: hsl(from $colour h calc(s - 40) calc(l - 15))
+
+
 	&-text:
 		%font-vertical-align
 

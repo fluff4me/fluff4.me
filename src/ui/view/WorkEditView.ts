@@ -3,7 +3,7 @@ import EndpointWorkGet from "endpoint/work/EndpointWorkGet"
 import ActionRow from "ui/component/core/ActionRow"
 import Button from "ui/component/core/Button"
 import Slot from "ui/component/core/Slot"
-import ViewTransition from "ui/view/component/ViewTransition"
+import ViewTransition from "ui/view/shared/ext/ViewTransition"
 import View from "ui/view/View"
 import ViewDefinition from "ui/view/ViewDefinition"
 import WorkEditForm from "ui/view/work/WorkEditForm"
@@ -15,9 +15,8 @@ interface WorkEditViewParams {
 }
 
 export default ViewDefinition({
+	requiresLogin: true,
 	create: async (params: WorkEditViewParams | undefined) => {
-		await navigate.logIn()
-
 		const view = View("work-edit")
 
 		const work = params && await EndpointWorkGet.query({ params })

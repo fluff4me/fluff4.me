@@ -1,6 +1,6 @@
 import Component from "ui/Component"
-import type { InputExtensions } from "ui/component/core/extension/Input"
-import Input from "ui/component/core/extension/Input"
+import type { InputExtensions } from "ui/component/core/ext/Input"
+import Input from "ui/component/core/ext/Input"
 import StringApplicator from "ui/utility/StringApplicator"
 import State from "utility/State"
 

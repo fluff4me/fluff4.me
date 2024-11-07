@@ -12,13 +12,13 @@ namespace ViewTransition {
 	const PADDING = 100
 
 	let id = 0
-	export const Has = Component.Builder(component => {
+	export const Has = Component.Extension(component => {
 		component.element.setAttribute(`data-${DATA_HAS_ID}`, "")
 		component.and(HasSubview)
 		return component
 	})
 
-	export const HasSubview = Component.Builder(component => {
+	export const HasSubview = Component.Extension(component => {
 		component.element.setAttribute(`data-${DATA_HAS_SUBVIEW_ID}`, "")
 		component.element.setAttribute(`data-${DATA_ID}`, `${id++}`)
 		return component

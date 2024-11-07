@@ -2,6 +2,7 @@ import type App from "App"
 import type { RoutePath } from "navigation/Routes"
 import Routes from "navigation/Routes"
 import ErrorView from "ui/view/ErrorView"
+import type ViewContainer from "ui/ViewContainer"
 import Env from "utility/Env"
 
 declare global {
@@ -12,7 +13,7 @@ interface Navigator {
 	fromURL (): Promise<void>
 	toURL (route: RoutePath): Promise<void>
 	toRawURL (url: string): boolean
-	logIn (): Promise<void>
+	ephemeral: ViewContainer["showEphemeral"]
 }
 
 function Navigator (app: App): Navigator {
@@ -90,7 +91,8 @@ function Navigator (app: App): Navigator {
 			console.error(`Unsupported raw URL to navigate to: "${url}"`)
 			return false
 		},
-		logIn: () => app.logIn(),
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		ephemeral: (...args: any[]) => (app.view.showEphemeral as any)(...args),
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises
