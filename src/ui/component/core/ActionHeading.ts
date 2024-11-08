@@ -1,6 +1,7 @@
 import Component from "ui/Component"
 import ActionRow from "ui/component/core/ActionRow"
 import Heading from "ui/component/core/Heading"
+import ViewTransition from "ui/view/shared/ext/ViewTransition"
 
 export interface ActionHeadingExtensions {
 	readonly heading: Heading
@@ -11,7 +12,9 @@ interface ActionHeading extends ActionRow, ActionHeadingExtensions {
 }
 
 const ActionHeading = Component.Builder((component): ActionHeading => {
-	const row = component.and(ActionRow).style("action-heading")
+	const row = component.and(ActionRow)
+		.and(ViewTransition.Has)
+		.style("action-heading")
 
 	const heading = row.left.and(Heading).style("action-heading-heading")
 

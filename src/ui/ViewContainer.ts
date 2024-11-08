@@ -39,7 +39,7 @@ const ViewContainer = (): ViewContainer => {
 				let view: VIEW | undefined
 				let loadParams: LOAD_PARAMS | undefined = undefined
 
-				const needsLogin = definition.requiresLogin && Session.Auth.state.value !== "logged-in"
+				const needsLogin = definition.requiresLogin && !Session.Auth.loggedIn.value
 				if (needsLogin || definition.load) {
 					let loginPromise: Promise<boolean> | undefined
 					const transition = ViewTransition.perform("view", async () => {
@@ -54,7 +54,7 @@ const ViewContainer = (): ViewContainer => {
 					await transition.updateCallbackDone
 					await loginPromise
 
-					if (needsLogin && Session.Auth.state.value !== "logged-in") {
+					if (needsLogin && !Session.Auth.loggedIn.value) {
 						let setLoggedIn!: () => void
 						const loggedIn = new Promise<void>(resolve => setLoggedIn = resolve)
 						ViewTransition.perform("view", async () => {
@@ -63,10 +63,8 @@ const ViewContainer = (): ViewContainer => {
 							if (!view)
 								return
 
-							Session.Auth.state.subscribe(view, state => {
-								if (state === "logged-in")
-									setLoggedIn()
-							})
+							Session.Auth.loggedIn.subscribe(view, loggedIn =>
+								loggedIn && setLoggedIn())
 						})
 
 						await loggedIn
@@ -194,7 +192,7 @@ const ViewContainer = (): ViewContainer => {
 			])
 
 			cancelLogin = undefined
-			return Session.Auth.state.value === "logged-in"
+			return Session.Auth.loggedIn.value
 		})
 
 		return {
