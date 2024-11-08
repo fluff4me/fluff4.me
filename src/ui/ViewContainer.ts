@@ -107,6 +107,8 @@ const ViewContainer = (): ViewContainer => {
 					if (shownView) {
 						shownView.appendTo(container)
 						container.view = shownView
+						if (replacementDefinition === definition)
+							shownView.params = params
 					}
 
 					return shownView

@@ -73,7 +73,7 @@ export const AutoLabel = Component.Builder("label", (component): AutoLabel => {
 		unuseFormName = form?.name.use(label, name => formName = name)
 
 		const view = label.closest(View)
-		viewPath = view ? location.pathname.slice(1).replaceAll("/", "-") : "_"
+		viewPath = view ? view.hash : "_"
 
 		updateFor()
 	})

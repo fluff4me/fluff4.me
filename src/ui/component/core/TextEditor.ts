@@ -1375,15 +1375,10 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		})
 	}
 
-	function contextualiseEditorName (name: string) {
-		return `${location.pathname}#${name}`
-	}
-
 	function clearLocal (name = editor.document?.name.value) {
 		if (!name)
 			return
 
-		name = contextualiseEditorName(name)
 		Store.items.textEditorDrafts = Store.items.textEditorDrafts?.filter(draft => draft.name !== name)
 	}
 
@@ -1402,7 +1397,6 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		if (!name)
 			return
 
-		name = contextualiseEditorName(name)
 		const draft = Store.items.textEditorDrafts?.find(draft => draft.name === name)
 		if (!draft)
 			return
@@ -1414,7 +1408,6 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		if (!name)
 			return
 
-		name = contextualiseEditorName(name)
 		const body = !doc ? "" : markdownSerializer.serialize(doc)
 		if (body === editor.default.state.value)
 			return clearLocal()
