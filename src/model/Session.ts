@@ -76,6 +76,7 @@ namespace Session {
 			| "logged-in"
 
 		export const state = State<State>("none")
+		export const loggedIn = State.Generator(() => state.value === "logged-in").observeManual(state)
 		export const authorisations = State<Authorisation[]>([])
 		export const author = State<AuthorFull | undefined>(undefined, (a, b) => a?.vanity === b?.vanity)
 

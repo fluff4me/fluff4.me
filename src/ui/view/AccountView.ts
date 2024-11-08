@@ -18,14 +18,14 @@ export default ViewDefinition({
 		const state = State<Session.Auth.State>(Session.Auth.state.value)
 
 		Slot()
-			.use(state, (slot, state) => { createForm()?.appendTo(slot) })
+			.use(state, () => createForm())
 			.appendTo(view)
 
 		const services = await AccountViewOAuthServices(state)
 		services.appendTo(view)
 
 		Slot()
-			.use(state, (slot, state) => { createActionRow()?.appendTo(slot) })
+			.use(state, () => createActionRow())
 			.appendTo(view)
 
 		Session.Auth.state.subscribe(view, () =>

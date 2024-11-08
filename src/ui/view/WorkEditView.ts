@@ -27,11 +27,11 @@ export default ViewDefinition({
 		const stateInternal = State<WorkFull | undefined>(work?.data)
 
 		Slot()
-			.use(state, (slot) => { WorkEditForm(stateInternal)?.appendTo(slot) })
+			.use(state, () => WorkEditForm(stateInternal))
 			.appendTo(view)
 
 		Slot()
-			.use(state, (slot) => { createActionRow()?.appendTo(slot) })
+			.use(state, () => createActionRow())
 			.appendTo(view)
 
 		stateInternal.subscribe(view, work =>
