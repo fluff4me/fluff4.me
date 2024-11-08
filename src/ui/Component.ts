@@ -114,6 +114,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 	append (...contents: (Component | Node)[]): this
 	prepend (...contents: (Component | Node)[]): this
 
+	closest<BUILDER extends Component.Builder<any[], Component> | Component.Extension<any[], Component>> (builder: BUILDER): (BUILDER extends Component.Builder<any[], infer COMPONENT> ? COMPONENT : BUILDER extends Component.Extension<any[], infer COMPONENT> ? COMPONENT : never) | undefined
 	closest<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): COMPONENT | undefined
 	closest<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): COMPONENT | undefined
 
@@ -375,11 +376,12 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 
-		closest (builder) {
+		closest (builder: any) {
 			let cursor: HTMLElement | null = component.element
 			while (cursor) {
 				cursor = cursor.parentElement
 				const component = cursor?.component
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 				if (component?.is(builder))
 					return component
 			}
