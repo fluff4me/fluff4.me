@@ -1,8 +1,10 @@
 import EndpointAuthorGet from "endpoint/author/EndpointAuthorGet"
+import EndpointWorkGetAllAuthor from "endpoint/work/EndpointWorkGetAllAuthor"
 import Session from "model/Session"
 import Author from "ui/component/Author"
 import ActionHeading from "ui/component/core/ActionHeading"
 import Button from "ui/component/core/Button"
+import Paginator from "ui/component/core/Paginator"
 import Slot from "ui/component/core/Slot"
 import View from "ui/view/View"
 import ViewDefinition from "ui/view/ViewDefinition"
@@ -32,6 +34,17 @@ export default ViewDefinition({
 				.text.use("view/author/works/action/new")
 				.event.subscribe("click", () => navigate.toURL("/work/new")))
 			.appendTo(row.right)
+
+		const authorQuery = EndpointWorkGetAllAuthor.prep({
+			params: {
+				author: params.vanity,
+			},
+		})
+		Paginator()
+			.useEndpoint(authorQuery, (slot, data) => {
+
+			})
+			.appendTo(view)
 
 		return view
 	},
