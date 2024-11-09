@@ -1,0 +1,13 @@
+.paginator:
+
+	&-header:
+		%sticky
+		%top-0
+
+	&-footer:
+		%sticky
+		%bottom-0
+
+	&-content:
+
+	&-page:

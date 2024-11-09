@@ -38,6 +38,7 @@
 	component/dialog
 	component/text-editor
 	component/form
+	component/paginator
 	component/flag
 	component/masthead
 	component/sidebar
