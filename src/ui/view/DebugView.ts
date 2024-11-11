@@ -288,6 +288,29 @@ export default ViewDefinition({
 		const moreRoleButtons = Block().appendTo(view)
 
 		moreRoleButtons.append(createButton({
+			name: "Make ten billion works",
+			async execute () {
+				await BUTTON_REGISTRY.createAuthor.execute("lots of works test", "manyworks", "test description")
+				await BUTTON_REGISTRY.privilegeGrantAuthor.execute("manyworks", "TagGlobalCreate", "TagGlobalDelete", "TagGlobalUpdate", "TagCategoryCreate", "TagCategoryUpdate", "TagCategoryDelete", "TagPromote", "TagDemote")
+				await BUTTON_REGISTRY.tagCreateCategory.execute("Category One", "the first test category")
+				await BUTTON_REGISTRY.tagCreateCategory.execute("Category Two", "the second test category")
+				await BUTTON_REGISTRY.tagCreateCategory.execute("Category Three", "the third test category")
+				await BUTTON_REGISTRY.tagCreateGlobal.execute("Tag One", "test tag 1", "Category One")
+				await BUTTON_REGISTRY.tagCreateGlobal.execute("Tag Two", "test tag 1", "Category Two")
+				await BUTTON_REGISTRY.tagCreateGlobal.execute("Tag Three", "test tag 1", "Category Three")
+				for (let a = 0; a < 333; a++) {
+					await BUTTON_REGISTRY.createWork.execute(`work${a}`,
+						`description no ${a} mentions <mention vanity="manyworks">\n"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."`,
+						`testwork${a}`,
+						"Ongoing",
+						"Public",
+						["Category One: Tag One", "Category Two: Tag Two", "Category Three: Tag Three"],
+						["custom tag one", `custom tag two ${a}`])
+				}
+			},
+		}))
+
+		moreRoleButtons.append(createButton({
 			name: "admin list roles test (profile 1)",
 			async execute () {
 				await BUTTON_REGISTRY.privilegeGrantAuthor.execute("somanystories", "RoleGrant", "RoleCreate")
