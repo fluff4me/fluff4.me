@@ -1,5 +1,6 @@
 import Component from "ui/Component"
 import ActionRow from "ui/component/core/ActionRow"
+import Block from "ui/component/core/Block"
 import Button from "ui/component/core/Button"
 
 interface FormExtensions {
@@ -16,10 +17,10 @@ const Form = Component.Builder((form, label: Component): Form => {
 		.ariaRole("form")
 		.ariaLabelledBy(label)
 
-	const content = Component()
+	const content = (form.is(Block) ? form.content : Component())
 		.style("form-content")
 
-	const footer = ActionRow()
+	const footer = (form.is(Block) ? form.footer : ActionRow())
 		.style("form-footer")
 
 	return form

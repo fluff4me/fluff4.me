@@ -1,4 +1,4 @@
-import type { ErrorResponse, PaginatedResponse, Paths } from "api.fluff4.me"
+import type { ErrorResponse, PaginatedResponse, Paths, Response } from "api.fluff4.me"
 import Env from "utility/Env"
 import type { Empty } from "utility/Type"
 
@@ -97,7 +97,8 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 		const url = route.slice(1)
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			.replaceAll(/\{([^}]+)\}/g, (match, paramName) => data?.params?.[paramName])
-		const response = await fetch(`${Env.API_ORIGIN}${url}`, {
+		const qs = data?.query ? "?" + new URLSearchParams(data.query as Record<string, string>).toString() : ""
+		const response = await fetch(`${Env.API_ORIGIN}${url}${qs}`, {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			method,
 			headers: {
@@ -152,8 +153,9 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 export default Endpoint
 
 export type EndpointResponse<ENDPOINT extends Endpoint<any, any>> = Exclude<Awaited<ReturnType<ENDPOINT["query"]>>, ErrorResponse<any> | void>
+export type ResponseData<RESPONSE> = RESPONSE extends Response<infer DATA> ? DATA : never
 
-export type PaginatedEndpoint = {
+export type PaginatedEndpointRoutes = keyof {
 	[PATH in keyof Paths as (
 		EndpointResponse<Endpoint<PATH>> extends infer RESPONSE ?
 		RESPONSE extends PaginatedResponse<any> ?
@@ -161,4 +163,6 @@ export type PaginatedEndpoint = {
 		: never
 		: never
 	)]: Endpoint<PATH>
-} extends infer ENDPOINTS ? ENDPOINTS[keyof ENDPOINTS] : never
+}
+
+export type PaginatedEndpoint = { [ROUTE in PaginatedEndpointRoutes]: Endpoint<ROUTE> } extends infer ENDPOINTS ? ENDPOINTS[keyof ENDPOINTS] : never

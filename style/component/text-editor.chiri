@@ -57,6 +57,8 @@
 					content: none
 
 		&-button:
+			#after: .button
+			%box-shadow-none
 			%relative
 			%font-inherit
 			%border-box
@@ -290,9 +292,7 @@
 
 .text-editor:
 	&--fullscreen:
-		#after:
-			.text-editor
-			.subview-transition
+		#after: .text-editor, .subview-transition
 
 		%absolute
 		%inset-0

@@ -43,6 +43,7 @@
 	component/masthead
 	component/sidebar
 	component/author
+	component/work
 
 #import:
 	view/view

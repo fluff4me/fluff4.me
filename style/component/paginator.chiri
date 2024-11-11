@@ -1,8 +1,12 @@
 .paginator:
+	%relative
+	%width-100
+	max-width: #{content-width}
 
 	&-header:
 		%sticky
 		%top-0
+		%margin-bottom-0
 
 	&-footer:
 		%sticky
@@ -11,3 +15,7 @@
 	&-content:
 
 	&-page:
+
+	&-error:
+		&-text:
+		&-retry-button:

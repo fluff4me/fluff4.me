@@ -90,6 +90,21 @@ namespace Objects {
 
 		applyJIT(target, key, compute)
 	}
+
+	export const assign: (typeof Object)["assign"] = function (target: any, ...sources: any[]) {
+		for (const source of sources) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			for (const key of Object.keys(source)) {
+				const descriptor = Object.getOwnPropertyDescriptor(target, key)
+				if (!descriptor || descriptor.writable) {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+					target[key] = source[key]
+				}
+			}
+		}
+
+		return target
+	}
 }
 
 export default Objects
