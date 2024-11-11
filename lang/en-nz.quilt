@@ -20,6 +20,9 @@ description/hint: This bio will appear on your profile above any works.
 popover/button: open {0??details}{ 1??}
 popover: {0??details}
 
+paginator/error: Failed to load content.
+paginator/error/retry: Retry
+
 ## text-editor
 
 toolbar/group/inline: inline formatting
@@ -133,7 +136,7 @@ submit: Save Changes
 
 ### works
 title: Works
-action/new: New Work
+action/label/new: New Work
 
 ## work-edit
 action/delete: Delete Work

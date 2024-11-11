@@ -40,6 +40,7 @@ module Define {
 		try {
 			Object.defineProperty(obj, key, {
 				configurable: true,
+				writable: true,
 				value,
 			})
 		} catch (err) {

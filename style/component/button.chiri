@@ -24,9 +24,9 @@ $$button-background-highlight!colour
 	#transition: $button-transition
 
 	&-type-flush:
-		%box-shadow-none
-
 		:not ::hover ::focus:
+			#after: .button
+			%box-shadow-none
 			$button-background: transparent
 
 	&-type-primary:
@@ -58,3 +58,7 @@ $$button-background-highlight!colour
 		$transition-duration: $transition-action
 
 	&--disabled:
+
+	&-icon-plus:
+		#after: .button
+		#icon name="plus

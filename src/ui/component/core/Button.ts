@@ -1,9 +1,11 @@
-import type style from "style"
 import Component from "ui/Component"
+import type { ComponentName } from "ui/utility/StyleManipulator"
 
-type ButtonType = keyof { [KEY in keyof typeof style as KEY extends `button-type-${infer TYPE}--${string}` ? TYPE
+type ButtonType = keyof { [KEY in ComponentName as KEY extends `button-type-${infer TYPE}--${string}` ? TYPE
 	: KEY extends `button-type-${infer TYPE}` ? TYPE
 	: never]: string[] }
+
+type ButtonIcon = keyof { [KEY in ComponentName as KEY extends `button-icon-${infer TYPE}` ? TYPE : never]: string[] }
 
 interface ButtonTypeManipulator<HOST> {
 	(...buttonTypes: ButtonType[]): HOST
@@ -14,6 +16,7 @@ interface ButtonExtensions {
 	readonly textWrapper: Component
 	type: ButtonTypeManipulator<this>
 	setDisabled (disabled: boolean, reason: string): this
+	setIcon (icon?: ButtonIcon): this
 }
 
 interface Button extends Component, ButtonExtensions { }
@@ -21,6 +24,7 @@ interface Button extends Component, ButtonExtensions { }
 const Button = Component.Builder("button", (button): Button => {
 	const disabledReasons = new Set<string>()
 
+	let icon: ButtonIcon | undefined
 	return button
 		.attributes.set("type", "button")
 		.style("button")
@@ -46,6 +50,16 @@ const Button = Component.Builder("button", (button): Button => {
 				else
 					disabledReasons.delete(reason)
 				button.style.toggle(!!disabledReasons.size, "button--disabled")
+				return button
+			},
+			setIcon (newIcon) {
+				if (icon)
+					button.style.remove(`button-icon-${icon}`)
+
+				icon = newIcon
+				if (icon)
+					button.style(`button-icon-${icon}`)
+
 				return button
 			},
 		}))

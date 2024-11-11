@@ -2,12 +2,13 @@ import EndpointAuthorGet from "endpoint/author/EndpointAuthorGet"
 import EndpointWorkGetAllAuthor from "endpoint/work/EndpointWorkGetAllAuthor"
 import Session from "model/Session"
 import Author from "ui/component/Author"
-import ActionHeading from "ui/component/core/ActionHeading"
 import Button from "ui/component/core/Button"
 import Paginator from "ui/component/core/Paginator"
 import Slot from "ui/component/core/Slot"
+import Work from "ui/component/Work"
 import View from "ui/view/View"
 import ViewDefinition from "ui/view/ViewDefinition"
+
 
 interface AuthorViewParams {
 	vanity: string
@@ -25,24 +26,23 @@ export default ViewDefinition({
 			.setContainsHeading()
 			.appendTo(view)
 
-		const row = ActionHeading()
-			.tweak(h => h.heading.text.use("view/author/works/title"))
-			.appendTo(view)
-
-		Slot()
-			.if(Session.Auth.loggedIn, () => Button()
-				.text.use("view/author/works/action/new")
-				.event.subscribe("click", () => navigate.toURL("/work/new")))
-			.appendTo(row.right)
-
 		const authorQuery = EndpointWorkGetAllAuthor.prep({
 			params: {
 				author: params.vanity,
 			},
 		})
 		Paginator()
+			.tweak(p => p.title.text.use("view/author/works/title"))
+			.tweak(p => p.primaryActions.append(Slot()
+				.if(Session.Auth.loggedIn, () => Button()
+					.setIcon("plus")
+					.ariaLabel.use("view/author/works/action/label/new")
+					.event.subscribe("click", () => navigate.toURL("/work/new")))))
 			.useEndpoint(authorQuery, (slot, data) => {
-
+				for (const work of data.works)
+					Work(work)
+						.type("flush")
+						.appendTo(slot)
 			})
 			.appendTo(view)
 

@@ -213,6 +213,9 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 					Define.set(component, property, value)
 					return value
 				},
+				set: (value) => {
+					Define.set(component, property, value)
+				},
 			})
 			return component
 		},

@@ -16,7 +16,7 @@ export default Component.Builder((component, author: AuthorFull) => {
 	Component()
 		.style("author-description")
 		.setMarkdownContent(author.description.body)
-		.appendTo(block)
+		.appendTo(block.content)
 
 	return block
 }) 
