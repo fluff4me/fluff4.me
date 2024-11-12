@@ -80,12 +80,12 @@ export default ViewDefinition({
 			name: "Create Profile 1",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("prolific author", "somanystories")
+				await BUTTON_REGISTRY.createWork.execute("work in progress", "test", "wip", "Ongoing", "Private")
 				await BUTTON_REGISTRY.createWork.execute("a debut work", "pretty decent by <mention vanity=\"somanystories\">", "debut", "Complete", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("somanystories", "debut", "chapter 1", "woo look it's prolific author's first story!", "Public")
 				await BUTTON_REGISTRY.createWork.execute("sequel to debut", "wow they wrote a sequel", "sequel", "Ongoing", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("somanystories", "sequel", "the chapters", "pretend there's a story here", "Public")
-				await BUTTON_REGISTRY.createWork.execute("work in progress", "private test", "wip", "Ongoing", "Private")
-				await BUTTON_REGISTRY.createChapter.execute("somanystories", "wip", "draft", "it's a rough draft", "Private")
+				// await BUTTON_REGISTRY.createChapter.execute("somanystories", "wip", "draft", "it's a rough draft", "Private")
 				await BUTTON_REGISTRY.getAllWorksByAuthor.execute("all works", "somanystories")
 			},
 		}))
@@ -94,6 +94,7 @@ export default ViewDefinition({
 			name: "View Profile 1",
 			async execute () {
 				await BUTTON_REGISTRY.viewAuthor.execute("author with many stories", "somanystories")
+				await BUTTON_REGISTRY.getAllWorksByAuthor.execute("all works", "somanystories")
 			},
 		}))
 
@@ -307,6 +308,14 @@ export default ViewDefinition({
 						["Category One: Tag One", "Category Two: Tag Two", "Category Three: Tag Three"],
 						["custom tag one", `custom tag two ${a}`])
 				}
+				for (let a = 0; a < 333; a++) {
+					await BUTTON_REGISTRY.createChapter.execute("manyworks",
+						`testwork${a}`,
+						`chapter ${a}`,
+						`it's a test chapter ${a}`,
+						"Public")
+				}
+
 			},
 		}))
 
