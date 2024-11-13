@@ -12,6 +12,7 @@ import Define from "utility/Define"
 import Errors from "utility/Errors"
 import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
+import Strings from "utility/string/Strings"
 import type { AnyFunction, Mutable } from "utility/Type"
 
 const SYMBOL_COMPONENT_BRAND = Symbol("COMPONENT_BRAND")
@@ -522,6 +523,9 @@ namespace Component {
 	export function Builder<PARAMS extends any[], COMPONENT extends Component> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => COMPONENT): Builder<PARAMS, COMPONENT>
 	export function Builder<PARAMS extends any[], COMPONENT extends Component> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => Promise<COMPONENT>): BuilderAsync<PARAMS, COMPONENT>
 	export function Builder (initialOrBuilder: keyof HTMLElementTagNameMap | AnyFunction, builder?: (component: Component, ...params: any[]) => Component | Promise<Component>): (component?: Component, ...params: any[]) => Component | Promise<Component> {
+		const stack = Strings.shiftLine((new Error().stack ?? ""), 2)
+		const name = stack.match(/\(http.*?(\w+)\.ts:\d+:\d+\)/)?.[1]
+
 		const type = typeof initialOrBuilder === "string" ? initialOrBuilder : undefined
 		const initialBuilder: (type?: keyof HTMLElementTagNameMap) => Component = !builder || typeof initialOrBuilder === "string" ? defaultBuilder : initialOrBuilder
 		builder ??= initialOrBuilder as AnyFunction
@@ -537,9 +541,17 @@ namespace Component {
 					return component
 				})
 
+			if (name) {
+				(component as any)[Symbol.toStringTag] ??= name
+				if (component.element.tagName === "SPAN")
+					component.replaceElement(`:${name}` as any)
+			}
+
 			component.supers.push(simpleBuilder)
 			return component
 		}
+
+		Object.defineProperty(simpleBuilder, "name", { value: name })
 
 		return Object.assign(simpleBuilder, {
 			from: realBuilder,
