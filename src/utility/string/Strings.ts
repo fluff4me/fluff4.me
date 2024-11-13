@@ -153,6 +153,17 @@ namespace Strings {
 		return variations
 	}
 
+	export function shiftLine (lines: string, count = 1) {
+		for (let i = 0; i < count; i++) {
+			const index = lines.indexOf("\n")
+			if (index === -1)
+				return lines
+
+			lines = lines.slice(index + 1)
+		}
+		return lines
+	}
+
 	const REGEX_APOSTROPHE = /'/g
 	const REGEX_NON_WORD_MULTI = /\W+/g
 	export function getWords (text: string) {

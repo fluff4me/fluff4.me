@@ -47,6 +47,12 @@ const VENDOR_SCRIPTS: (string | VendorScript)[] = [
 		name: `entities/${file}`,
 		file: `lib/${file}.js`,
 	})),
+
+	{
+		name: "source-map-support",
+		file: "browser-source-map-support.js",
+		noUMD: true,
+	},
 ]
 
 const NO_OP_MODULES = [
@@ -80,8 +86,10 @@ export default Task("vendor", async () => {
 		if (!content)
 			throw new Error(`Unable to resolve script "${script.name}"`)
 
+		content = content.replace(/\/\/# sourceMappingURL=.*?(\n|$)/g, "")
+
 		if (!script.noUMD)
-			content = `define("${script.name}",["require","exports"],(require,exports)=>{var module={get exports(){return exports},set exports(value){exports._replace(value);exports=value}};\n${content}\n})\n`
+			content = `define("${script.name}",["require","exports"],(require,exports)=>{var module={get exports(){return exports},set exports(value){exports._replace(value);exports=value}};\n${content}\n});\n`
 
 		js += content
 	}

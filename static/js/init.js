@@ -78,7 +78,7 @@
 			_state: ModuleState.Unprocessed,
 			_requirements,
 			_initializer: fn,
-			_init: document.currentScript.dataset.init === name,
+			_init: document.currentScript?.dataset.init === name,
 			_replace (newModule) {
 				if (typeof newModule !== "object" && typeof newModule !== "function")
 					throw new Error("Cannot assign module.exports to a non-object")
@@ -171,9 +171,13 @@
 				return getModule(nameOrNames, requiredBy)
 			}
 
+			module.require = require
+
 			const result = module._initializer(require, module, ...args)
-			if (module.default === undefined)
+			if (module.default === undefined) {
 				module.default = result ?? module
+				module.__esModule = true
+			}
 
 			module = moduleMap.get(module._name)
 			module._state = ModuleState.Processed
