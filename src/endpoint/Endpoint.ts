@@ -1,5 +1,6 @@
 import type { ErrorResponse, PaginatedResponse, Paths, Response } from "api.fluff4.me"
 import Env from "utility/Env"
+import Time from "utility/Time"
 import type { Empty } from "utility/Type"
 
 declare module "api.fluff4.me" {
@@ -9,6 +10,7 @@ declare module "api.fluff4.me" {
 
 	interface PaginatedResponse<T> {
 		next?(): Promise<PaginatedResponse<T> | ErrorResponse<PaginatedResponse<T>>>
+		getPage (page: number): Promise<PaginatedResponse<T> | ErrorResponse<PaginatedResponse<T>>>
 	}
 
 	interface ErrorResponse<T> extends Error {
@@ -98,6 +100,8 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			.replaceAll(/\{([^}]+)\}/g, (match, paramName) => data?.params?.[paramName])
 		const qs = data?.query ? "?" + new URLSearchParams(data.query as Record<string, string>).toString() : ""
+
+		let error: ErrorResponse<any> | undefined
 		const response = await fetch(`${Env.API_ORIGIN}${url}${qs}`, {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			method,
@@ -108,9 +112,35 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 			} as HeadersInit,
 			credentials: "include",
 			body,
+			signal: AbortSignal.timeout(Time.seconds(5)),
+		}).catch((e: Error): undefined => {
+			if (e.name === "AbortError") {
+				error = Object.assign(new Error("Request timed out"), {
+					code: 408,
+					data: null,
+					headers: new Headers(),
+				})
+				return
+			}
+
+			if (e.name === "TypeError" && /invalid URL|Failed to construct/.test(e.message))
+				throw e
+
+			if (e.name === "TypeError" || e.name === "NetworkError") {
+				error = Object.assign(new Error("Network connection failed"), {
+					code: 503,
+					data: null,
+					headers: new Headers(),
+				})
+				return
+			}
+
+			if (!error)
+				throw e
 		})
 
-		let error: ErrorResponse<any> | undefined
+		if (error || !response) // will always mean the same thing, but ts doesn't know that
+			return error
 
 		const code = response.status
 		if (code !== 200) {
@@ -139,6 +169,11 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 						...data,
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 						query: { ...data?.query, page: (data?.query?.page ?? 0) + 1 },
+					}),
+					getPage: (page: number) => query({
+						...data,
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+						query: { ...data?.query, page },
 					}),
 				})
 			}

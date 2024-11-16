@@ -13,23 +13,25 @@ import State from "utility/State"
 
 export default ViewDefinition({
 	create: async () => {
-		const view = View("account")
+		const id = "account"
+		const view = View(id)
 
 		const state = State<Session.Auth.State>(Session.Auth.state.value)
 
 		Slot()
-			.use(state, () => createForm())
+			.use(state, () => createForm()?.subviewTransition(id))
 			.appendTo(view)
 
 		const services = await AccountViewOAuthServices(state)
+		services.header.subviewTransition(id)
 		services.appendTo(view)
 
 		Slot()
-			.use(state, () => createActionRow())
+			.use(state, () => createActionRow()?.subviewTransition(id))
 			.appendTo(view)
 
 		Session.Auth.state.subscribe(view, () =>
-			ViewTransition.perform("subview", updateAuthState))
+			ViewTransition.perform("subview", id, updateAuthState))
 
 		updateAuthState()
 

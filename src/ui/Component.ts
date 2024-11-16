@@ -112,8 +112,10 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 
 	appendTo (destination: Component | Element): this
 	prependTo (destination: Component | Element): this
+	insertTo (destination: Component | Element, direction: "before" | "after", sibling?: Component | Element): this
 	append (...contents: (Component | Node)[]): this
 	prepend (...contents: (Component | Node)[]): this
+	insert (direction: "before" | "after", sibling: Component | Element | undefined, ...contents: (Component | Node)[]): this
 
 	closest<BUILDER extends Component.Builder<any[], Component> | Component.Extension<any[], Component>> (builder: BUILDER): (BUILDER extends Component.Builder<any[], infer COMPONENT> ? COMPONENT : BUILDER extends Component.Extension<any[], infer COMPONENT> ? COMPONENT : never) | undefined
 	closest<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): COMPONENT | undefined
@@ -357,6 +359,17 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			component.emitInsert()
 			return component
 		},
+		insertTo (destination, direction, sibling) {
+			const element = Component.element(destination)
+			const siblingElement = sibling ? Component.element(sibling) : null
+			if (direction === "before")
+				element.insertBefore(component.element, siblingElement)
+			else
+				element.insertBefore(component.element, siblingElement?.nextSibling ?? null)
+
+			component.emitInsert()
+			return component
+		},
 		append (...contents) {
 			const elements = contents.map(Component.element)
 			component.element.append(...elements)
@@ -369,6 +382,22 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		prepend (...contents) {
 			const elements = contents.map(Component.element)
 			component.element.prepend(...elements)
+
+			for (const element of elements)
+				(element as Element).component?.emitInsert()
+
+			return component
+		},
+		insert (direction, sibling, ...contents) {
+			const siblingElement = sibling ? Component.element(sibling) : null
+			const elements = contents.map(Component.element)
+
+			if (direction === "before")
+				for (let i = elements.length - 1; i >= 0; i--)
+					component.element.insertBefore(elements[i], siblingElement)
+			else
+				for (const element of elements)
+					component.element.insertBefore(element, siblingElement?.nextSibling ?? null)
 
 			for (const element of elements)
 				(element as Element).component?.emitInsert()

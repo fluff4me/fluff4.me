@@ -24,7 +24,7 @@ $$button-background-highlight!colour
 	#transition: $button-transition
 
 	&-type-flush:
-		:not ::hover ::focus:
+		:not ::hover ::focus ::active:
 			#after: .button
 			%box-shadow-none
 			$button-background: transparent

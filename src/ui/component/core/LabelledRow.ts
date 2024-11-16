@@ -1,7 +1,6 @@
 import Component from "ui/Component"
 import type Label from "ui/component/core/Label"
 import { AutoLabel } from "ui/component/core/Label"
-import ViewTransition from "ui/view/shared/ext/ViewTransition"
 
 interface LabelledRowExtensions {
 	label: Label
@@ -12,7 +11,6 @@ interface LabelledRow extends Component, LabelledRowExtensions { }
 
 const LabelledRow = Component.Builder((row): LabelledRow => {
 	row.style("labelled-row")
-	row.and(ViewTransition.HasSubview)
 
 	let label: Label = AutoLabel().style("labelled-row-label").appendTo(row)
 	let content = Component().style("labelled-row-content").appendTo(row)

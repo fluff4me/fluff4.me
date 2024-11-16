@@ -26,25 +26,25 @@ export default ViewDefinition({
 			.setContainsHeading()
 			.appendTo(view)
 
-		const authorQuery = EndpointWorkGetAllAuthor.prep({
-			params: {
-				author: params.vanity,
-			},
-		})
-		Paginator()
+		const paginator = Paginator()
 			.tweak(p => p.title.text.use("view/author/works/title"))
 			.tweak(p => p.primaryActions.append(Slot()
 				.if(Session.Auth.loggedIn, () => Button()
 					.setIcon("plus")
 					.ariaLabel.use("view/author/works/action/label/new")
 					.event.subscribe("click", () => navigate.toURL("/work/new")))))
-			.useEndpoint(authorQuery, (slot, data) => {
-				for (const work of data.works)
-					Work(work)
-						.type("flush")
-						.appendTo(slot)
-			})
 			.appendTo(view)
+		const authorQuery = EndpointWorkGetAllAuthor.prep({
+			params: {
+				author: params.vanity,
+			},
+		})
+		await paginator.useEndpoint(authorQuery, (slot, data) => {
+			for (const work of data.works)
+				Work(work)
+					.type("flush")
+					.appendTo(slot)
+		})
 
 		return view
 	},

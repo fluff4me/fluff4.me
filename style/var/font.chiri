@@ -10,11 +10,11 @@
 
 #macro google-font:
 	#string family
-	#list!string formats
+	#list!string formats?
 
-	#string format-text = join(formats, ";")
+	#string format-text = if exists formats: ":ital,wght@#{join(formats, ";")}" else: ""
 
-	#import css: url("https://fonts.googleapis.com/css2?family=#{family}:ital,wght@#{format-text}&display=swap")
+	#import css: url("https://fonts.googleapis.com/css2?family=#{family}#{format-text}&display=swap")
 
 #google-font
 	family="Open+Sans
@@ -32,17 +32,23 @@
 		google-font-format(700, "italic")
 		google-font-format(800, "italic")
 
+; #google-font
+; 	family="Righteous
+; 	formats=[
+; 		google-font-format(400)
+
 #google-font
-	family="Righteous
-	formats=[
-		google-font-format(400)
+	family="Kanit
 
 #font-family
 	name="Open Sans
 	vertical-align=-0.027
 
 #font-family
-	name="Righteous
+	name="Kanit
 	letter-spacing=0.03
+	scale-factor=0.8
+	..
+	line-height: round(1.2em, 1px)
 
 %font-open-sans
