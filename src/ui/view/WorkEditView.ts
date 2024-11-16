@@ -14,10 +14,12 @@ interface WorkEditViewParams {
 	vanity: string
 }
 
+
 export default ViewDefinition({
 	requiresLogin: true,
 	create: async (params: WorkEditViewParams | undefined) => {
-		const view = View("work-edit")
+		const id = "work-edit"
+		const view = View(id)
 
 		const work = params && await EndpointWorkGet.query({ params })
 		if (work instanceof Error)
@@ -27,15 +29,15 @@ export default ViewDefinition({
 		const stateInternal = State<WorkFull | undefined>(work?.data)
 
 		Slot()
-			.use(state, () => WorkEditForm(stateInternal))
+			.use(state, () => WorkEditForm(stateInternal).subviewTransition(id))
 			.appendTo(view)
 
 		Slot()
-			.use(state, () => createActionRow())
+			.use(state, () => createActionRow()?.subviewTransition(id))
 			.appendTo(view)
 
 		stateInternal.subscribe(view, work =>
-			ViewTransition.perform("subview", () => state.value = work))
+			ViewTransition.perform("subview", id, () => state.value = work))
 
 		return view
 

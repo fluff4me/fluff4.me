@@ -3,7 +3,6 @@ import ActionRow from "ui/component/core/ActionRow"
 import Heading from "ui/component/core/Heading"
 import Paragraph from "ui/component/core/Paragraph"
 import type { ComponentName } from "ui/utility/StyleManipulator"
-import ViewTransition from "ui/view/shared/ext/ViewTransition"
 
 type BlockType = keyof { [KEY in ComponentName as KEY extends `block-type-${infer TYPE}--${string}` ? TYPE
 	: KEY extends `block-type-${infer TYPE}-${string}` ? TYPE
@@ -33,7 +32,7 @@ const Block = Component.Builder((component): Block => {
 	let header: Component | undefined
 
 	return component
-		.and(ViewTransition.Has)
+		.viewTransition()
 		.style("block")
 		.extend<BlockExtensions>(block => ({
 			title: undefined!,

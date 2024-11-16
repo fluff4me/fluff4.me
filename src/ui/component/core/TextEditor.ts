@@ -1171,8 +1171,9 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		unsubscribeLabelFor = undefined
 	}
 
+	const viewTransitionName = "text-editor"
 	const actualEditor = Component()
-		.and(ViewTransition.HasSubview)
+		.subviewTransition(viewTransitionName)
 		.style("text-editor")
 		.style.bind(isFullscreen, "text-editor--fullscreen")
 		.event.subscribe("click", (event) => {
@@ -1368,7 +1369,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	}
 
 	function toggleFullscreen () {
-		ViewTransition.perform("subview", () => {
+		ViewTransition.perform("subview", viewTransitionName, () => {
 			isFullscreen.value = !isFullscreen.value
 			actualEditor.appendTo(isFullscreen.value ? fullscreenDialog : editor)
 			actualEditor.rect.markDirty()

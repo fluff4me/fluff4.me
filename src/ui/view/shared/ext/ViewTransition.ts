@@ -1,6 +1,15 @@
 import Component from "ui/Component"
 import Arrays from "utility/Arrays"
 
+declare module "ui/Component" {
+	interface ComponentExtensions extends ViewTransitionComponentExtensions { }
+}
+
+interface ViewTransitionComponentExtensions {
+	viewTransition (): this
+	subviewTransition (name: string): this
+}
+
 namespace ViewTransition {
 
 	const DATA_HAS_ID = "has-view-transition"
@@ -11,27 +20,36 @@ namespace ViewTransition {
 	const VIEW_TRANSITION_CLASS_COUNT = 40
 	const PADDING = 100
 
-	let id = 0
-	export const Has = Component.Extension(component => {
-		component.element.setAttribute(`data-${DATA_HAS_ID}`, "")
-		component.and(HasSubview)
-		return component
-	})
+	Component.extend(component => component.extend<ViewTransitionComponentExtensions>(component => ({
+		viewTransition () {
+			component.element.setAttribute(`data-${DATA_HAS_ID}`, "")
+			return component
+		},
+		subviewTransition (name) {
+			component.element.setAttribute(`data-${DATA_HAS_SUBVIEW_ID}`, name)
+			component.element.setAttribute(`data-${DATA_ID}`, `${id++}`)
+			return component
+		},
+	})))
 
-	export const HasSubview = Component.Extension(component => {
-		component.element.setAttribute(`data-${DATA_HAS_SUBVIEW_ID}`, "")
-		component.element.setAttribute(`data-${DATA_ID}`, `${id++}`)
-		return component
-	})
+	let id = 0
 
 	let i = 0
 	let queuedUnapply: number | undefined
-	export function perform (type: "view" | "subview", swap: () => any) {
+	export function perform (type: "view", swap: () => any): ViewTransition
+	export function perform (type: "subview", name: string, swap: () => any): ViewTransition
+	export function perform (type: "view" | "subview", name?: (() => any) | string, swap?: () => any) {
 		queuedUnapply = undefined
-		reapply(type)
+
+		if (typeof name === "function") {
+			swap = name
+			name = undefined
+		}
+
+		reapply(type as "subview", name!)
 		const transition = document.startViewTransition(async () => {
-			await swap()
-			reapply(type)
+			await swap!()
+			reapply(type as "subview", name!)
 		})
 
 		const id = queuedUnapply = i++
@@ -45,8 +63,10 @@ namespace ViewTransition {
 		return transition
 	}
 
-	export function reapply (type: "view" | "subview") {
-		const components = getComponents(type).filter(isInView)
+	export function reapply (type: "view"): void
+	export function reapply (type: "subview", name: string): void
+	export function reapply (type: "view" | "subview", name?: string) {
+		const components = getComponents(type, name).filter(isInView)
 		let i = 0
 		if (type === "view")
 			for (const component of components)
@@ -77,8 +97,8 @@ namespace ViewTransition {
 			&& rect.right > -PADDING && rect.left < window.innerWidth + PADDING
 	}
 
-	function getComponents (type: "view" | "subview") {
-		return [...document.querySelectorAll(`[data-${type === "view" ? DATA_HAS_ID : DATA_HAS_SUBVIEW_ID}]`)]
+	function getComponents (type: "view" | "subview", name?: string) {
+		return [...document.querySelectorAll(`[data-${type === "view" ? DATA_HAS_ID : DATA_HAS_SUBVIEW_ID}${name ? `="${name}"` : ""}]`)]
 			.map(e => e.component)
 			.filter(Arrays.filterNullish)
 	}

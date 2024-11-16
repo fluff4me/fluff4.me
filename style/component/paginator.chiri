@@ -5,16 +5,91 @@
 
 	&-header:
 		%sticky
-		%top-0
 		%margin-bottom-0
+		%z-index-fg
+		top: -1px
+
+		@before:
+			%absolute
+			%backdrop-blur
+			%z-index-bg
+			%bottom-0
+			%border-top-radius-2
+			inset: 1px
 
 	&-footer:
 		%sticky
-		%bottom-0
+		%padding-block-1
+		%padding-inline-3
+		bottom: -1px
+
+		&-left:
+			%gap-0
+		&-right:
+			%gap-0
+
+		@before:
+			%absolute
+			%backdrop-blur
+			%z-index-bg
+			%top-0
+			%border-bottom-radius-2
+			inset: 1px
+
+		&--hidden:
+			%no-pointer-events
+			%transparent
+
+	&-button:
+		#transition: $button-transition, #{transition("opacity")}
+
+	&-button--disabled:
+		%opacity-30
+		%no-pointer-events
+
+	&-button-first:
+		#after: .button
+		#icon name="angles-left
+	&-button-prev:
+		#after: .button
+		#icon name="angle-left
+	&-button-next:
+		#after: .button
+		#icon name="angle-right
+	&-button-last:
+		#after: .button
+		#icon name="angles-right
 
 	&-content:
+		%unmargin-4
+		%padding-4
+		%grid
+		%stack
+		%overflow-hidden
 
 	&-page:
+		%block
+		#transition: #{transition("opacity")}, #{transition("translate")}, #{transition("display")}
+		%transition-discrete
+		%opaque
+		%stack-self
+		%translate-x-0
+		$transition-duration: $transition-blur
+
+		:start:
+			%transparent
+			translate: calc($space-4 * $page-direction)
+
+		&--initial-load:
+			#after: .paginator-page
+			%no-transition
+
+		&--hidden:
+			#after: .paginator-page
+			%hidden
+			%transparent
+			translate: calc($space-4 * $page-direction * -1)
+			$transition-duration: $transition-focus
 
 	&-error:
 		&-text:
