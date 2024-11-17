@@ -21,25 +21,25 @@
 	class/transition
 
 #import:
-	component/slot
-	component/paragraph
-	component/block
-	component/link
-	component/button
-	component/text-input
-	component/heading
-	component/checkbutton
-	component/label
-	component/timestamp
-	component/labelled-table
-	component/labelled-row
-	component/action-row
-	component/action-heading
-	component/popover
-	component/dialog
-	component/text-editor
-	component/form
-	component/paginator
+	component/core/slot
+	component/core/paragraph
+	component/core/block
+	component/core/link
+	component/core/button
+	component/core/text-input
+	component/core/heading
+	component/core/checkbutton
+	component/core/label
+	component/core/timestamp
+	component/core/labelled-table
+	component/core/labelled-row
+	component/core/action-row
+	component/core/action-heading
+	component/core/popover
+	component/core/dialog
+	component/core/text-editor
+	component/core/form
+	component/core/paginator
 	component/flag
 	component/masthead
 	component/sidebar
