@@ -572,8 +572,10 @@ namespace Component {
 
 			if (name) {
 				(component as Component & { [Symbol.toStringTag]?: string })[Symbol.toStringTag] ??= name
-				if (component.element.tagName === "SPAN")
-					component.replaceElement(`:${name}` as keyof HTMLElementTagNameMap)
+				if (component.element.tagName === "SPAN") {
+					const tagName = `:${name.replace(/(?<=[a-z])(?=[A-Z])/g, "-")}`
+					component.replaceElement(tagName as keyof HTMLElementTagNameMap)
+				}
 			}
 
 			component.supers.push(simpleBuilder)
