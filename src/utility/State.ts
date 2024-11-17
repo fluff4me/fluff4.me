@@ -18,6 +18,8 @@ interface ReadableState<T, E = T> {
 	subscribeManual (subscriber: (value: E) => any): UnsubscribeState
 	unsubscribe (subscriber: (value: E) => any): void
 	emit (): void
+	await (owner: Component, value: T, then: (value: T) => any): State<T>
+	awaitManual (value: T, then: (value: T) => any): State<T>
 
 	map<R> (owner: Component, mapper: (value: T) => R): State<R>
 	nonNullish: State<boolean>
@@ -91,6 +93,26 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 		},
 		unsubscribe: subscriber => {
 			result[SYMBOL_SUBSCRIBERS] = result[SYMBOL_SUBSCRIBERS].filter(s => s !== subscriber)
+			return result
+		},
+		await (owner, value, then) {
+			result.subscribe(owner, function awaitValue (newValue) {
+				if (newValue !== value)
+					return
+
+				result.unsubscribe(awaitValue)
+				then(newValue)
+			})
+			return result
+		},
+		awaitManual (value, then) {
+			result.subscribeManual(function awaitValue (newValue) {
+				if (newValue !== value)
+					return
+
+				result.unsubscribe(awaitValue)
+				then(newValue)
+			})
 			return result
 		},
 

@@ -1,8 +1,15 @@
-import type { Work } from "api.fluff4.me"
+import type { Work as WorkData } from "api.fluff4.me"
 import Component from "ui/Component"
 import Block from "ui/component/core/Block"
+import Timestamp from "ui/component/core/Timestamp"
 
-export default Component.Builder((component, work: Work) => {
+interface WorkExtensions {
+	work: WorkData
+}
+
+interface Work extends Block, WorkExtensions { }
+
+const Work = Component.Builder((component, work: WorkData): Work => {
 	component.style("work")
 
 	const block = component.and(Block)
@@ -18,5 +25,10 @@ export default Component.Builder((component, work: Work) => {
 		.setMarkdownContent(work.description)
 		.appendTo(block.content)
 
-	return block
-}) 
+	if (work.time_last_update)
+		block.footer.right.append(Timestamp(work.time_last_update))
+
+	return block.extend<WorkExtensions>(component => ({ work }))
+})
+
+export default Work

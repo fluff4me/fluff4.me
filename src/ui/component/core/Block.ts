@@ -30,6 +30,7 @@ const Block = Component.Builder((component): Block => {
 	const types = new Set<BlockType>()
 
 	let header: Component | undefined
+	let footer: Component | undefined
 
 	return component
 		.viewTransition()
@@ -47,6 +48,7 @@ const Block = Component.Builder((component): Block => {
 						types.add(type)
 						block.style(`block-type-${type}`)
 						header?.style(`block-type-${type}-header`)
+						footer?.style(`block-type-${type}-footer`)
 					}
 					return block
 				},
@@ -56,6 +58,7 @@ const Block = Component.Builder((component): Block => {
 							types.delete(type)
 							block.style.remove(`block-type-${type}`)
 							header?.style.remove(`block-type-${type}-header`)
+							footer?.style.remove(`block-type-${type}-footer`)
 						}
 						return block
 					},
@@ -68,7 +71,9 @@ const Block = Component.Builder((component): Block => {
 		.extendJIT("title", block => Heading().style("block-title").prependTo(block.header))
 		.extendJIT("primaryActions", block => Component().style("block-actions-primary").appendTo(block.header))
 		.extendJIT("description", block => Paragraph().style("block-description").appendTo(block.header))
-		.extendJIT("footer", block => ActionRow().style("block-footer").appendTo(block))
+		.extendJIT("footer", block => footer = ActionRow()
+			.style("block-footer", ...[...types].map(t => `block-type-${t}-footer` as const))
+			.appendTo(block))
 })
 
 export default Block

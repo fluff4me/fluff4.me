@@ -21,11 +21,13 @@ namespace Time {
 
 	export interface RelativeOptions extends Intl.RelativeTimeFormatOptions {
 		components?: number
+		/** Only show seconds if not showing another component */
+		secondsExclusive?: true
 		label?: boolean
 	}
 
-	export function relative (ms: number, options: RelativeOptions = { style: "short" }) {
-		ms -= Date.now()
+	export function relative (unixTimeMs: number, options: RelativeOptions = {}) {
+		let ms = unixTimeMs - Date.now()
 		const locale = navigator.language || "en-NZ"
 		if (!locale.startsWith("en"))
 			return relativeIntl(ms, locale, options)
@@ -40,34 +42,41 @@ namespace Time {
 		let limit = options.components ?? Infinity
 
 		let value = ms
-		let result = ms > 0 && options.label !== false ? "in " : ""
+		let result = !ago && options.label !== false ? "in " : ""
 
 		value = Math.floor(ms / years(1))
 		ms -= value * years(1)
-		if (value && limit-- > 0) result += `${value} year${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
+		if (value && limit-- > 0)
+			result += `${value} year${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
 
 		value = Math.floor(ms / months(1))
 		ms -= value * months(1)
-		if (value && limit-- > 0) result += `${value} month${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
+		if (value && limit-- > 0)
+			result += `${value} month${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
 
 		value = Math.floor(ms / weeks(1))
 		ms -= value * weeks(1)
-		if (value && limit-- > 0) result += `${value} week${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
+		if (value && limit-- > 0)
+			result += `${value} week${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
 
 		value = Math.floor(ms / days(1))
 		ms -= value * days(1)
-		if (value && limit-- > 0) result += `${value} day${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
+		if (value && limit-- > 0)
+			result += `${value} day${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
 
 		value = Math.floor(ms / hours(1))
 		ms -= value * hours(1)
-		if (value && limit-- > 0) result += `${value} hour${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
+		if (value && limit-- > 0)
+			result += `${value} hour${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
 
 		value = Math.floor(ms / minutes(1))
 		ms -= value * minutes(1)
-		if (value && limit-- > 0) result += `${value} minute${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
+		if (value && limit-- > 0)
+			result += `${value} minute${value === 1 ? "" : "s"}${limit > 0 ? ", " : ""}`
 
 		value = Math.floor(ms / seconds(1))
-		if (value && limit-- > 0) result += `${value} second${value === 1 ? "" : "s"}`
+		if (value && limit-- > 0 && (!options.secondsExclusive || !result.includes(",")))
+			result += `${value} second${value === 1 ? "" : "s"}`
 
 		result = Strings.trimTextMatchingFromEnd(result, ", ")
 		return `${result}${ago && options.label !== false ? " ago" : ""}`

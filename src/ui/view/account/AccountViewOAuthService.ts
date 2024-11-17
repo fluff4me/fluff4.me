@@ -17,6 +17,7 @@ export default Component.Builder((component, service: AuthService) => {
 		.setChecked(authedAtStart)
 		.style("account-view-oauth-service")
 		.ariaRole("button")
+		.attributes.remove("aria-checked")
 		.style.bind(isAuthed, "account-view-oauth-service--authenticated")
 		.style.setVariable("colour", `#${service.colour.toString(16)}`)
 		.append(Component("img")
@@ -46,17 +47,19 @@ export default Component.Builder((component, service: AuthService) => {
 		username.text.set(authorisation?.display_name ?? "")
 	})
 
-	button.event.subscribe("click", async event => {
-		event.preventDefault()
+	button.onRooted(() => {
+		button.event.subscribe("click", async event => {
+			event.preventDefault()
 
-		let auth = Session.Auth.get(service.name)
-		if (auth)
-			await Session.Auth.unauth(auth.id)
-		else
-			await Session.Auth.auth(service)
+			let auth = Session.Auth.get(service.name)
+			if (auth)
+				await Session.Auth.unauth(auth.id)
+			else
+				await Session.Auth.auth(service)
 
-		auth = Session.Auth.get(service.name)
-		event.component.setChecked(!!auth)
+			auth = Session.Auth.get(service.name)
+			event.component.setChecked(!!auth)
+		})
 	})
 
 	return button

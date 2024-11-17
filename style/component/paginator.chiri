@@ -39,6 +39,9 @@
 		&--hidden:
 			%no-pointer-events
 			%transparent
+			%height-0
+			%padding-block-0
+			%margin-0
 
 	&-button:
 		#transition: $button-transition, #{transition("opacity")}

@@ -76,3 +76,10 @@
 			%margin-top-0
 			%padding-top-0
 			%margin-bottom-3
+
+		&-footer:
+			#after: .block-footer
+			%background-none
+			%borderless
+			%margin-block-0
+			%padding-bottom-0
