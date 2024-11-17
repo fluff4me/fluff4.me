@@ -30,6 +30,7 @@
 	component/heading
 	component/checkbutton
 	component/label
+	component/timestamp
 	component/labelled-table
 	component/labelled-row
 	component/action-row

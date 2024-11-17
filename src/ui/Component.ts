@@ -129,6 +129,8 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 	receiveAncestorInsertEvents (): this
 	emitInsert (): this
 
+	onRooted (callback: (component: this) => any): this
+
 	ariaRole (role?: AriaRole): this
 	ariaLabel: StringApplicator.Optional<this>
 	ariaLabelledBy (component?: Component): this
@@ -437,6 +439,10 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		emitInsert: () => {
 			updateRooted(component)
 			emitInsert(component)
+			return component
+		},
+		onRooted (callback) {
+			component.rooted.awaitManual(true, () => callback(component))
 			return component
 		},
 
