@@ -13,10 +13,10 @@ export default ViewDefinition({
 	create: () => {
 		const view = View("home")
 
-		const block = Block().appendTo(view)
-		const form = block.and(Form, block.title)
-
 		if (Env.isDev) {
+			const block = Block().appendTo(view)
+			const form = block.and(Form, block.title)
+
 			const output = Component("div")
 			Component("div")
 				.attributes.set("contenteditable", "plaintext-only")
