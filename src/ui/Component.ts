@@ -571,11 +571,18 @@ namespace Component {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			const component = realBuilder(undefined, ...params)
 			if (component instanceof Promise)
-				return component.then(component => {
-					component.supers.push(simpleBuilder)
-					return component
-				})
+				return component.then(completeComponent)
 
+			return completeComponent(component)
+		}
+
+		Object.defineProperty(simpleBuilder, "name", { value: name })
+
+		return Object.assign(simpleBuilder, {
+			from: realBuilder,
+		})
+
+		function completeComponent (component: Component) {
 			if (name) {
 				(component as Component & { [Symbol.toStringTag]?: string })[Symbol.toStringTag] ??= name
 				if (component.element.tagName === "SPAN") {
@@ -587,12 +594,6 @@ namespace Component {
 			component.supers.push(simpleBuilder)
 			return component
 		}
-
-		Object.defineProperty(simpleBuilder, "name", { value: name })
-
-		return Object.assign(simpleBuilder, {
-			from: realBuilder,
-		})
 	}
 
 	export interface Extension<PARAMS extends any[], EXT_COMPONENT extends Component> {
