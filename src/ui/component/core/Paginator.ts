@@ -91,7 +91,7 @@ const Paginator = Component.Builder((component): Paginator => {
 				using = { mainPage: response, initialiser: initialiser as PageInitialiser, pageCount: response.page_count }
 
 				pageContent[0] = response
-				using.initialiser(pages[0], response.data)
+				await using.initialiser(pages[0], response.data)
 
 				if (response.page_count > 1)
 					block.footer.style.remove("paginator-footer--hidden")
@@ -181,7 +181,7 @@ const Paginator = Component.Builder((component): Paginator => {
 		}
 
 		pageContent[cursor] = response
-		using?.initialiser(page, response.data)
+		await using?.initialiser(page, response.data)
 		scrollIntoView(direction)
 	}
 
