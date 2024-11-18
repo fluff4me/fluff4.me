@@ -157,7 +157,7 @@ const ViewContainer = (): ViewContainer => {
 			shownView.appendTo(container.ephemeralDialog)
 			container.ephemeral = shownView
 			container.ephemeralDialog.open()
-			container.attributes.add("inert")
+			container.attributes.append("inert")
 			container.ephemeralDialog.opened.subscribe(shownView, opened => {
 				if (!opened) {
 					hideEphemeral()

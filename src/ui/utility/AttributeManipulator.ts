@@ -5,7 +5,12 @@ import { QuiltHelper, type Quilt } from "ui/utility/TextManipulator"
 interface AttributeManipulator<HOST> {
 	get (attribute: string): string | undefined
 	/** Adds the given attributes with no values */
-	add (...attributes: string[]): HOST
+	append (...attributes: string[]): HOST
+	/** 
+	 * Adds the given attributes with no values.
+	 * Note that prepending attributes requires removing all previous attributes, then re-appending them after.
+	 */
+	prepend (...attributes: string[]): HOST
 	/** Sets the attribute to `value`, or removes the attribute if `value` is `undefined` */
 	set (attribute: string, value?: string): HOST
 	use (attribute: string, keyOrHandler: Quilt.SimpleKey | Quilt.Handler): HOST
@@ -23,11 +28,26 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 		get (attribute) {
 			return component.element.getAttribute(attribute) ?? undefined
 		},
-		add (...attributes) {
+		append (...attributes) {
 			for (const attribute of attributes) {
 				delete translationHandlers?.[attribute]
 				component.element.setAttribute(attribute, "")
 			}
+			return component
+		},
+		prepend (...attributes) {
+			const oldAttributes: Record<string, string> = {}
+			for (const attribute of [...component.element.attributes]) {
+				oldAttributes[attribute.name] = attribute.value
+				component.element.removeAttribute(attribute.name)
+			}
+
+			for (const attribute of attributes)
+				component.element.setAttribute(attribute, oldAttributes[attribute] ?? "")
+
+			for (const name of Object.keys(oldAttributes))
+				component.element.setAttribute(name, oldAttributes[name])
+
 			return component
 		},
 		set (attribute, value) {
