@@ -91,8 +91,8 @@ export const BUTTON_REGISTRY = {
 
 	createWork: {
 		name: "Create Work",
-		async execute (name: string, description: string, vanity: string, status?: string, visibility?: string, globalTags?: string[], customTags?: string[]) {
-			await fetch(`${Env.API_ORIGIN}work/create`, {
+		async execute (name: string, synopsis: string, description: string, vanity: string, status?: string, visibility?: string, globalTags?: string[], customTags?: string[]) {
+			const response = await fetch(`${Env.API_ORIGIN}work/create`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -100,6 +100,7 @@ export const BUTTON_REGISTRY = {
 				},
 				body: JSON.stringify({
 					name: name,
+					synopsis: synopsis,
 					description: description,
 					vanity: vanity,
 					status: status,
@@ -107,7 +108,8 @@ export const BUTTON_REGISTRY = {
 					global_tags: globalTags,
 					custom_tags: customTags,
 				}),
-			})
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 

@@ -80,12 +80,12 @@ export default ViewDefinition({
 			name: "Create Profile 1",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("prolific author", "somanystories")
-				await BUTTON_REGISTRY.createWork.execute("work in progress", "test", "wip", "Ongoing", "Private")
-				await BUTTON_REGISTRY.createWork.execute("a debut work", "pretty decent by <mention vanity=\"somanystories\">", "debut", "Complete", "Public")
+				await BUTTON_REGISTRY.createWork.execute("a debut work", "pretty decent by <mention vanity=\"somanystories\">", "short description", "debut", "Complete", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("somanystories", "debut", "chapter 1", "woo look it's prolific author's first story!", "Public")
-				await BUTTON_REGISTRY.createWork.execute("sequel to debut", "wow they wrote a sequel", "sequel", "Ongoing", "Public")
+				await BUTTON_REGISTRY.createWork.execute("sequel to debut", "wow they wrote a sequel", "sequel short description", "sequel", "Ongoing", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("somanystories", "sequel", "the chapters", "pretend there's a story here", "Public")
-				// await BUTTON_REGISTRY.createChapter.execute("somanystories", "wip", "draft", "it's a rough draft", "Private")
+				await BUTTON_REGISTRY.createWork.execute("work in progress", "test", "short description test", "wip", "Ongoing", "Private")
+				await BUTTON_REGISTRY.createChapter.execute("somanystories", "wip", "draft", "it's a rough draft", "Private")
 				await BUTTON_REGISTRY.getAllWorksByAuthor.execute("all works", "somanystories")
 			},
 		}))
@@ -102,7 +102,7 @@ export default ViewDefinition({
 			name: "Create Profile 2",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("single story author", "justonestory", "<mention vanity=\"somanystories\"> writes so much")
-				await BUTTON_REGISTRY.createWork.execute("one big work", "made by <mention vanity=\"justonestory\">", "bigstory", "Ongoing", "Public")
+				await BUTTON_REGISTRY.createWork.execute("one big work", "made by <mention vanity=\"justonestory\">", "wow description", "bigstory", "Ongoing", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story", "start of a long story", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 2", "middle of a long story", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3", "aaaa", "Public")
@@ -127,7 +127,7 @@ export default ViewDefinition({
 			name: "Create Profile 3",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("prolific follower", "ifollowpeople")
-				await BUTTON_REGISTRY.createWork.execute("invalid status", "a test", "uwu", "ShouldNotValidate", "ShouldNotBeValidated")
+				await BUTTON_REGISTRY.createWork.execute("invalid status", "a test", "unsuccessful test", "uwu", "ShouldNotValidate", "ShouldNotBeValidated")
 				// await BUTTON_REGISTRY.follow.execute("author", "somanystories");
 				// await BUTTON_REGISTRY.follow.execute("author", "justonestory");
 				// await BUTTON_REGISTRY.follow.execute("work", "debut");
@@ -150,7 +150,7 @@ export default ViewDefinition({
 			name: "Test New Following",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("new follows", "thefollower")
-				await BUTTON_REGISTRY.createWork.execute("wow a work", "test pls ignore", "wowawork", "Ongoing", "Public")
+				await BUTTON_REGISTRY.createWork.execute("wow a work", "test pls ignore", "pls ignore", "wowawork", "Ongoing", "Public")
 				await BUTTON_REGISTRY.getAllFollows.execute("work")
 				await BUTTON_REGISTRY.getAllFollows.execute("work")
 				await BUTTON_REGISTRY.follow.execute("author", "thefollower")
@@ -171,7 +171,7 @@ export default ViewDefinition({
 			name: "Create 40 works",
 			async execute () {
 				for (let i = 0; i < 30; i++) {
-					await BUTTON_REGISTRY.createWork.execute(`test story ${i}`, "aaaaaaaaa", `teststory${i}`, "Ongoing", "Public")
+					await BUTTON_REGISTRY.createWork.execute(`test story ${i}`, "aaaaaaaaa", "short description aaaaa", `teststory${i}`, "Ongoing", "Public")
 				}
 				for (let i = 0; i < 30; i++) {
 					await BUTTON_REGISTRY.follow.execute("work", `teststory${i}`)
@@ -195,7 +195,7 @@ export default ViewDefinition({
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("spam create works", "manyworks")
 				for (let i = 0; i < 100; i++) {
-					await BUTTON_REGISTRY.createWork.execute(`rapid story ${i}`, "aaaaaaaaa", `rapidstory${i}`, "Ongoing", "Public")
+					await BUTTON_REGISTRY.createWork.execute(`rapid story ${i}`, "aaaaaaaaa", "rapid story aaaaa", `rapidstory${i}`, "Ongoing", "Public")
 					await BUTTON_REGISTRY.follow.execute("work", `rapidstory${i}`)
 				}
 			},
@@ -205,7 +205,7 @@ export default ViewDefinition({
 			name: "Test Ignore Endpoints",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("ignoring myself", "ignorepls")
-				await BUTTON_REGISTRY.createWork.execute("to ignore", "testing ignoring", "worktoignore", "Ongoing", "Public")
+				await BUTTON_REGISTRY.createWork.execute("to ignore", "testing ignoring", "test ignoring", "worktoignore", "Ongoing", "Public")
 				await BUTTON_REGISTRY.ignore.execute("author", "ignorepls")
 				await BUTTON_REGISTRY.ignore.execute("work", "worktoignore")
 				await BUTTON_REGISTRY.getIgnore.execute("author", "ignorepls")
@@ -302,6 +302,7 @@ export default ViewDefinition({
 				for (let a = 0; a < 333; a++) {
 					await BUTTON_REGISTRY.createWork.execute(`work${a}`,
 						`description no ${a} mentions <mention vanity="manyworks">\n"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."`,
+						"Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
 						`testwork${a}`,
 						"Ongoing",
 						"Public",
@@ -316,6 +317,13 @@ export default ViewDefinition({
 						"Public")
 				}
 
+			},
+		}))
+
+		moreRoleButtons.append(createButton({
+			name: "view ten billion works",
+			async execute () {
+				await BUTTON_REGISTRY.getAllWorksByAuthor.execute("many works", "manyworks")
 			},
 		}))
 
@@ -413,7 +421,7 @@ export default ViewDefinition({
 			name: "create patreon author",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("has a campaign", "patreonuser")
-				await BUTTON_REGISTRY.createWork.execute("patreon only story", "test", "exclusive", "Ongoing", "Public")
+				await BUTTON_REGISTRY.createWork.execute("patreon only story", "test", "short description test", "exclusive", "Ongoing", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("patreonuser", "exclusive", "chapter 1", "hewwo", "Private")
 				await BUTTON_REGISTRY.createChapter.execute("patreonuser", "exclusive", "chapter 2", "hewwoo", "Private")
 				await BUTTON_REGISTRY.createChapter.execute("patreonuser", "exclusive", "chapter 3", "hewwooo", "Private")
@@ -509,8 +517,8 @@ export default ViewDefinition({
 				await BUTTON_REGISTRY.tagCreateGlobal.execute("Tag Two", "test tag 2", "Category Two")
 				await BUTTON_REGISTRY.tagCreateGlobal.execute("Tag Three", "test tag 2", "Category Two")
 				await BUTTON_REGISTRY.tagCreateGlobal.execute("Tag Four", "test tag 2", "Category Two")
-				await BUTTON_REGISTRY.createWork.execute("Tag Test Work", "test", "testwork", "Ongoing", "Public", ["Category Two: Tag Two", "Category Two: Tag Three"], ["custom tag 1", "custom tag 2"])
-				await BUTTON_REGISTRY.createWork.execute("Tag Test Work Two", "test2", "testworktwo", "Ongoing", "Public", ["Category Two: Tag Two", "Category Two: Tag Three"], ["custom tag 2", "custom tag 3"])
+				await BUTTON_REGISTRY.createWork.execute("Tag Test Work", "test", "desc test", "testwork", "Ongoing", "Public", ["Category Two: Tag Two", "Category Two: Tag Three"], ["custom tag 1", "custom tag 2"])
+				await BUTTON_REGISTRY.createWork.execute("Tag Test Work Two", "test2", "desc test", "testworktwo", "Ongoing", "Public", ["Category Two: Tag Two", "Category Two: Tag Three"], ["custom tag 2", "custom tag 3"])
 				await BUTTON_REGISTRY.viewWork.execute("work view 1", "thetagger", "testworktwo")
 				await BUTTON_REGISTRY.viewWork.execute("work view 2", "thetagger", "testworktwo")
 				await BUTTON_REGISTRY.updateWork.execute("thetagger", "testworktwo", "Test Work Two Updated")
