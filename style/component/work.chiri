@@ -1,5 +1,20 @@
 .work:
 
+	&-header:
+		#after: .block-header
+		%flex
+		%flex-column
+		%gap-2
+
 	&-name:
 
+	&-tags:
+		%flex
+		%flex-wrap
+		%gap-2
+
 	&-description:
+
+	&-synopsis:
+
+	&-timestamp:

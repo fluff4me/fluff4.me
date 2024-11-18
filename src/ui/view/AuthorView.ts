@@ -9,7 +9,6 @@ import Work from "ui/component/Work"
 import View from "ui/view/View"
 import ViewDefinition from "ui/view/ViewDefinition"
 
-
 interface AuthorViewParams {
 	vanity: string
 }
@@ -39,11 +38,12 @@ export default ViewDefinition({
 				author: params.vanity,
 			},
 		})
-		await paginator.useEndpoint(authorQuery, (slot, data) => {
-			for (const work of data.works)
-				Work(work)
-					.type("flush")
+		await paginator.useEndpoint(authorQuery, async (slot, data) => {
+			for (const workData of data.works) {
+				const work = await Work(workData)
+				work.type("flush")
 					.appendTo(slot)
+			}
 		})
 
 		return view

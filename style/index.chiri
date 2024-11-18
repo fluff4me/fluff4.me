@@ -45,6 +45,7 @@
 	component/sidebar
 	component/author
 	component/work
+	component/tag
 
 #import:
 	view/view
@@ -56,5 +57,6 @@
 	view/type/work
 	view/type/work-edit
 	view/type/require-login
+	view/type/tag
 
 #import: app

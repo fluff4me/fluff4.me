@@ -21,6 +21,7 @@ caret-colour: $caret-colour
 .body:
 	%margin-0
 	%overflow-hidden
+	$font-0: calc(0.6rem / $font-scale-factor)
 	$font-1: calc(0.8rem / $font-scale-factor)
 	$font-2: calc(1rem / $font-scale-factor)
 	$font-3: calc(1.2rem / $font-scale-factor)

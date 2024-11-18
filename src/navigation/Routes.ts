@@ -4,6 +4,7 @@ import AccountView from "ui/view/AccountView"
 import AuthorView from "ui/view/AuthorView"
 import DebugView from "ui/view/DebugView"
 import HomeView from "ui/view/HomeView"
+import TagView from "ui/view/TagView"
 import WorkEditView from "ui/view/WorkEditView"
 
 const Routes = [
@@ -16,6 +17,8 @@ const Routes = [
 
 	Route("/work/new", WorkEditView.navigate),
 	Route("/work/$author/$vanity/edit", WorkEditView.navigate),
+
+	Route("/tag/$category/$name", TagView.navigate),
 ]
 
 export default Routes
