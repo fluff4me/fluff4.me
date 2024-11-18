@@ -5,11 +5,20 @@
 	%flex-column
 	%no-decoration
 	%padding-1-2
+	%border-1
+	%box-shadow-none
+	$button-background: transparent
+	$border-colour: $colour-pink
+	colour: $colour-pink
+
+	::hover:
+		%colour-0
+		$button-background: $colour-pink
 
 	&-category:
 		%font-0
-		%colour-5
 		%uppercase
+		%opacity-70
 		scale: 1 0.9
 
 	&-name:

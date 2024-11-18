@@ -20,6 +20,7 @@ $$button-background-highlight!colour
 		#{transition($$button-background)},
 		#{transition($$button-background-highlight)},
 		#{transition("translate")},
+		#{transition("color")},
 		#{transition("box-shadow")}
 	#transition: $button-transition
 
