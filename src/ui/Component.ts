@@ -9,6 +9,7 @@ import StyleManipulator from "ui/utility/StyleManipulator"
 import TextManipulator from "ui/utility/TextManipulator"
 import Viewport from "ui/utility/Viewport"
 import Define from "utility/Define"
+import Env from "utility/Env"
 import Errors from "utility/Errors"
 import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
@@ -583,11 +584,13 @@ namespace Component {
 		})
 
 		function completeComponent (component: Component) {
-			if (name) {
+			if (name && Env.isDev) {
 				(component as Component & { [Symbol.toStringTag]?: string })[Symbol.toStringTag] ??= name
+				const tagName = `:${name.replace(/(?<=[a-z])(?=[A-Z])/g, "-")}`
 				if (component.element.tagName === "SPAN") {
-					const tagName = `:${name.replace(/(?<=[a-z])(?=[A-Z])/g, "-")}`
 					component.replaceElement(tagName as keyof HTMLElementTagNameMap)
+				} else {
+					component.attributes.prepend(tagName)
 				}
 			}
 
