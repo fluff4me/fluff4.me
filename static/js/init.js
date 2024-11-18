@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 (() => {
 	const baseURL = document.currentScript.dataset.baseUrl
 
@@ -182,11 +184,28 @@
 			module = moduleMap.get(module._name)
 			module._state = ModuleState.Processed
 
+			injectModule(module)
+
 		} catch (err) {
 			module._state = ModuleState.Error
 			module._error = err
 			err.message = `[Module initialization ${module._name}] ${err.message}`
 			console.error(err)
+		}
+	}
+
+	const isInjectableModuleDefaultNameRegex = /^[A-Z_$][a-zA-Z_$0-9]+$/
+	function injectModule (module) {
+		const name = module._name
+		const inject = module.default ?? module
+		const moduleDefaultName = basename(name)
+		if (isInjectableModuleDefaultNameRegex.test(moduleDefaultName) && !(moduleDefaultName in window))
+			Object.assign(window, { [moduleDefaultName]: inject })
+
+		for (const key of Object.keys(module)) {
+			if (key !== "default" && !key.startsWith("_") && isInjectableModuleDefaultNameRegex.test(key) && !(key in window)) {
+				Object.assign(window, { [key]: module[key] })
+			}
 		}
 	}
 
@@ -310,6 +329,14 @@
 	function dirname (name) {
 		const lastIndex = name.lastIndexOf("/")
 		return lastIndex === -1 ? "" : name.slice(0, lastIndex)
+	}
+
+	/**
+	 * @param {string} name 
+	 */
+	function basename (name) {
+		const lastIndex = name.lastIndexOf("/")
+		return name.slice(lastIndex + 1)
 	}
 
 	/**
