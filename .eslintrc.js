@@ -28,6 +28,7 @@ module.exports = /** @type {import("eslint").Linter.BaseConfig & import("@typesc
 		"semi": ["warn", "never"],
 		"no-cond-assign": ["off"], // i have literally never had a bug due to this before, so loosening this restriction
 		"no-irregular-whitespace": ["warn", { skipRegExps: true }],
+		"eol-last": ["warn", "always"],
 
 		// typescript-eslint
 		"@typescript-eslint/no-unused-vars": ["off"], // literally just what typescript already has, no thanks
