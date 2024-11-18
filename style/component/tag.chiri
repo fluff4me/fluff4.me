@@ -1,0 +1,18 @@
+.tag:
+	#after: .button, .link
+	%font-1
+	%flex
+	%flex-column
+	%no-decoration
+	%padding-1-2
+
+	&-category:
+		%font-0
+		%colour-5
+		%uppercase
+		scale: 1 0.9
+
+	&-name:
+		%unmargin-top-1
+
+	&--custom:
