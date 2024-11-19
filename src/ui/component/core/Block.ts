@@ -1,7 +1,9 @@
 import Component from "ui/Component"
 import ActionRow from "ui/component/core/ActionRow"
+import Button from "ui/component/core/Button"
 import Heading from "ui/component/core/Heading"
 import Paragraph from "ui/component/core/Paragraph"
+import type { PopoverComponentRegisteredExtensions, PopoverInitialiser } from "ui/component/core/Popover"
 import type { ComponentName } from "ui/utility/StyleManipulator"
 
 type BlockType = keyof { [KEY in ComponentName as KEY extends `block-type-${infer TYPE}--${string}` ? TYPE
@@ -18,10 +20,13 @@ interface BlockExtensions {
 	readonly header: Component
 	readonly title: Heading
 	readonly primaryActions: Component
+	readonly actionsMenuButton: Button & PopoverComponentRegisteredExtensions
 	readonly description: Paragraph
 	readonly content: Component
 	readonly footer: ActionRow
 	readonly type: BlockTypeManipulator<this>
+
+	setActionsMenu (initialiser: PopoverInitialiser<Button>): this
 }
 
 interface Block extends Component, BlockExtensions { }
@@ -32,6 +37,8 @@ const Block = Component.Builder((component): Block => {
 	let header: Component | undefined
 	let footer: Component | undefined
 
+	let actionsMenuPopoverInitialiser: PopoverInitialiser<Button> = () => { }
+
 	return component
 		.viewTransition()
 		.style("block")
@@ -40,6 +47,7 @@ const Block = Component.Builder((component): Block => {
 			header: undefined!,
 			description: undefined!,
 			primaryActions: undefined!,
+			actionsMenuButton: undefined!,
 			content: Component().style("block-content").appendTo(component),
 			footer: undefined!,
 			type: Object.assign(
@@ -64,12 +72,21 @@ const Block = Component.Builder((component): Block => {
 					},
 				},
 			),
+			setActionsMenu (initialiser) {
+				actionsMenuPopoverInitialiser = initialiser
+				block.actionsMenuButton.setPopover("click", initialiser)
+				return block
+			},
 		}))
 		.extendJIT("header", block => header = Component("hgroup")
 			.style("block-header", ...[...types].map(t => `block-type-${t}-header` as const))
 			.prependTo(block))
 		.extendJIT("title", block => Heading().style("block-title").prependTo(block.header))
 		.extendJIT("primaryActions", block => Component().style("block-actions-primary").appendTo(block.header))
+		.extendJIT("actionsMenuButton", block => Button()
+			.style("block-actions-menu-button")
+			.setPopover("click", actionsMenuPopoverInitialiser)
+			.appendTo(block.primaryActions))
 		.extendJIT("description", block => Paragraph().style("block-description").appendTo(block.header))
 		.extendJIT("footer", block => footer = ActionRow()
 			.style("block-footer", ...[...types].map(t => `block-type-${t}-footer` as const))

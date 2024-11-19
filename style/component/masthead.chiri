@@ -10,7 +10,7 @@
 	line-height: round(1.2em, 1px)
 	box-shadow:
 		#{box-shadow-inset-border-bottom-1},
-		#{box-shadow-inset-bottom-1}
+		#{box-shadow-bottom-inset-1}
 
 	&-skip-nav:
 		%no-pointer-events
