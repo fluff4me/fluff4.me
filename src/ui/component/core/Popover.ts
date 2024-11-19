@@ -266,8 +266,10 @@ const Popover = Component.Builder((component): Popover => {
 		popover.visible.value = event.newState === "open"
 	})
 
-	InputBus.subscribe("down", onInputDown)
-	component.event.subscribe("remove", () => InputBus.unsubscribe("down", onInputDown))
+	popover.onRooted(() => {
+		InputBus.subscribe("down", onInputDown)
+		component.event.subscribe("remove", () => InputBus.unsubscribe("down", onInputDown))
+	})
 
 	return popover
 
