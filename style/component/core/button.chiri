@@ -63,3 +63,7 @@ $$button-background-highlight!colour
 	&-icon-plus:
 		#after: .button
 		#icon name="plus
+
+	&-icon-ellipsis-vertical:
+		#after: .button
+		#icon name="ellipsis-vertical

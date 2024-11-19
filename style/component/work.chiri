@@ -2,18 +2,33 @@
 
 	&-header:
 		#after: .block-header
-		%flex
-		%flex-column
-		%gap-2
+		%grid
+		%margin-bottom-0
+		%padding-bottom-0
+		grid-template-columns: auto 1fr
 
 	&-name:
+
+	&-author:
+
+		&-list:
+			%margin-bottom-0
+			grid-row: 2
 
 	&-tags:
 		%flex
 		%flex-wrap
 		%gap-2
+		grid-column: 1/3
+		grid-row: 3
 
 	&-description:
+		%block
+		%italic
+		%padding-bottom-3
+
+	&-content:
+		%block
 
 	&-synopsis:
 
