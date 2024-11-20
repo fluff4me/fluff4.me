@@ -60,6 +60,7 @@ const Paginator = Component.Builder((component): Paginator => {
 
 	let using: PaginatorUsing | undefined
 	return block
+		.viewTransition("paginator")
 		.style("paginator")
 		.extend<PaginatorExtensions>(component => ({
 			async useEndpoint (endpoint, initialiser) {

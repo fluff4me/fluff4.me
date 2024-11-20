@@ -54,6 +54,7 @@ export default ViewDefinition({
 			switch (state.value) {
 				case "logged-in":
 					return ActionRow()
+						.viewTransition("account-action-row")
 						.tweak(row => row.right
 							.append(Button()
 								.text.use("view/account/action/logout")

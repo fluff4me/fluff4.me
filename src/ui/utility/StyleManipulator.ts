@@ -18,6 +18,7 @@ interface StyleManipulatorFunctions<HOST> {
 	bindProperty (property: string, state: State<string | number | undefined | null>): HOST
 	bindVariable (variable: string, state: State<string | number | undefined | null>): HOST
 	removeProperties (...properties: string[]): HOST
+	removeVariables (...variables: string[]): HOST
 }
 
 interface StyleManipulatorFunction<HOST> {
@@ -107,6 +108,11 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 			removeProperties (...properties) {
 				for (const property of properties)
 					component.element.style.removeProperty(property)
+				return component
+			},
+			removeVariables (...variables) {
+				for (const variable of variables)
+					component.element.style.removeProperty(`--${variable}`)
 				return component
 			},
 		} as StyleManipulatorFunctions<Component>,

@@ -1,17 +1,21 @@
-#each in 0..40 as var i:
-	.view-transition-#{i}:
-		@view-transition!old:
-			#animate .3s #{i * .1}s ease-out both:
-				to:
-					translate: 0 $space-5
-					opacity: 0
+$$view-transition-classes!*: placeholder-class
+$$view-transition-delay!*: placeholder-delay-class
+.view-transition:
+	@view-transition-class!old:
+		#animate .3s ease-out both:
+			to:
+				translate: 0 $space-5
+				opacity: 0
 
-		@view-transition!new:
-			#animate .5s #{i * .1}s ease-out backwards:
-				from:
-					translate: 0 $space-4
-					opacity: 0
+	@view-transition-class!new:
+		#animate .5s ease-out backwards:
+			from:
+				translate: 0 $space-4
+				opacity: 0
 
+	view-transition-class: view-transition $view-transition-classes $view-transition-delay
+
+$$subview-transition-classes!*: placeholder-class
 .subview-transition:
 	@view-transition-class!group:
 		animation-timing-function: ease-out
@@ -20,3 +24,12 @@
 
 	@view-transition-class!old:
 		animation-duration: .3s
+
+	view-transition-class: subview-transition $subview-transition-classes $view-transition-delay
+
+#each in 0..40 as var i:
+	.view-transition-delay-#{i}:
+		@view-transition-class!old:
+			animation-delay: #{i * .1}s
+		@view-transition-class!new:
+			animation-delay: #{i * .1}s

@@ -14,6 +14,7 @@ import type State from "utility/State"
 export default Component.Builder((component, state: State<WorkFull | undefined>) => {
 	const block = component.and(Block)
 	const form = block.and(Form, block.title)
+	form.viewTransition("work-edit-form")
 
 	const type = state.value ? "update" : "create"
 

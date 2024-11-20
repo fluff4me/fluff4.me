@@ -46,6 +46,7 @@ export default ViewDefinition({
 				return
 
 			return ActionRow()
+				.viewTransition("work-edit-action-row")
 				.tweak(row => row.right
 					.append(Button()
 						.text.use("view/work-edit/action/delete")

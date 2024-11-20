@@ -14,6 +14,7 @@ interface AccountViewOAuthServices extends Block, AccountViewOAuthServicesExtens
 const AccountViewOAuthServices = Component.Builder(async (component, state: State<Session.Auth.State>): Promise<AccountViewOAuthServices> => {
 	const block = component
 		.and(Block)
+		.viewTransition("account-view-oauth-services")
 		.style("account-view-oauth-service-container")
 
 	state.use(component, state => {

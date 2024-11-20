@@ -22,10 +22,12 @@ export default ViewDefinition({
 			throw author
 
 		Author(author.data)
+			.viewTransition("author-view-author")
 			.setContainsHeading()
 			.appendTo(view)
 
 		const paginator = Paginator()
+			.viewTransition("author-view-works")
 			.tweak(p => p.title.text.use("view/author/works/title"))
 			.tweak(p => p.primaryActions.append(Slot()
 				.if(Session.Auth.loggedIn, () => Button()
