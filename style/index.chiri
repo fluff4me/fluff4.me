@@ -27,6 +27,7 @@
 	component/core/link
 	component/core/button
 	component/core/text-input
+	component/core/text-area
 	component/core/heading
 	component/core/checkbutton
 	component/core/label
