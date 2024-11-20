@@ -1,3 +1,6 @@
+@view-transition:
+	mask-image: linear-gradient(to bottom, transparent $masthead-height, #000 $masthead-height)
+
 $$view-transition-classes!*: placeholder-class
 $$view-transition-delay!*: placeholder-delay-class
 .view-transition:
