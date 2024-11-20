@@ -40,8 +40,8 @@ export default ViewDefinition({
 				author: params.vanity,
 			},
 		})
-		await paginator.useEndpoint(authorQuery, async (slot, data) => {
-			for (const workData of data.works) {
+		await paginator.useEndpoint(authorQuery, async (slot, works) => {
+			for (const workData of works) {
 				const work = await Work(workData, author.data)
 				work.type("flush")
 					.appendTo(slot)

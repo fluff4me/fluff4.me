@@ -7,6 +7,7 @@ import Component from "ui/Component"
 import Block from "ui/component/core/Block"
 import Form from "ui/component/core/Form"
 import LabelledTable from "ui/component/core/LabelledTable"
+import Textarea from "ui/component/core/Textarea"
 import TextEditor from "ui/component/core/TextEditor"
 import TextInput from "ui/component/core/TextInput"
 import type State from "utility/State"
@@ -30,7 +31,7 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 	const nameInput = TextInput()
 		.setRequired()
 		.default.bind(state.map(component, work => work?.name))
-	table.label(label => label.text.use("shared/form/name/label"))
+	table.label(label => label.text.use("view/work-edit/shared/form/name/label"))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
 	const vanityInput = TextInput()
@@ -38,13 +39,17 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 			.map(component, name => filterVanity(name)))
 		.default.bind(state.map(component, work => work?.vanity))
 		.filter(filterVanity)
-	table.label(label => label.text.use("shared/form/vanity/label"))
+	table.label(label => label.text.use("view/work-edit/shared/form/vanity/label"))
 		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
-	const descriptionInput = TextEditor()
-		.default.bind(state.map(component, work => work?.description.body))
-	table.label(label => label.text.use("shared/form/description/label"))
+	const descriptionInput = Textarea()
+	table.label(label => label.text.use("view/work-edit/shared/form/description/label"))
 		.content((content, label) => content.append(descriptionInput.setLabel(label)))
+
+	const synopsisInput = TextEditor()
+		.default.bind(state.map(component, work => work?.synopsis.body))
+	table.label(label => label.text.use("view/work-edit/shared/form/synopsis/label"))
+		.content((content, label) => content.append(synopsisInput.setLabel(label)))
 
 	form.event.subscribe("submit", async event => {
 		event.preventDefault()
@@ -56,7 +61,8 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 						body: {
 							name: nameInput.value,
 							vanity: vanityInput.value,
-							description: descriptionInput.useMarkdown(),
+							description: descriptionInput.value,
+							synopsis: synopsisInput.useMarkdown(),
 						},
 					})
 
@@ -76,7 +82,7 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 						body: {
 							name: nameInput.value,
 							vanity: vanityInput.value,
-							description: descriptionInput.useMarkdown(),
+							description: synopsisInput.useMarkdown(),
 						},
 					})
 				}

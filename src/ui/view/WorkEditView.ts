@@ -49,7 +49,7 @@ export default ViewDefinition({
 				.viewTransition("work-edit-action-row")
 				.tweak(row => row.right
 					.append(Button()
-						.text.use("view/work-edit/action/delete")
+						.text.use("view/work-edit/update/action/delete")
 						.event.subscribe("click", async () => {
 							// const response = await EndpointAuthorDelete.query()
 							// if (response instanceof Error) {
