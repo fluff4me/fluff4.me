@@ -40,7 +40,7 @@ const Block = Component.Builder((component): Block => {
 	let actionsMenuPopoverInitialiser: PopoverInitialiser<Button> = () => { }
 
 	return component
-		.viewTransition()
+		.viewTransition("block")
 		.style("block")
 		.extend<BlockExtensions>(block => ({
 			title: undefined!,

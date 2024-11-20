@@ -13,6 +13,11 @@ interface AttributeManipulator<HOST> {
 	prepend (...attributes: string[]): HOST
 	/** Sets the attribute to `value`, or removes the attribute if `value` is `undefined` */
 	set (attribute: string, value?: string): HOST
+	/**
+	 * If the attribute is already set, does nothing. 
+	 * Otherwise, calls the supplier, and sets the attribute to the result, or removes the attribute if it's `undefined` 
+	 */
+	compute (attribute: string, supplier: (host: HOST) => string | undefined): HOST
 	use (attribute: string, keyOrHandler: Quilt.SimpleKey | Quilt.Handler): HOST
 	getUsing (attribute: string): Quilt.SimpleKey | Quilt.Handler | undefined
 	refresh (): void
@@ -52,6 +57,18 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 		},
 		set (attribute, value) {
 			delete translationHandlers?.[attribute]
+			if (value === undefined)
+				component.element.removeAttribute(attribute)
+			else
+				component.element.setAttribute(attribute, value)
+			return component
+		},
+		compute (attribute, supplier) {
+			if (component.element.hasAttribute(attribute))
+				return component
+
+			delete translationHandlers?.[attribute]
+			const value = supplier(component)
 			if (value === undefined)
 				component.element.removeAttribute(attribute)
 			else

@@ -16,6 +16,7 @@ type AccountViewFormType =
 export default Component.Builder((component, type: AccountViewFormType) => {
 	const block = component.and(Block)
 	const form = block.and(Form, block.title)
+	form.viewTransition("account-form")
 
 	form.title.text.use(`view/account/${type}/title`)
 	form.setName(quilt[`view/account/${type}/title`]().toString())

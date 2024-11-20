@@ -3,7 +3,9 @@ import Component from "ui/Component"
 import Block from "ui/component/core/Block"
 
 export default Component.Builder((component, author: AuthorFull) => {
-	component.style("author")
+	component
+		.viewTransition("author")
+		.style("author")
 
 	const block = component.and(Block)
 	block.title
