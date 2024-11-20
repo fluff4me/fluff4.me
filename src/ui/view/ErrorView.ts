@@ -14,6 +14,9 @@ export default ViewDefinition({
 	create: (params: ErrorViewParams) => {
 		const view = View("error")
 
+		if (params.code === 500 && params.error)
+			console.error(params.error)
+
 		Heading()
 			.text.use(quilt => quilt["view/error/title"]({ CODE: params.code }))
 			.appendTo(view)
