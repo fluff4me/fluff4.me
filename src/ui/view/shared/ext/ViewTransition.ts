@@ -6,8 +6,8 @@ declare module "ui/Component" {
 }
 
 interface ViewTransitionComponentExtensions {
-	viewTransition (name: string): this
-	subviewTransition (name: string): this
+	viewTransition (name?: string): this
+	subviewTransition (name?: string): this
 }
 
 namespace ViewTransition {
@@ -22,15 +22,25 @@ namespace ViewTransition {
 
 	Component.extend(component => component.extend<ViewTransitionComponentExtensions>(component => ({
 		viewTransition (name) {
-			name = name.replace(/[^a-z0-9-]+/g, "-").toLowerCase()
-			component.attributes.set(DATA_VIEW_TRANSITION_NAME, name)
-			component.attributes.compute(DATA_ID, () => `${id++}`)
+			if (name) {
+				name = name.replace(/[^a-z0-9-]+/g, "-").toLowerCase()
+				component.attributes.set(DATA_VIEW_TRANSITION_NAME, name)
+				component.attributes.compute(DATA_ID, () => `${id++}`)
+			} else {
+				component.attributes.remove(DATA_VIEW_TRANSITION_NAME)
+				component.attributes.remove(DATA_ID)
+			}
 			return component
 		},
 		subviewTransition (name) {
-			name = name.replace(/[^a-z0-9-]+/g, "-").toLowerCase()
-			component.attributes.set(DATA_SUBVIEW_TRANSITION_NAME, name)
-			component.attributes.compute(DATA_ID, () => `${id++}`)
+			if (name) {
+				name = name.replace(/[^a-z0-9-]+/g, "-").toLowerCase()
+				component.attributes.set(DATA_SUBVIEW_TRANSITION_NAME, name)
+				component.attributes.compute(DATA_ID, () => `${id++}`)
+			} else {
+				component.attributes.remove(DATA_SUBVIEW_TRANSITION_NAME)
+				component.attributes.remove(DATA_ID)
+			}
 			return component
 		},
 	})))
