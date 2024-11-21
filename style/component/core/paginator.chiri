@@ -1,6 +1,8 @@
 .paginator:
+	#after: .block
 	%relative
 	%width-100
+	%padding-bottom-0
 	max-width: #{content-width}
 
 	&-header:
@@ -21,7 +23,9 @@
 		%sticky
 		%padding-block-1
 		%padding-inline-3
+		%margin-top-0
 		bottom: -1px
+		$backdrop-filter-override: initial
 
 		&-left:
 			%gap-0
@@ -37,11 +41,7 @@
 			inset: 1px
 
 		&--hidden:
-			%no-pointer-events
-			%transparent
-			%height-0
-			%padding-block-0
-			%margin-0
+			%hidden
 
 	&-button:
 		#transition: $button-transition, #{transition("opacity")}
@@ -66,6 +66,7 @@
 	&-content:
 		%unmargin-4
 		%padding-top-4
+		%margin-bottom-0
 		%grid
 		%stack
 		%overflow-hidden

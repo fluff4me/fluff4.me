@@ -1,17 +1,21 @@
 @view-transition:
 	mask-image: linear-gradient(to bottom, transparent $masthead-height, #000 $masthead-height)
 
+#dec duration-multiplier = 1
+
 $$view-transition-classes!*: placeholder-class
 $$view-transition-delay!*: placeholder-delay-class
 .view-transition:
+	$backdrop-filter-override: none
+
 	@view-transition-class!old:
-		#animate .3s ease-out both:
+		#animate #{.3 * duration-multiplier}s ease-out both:
 			to:
 				translate: 0 $space-5
 				opacity: 0
 
 	@view-transition-class!new:
-		#animate .5s ease-out backwards:
+		#animate #{.5 * duration-multiplier}s ease-out backwards:
 			from:
 				translate: 0 $space-4
 				opacity: 0
@@ -20,6 +24,8 @@ $$view-transition-delay!*: placeholder-delay-class
 
 $$subview-transition-classes!*: placeholder-class
 .subview-transition:
+	$backdrop-filter-override: none
+
 	@view-transition-class!group:
 		animation-timing-function: ease-out
 		animation-duration: .5s
