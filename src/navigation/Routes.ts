@@ -2,10 +2,12 @@ import type { RoutePathInput } from "navigation/Route"
 import Route from "navigation/Route"
 import AccountView from "ui/view/AccountView"
 import AuthorView from "ui/view/AuthorView"
+import ChapterEditView from "ui/view/ChapterEditView"
 import DebugView from "ui/view/DebugView"
 import HomeView from "ui/view/HomeView"
 import TagView from "ui/view/TagView"
 import WorkEditView from "ui/view/WorkEditView"
+import WorkView from "ui/view/WorkView"
 
 const Routes = [
 	Route("/debug", DebugView.navigate),
@@ -17,6 +19,10 @@ const Routes = [
 
 	Route("/work/new", WorkEditView.navigate),
 	Route("/work/$author/$vanity/edit", WorkEditView.navigate),
+	Route("/work/$author/$vanity/chapter/new", ChapterEditView.navigate),
+	Route("/work/$author/$vanity/chapter/$index/edit", ChapterEditView.navigate),
+
+	Route("/work/$author/$vanity", WorkView.navigate),
 
 	Route("/tag/$category/$name", TagView.navigate),
 ]

@@ -26,6 +26,7 @@
 		%block
 		%italic
 		%padding-bottom-3
+		%font-1
 
 	&-content:
 		%block

@@ -9,15 +9,16 @@ import ViewDefinition from "ui/view/ViewDefinition"
 import WorkEditForm from "ui/view/work/WorkEditForm"
 import State from "utility/State"
 
-interface WorkEditViewParams {
+interface ChapterEditViewParams {
 	author: string
 	vanity: string
+	index?: string
 }
 
 export default ViewDefinition({
 	requiresLogin: true,
-	create: async (params: WorkEditViewParams | undefined) => {
-		const id = "work-edit"
+	create: async (params: ChapterEditViewParams | undefined) => {
+		const id = "chapter-edit"
 		const view = View(id)
 
 		const work = params && await EndpointWorkGet.query({ params })

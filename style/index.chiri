@@ -47,6 +47,7 @@
 	component/author
 	component/work
 	component/tag
+	component/chapter
 
 #import:
 	view/view
@@ -59,5 +60,7 @@
 	view/type/work-edit
 	view/type/require-login
 	view/type/tag
+	view/type/chapter
+	view/type/chapter-edit
 
 #import: app

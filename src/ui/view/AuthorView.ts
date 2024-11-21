@@ -35,12 +35,12 @@ export default ViewDefinition({
 					.ariaLabel.use("view/author/works/action/label/new")
 					.event.subscribe("click", () => navigate.toURL("/work/new")))))
 			.appendTo(view)
-		const authorQuery = EndpointWorkGetAllAuthor.prep({
+		const worksQuery = EndpointWorkGetAllAuthor.prep({
 			params: {
 				author: params.vanity,
 			},
 		})
-		await paginator.useEndpoint(authorQuery, async (slot, works) => {
+		await paginator.useEndpoint(worksQuery, async (slot, works) => {
 			for (const workData of works) {
 				const work = await Work(workData, author.data)
 				work

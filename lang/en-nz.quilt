@@ -7,6 +7,12 @@ preview: Preview
 
 ## action
 login-or-signup: Log In or Sign Up
+view: View
+love: Love
+edit: Edit
+follow: Follow
+ignore: Ignore
+delete: Delete
 save: Save Changes
 
 ## form
@@ -144,6 +150,12 @@ submit=shared/action/save
 ### works
 title: Works
 action/label/new: New Work
+action/label/view=shared/action/view
+action/label/edit=shared/action/edit
+action/label/follow=shared/action/follow
+action/label/ignore=shared/action/ignore
+action/label/delete=shared/action/delete
+
 
 ## work-edit
 
@@ -166,3 +178,14 @@ submit: Create!
 title: Edit work
 submit=shared/action/save
 action/delete: Delete Work
+
+
+## work
+
+### chapters
+title: Chapters
+action/label/new: New Chapter
+action/label/view=shared/action/view
+action/label/love=shared/action/love
+action/label/edit=shared/action/edit
+action/label/delete=shared/action/delete
