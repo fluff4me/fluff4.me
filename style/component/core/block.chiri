@@ -67,9 +67,10 @@
 		%padding-block-3
 		%border-bottom-1
 		%border-radius-0
+		$block-flush-intensity: 10%
 
 		:last:
-			%padding-bottom-0
+			$block-flush-intensity: 0%
 			%borderless
 
 		&-header:
@@ -87,5 +88,5 @@
 			%padding-block-2
 			%border-radius-0
 			%box-shadow-bottom-inset-2
-			$box-shadow-intensity: 10%
+			$box-shadow-intensity: $block-flush-intensity
 			background: light-dark(#{alpha(0.05, $dark-0)}, #{alpha(0.1, $dark-0)})

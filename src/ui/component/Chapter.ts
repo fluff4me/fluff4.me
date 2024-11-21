@@ -12,9 +12,7 @@ interface ChapterExtensions {
 interface Chapter extends Component, ChapterExtensions { }
 
 const Chapter = Component.Builder((component, chapter: ChapterLite): Chapter => {
-	component
-		.viewTransition("chapter")
-		.style("chapter")
+	component.style("chapter")
 
 	const number = Component()
 		.style("chapter-number")
