@@ -1,6 +1,8 @@
 #view type="account":
 
 .account-view-oauth-service:
+	#after: .button
+
 	%relative
 	%flex
 	%gap-3
@@ -75,6 +77,7 @@
 				%opacity-1
 
 		&--focus:
+			#after: .account-view-oauth-service-state
 			@after:
 				%width-100
 				top: calc(50% - $space-1 / 2)
