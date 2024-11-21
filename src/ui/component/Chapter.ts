@@ -3,7 +3,8 @@ import Component from "ui/Component"
 import Timestamp from "ui/component/core/Timestamp"
 
 interface ChapterExtensions {
-	// number: Component
+	chapter: ChapterLite
+	number: Component
 	chapterName: Component
 	timestamp?: Component
 }
@@ -15,9 +16,10 @@ const Chapter = Component.Builder((component, chapter: ChapterLite): Chapter => 
 		.viewTransition("chapter")
 		.style("chapter")
 
-	// const number = Component()
-	// 	.style("chapter-number")
-	// 	.text.set(chapter.).
+	const number = Component()
+		.style("chapter-number")
+		.text.set(chapter.number ? `${chapter.number.toLocaleString()}` : "")
+		.appendTo(component)
 
 	const chapterName = Component()
 		.style("chapter-name")
@@ -28,7 +30,9 @@ const Chapter = Component.Builder((component, chapter: ChapterLite): Chapter => 
 		: Timestamp(chapter.time_last_update)
 			.appendTo(component)
 
-	return component.extend<ChapterExtensions>(chapter => ({
+	return component.extend<ChapterExtensions>(component => ({
+		chapter,
+		number,
 		chapterName,
 		timestamp,
 	}))
