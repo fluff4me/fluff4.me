@@ -30,21 +30,21 @@
 
 	&-title:
 		%z-index-0
-		grid-column: 1
+		%column-1
 
 	&-actions:
 		&-primary:
 			%flex
 			%align-items-centre
 			%justify-content-end
-			grid-column: 2
-			grid-row: 1
+			%column-2
+			%row-1
 			margin-right: calc($space-3 * -1)
 
 		&-menu-button:
 
 	&-description:
-		grid-column: 1
+		%column-1
 
 	&-content:
 

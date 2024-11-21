@@ -50,6 +50,7 @@ export default ViewDefinition({
 			},
 		})
 		await paginator.useEndpoint(chaptersQuery, (slot, chapters) => {
+			slot.style("chapter-list")
 			for (const chapterData of chapters)
 				Chapter(chapterData)
 					.appendTo(slot)
