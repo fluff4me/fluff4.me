@@ -1,7 +1,7 @@
 .view:
 	%flex
 	%flex-column
-	%align-items-center
+	%align-items-centre
 	%gap-4
 	%padding-4-0
 

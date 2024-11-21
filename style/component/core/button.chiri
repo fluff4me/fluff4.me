@@ -10,7 +10,7 @@ $$button-background-highlight!colour
 	%weight-bold
 	%border-radius-1
 	%font-family-inherit
-	%font-3
+	%font-4
 	%box-shadow-1
 	colour: $button-colour
 	$button-background: $background-interact-4

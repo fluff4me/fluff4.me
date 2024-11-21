@@ -26,6 +26,7 @@ const Chapter = Component.Builder((component, chapter: ChapterLite): Chapter => 
 
 	const timestamp = !chapter.time_last_update ? undefined
 		: Timestamp(chapter.time_last_update)
+			.style("chapter-timestamp")
 			.appendTo(component)
 
 	return component.extend<ChapterExtensions>(component => ({

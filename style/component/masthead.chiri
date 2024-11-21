@@ -2,7 +2,7 @@
 	%background-dark-a30
 	%grid
 	%align-content-centre
-	%font-3
+	%font-4
 	%padding-1-0
 	%border-box
 	$border-colour: $dark-3
@@ -46,7 +46,7 @@
 	&-home:
 		#after: .heading, .heading-1, .button
 
-		%font-3
+		%font-4
 		%size-fit
 		%flex
 		%gap-2

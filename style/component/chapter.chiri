@@ -18,3 +18,5 @@
 	&-name:
 
 	&-timestamp:
+		%font-2
+		%align-self-centre

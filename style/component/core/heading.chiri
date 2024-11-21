@@ -34,7 +34,7 @@
 
 	#for var i = 1, i <= 6, set i++:
 		&-#{i}:
-			%font-#{7 - i}
+			%font-#{8 - i}
 
 	&-1, &-2:
 		%weight-bolder

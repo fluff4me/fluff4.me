@@ -19,12 +19,13 @@ $caret-colour: $colour-0
 caret-colour: $caret-colour
 $font-0: calc(0.6rem / $font-scale-factor)
 $font-1: calc(0.8rem / $font-scale-factor)
-$font-2: calc(1rem / $font-scale-factor)
-$font-3: calc(1.2rem / $font-scale-factor)
-$font-4: calc(1.5rem / $font-scale-factor)
-$font-5: calc(1.8rem / $font-scale-factor)
-$font-6: calc(2.4rem / $font-scale-factor)
-$masthead-height: calc(round(up, $font-3 * 1.2, 1px) + $space-1 * 2 + $space-2 * 2)
+$font-2: calc(0.9rem / $font-scale-factor)
+$font-3: calc(1rem / $font-scale-factor)
+$font-4: calc(1.2rem / $font-scale-factor)
+$font-5: calc(1.5rem / $font-scale-factor)
+$font-6: calc(1.8rem / $font-scale-factor)
+$font-7: calc(2.4rem / $font-scale-factor)
+$masthead-height: calc(round(up, $font-4 * 1.2, 1px) + $space-1 * 2 + $space-2 * 2)
 
 .body:
 	%margin-0

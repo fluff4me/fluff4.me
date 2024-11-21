@@ -19,6 +19,8 @@ const Work = Component.Builder(async (component, work: WorkData, author: Author)
 		.style("work")
 
 	const block = component.and(Block)
+	const isFlush = block.type.state.mapManual(types => types.has("flush"))
+
 	block.header.style("work-header")
 	block.title
 		.style("work-name")
@@ -27,6 +29,7 @@ const Work = Component.Builder(async (component, work: WorkData, author: Author)
 	if (author)
 		block.description
 			.style("work-author-list")
+			.style.bind(isFlush, "work-author-list--flush")
 			.append(Component()
 				.style("work-author")
 				.text.set(author.name))
