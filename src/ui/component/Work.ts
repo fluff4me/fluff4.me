@@ -1,7 +1,9 @@
 import type { Author, Work as WorkData } from "api.fluff4.me"
+import Session from "model/Session"
 import Tags from "model/Tags"
 import Component from "ui/Component"
 import Block from "ui/component/core/Block"
+import Button from "ui/component/core/Button"
 import Timestamp from "ui/component/core/Timestamp"
 import Tag from "ui/component/Tag"
 
@@ -21,11 +23,13 @@ const Work = Component.Builder(async (component, work: WorkData, author: Author)
 	block.title
 		.style("work-name")
 		.text.set(work.name)
-	block.description
-		.style("work-author-list")
-		.append(Component()
-			.style("work-author")
-			.text.set(author.name))
+
+	if (author)
+		block.description
+			.style("work-author-list")
+			.append(Component()
+				.style("work-author")
+				.text.set(author.name))
 
 	block.content.style("work-content")
 	Component()
@@ -49,9 +53,39 @@ const Work = Component.Builder(async (component, work: WorkData, author: Author)
 	block.setActionsMenu((popover, button) => {
 		popover.anchor.add("off right", "aligned top")
 		popover.anchor.add("off right", "aligned bottom")
-		Component()
-			.text.set("hi")
+
+		Button()
+			.type("flush")
+			.text.use("view/author/works/action/label/view")
+			.event.subscribe("click", () => navigate.toURL(`/work/${author?.vanity}/${work.vanity}`))
 			.appendTo(popover)
+
+		if (author && author.vanity === Session.Auth.author.value?.vanity) {
+			Button()
+				.type("flush")
+				.text.use("view/author/works/action/label/edit")
+				.event.subscribe("click", () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/edit`))
+				.appendTo(popover)
+
+			Button()
+				.type("flush")
+				.text.use("view/author/works/action/label/delete")
+				.event.subscribe("click", () => { })
+				.appendTo(popover)
+
+		} else {
+			Button()
+				.type("flush")
+				.text.use("view/author/works/action/label/follow")
+				.event.subscribe("click", () => { })
+				.appendTo(popover)
+
+			Button()
+				.type("flush")
+				.text.use("view/author/works/action/label/ignore")
+				.event.subscribe("click", () => { })
+				.appendTo(popover)
+		}
 	})
 
 	return block.extend<WorkExtensions>(component => ({ work }))
