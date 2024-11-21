@@ -14,7 +14,7 @@
 		outline-offset: 1px
 
 	&-toolbar:
-		%font-2
+		%font-3
 		%flex
 		%sticky
 		%border-bottom-1

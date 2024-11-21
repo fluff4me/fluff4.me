@@ -5,6 +5,7 @@ import Heading from "ui/component/core/Heading"
 import Paragraph from "ui/component/core/Paragraph"
 import type { PopoverComponentRegisteredExtensions, PopoverInitialiser } from "ui/component/core/Popover"
 import type { ComponentName } from "ui/utility/StyleManipulator"
+import State from "utility/State"
 
 type BlockType = keyof { [KEY in ComponentName as KEY extends `block-type-${infer TYPE}--${string}` ? TYPE
 	: KEY extends `block-type-${infer TYPE}-${string}` ? TYPE
@@ -12,6 +13,7 @@ type BlockType = keyof { [KEY in ComponentName as KEY extends `block-type-${infe
 	: never]: string[] }
 
 interface BlockTypeManipulator<HOST> {
+	state: State<Set<BlockType>>
 	(...buttonTypes: BlockType[]): HOST
 	remove (...buttonTypes: BlockType[]): HOST
 }
@@ -32,7 +34,7 @@ interface BlockExtensions {
 interface Block extends Component, BlockExtensions { }
 
 const Block = Component.Builder((component): Block => {
-	const types = new Set<BlockType>()
+	const types = State(new Set<BlockType>())
 
 	let header: Component | undefined
 	let footer: Component | undefined
@@ -52,22 +54,29 @@ const Block = Component.Builder((component): Block => {
 			footer: undefined!,
 			type: Object.assign(
 				(...newTypes: BlockType[]) => {
+					const oldSize = types.value.size
 					for (const type of newTypes) {
-						types.add(type)
+						types.value.add(type)
 						block.style(`block-type-${type}`)
 						header?.style(`block-type-${type}-header`)
 						footer?.style(`block-type-${type}-footer`)
 					}
+					if (types.value.size !== oldSize)
+						types.emit()
 					return block
 				},
 				{
+					state: types,
 					remove (...removeTypes: BlockType[]) {
+						let removed = false
 						for (const type of removeTypes) {
-							types.delete(type)
+							removed ||= types.value.delete(type)
 							block.style.remove(`block-type-${type}`)
 							header?.style.remove(`block-type-${type}-header`)
 							footer?.style.remove(`block-type-${type}-footer`)
 						}
+						if (removed)
+							types.emit()
 						return block
 					},
 				},
@@ -79,7 +88,7 @@ const Block = Component.Builder((component): Block => {
 			},
 		}))
 		.extendJIT("header", block => header = Component("hgroup")
-			.style("block-header", ...[...types].map(t => `block-type-${t}-header` as const))
+			.style("block-header", ...[...types.value].map(t => `block-type-${t}-header` as const))
 			.prependTo(block))
 		.extendJIT("title", block => Heading().style("block-title").prependTo(block.header))
 		.extendJIT("primaryActions", block => Component().style("block-actions-primary").appendTo(block.header))
@@ -89,7 +98,7 @@ const Block = Component.Builder((component): Block => {
 			.appendTo(block.primaryActions))
 		.extendJIT("description", block => Paragraph().style("block-description").appendTo(block.header))
 		.extendJIT("footer", block => footer = ActionRow()
-			.style("block-footer", ...[...types].map(t => `block-type-${t}-footer` as const))
+			.style("block-footer", ...[...types.value].map(t => `block-type-${t}-footer` as const))
 			.appendTo(block))
 })
 

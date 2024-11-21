@@ -22,6 +22,7 @@ interface ReadableState<T, E = T> {
 	awaitManual (value: T, then: (value: T) => any): State<T>
 
 	map<R> (owner: Component, mapper: (value: T) => R): State<R>
+	mapManual<R> (mapper: (value: T) => R): State<R>
 	nonNullish: State<boolean>
 	truthy: State<boolean>
 	falsy: State<boolean>
@@ -117,6 +118,7 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 		},
 
 		map: (owner, mapper) => State.Map(owner, result, mapper),
+		mapManual: (mapper) => State.MapManual(result, mapper),
 		get nonNullish () {
 			return Define.set(result, "nonNullish", State
 				.Generator(() => result.value !== undefined && result.value !== null)
@@ -278,6 +280,11 @@ namespace State {
 	export function Map<INPUT, OUTPUT> (owner: Component, input: ReadableState<INPUT>, outputGenerator: (input: INPUT) => OUTPUT): Generator<OUTPUT> {
 		return Generator(() => outputGenerator(input.value))
 			.observe(owner, input)
+	}
+
+	export function MapManual<INPUT, OUTPUT> (input: ReadableState<INPUT>, outputGenerator: (input: INPUT) => OUTPUT): Generator<OUTPUT> {
+		return Generator(() => outputGenerator(input.value))
+			.observeManual(input)
 	}
 }
 

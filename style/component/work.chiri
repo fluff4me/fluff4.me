@@ -12,8 +12,9 @@
 	&-author:
 
 		&-list:
-			%margin-bottom-0
 			grid-row: 2
+			&--flush:
+				%margin-bottom-0
 
 	&-tags:
 		%flex
@@ -26,7 +27,7 @@
 		%block
 		%italic
 		%padding-bottom-3
-		%font-1
+		%font-2
 
 	&-content:
 		%block
