@@ -14,11 +14,13 @@ follow: Follow
 ignore: Ignore
 delete: Delete
 save: Save Changes
+create: Create!
 
 ## form
 name/label: Name
 vanity/label: Vanity
 description/label: Description
+body/label: Body
 
 # component
 popover/button: open {0??details}{ 1??}
@@ -172,7 +174,7 @@ synopsis/hint: The full text describing this work. This will only appear on the 
 
 ## work-edit/create
 title: Create work
-submit: Create!
+submit=shared/action/create
 
 ## work-edit/update
 title: Edit work
@@ -189,3 +191,21 @@ action/label/view=shared/action/view
 action/label/love=shared/action/love
 action/label/edit=shared/action/edit
 action/label/delete=shared/action/delete
+
+
+## chapter-edit
+
+### shared/form
+name/label=shared/form/name/label
+name/hint: The name of your chapter. This does not have to be unique.
+body/label=shared/form/body/label
+body/hint: The content of your chapter.
+
+## chapter-edit/create
+title: Create chapter
+submit=shared/action/create
+
+## chapter-edit/update
+title: Edit chapter
+submit=shared/action/save
+action/delete: Delete Chapter

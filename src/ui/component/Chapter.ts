@@ -1,5 +1,8 @@
-import type { ChapterLite } from "api.fluff4.me"
+import type { Author, ChapterLite, Work } from "api.fluff4.me"
+import Session from "model/Session"
 import Component from "ui/Component"
+import Button from "ui/component/core/Button"
+import CanHasActionsMenuButton from "ui/component/core/ext/CanHasActionsMenuButton"
 import Timestamp from "ui/component/core/Timestamp"
 
 interface ChapterExtensions {
@@ -11,7 +14,7 @@ interface ChapterExtensions {
 
 interface Chapter extends Component, ChapterExtensions { }
 
-const Chapter = Component.Builder((component, chapter: ChapterLite): Chapter => {
+const Chapter = Component.Builder((component, chapter: ChapterLite, work: Work, author: Author): Chapter => {
 	component.style("chapter")
 
 	const number = Component()
@@ -29,12 +32,30 @@ const Chapter = Component.Builder((component, chapter: ChapterLite): Chapter => 
 			.style("chapter-timestamp")
 			.appendTo(component)
 
-	return component.extend<ChapterExtensions>(component => ({
-		chapter,
-		number,
-		chapterName,
-		timestamp,
-	}))
+	return component
+		.and(CanHasActionsMenuButton)
+		.setActionsMenu((popover, button) => {
+			if (author && author.vanity === Session.Auth.author.value?.vanity) {
+				Button()
+					.type("flush")
+					.text.use("view/work/chapters/action/label/edit")
+					.event.subscribe("click", () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.index}/edit`))
+					.appendTo(popover)
+
+				Button()
+					.type("flush")
+					.text.use("view/author/works/action/label/delete")
+					.event.subscribe("click", () => { })
+					.appendTo(popover)
+
+			}
+		})
+		.extend<ChapterExtensions>(component => ({
+			chapter,
+			number,
+			chapterName,
+			timestamp,
+		}))
 })
 
 export default Chapter
