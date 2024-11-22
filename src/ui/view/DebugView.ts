@@ -79,13 +79,16 @@ export default ViewDefinition({
 		profileButtons.append(createButton({
 			name: "Create Profile 1",
 			async execute () {
-				await BUTTON_REGISTRY.createAuthor.execute("prolific author", "somanystories")
+				await BUTTON_REGISTRY.createAuthor.execute("prolific author", "somanystories", "wow a description that mentions <mention vanity=\"somanystories\">", "she/her pronies m8")
 				await BUTTON_REGISTRY.createWork.execute("a debut work", "pretty decent by <mention vanity=\"somanystories\">", "short description", "debut", "Complete", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("somanystories", "debut", "chapter 1", "woo look it's prolific author's first story!", "Public")
 				await BUTTON_REGISTRY.createWork.execute("sequel to debut", "wow they wrote a sequel", "sequel short description", "sequel", "Ongoing", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("somanystories", "sequel", "the chapters", "pretend there's a story here", "Public")
 				await BUTTON_REGISTRY.createWork.execute("work in progress", "test", "short description test", "wip", "Ongoing", "Private")
 				await BUTTON_REGISTRY.createChapter.execute("somanystories", "wip", "draft", "it's a rough draft", "Private")
+				await BUTTON_REGISTRY.viewWork.execute("work", "somanystories", "debut")
+				await BUTTON_REGISTRY.viewWork.execute("work", "somanystories", "sequel")
+				await BUTTON_REGISTRY.viewWork.execute("work", "somanystories", "wip")
 				await BUTTON_REGISTRY.getAllWorksByAuthor.execute("all works", "somanystories")
 			},
 		}))
@@ -103,12 +106,18 @@ export default ViewDefinition({
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("single story author", "justonestory", "<mention vanity=\"somanystories\"> writes so much")
 				await BUTTON_REGISTRY.createWork.execute("one big work", "made by <mention vanity=\"justonestory\">", "wow description", "bigstory", "Ongoing", "Public")
-				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story", "start of a long story", "Public")
-				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 2", "middle of a long story", "Public")
-				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3", "aaaa", "Public")
-				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 4", "aaaaaaa", "Public")
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 1", "start of a long story", "Public")
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story interlude", "middle of a long story", "Public", false)
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 2", "aaaa", "Public")
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3", "aaaaaaa", "Public")
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.1", "aaaaaaaaaaaaaaaaaaa", "Public", false)
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.2", "aaaaaaaaaaaaaaaaaaa", "Public", false)
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.3", "aaaaaaaaaaaaaaaaaaa", "Public")
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 4", "aaaaaaaaaaaaaaaaaaa", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 5", "aaaaaaaaaaaaaaaaaaa", "Public")
-				await BUTTON_REGISTRY.viewChapter.execute("", "justonestory", "bigstory", "1")
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 6", "aaaaaaaaaaaaaaaaaaa", "Public")
+				await BUTTON_REGISTRY.updateChapter.execute("justonestory", "bigstory", 4, undefined, undefined, undefined, false)
+				await BUTTON_REGISTRY.viewChapter.execute("", "justonestory", "bigstory", 1)
 				await BUTTON_REGISTRY.viewWork.execute("big story five chapters", "justonestory", "bigstory")
 				await BUTTON_REGISTRY.getAllChapters.execute("justonestory", "bigstory", 0)
 				// await BUTTON_REGISTRY.follow.execute("work", "debut");
@@ -459,10 +468,10 @@ export default ViewDefinition({
 		patreonButtons.append(createButton({
 			name: "get patreon-only chapters",
 			async execute () {
-				await BUTTON_REGISTRY.viewChapter.execute("public:", "patreonuser", "exclusive", "3")
-				await BUTTON_REGISTRY.viewChapter.execute("public:", "patreonuser", "exclusive", "3")
-				await BUTTON_REGISTRY.viewChapter.execute("patreon:", "patreonuser", "exclusive", "4")
-				await BUTTON_REGISTRY.viewChapter.execute("patreon:", "patreonuser", "exclusive", "4")
+				await BUTTON_REGISTRY.viewChapter.execute("public:", "patreonuser", "exclusive", 3)
+				await BUTTON_REGISTRY.viewChapter.execute("public:", "patreonuser", "exclusive", 3)
+				await BUTTON_REGISTRY.viewChapter.execute("patreon:", "patreonuser", "exclusive", 4)
+				await BUTTON_REGISTRY.viewChapter.execute("patreon:", "patreonuser", "exclusive", 4)
 			},
 		}))
 
@@ -532,7 +541,7 @@ export default ViewDefinition({
 			name: "Tag Promote/Demote",
 			async execute () {
 				await BUTTON_REGISTRY.tagPromoteCustom.execute("custom tag 1", "test description", "Category Two")
-				await BUTTON_REGISTRY.tagDemoteGlobal.execute("Tag Three: Category Two")
+				await BUTTON_REGISTRY.tagDemoteGlobal.execute("Category Two: Tag Three")
 				await BUTTON_REGISTRY.viewWork.execute("work view 3", "thetagger", "testwork")
 				await BUTTON_REGISTRY.viewWork.execute("work view 4", "thetagger", "testworktwo")
 			},
