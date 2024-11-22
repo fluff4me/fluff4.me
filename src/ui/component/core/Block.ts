@@ -1,9 +1,8 @@
 import Component from "ui/Component"
 import ActionRow from "ui/component/core/ActionRow"
-import Button from "ui/component/core/Button"
+import CanHasActionsMenuButton from "ui/component/core/ext/CanHasActionsMenuButton"
 import Heading from "ui/component/core/Heading"
 import Paragraph from "ui/component/core/Paragraph"
-import type { PopoverComponentRegisteredExtensions, PopoverInitialiser } from "ui/component/core/Popover"
 import type { ComponentName } from "ui/utility/StyleManipulator"
 import State from "utility/State"
 
@@ -22,16 +21,13 @@ interface BlockExtensions {
 	readonly header: Component
 	readonly title: Heading
 	readonly primaryActions: Component
-	readonly actionsMenuButton: Button & PopoverComponentRegisteredExtensions
 	readonly description: Paragraph
 	readonly content: Component
 	readonly footer: ActionRow
 	readonly type: BlockTypeManipulator<this>
-
-	setActionsMenu (initialiser: PopoverInitialiser<Button>): this
 }
 
-interface Block extends Component, BlockExtensions { }
+interface Block extends Component, BlockExtensions, CanHasActionsMenuButton { }
 
 const Block = Component.Builder((component): Block => {
 	const types = State(new Set<BlockType>())
@@ -39,9 +35,7 @@ const Block = Component.Builder((component): Block => {
 	let header: Component | undefined
 	let footer: Component | undefined
 
-	let actionsMenuPopoverInitialiser: PopoverInitialiser<Button> = () => { }
-
-	return component
+	const block = component
 		.viewTransition("block")
 		.style("block")
 		.extend<BlockExtensions>(block => ({
@@ -81,25 +75,19 @@ const Block = Component.Builder((component): Block => {
 					},
 				},
 			),
-			setActionsMenu (initialiser) {
-				actionsMenuPopoverInitialiser = initialiser
-				block.actionsMenuButton.setPopover("click", initialiser)
-				return block
-			},
 		}))
 		.extendJIT("header", block => header = Component("hgroup")
 			.style("block-header", ...[...types.value].map(t => `block-type-${t}-header` as const))
 			.prependTo(block))
 		.extendJIT("title", block => Heading().style("block-title").prependTo(block.header))
 		.extendJIT("primaryActions", block => Component().style("block-actions-primary").appendTo(block.header))
-		.extendJIT("actionsMenuButton", block => Button()
-			.style("block-actions-menu-button")
-			.setPopover("click", actionsMenuPopoverInitialiser)
-			.appendTo(block.primaryActions))
 		.extendJIT("description", block => Paragraph().style("block-description").appendTo(block.header))
 		.extendJIT("footer", block => footer = ActionRow()
 			.style("block-footer", ...[...types.value].map(t => `block-type-${t}-footer` as const))
 			.appendTo(block))
+
+	return block
+		.and(CanHasActionsMenuButton, button => button.appendTo(block.primaryActions))
 })
 
 export default Block

@@ -1,4 +1,5 @@
 import EndpointChapterGetAll from "endpoint/chapter/EndpointChapterGetAll"
+import type { WorkParams } from "endpoint/work/EndpointWorkGet"
 import EndpointWorkGet from "endpoint/work/EndpointWorkGet"
 import Session from "model/Session"
 import Chapter from "ui/component/Chapter"
@@ -10,13 +11,8 @@ import View from "ui/view/View"
 import ViewDefinition from "ui/view/ViewDefinition"
 import Errors from "utility/Errors"
 
-interface WorkViewParameters {
-	author: string
-	vanity: string
-}
-
 export default ViewDefinition({
-	create: async (params: WorkViewParameters) => {
+	create: async (params: WorkParams) => {
 		const view = View("work")
 
 		const response = await EndpointWorkGet.query({ params })
@@ -52,7 +48,7 @@ export default ViewDefinition({
 		await paginator.useEndpoint(chaptersQuery, (slot, chapters) => {
 			slot.style("chapter-list")
 			for (const chapterData of chapters)
-				Chapter(chapterData)
+				Chapter(chapterData, workData, authorData)
 					.appendTo(slot)
 		})
 

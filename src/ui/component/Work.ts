@@ -52,11 +52,7 @@ const Work = Component.Builder(async (component, work: WorkData, author: Author)
 	if (work.time_last_update)
 		block.footer.right.append(Timestamp(work.time_last_update).style("work-timestamp"))
 
-	block.actionsMenuButton.setIcon("ellipsis-vertical")
 	block.setActionsMenu((popover, button) => {
-		popover.anchor.add("off right", "aligned top")
-		popover.anchor.add("off right", "aligned bottom")
-
 		Button()
 			.type("flush")
 			.text.use("view/author/works/action/label/view")
