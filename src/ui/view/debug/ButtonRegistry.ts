@@ -10,7 +10,7 @@ export interface IButtonImplementation<ARGS extends any[]> {
 export const BUTTON_REGISTRY = {
 	createAuthor: {
 		name: "Create Author",
-		async execute (name: string, vanity: string, description?: string) {
+		async execute (name: string, vanity: string, description?: string, pronouns?: string) {
 			const response = await fetch(`${Env.API_ORIGIN}author/create`, {
 				method: "POST",
 				credentials: "include",
@@ -22,6 +22,7 @@ export const BUTTON_REGISTRY = {
 					name: name,
 					vanity: vanity,
 					description: description,
+					pronouns: pronouns,
 				}),
 			}).then(response => response.json())
 			console.log(response)
@@ -168,7 +169,7 @@ export const BUTTON_REGISTRY = {
 
 	createChapter: {
 		name: "Create Chapter",
-		async execute (author: string, work_url: string, name: string, body: string, visibility?: string) {
+		async execute (author: string, work_url: string, name: string, body: string, visibility?: string, is_numbered?: boolean) {
 			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/create`, {
 				method: "POST",
 				credentials: "include",
@@ -179,6 +180,7 @@ export const BUTTON_REGISTRY = {
 					name: name,
 					body: body,
 					visibility: visibility,
+					is_numbered: is_numbered,
 				}),
 			}).then(response => response.json())
 			console.log(response)
@@ -187,8 +189,8 @@ export const BUTTON_REGISTRY = {
 
 	updateChapter: {
 		name: "Update Chapter",
-		async execute (author: string, work_url: string, index: number, name?: string, body?: string, visibility?: string) {
-			await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/${index}/update`, {
+		async execute (author: string, work_url: string, index: number, name?: string, body?: string, visibility?: string, is_numbered?: boolean) {
+			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/${index}/update`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -198,8 +200,10 @@ export const BUTTON_REGISTRY = {
 					name,
 					body,
 					visibility,
+					is_numbered,
 				}),
-			})
+			}).then(response => response.json())
+			console.log(response)
 		},
 	},
 
@@ -218,7 +222,7 @@ export const BUTTON_REGISTRY = {
 
 	viewChapter: {
 		name: "View Chapter",
-		async execute (label: string, author: string, work_url: string, index: string) {
+		async execute (label: string, author: string, work_url: string, index: number) {
 			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/${index}/get`, {
 				credentials: "include",
 			}).then(response => response.json())
