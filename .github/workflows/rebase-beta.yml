@@ -18,6 +18,9 @@ jobs:
       - name: Rebase
         run: |
           git fetch
+          git branch beta-backup beta
+          git push origin beta-backup
+
           if ! git rebase origin/main; then
             echo "Rebase failed due to conflicts."
             git rebase --abort
