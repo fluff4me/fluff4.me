@@ -65,7 +65,7 @@ export default Component.Builder((component, state: State<Chapter | undefined>, 
 					return EndpointChapterUpdate.query({
 						params: {
 							...workParams,
-							index: state.value.index,
+							url: state.value.url,
 						},
 						body: {
 							name: nameInput.value,

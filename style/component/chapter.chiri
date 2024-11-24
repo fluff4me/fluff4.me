@@ -9,6 +9,12 @@
 	%padding-1-4
 	%span-4
 	%gap-3
+	%cursor-pointer
+	#transition: #{transition("background")}
+
+	::hover, ::focus:
+		%background-4
+		$transition-duration: $transition-focus
 
 	&-number:
 		%colour-6
@@ -17,6 +23,29 @@
 
 	&-name:
 
+	&-right:
+		%block
+		%text-align-right
+
 	&-timestamp:
 		%font-2
 		%align-self-centre
+		%justify-self-end
+
+	&-actions-menu-button:
+		%unmargin-block-1
+		%unmargin-right-3
+		%margin-left-0
+		%padding-block-2
+		#transition:
+			$button-transition,
+			#{transition("margin")},
+			#{transition("opacity")}
+		$transition-duration: $transition-focus
+
+		&--not-focused:
+			#after: .chapter-actions-menu-button
+			%transparent
+			%unmargin-left-3
+			%unmargin-right-4
+			$transition-duration: $transition-blur

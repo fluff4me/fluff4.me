@@ -13,7 +13,7 @@ interface WorkExtensions {
 
 interface Work extends Block, WorkExtensions { }
 
-const Work = Component.Builder(async (component, work: WorkData, author: Author): Promise<Work> => {
+const Work = Component.Builder(async (component, work: WorkData, author?: Author): Promise<Work> => {
 	component
 		.viewTransition("work")
 		.style("work")

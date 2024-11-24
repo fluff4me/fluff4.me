@@ -209,3 +209,7 @@ submit=shared/action/create
 title: Edit chapter
 submit=shared/action/save
 action/delete: Delete Chapter
+
+
+## chapter
+title: {0?{0}. }{1}
