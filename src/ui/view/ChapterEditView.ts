@@ -1,6 +1,6 @@
 import type { Chapter } from "api.fluff4.me"
+import type { ChapterParams } from "endpoint/chapter/EndpointChapterGet"
 import EndpointChapterGet from "endpoint/chapter/EndpointChapterGet"
-import type { WorkParams } from "endpoint/work/EndpointWorkGet"
 import ActionRow from "ui/component/core/ActionRow"
 import Button from "ui/component/core/Button"
 import Slot from "ui/component/core/Slot"
@@ -10,8 +10,8 @@ import View from "ui/view/View"
 import ViewDefinition from "ui/view/ViewDefinition"
 import State from "utility/State"
 
-interface ChapterEditViewParams extends WorkParams {
-	index?: string
+interface ChapterEditViewParams extends Omit<ChapterParams, "url"> {
+	url?: string
 }
 
 export default ViewDefinition({
@@ -20,7 +20,7 @@ export default ViewDefinition({
 		const id = "chapter-edit"
 		const view = View(id)
 
-		const chapter = !params.index ? undefined : await EndpointChapterGet.query({ params: params as Required<ChapterEditViewParams> })
+		const chapter = !params.url ? undefined : await EndpointChapterGet.query({ params: params as Required<ChapterEditViewParams> })
 		if (chapter instanceof Error)
 			throw chapter
 

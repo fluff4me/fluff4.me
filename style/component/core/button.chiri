@@ -30,6 +30,10 @@ $$button-background-highlight!colour
 			%box-shadow-none
 			$button-background: transparent
 
+	&-type-inherit-size:
+		#after: .button
+		%font-inherit
+
 	&-type-primary:
 		$colour: $colour-blue-saturated
 		$button-background: $colour

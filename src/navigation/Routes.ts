@@ -3,6 +3,7 @@ import Route from "navigation/Route"
 import AccountView from "ui/view/AccountView"
 import AuthorView from "ui/view/AuthorView"
 import ChapterEditView from "ui/view/ChapterEditView"
+import ChapterView from "ui/view/ChapterView"
 import DebugView from "ui/view/DebugView"
 import HomeView from "ui/view/HomeView"
 import TagView from "ui/view/TagView"
@@ -18,11 +19,12 @@ const Routes = [
 	Route("/author/$vanity", AuthorView.navigate),
 
 	Route("/work/new", WorkEditView.navigate),
-	Route("/work/$author/$vanity/edit", WorkEditView.navigate),
-	Route("/work/$author/$vanity/chapter/new", ChapterEditView.navigate),
-	Route("/work/$author/$vanity/chapter/$index/edit", ChapterEditView.navigate),
-
 	Route("/work/$author/$vanity", WorkView.navigate),
+	Route("/work/$author/$vanity/edit", WorkEditView.navigate),
+
+	Route("/work/$author/$vanity/chapter/new", ChapterEditView.navigate),
+	Route("/work/$author/$vanity/chapter/$url", ChapterView.navigate),
+	Route("/work/$author/$vanity/chapter/$url/edit", ChapterEditView.navigate),
 
 	Route("/tag/$category/$name", TagView.navigate),
 ]
