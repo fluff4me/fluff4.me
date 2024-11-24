@@ -230,10 +230,20 @@ export const BUTTON_REGISTRY = {
 		},
 	},
 
+	viewChapterPaginated: {
+		name: "View Chapter Paginated",
+		async execute (label: string, author: string, work_url: string, index: number) {
+			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapters/individual?page=${index}`, {
+				credentials: "include",
+			}).then(response => response.json())
+			console.log(label, response)
+		},
+	},
+
 	getAllChapters: {
 		name: "Get All Chapters",
 		async execute (author: string, vanity: string, page: number = 0) {
-			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${vanity}/chapters?page=${page}`, {
+			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${vanity}/chapters/list?page=${page}`, {
 				credentials: "include",
 			}).then(response => response.json())
 			console.log(response)

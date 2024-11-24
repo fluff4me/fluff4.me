@@ -111,7 +111,7 @@ export default ViewDefinition({
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 2", "aaaa", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3", "aaaaaaa", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.1", "aaaaaaaaaaaaaaaaaaa", "Public", false)
-				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.2", "aaaaaaaaaaaaaaaaaaa", "Public", false)
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.2", "aaaaaaaaaaaaaaaaaaa", "Private", false)
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.3", "aaaaaaaaaaaaaaaaaaa", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 4", "aaaaaaaaaaaaaaaaaaa", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 5", "aaaaaaaaaaaaaaaaaaa", "Public")
@@ -120,6 +120,9 @@ export default ViewDefinition({
 				await BUTTON_REGISTRY.viewChapter.execute("", "justonestory", "bigstory", 1)
 				await BUTTON_REGISTRY.viewWork.execute("big story five chapters", "justonestory", "bigstory")
 				await BUTTON_REGISTRY.getAllChapters.execute("justonestory", "bigstory", 0)
+				await BUTTON_REGISTRY.viewChapterPaginated.execute("0", "justonestory", "bigstory", 0)
+				await BUTTON_REGISTRY.viewChapterPaginated.execute("4 (3.1)", "justonestory", "bigstory", 4)
+				await BUTTON_REGISTRY.viewChapterPaginated.execute("6 (private)", "justonestory", "bigstory", 6)
 				// await BUTTON_REGISTRY.follow.execute("work", "debut");
 
 			},
@@ -133,25 +136,17 @@ export default ViewDefinition({
 		}))
 
 		profileButtons.append(createButton({
-			name: "Create Profile 3",
+			name: "View Profile 2's stories",
 			async execute () {
-				await BUTTON_REGISTRY.createAuthor.execute("prolific follower", "ifollowpeople")
-				await BUTTON_REGISTRY.createWork.execute("invalid status", "a test", "unsuccessful test", "uwu", "ShouldNotValidate", "ShouldNotBeValidated")
-				// await BUTTON_REGISTRY.follow.execute("author", "somanystories");
-				// await BUTTON_REGISTRY.follow.execute("author", "justonestory");
-				// await BUTTON_REGISTRY.follow.execute("work", "debut");
-				// await BUTTON_REGISTRY.follow.execute("work", "sequel");
-				// await BUTTON_REGISTRY.follow.execute("work", "wip");
-				// await BUTTON_REGISTRY.follow.execute("work", "bigstory");
+				await BUTTON_REGISTRY.viewChapter.execute("", "justonestory", "bigstory", 1)
+				await BUTTON_REGISTRY.viewWork.execute("big story five chapters", "justonestory", "bigstory")
+				await BUTTON_REGISTRY.getAllChapters.execute("justonestory", "bigstory", 0)
+				await BUTTON_REGISTRY.viewChapterPaginated.execute("0", "justonestory", "bigstory", 0)
+				await BUTTON_REGISTRY.viewChapterPaginated.execute("4 (3.1)", "justonestory", "bigstory", 4)
+				await BUTTON_REGISTRY.viewChapterPaginated.execute("6 (private)", "justonestory", "bigstory", 6)
 			},
 		}))
 
-		profileButtons.append(createButton({
-			name: "View Profile 3",
-			async execute () {
-				await BUTTON_REGISTRY.viewAuthor.execute("ifollowpeople author", "ifollowpeople")
-			},
-		}))
 
 		const followButtons = Block().appendTo(view)
 
