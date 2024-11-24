@@ -1,0 +1,31 @@
+name: Cleanup beta rebase (revert to backup on failure, delete backup on success)
+
+on:
+  workflow_call:
+    inputs:
+      build_success:
+        description: 'Whether the build was successful'
+        required: true
+        type: boolean
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: beta
+
+      - name: Revert to backup (on failure)
+        if: ${{ !inputs.build_success }}
+        run: |
+          git fetch
+          git reset --hard origin/beta-backup
+          git push --force origin beta
+          git push origin --delete beta-backup
+
+      - name: Delete backup (on success)
+        if: ${{ inputs.build_success }}
+        run: |
+          git push origin --delete beta-backup

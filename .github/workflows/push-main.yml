@@ -26,3 +26,11 @@ jobs:
     if: always() && needs.build.result == 'success'
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
+
+  cleanup:
+    needs: [rebase, build-beta]
+    if: always() && needs.rebase.result == 'success'
+    uses: ./.github/workflows/cleanup-beta.yml
+    with:
+      build_success: ${{ needs.build-beta.result == 'success' }}
+    secrets: inherit
