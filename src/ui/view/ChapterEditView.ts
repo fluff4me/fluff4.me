@@ -5,9 +5,9 @@ import ActionRow from "ui/component/core/ActionRow"
 import Button from "ui/component/core/Button"
 import Slot from "ui/component/core/Slot"
 import ChapterEditForm from "ui/view/chapter/ChapterEditForm"
+import View from "ui/view/shared/component/View"
+import ViewDefinition from "ui/view/shared/component/ViewDefinition"
 import ViewTransition from "ui/view/shared/ext/ViewTransition"
-import View from "ui/view/View"
-import ViewDefinition from "ui/view/ViewDefinition"
 import State from "utility/State"
 
 interface ChapterEditViewParams extends Omit<ChapterParams, "url"> {

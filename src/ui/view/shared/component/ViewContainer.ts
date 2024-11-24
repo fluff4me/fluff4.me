@@ -6,9 +6,9 @@ import Dialog from "ui/component/core/Dialog"
 import AccountView from "ui/view/AccountView"
 import ErrorView from "ui/view/ErrorView"
 import RequireLoginView from "ui/view/RequireLoginView"
+import type View from "ui/view/shared/component/View"
+import type ViewDefinition from "ui/view/shared/component/ViewDefinition"
 import ViewTransition from "ui/view/shared/ext/ViewTransition"
-import type View from "ui/view/View"
-import type ViewDefinition from "ui/view/ViewDefinition"
 
 interface ViewContainerExtensions {
 	view?: View

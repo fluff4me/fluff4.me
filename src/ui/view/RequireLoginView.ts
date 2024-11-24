@@ -2,8 +2,8 @@ import ActionRow from "ui/component/core/ActionRow"
 import Block from "ui/component/core/Block"
 import Button from "ui/component/core/Button"
 import AccountView from "ui/view/AccountView"
-import View from "ui/view/View"
-import ViewDefinition from "ui/view/ViewDefinition"
+import View from "ui/view/shared/component/View"
+import ViewDefinition from "ui/view/shared/component/ViewDefinition"
 
 export default ViewDefinition({
 	create: () => {

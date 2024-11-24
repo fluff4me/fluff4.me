@@ -7,8 +7,8 @@ import Button from "ui/component/core/Button"
 import Paginator from "ui/component/core/Paginator"
 import Slot from "ui/component/core/Slot"
 import Work from "ui/component/Work"
-import View from "ui/view/View"
-import ViewDefinition from "ui/view/ViewDefinition"
+import View from "ui/view/shared/component/View"
+import ViewDefinition from "ui/view/shared/component/ViewDefinition"
 import Errors from "utility/Errors"
 
 export default ViewDefinition({

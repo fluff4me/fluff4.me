@@ -2,7 +2,7 @@ import type { ComponentBrand } from "ui/Component"
 import Component from "ui/Component"
 import type Input from "ui/component/core/ext/Input"
 import Form from "ui/component/core/Form"
-import View from "ui/view/View"
+import View from "ui/view/shared/component/View"
 import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
 
