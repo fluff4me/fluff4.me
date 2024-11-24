@@ -4,8 +4,8 @@ import EndpointChapterGet from "endpoint/chapter/EndpointChapterGet"
 import EndpointWorkGet from "endpoint/work/EndpointWorkGet"
 import Block from "ui/component/core/Block"
 import Work from "ui/component/Work"
-import View from "ui/view/View"
-import ViewDefinition from "ui/view/ViewDefinition"
+import View from "ui/view/shared/component/View"
+import ViewDefinition from "ui/view/shared/component/ViewDefinition"
 import Maths from "utility/maths/Maths"
 
 export default ViewDefinition({

@@ -6,9 +6,9 @@ import type Form from "ui/component/core/Form"
 import Slot from "ui/component/core/Slot"
 import AccountViewForm from "ui/view/account/AccountViewForm"
 import AccountViewOAuthServices from "ui/view/account/AccountViewOAuthServices"
+import View from "ui/view/shared/component/View"
+import ViewDefinition from "ui/view/shared/component/ViewDefinition"
 import ViewTransition from "ui/view/shared/ext/ViewTransition"
-import View from "ui/view/View"
-import ViewDefinition from "ui/view/ViewDefinition"
 import State from "utility/State"
 
 export default ViewDefinition({

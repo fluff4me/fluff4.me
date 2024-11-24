@@ -8,7 +8,7 @@ import Flag from "ui/component/masthead/Flag"
 import PrimaryNav from "ui/component/PrimaryNav"
 import Sidebar from "ui/component/Sidebar"
 import Viewport from "ui/utility/Viewport"
-import type ViewContainer from "ui/ViewContainer"
+import type ViewContainer from "ui/view/shared/component/ViewContainer"
 import Env from "utility/Env"
 import Task from "utility/Task"
 

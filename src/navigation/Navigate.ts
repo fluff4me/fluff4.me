@@ -2,7 +2,7 @@ import type App from "App"
 import type { RoutePath } from "navigation/Routes"
 import Routes from "navigation/Routes"
 import ErrorView from "ui/view/ErrorView"
-import type ViewContainer from "ui/ViewContainer"
+import type ViewContainer from "ui/view/shared/component/ViewContainer"
 import Env from "utility/Env"
 
 declare global {

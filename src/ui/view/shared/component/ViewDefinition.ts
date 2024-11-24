@@ -1,5 +1,5 @@
 import type App from "App"
-import type View from "ui/view/View"
+import type View from "ui/view/shared/component/View"
 import type { PromiseOr } from "utility/Type"
 
 interface ViewDefinitionBase<VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined = undefined> {
