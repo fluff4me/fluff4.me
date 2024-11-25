@@ -11,11 +11,7 @@ jobs:
   rebase:
     uses: ./.github/workflows/rebase-beta.yml
     secrets: inherit
-    
-  build:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    
+
   build-beta:
     needs: [rebase]
     uses: ./.github/workflows/build-beta.yml
@@ -28,7 +24,11 @@ jobs:
     with:
       build_success: ${{ needs.build-beta.result == 'success' }}
     secrets: inherit
-    
+
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
   deploy:
     needs: [build, build-beta]
     if: always() && needs.build.result == 'success'
