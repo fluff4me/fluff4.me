@@ -71,6 +71,8 @@ Component.extend(component => {
 						return
 
 					event.stopPropagation()
+					event.preventDefault()
+
 					component.clickState = true
 					component.popover?.show()
 					component.popover?.focus()

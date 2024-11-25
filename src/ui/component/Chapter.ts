@@ -3,6 +3,7 @@ import Session from "model/Session"
 import Component from "ui/Component"
 import Button from "ui/component/core/Button"
 import CanHasActionsMenuButton from "ui/component/core/ext/CanHasActionsMenuButton"
+import Link from "ui/component/core/Link"
 import Timestamp from "ui/component/core/Timestamp"
 import Maths from "utility/maths/Maths"
 
@@ -16,7 +17,8 @@ interface ChapterExtensions {
 interface Chapter extends Component, ChapterExtensions { }
 
 const Chapter = Component.Builder((component, chapter: ChapterLite, work: Work, author: Author): Chapter => {
-	component.style("chapter")
+	component = Link(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}`)
+		.style("chapter")
 
 	const chapterNumber = Maths.parseIntOrUndefined(chapter.url)
 	const number = Component()
@@ -67,8 +69,6 @@ const Chapter = Component.Builder((component, chapter: ChapterLite, work: Work, 
 			chapterName,
 			timestamp,
 		}))
-		.onRooted(component => component
-			.event.subscribe("click", () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}`)))
 })
 
 export default Chapter
