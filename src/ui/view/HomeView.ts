@@ -1,8 +1,6 @@
 import MarkdownIt from "markdown-it"
 import Component from "ui/Component"
 import Block from "ui/component/core/Block"
-import Form from "ui/component/core/Form"
-import LabelledTable from "ui/component/core/LabelledTable"
 import TextEditor from "ui/component/core/TextEditor"
 import View from "ui/view/shared/component/View"
 import ViewDefinition from "ui/view/shared/component/ViewDefinition"
@@ -13,9 +11,16 @@ export default ViewDefinition({
 	create: () => {
 		const view = View("home")
 
+		const block = Block().appendTo(view)
+		block.title.text.set("Test the text editor")
+		block.description.text.set("fluff4.me is still a work-in-progress. In the meantime, feel free to play with this!")
+		// const form = block.and(Form, block.title)
+
+		TextEditor()
+			.appendTo(block.content)
+
 		if (Env.isDev) {
-			const block = Block().appendTo(view)
-			const form = block.and(Form, block.title)
+			Component("br").appendTo(block.content)
 
 			const output = Component("div")
 			Component("div")
@@ -35,7 +40,7 @@ export default ViewDefinition({
 					console.log(md.parse(text, {}))
 					output.element.innerHTML = md.render(text)
 				})
-				.appendTo(form.content)
+				.appendTo(block.content)
 
 			output
 				.style.setProperty("font", "inherit")
@@ -44,17 +49,7 @@ export default ViewDefinition({
 				.style.setProperty("padding", "0.5em")
 				.style.setProperty("margin-top", "1em")
 				.style.setProperty("box-sizing", "border-box")
-				.appendTo(form.content)
-
-			const table = LabelledTable().appendTo(form.content)
-
-			table.label(label => label.text.set("test editor"))
-				.content((content, label, row) => {
-					const editor = TextEditor()
-						.setLabel(label)
-						.appendTo(content)
-					label.event.subscribe("click", () => editor.document?.focus())
-				})
+				.appendTo(block.content)
 		}
 
 		return view
