@@ -1,0 +1,11 @@
+name: Revert beta rebase
+description: 'Reverts beta branch to backup on failure'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Revert to backup
+      run: |
+        git fetch
+        git reset --hard beta-backup
+        git push --force origin beta

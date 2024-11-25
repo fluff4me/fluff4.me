@@ -2,6 +2,11 @@ name: Build beta
 
 on:
   workflow_call:
+    inputs:
+      rebase:
+        description: 'Whether to rebase before building'
+        required: false
+        type: boolean
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -12,7 +17,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: beta
       
+      - id: rebase-beta
+        uses: ./.github/actions/rebase-beta.yml
+        if: ${{ inputs.rebase }}
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
 
@@ -44,3 +55,6 @@ jobs:
           jekyll: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: ./.github/actions/revert-beta.yml
+        if: ${{ inputs.rebase && failure() && steps.rebase-beta.outcome == 'success' }}
