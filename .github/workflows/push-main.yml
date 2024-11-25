@@ -8,21 +8,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  rebase:
-    uses: ./.github/workflows/rebase-beta.yml
-    secrets: inherit
-
   build-beta:
-    needs: [rebase]
     uses: ./.github/workflows/build-beta.yml
-    secrets: inherit
-
-  cleanup:
-    needs: [rebase, build-beta]
-    if: always() && needs.rebase.result == 'success'
-    uses: ./.github/workflows/cleanup-beta.yml
     with:
-      build_success: ${{ needs.build-beta.result == 'success' }}
+      rebase: true
     secrets: inherit
 
   build:
@@ -30,7 +19,7 @@ jobs:
     secrets: inherit
 
   deploy:
-    needs: [build, cleanup]
+    needs: [build, build-beta]
     if: always() && needs.build.result == 'success'
     uses: ./.github/workflows/deploy.yml
     secrets: inherit

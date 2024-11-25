@@ -1,0 +1,19 @@
+name: Auto-rebase beta onto main
+description: Rebase beta branch onto main branch
+
+runs:
+  using: composite
+  steps:
+    - name: Rebase
+      shell: bash
+      run: |
+        git fetch
+        git branch beta-backup beta
+
+        if ! git rebase origin/main; then
+          echo "Rebase failed due to conflicts."
+          git rebase --abort
+          exit 1
+        fi
+        
+        git push -f origin beta main
