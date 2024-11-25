@@ -35,7 +35,7 @@ Component.extend(component => {
 	component.extend<PopoverComponentExtensions>((component: Component & PopoverComponentExtensions & Partial<PopoverComponentRegisteredExtensions> & Partial<InternalPopoverExtensions>) => ({
 		clearPopover: () => component
 			.attributes.set("data-clear-popover", "true"),
-		setPopover: (event, initialiser) => {
+		setPopover: (popoverEvent, initialiser) => {
 			if (component.popover)
 				component.popover.remove()
 
@@ -55,7 +55,7 @@ Component.extend(component => {
 				})
 				.appendTo(document.body)
 
-			if (event === "hover" && !component.popover)
+			if (popoverEvent === "hover" && !component.popover)
 				component.hoveredOrFocused.subscribe(component, updatePopoverState)
 
 			const ariaLabel = component.attributes.getUsing("aria-label") ?? popover.attributes.get("aria-label")
@@ -65,11 +65,12 @@ Component.extend(component => {
 
 			component.clickState = false
 			if (!component.popover) {
-				component.event.subscribe("click", async () => {
+				component.event.subscribe("click", async event => {
 					// always subscribe click because we need to handle it for keyboard navigation
-					if (!component.focused.value && event !== "click")
+					if (!component.focused.value && popoverEvent !== "click")
 						return
 
+					event.stopPropagation()
 					component.clickState = true
 					component.popover?.show()
 					component.popover?.focus()
