@@ -21,7 +21,7 @@ jobs:
           ref: beta
       
       - id: rebase-beta
-        uses: ./.github/actions/rebase-beta.yml
+        uses: ./.github/actions/rebase-beta
         if: ${{ inputs.rebase }}
 
       - name: Setup Node.js environment
@@ -56,5 +56,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: ./.github/actions/revert-beta.yml
+      - uses: ./.github/actions/revert-beta
         if: ${{ inputs.rebase && failure() && steps.rebase-beta.outcome == 'success' }}
