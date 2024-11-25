@@ -30,7 +30,7 @@ jobs:
     secrets: inherit
     
   deploy:
-    needs: [build-beta, build]
+    needs: [build, build-beta]
     if: always() && needs.build.result == 'success'
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
