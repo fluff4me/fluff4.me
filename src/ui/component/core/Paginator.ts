@@ -4,20 +4,38 @@ import Component from "ui/Component"
 import Block from "ui/component/core/Block"
 import Button from "ui/component/core/Button"
 import Slot from "ui/component/core/Slot"
+import State from "utility/State"
 
-interface PaginatorExtensions {
-	useEndpoint<ROUTE extends PaginatedEndpointRoute> (endpoint: PreparedQueryOf<Endpoint<ROUTE>>, contentInitialiser: (slot: Slot, response: ResponseData<EndpointResponse<Endpoint<ROUTE>>>) => any): Promise<void>
+type PaginatedEndpointRouteFiltered<DATA_FILTER> = keyof {
+	[ROUTE in PaginatedEndpointRoute]: DATA_FILTER extends ResponseData<EndpointResponse<Endpoint<ROUTE>>> ? ROUTE : never
 }
 
-interface Paginator extends Block, PaginatorExtensions { }
+interface PaginatorUseInitialFactory<DATA, HOST> {
+	thenUse<ROUTE extends PaginatedEndpointRouteFiltered<DATA>> (endpoint: PreparedQueryOf<Endpoint<ROUTE>>): PaginatorUseInitialFactory2<DATA, HOST>
+}
 
-type PageInitialiser = (slot: Slot, response: ResponseData<EndpointResponse<PaginatedEndpoint>>) => any
+interface PaginatorUseInitialFactory2<DATA, HOST> {
+	withContent (contentInitialiser: (slot: Slot, response: DATA, paginator: HOST) => any): Promise<Paginator<DATA>>
+}
 
-interface PaginatorUsing {
-	mainPage: EndpointResponse<PaginatedEndpoint>
+interface PaginatorExtensions<DATA = any> {
+	page: State<number>
+	data: State<DATA>
+	useEndpoint<ROUTE extends PaginatedEndpointRoute, DATA extends ResponseData<EndpointResponse<Endpoint<ROUTE>>>> (endpoint: PreparedQueryOf<Endpoint<ROUTE>>, contentInitialiser: (slot: Slot, response: DATA, paginator: this) => any): Promise<this>
+	useInitial<DATA> (data: DATA, page: number, pageCount: number): PaginatorUseInitialFactory<DATA, this>
+}
+
+interface Paginator<DATA = any> extends Block, PaginatorExtensions<DATA> { }
+
+type PageInitialiser<HOST extends Paginator> = (slot: Slot, response: ResponseData<EndpointResponse<PaginatedEndpoint>>, paginator: HOST) => any
+
+interface PaginatorUsing<HOST extends Paginator> {
+	endpoint: PreparedQueryOf<PaginatedEndpoint>
 	pageCount: number
-	initialiser: PageInitialiser
+	initialiser: PageInitialiser<HOST>
 }
+
+interface PaginatorExtensionsInternal extends PaginatorExtensions, PaginatorUseInitialFactory<any, PaginatorExtensionsInternal>, PaginatorUseInitialFactory2<any, PaginatorExtensionsInternal> { }
 
 const Paginator = Component.Builder((component): Paginator => {
 	const block = component.and(Block)
@@ -41,12 +59,12 @@ const Paginator = Component.Builder((component): Paginator => {
 
 	const buttonPrev = Button()
 		.style("paginator-button", "paginator-button-prev")
-		.event.subscribe("click", () => showPage(Math.max(cursor - 1, 0)))
+		.event.subscribe("click", () => showPage(Math.max(cursor.value - 1, 0)))
 		.appendTo(block.footer.left)
 
 	const buttonNext = Button()
 		.style("paginator-button", "paginator-button-next")
-		.event.subscribe("click", () => showPage(Math.min(cursor + 1, pages.length - 1)))
+		.event.subscribe("click", () => showPage(Math.min(cursor.value + 1, pages.length - 1)))
 		.appendTo(block.footer.right)
 
 	const buttonLast = Button()
@@ -54,26 +72,47 @@ const Paginator = Component.Builder((component): Paginator => {
 		.event.subscribe("click", () => showPage(pages.length - 1))
 		.appendTo(block.footer.right)
 
-	let pageContent: EndpointResponse<PaginatedEndpoint>[] = []
+	let pageContent: ResponseData<EndpointResponse<PaginatedEndpoint>>[] = []
 	let pages: Slot[] = []
-	let cursor = 0
+	const cursor = State(0)
+	const data = cursor.mapManual(page => pageContent[page])
+	let showingPage = -1
 
-	let using: PaginatorUsing | undefined
-	return block
+	let using: PaginatorUsing<Paginator> | undefined
+	const paginator = block
 		.viewTransition("paginator")
 		.style("paginator")
-		.extend<PaginatorExtensions>(component => ({
+		.extend<PaginatorExtensionsInternal>(component => ({
+			page: cursor,
+			data,
+			useInitial (initialData, page, pageCount) {
+				pageContent[page] = initialData as never
+				cursor.value = page
+				data.refresh()
+				using = { endpoint: undefined!, initialiser: undefined!, pageCount }
+				return component
+			},
+			thenUse (endpoint) {
+				using!.endpoint = endpoint as PreparedQueryOf<PaginatedEndpoint>
+				return component
+			},
+			async withContent (contentInitialiser) {
+				content.removeContents()
+				block.footer.style("paginator-footer--hidden")
+				using!.initialiser = contentInitialiser as never
+				await setup(pageContent[cursor.value], cursor.value, using!.pageCount)
+				return component
+			},
 			async useEndpoint (endpoint, initialiser) {
 				content.removeContents()
 				block.footer.style("paginator-footer--hidden")
 
-				cursor = 0
+				cursor.value = 0
 				pageContent = []
 				pages = []
 
 				const mainPage = Page()
 					.style("paginator-page--initial-load")
-					.style.remove("paginator-page--hidden")
 				pages.push(mainPage)
 
 				let response: EndpointResponse<PaginatedEndpoint>
@@ -89,23 +128,31 @@ const Paginator = Component.Builder((component): Paginator => {
 					break
 				}
 
-				using = { mainPage: response, initialiser: initialiser as PageInitialiser, pageCount: response.page_count }
-
-				pageContent[0] = response
-				await using.initialiser(pages[0], response.data)
-
-				if (response.page_count > 1)
-					block.footer.style.remove("paginator-footer--hidden")
-
-				while (pages.length < response.page_count)
-					pages.push(Page())
-
-				buttonFirst.style("paginator-button--disabled")
-				buttonPrev.style("paginator-button--disabled")
-				buttonNext.style.toggle(response.page_count <= 1, "paginator-button--disabled")
-				buttonLast.style.toggle(response.page_count <= 1, "paginator-button--disabled")
+				using = { endpoint: endpoint as PreparedQueryOf<PaginatedEndpoint>, initialiser: initialiser as never, pageCount: response.page_count }
+				await setup(response.data, 0, response.page_count)
+				return component
 			},
 		}))
+	return paginator
+
+	async function setup (initialData: ResponseData<EndpointResponse<PaginatedEndpoint>>, page: number, pageCount: number) {
+		if (pageCount > 1)
+			block.footer.style.remove("paginator-footer--hidden")
+
+		while (pages.length < pageCount)
+			pages.push(Page())
+
+		const pageComponent = pages[page]
+			.style("paginator-page--initial-load")
+			.style.remove("paginator-page--hidden")
+
+		pageContent[page] = initialData
+		cursor.value = page
+		data.refresh()
+		await using!.initialiser(pageComponent, initialData, paginator)
+
+		updateButtons(page)
+	}
 
 	function Page () {
 		return Slot()
@@ -125,33 +172,32 @@ const Paginator = Component.Builder((component): Paginator => {
 				.event.subscribe("click", () => retry()))
 	}
 
+	function updateButtons (page = cursor.value, pageCount = using?.pageCount ?? 0) {
+		buttonFirst.style.toggle(page <= 0, "paginator-button--disabled")
+		buttonPrev.style.toggle(page <= 0, "paginator-button--disabled")
+		buttonNext.style.toggle(page >= pageCount - 1, "paginator-button--disabled")
+		buttonLast.style.toggle(page >= pageCount - 1, "paginator-button--disabled")
+	}
+
 	async function showPage (number: number) {
-		if (cursor === number || !using)
+		if (cursor.value === number || !using)
 			return
 
-		const oldNumber = cursor
-		cursor = number
-
-		if (cursor !== number)
-			return
-
-		pages[0].style.remove("paginator-page--initial-load")
-
+		const oldNumber = cursor.value
 		const direction = Math.sign(number - oldNumber)
 
 		pages[oldNumber]
+			.style.remove("paginator-page--initial-load")
 			.style("paginator-page--hidden")
 			.style.setVariable("page-direction", direction)
 
-		const page = pages[cursor]
+		const page = pages[number]
 			.style.setVariable("page-direction", direction)
 
-		buttonFirst.style.toggle(cursor <= 0, "paginator-button--disabled")
-		buttonPrev.style.toggle(cursor <= 0, "paginator-button--disabled")
-		buttonNext.style.toggle(cursor >= using.pageCount - 1, "paginator-button--disabled")
-		buttonLast.style.toggle(cursor >= using.pageCount - 1, "paginator-button--disabled")
+		updateButtons(number)
 
-		if (pageContent[cursor]) {
+		if (pageContent[number]) {
+			cursor.value = number
 			page.style.remove("paginator-page--hidden")
 			scrollIntoView(direction)
 			return
@@ -160,8 +206,9 @@ const Paginator = Component.Builder((component): Paginator => {
 		let response: EndpointResponse<PaginatedEndpoint>
 		while (true) {
 			page.removeContents()
-			const result = await using?.mainPage.getPage(cursor)
-			if (cursor !== number)
+			showingPage = number
+			const result = await using?.endpoint.query({ query: { page: number } })
+			if (showingPage !== number)
 				return
 
 			page.style.remove("paginator-page--hidden")
@@ -171,7 +218,7 @@ const Paginator = Component.Builder((component): Paginator => {
 					RetryDialog(resolve).appendTo(page)
 					block.header.element.scrollIntoView()
 				})
-				if (cursor !== number)
+				if (showingPage !== number)
 					return
 
 				continue
@@ -181,13 +228,14 @@ const Paginator = Component.Builder((component): Paginator => {
 			break
 		}
 
-		pageContent[cursor] = response
-		await using?.initialiser(page, response.data)
+		pageContent[number] = response.data
+		cursor.value = number
+		await using?.initialiser(page, response.data, paginator)
 		scrollIntoView(direction)
 	}
 
 	function scrollIntoView (direction: number) {
-		const scrollTarget = direction > 0 ? block.element : pages[cursor].element.lastElementChild
+		const scrollTarget = direction > 0 ? block.element : pages[cursor.value].element.lastElementChild
 		scrollTarget?.scrollIntoView()
 	}
 })

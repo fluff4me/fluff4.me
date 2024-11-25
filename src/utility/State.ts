@@ -21,8 +21,8 @@ interface ReadableState<T, E = T> {
 	await (owner: Component, value: T, then: (value: T) => any): State<T>
 	awaitManual (value: T, then: (value: T) => any): State<T>
 
-	map<R> (owner: Component, mapper: (value: T) => R): State<R>
-	mapManual<R> (mapper: (value: T) => R): State<R>
+	map<R> (owner: Component, mapper: (value: T) => R): State.Generator<R>
+	mapManual<R> (mapper: (value: T) => R): State.Generator<R>
 	nonNullish: State<boolean>
 	truthy: State<boolean>
 	falsy: State<boolean>

@@ -105,6 +105,19 @@ namespace Objects {
 
 		return target
 	}
+
+	export function merge<A, B> (a: A, b: B): A & B {
+		if (typeof a !== "object" || typeof b !== "object" || a === null || b === null || Array.isArray(a) || Array.isArray(b))
+			return (b === undefined ? a : b) as A & B
+
+		const result: any = {}
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+		for (const key of new Set([...Object.keys(a), ...Object.keys(b)]))
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+			result[key] = merge((a as any)[key], (b as any)[key])
+
+		return result
+	}
 }
 
 export default Objects

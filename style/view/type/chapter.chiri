@@ -3,3 +3,6 @@
 	&-work:
 	&-block:
 		&-body:
+			%padding-inline-4
+			%padding-top-3
+			%padding-bottom-4

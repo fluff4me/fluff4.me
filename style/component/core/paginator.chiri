@@ -23,7 +23,7 @@
 		%sticky
 		%padding-block-1
 		%padding-inline-3
-		%margin-top-0
+		%margin-block-0
 		bottom: -1px
 		$backdrop-filter-override: initial
 

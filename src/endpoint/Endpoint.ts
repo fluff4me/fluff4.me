@@ -1,5 +1,6 @@
 import type { ErrorResponse, PaginatedResponse, Paths, Response } from "api.fluff4.me"
 import Env from "utility/Env"
+import Objects from "utility/Objects"
 import Time from "utility/Time"
 import type { Empty } from "utility/Type"
 
@@ -63,7 +64,7 @@ interface Endpoint<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>
 }
 
 interface PreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>> extends Omit<Endpoint<ROUTE, QUERY>, "query"> {
-	query: () => ReturnType<QUERY>
+	query (...overrides: any[]): ReturnType<QUERY>
 }
 
 export type PreparedQueryOf<ENDPOINT extends Endpoint<any, any>> = ENDPOINT extends Endpoint<infer ROUTE, infer QUERY> ? PreparedEndpointQuery<ROUTE, QUERY> : never
@@ -87,7 +88,14 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 		query: query as Endpoint<ROUTE>["query"],
 		prep: (...parameters) => {
 			return Object.assign(Endpoint(route, method, headers), {
-				query: () => query(...parameters),
+				query: (...p2: any[]) => {
+					const newParameters: any[] = []
+					const length = Math.max(parameters.length, p2.length)
+					for (let i = 0; i < length; i++)
+						newParameters.push(Objects.merge(parameters[i], p2[i]))
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+					return query(...newParameters)
+				},
 			}) as any
 		},
 	}
