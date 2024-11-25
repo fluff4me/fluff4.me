@@ -1,0 +1,9 @@
+name: Push beta rebase
+description: 'Pushes rebase to origin on success'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Push rebase to origin
+      run: |
+        git push --force origin beta
