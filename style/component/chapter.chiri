@@ -10,6 +10,8 @@
 	%span-4
 	%gap-3
 	%cursor-pointer
+	%decoration-none
+	%colour-inherit
 	#transition: #{transition("background")}
 
 	::hover, ::focus:
