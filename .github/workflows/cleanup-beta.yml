@@ -9,7 +9,7 @@ on:
         type: boolean
 
 jobs:
-  rebase:
+  cleanup-beta:
     runs-on: ubuntu-latest
 
     steps:
