@@ -15,12 +15,11 @@ Steps to reproduce the behavior:
 2. ???
 3. ???
 
-<!-- if relevant, explain what you expected to happen -->
+<!-- if relevant, explain what you expected to happen after those steps -->
 
 **Hardware, Software, Versions:**
  - Device: <!-- desktop, iphone, android, etc -->
  - Browser: <!-- firefox, chrome, edge, opera, safari, etc -->
  - Browser Version: <!-- for most browsers this is in "help", "about", or "settings" -->
- - [ ] I have refreshed the page
 
 <!-- feel free to attach screenshots if they help describe the problem -->
