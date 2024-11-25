@@ -18,10 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
+          path: branch_main
+          
+      - uses: actions/checkout@v4
+        with:
           ref: beta
-      
+
       - id: rebase-beta
-        uses: ./.github/actions/rebase-beta
+        uses: ./branch_main/.github/actions/rebase-beta
         if: ${{ inputs.rebase }}
 
       - name: Setup Node.js environment
@@ -56,5 +61,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: ./.github/actions/revert-beta
+      - uses: ./branch_main/.github/actions/revert-beta
         if: ${{ inputs.rebase && failure() && steps.rebase-beta.outcome == 'success' }}
