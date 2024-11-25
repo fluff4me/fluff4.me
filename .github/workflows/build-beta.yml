@@ -18,12 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
-          path: branch_main
-          
+          ref: beta
+
       - uses: actions/checkout@v4
         with:
-          ref: beta
+          ref: main
+          path: branch_main
 
       - id: rebase-beta
         uses: ./branch_main/.github/actions/rebase-beta
