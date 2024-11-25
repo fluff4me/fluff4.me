@@ -1,16 +1,18 @@
 import type { Work as WorkData, WorkFull } from "api.fluff4.me"
 import type { ChapterParams } from "endpoint/chapter/EndpointChapterGet"
 import EndpointChapterGet from "endpoint/chapter/EndpointChapterGet"
+import EndpointChapterGetPaged from "endpoint/chapter/EndpointChapterGetPaged"
 import EndpointWorkGet from "endpoint/work/EndpointWorkGet"
-import Block from "ui/component/core/Block"
+import quilt from "lang/en-nz"
 import Work from "ui/component/Work"
-import View from "ui/view/shared/component/View"
+import PaginatedView from "ui/view/shared/component/PaginatedView"
 import ViewDefinition from "ui/view/shared/component/ViewDefinition"
 import Maths from "utility/maths/Maths"
+import State from "utility/State"
 
 export default ViewDefinition({
 	create: async (params: ChapterParams) => {
-		const view = View("chapter")
+		const view = PaginatedView("chapter")
 
 		const response = await EndpointWorkGet.query({ params })
 		if (response instanceof Error)
@@ -28,22 +30,29 @@ export default ViewDefinition({
 			.setContainsHeading()
 			.appendTo(view)
 
-		const response2 = await EndpointChapterGet.query({ params })
-		if (response2 instanceof Error)
-			throw response2
+		const initialChapterResponse = await EndpointChapterGet.query({ params })
+		if (initialChapterResponse instanceof Error)
+			throw initialChapterResponse
 
-		const chapterData = response2.data
+		const chapterState = State(initialChapterResponse.data)
 
-		const chapter = Block()
+		const chaptersQuery = EndpointChapterGetPaged.prep({ params })
+		const paginator = await view.paginator()
+			.viewTransition("chapter-view-chapter")
 			.style("view-type-chapter-block")
+			.tweak(p => p.title.text.bind(chapterState.mapManual(chapter =>
+				quilt["view/chapter/title"](Maths.parseIntOrUndefined(chapter.url), chapter.name))))
 			.appendTo(view)
+			.useInitial(initialChapterResponse.data, initialChapterResponse.page, initialChapterResponse.page_count)
+			.thenUse(chaptersQuery)
+			.withContent((slot, chapter, paginator) => {
+				paginator.setURL(`/work/${params.author}/${params.vanity}/chapter/${chapter.url}`)
+				slot
+					.style("view-type-chapter-block-body")
+					.setMarkdownContent(chapter.body ?? "")
+			})
 
-		const number = Maths.parseIntOrUndefined(chapterData.url)
-		chapter.title.text.use(quilt => quilt["view/chapter/title"](number ?? undefined, chapterData.name))
-
-		chapter.content
-			.style("view-type-chapter-block-body")
-			.setMarkdownContent(chapterData.body ?? "")
+		paginator.data.use(paginator, chapter => chapterState.value = chapter)
 
 		return view
 	},

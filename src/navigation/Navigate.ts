@@ -12,6 +12,7 @@ declare global {
 interface Navigator {
 	fromURL (): Promise<void>
 	toURL (route: RoutePath): Promise<void>
+	setURL (route: RoutePath): void
 	toRawURL (url: string): boolean
 	ephemeral: ViewContainer["showEphemeral"]
 }
@@ -60,10 +61,12 @@ function Navigator (app: App): Navigator {
 			}
 		},
 		toURL: async (url: string) => {
+			navigate.setURL(url)
+			return navigate.fromURL()
+		},
+		setURL: (url: string) => {
 			if (url !== location.pathname)
 				history.pushState({}, "", `${Env.URL_ORIGIN}${url.slice(1)}`)
-
-			return navigate.fromURL()
 		},
 		toRawURL: (url: string) => {
 			if (url.startsWith("http")) {

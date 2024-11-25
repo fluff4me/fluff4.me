@@ -1,5 +1,5 @@
 import Component from "ui/Component"
-import type { Quilt } from "ui/utility/TextManipulator"
+import type { Quilt } from "ui/utility/StringApplicator"
 
 namespace Announcer {
 

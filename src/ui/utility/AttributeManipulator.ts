@@ -1,6 +1,7 @@
 import quilt from "lang/en-nz"
 import type Component from "ui/Component"
-import { QuiltHelper, type Quilt } from "ui/utility/TextManipulator"
+import type { Quilt } from "ui/utility/StringApplicator"
+import { QuiltHelper } from "ui/utility/StringApplicator"
 
 interface AttributeManipulator<HOST> {
 	get (attribute: string): string | undefined

@@ -45,7 +45,7 @@ interface Heading extends Component, HeadingExtensions { }
 const Heading = Component.Builder("h1", (component): Heading => {
 	component.style("heading")
 
-	component.text.state.use(component, text => component.setId(text.toString().toLowerCase().replace(/\W+/g, "-")))
+	component.text.state.use(component, text => component.setId(text?.toString().toLowerCase().replace(/\W+/g, "-")))
 
 	component.tabIndex("programmatic")
 

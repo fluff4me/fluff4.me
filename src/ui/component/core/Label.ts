@@ -82,7 +82,12 @@ export const AutoLabel = Component.Builder("label", (component): AutoLabel => {
 	return label.extend<AutoLabelExtensions>(label => ({}))
 
 	function updateFor () {
-		const text = label.text.state.value.toString().toLowerCase().replace(/\W+/g, "-")
+		const text = label.text.state.value?.toString().toLowerCase().replace(/\W+/g, "-")
+		if (!text) {
+			label.setFor()
+			return
+		}
+
 		if (!formName)
 			label.setFor(`${viewPath}--${text}--${i}`)
 		else
