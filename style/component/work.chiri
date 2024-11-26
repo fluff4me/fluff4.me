@@ -44,3 +44,6 @@
 		::hover, ::focus:
 			%background-4
 			$transition-duration: $transition-focus
+
+		:last:
+			%border-bottom-radius-2
