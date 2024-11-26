@@ -104,6 +104,8 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 	 */
 	replaceElement (elementOrType: HTMLElement | keyof HTMLElementTagNameMap): this
 
+	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.BuilderAsync<PARAMS, COMPONENT>, ...params: NoInfer<PARAMS>): Promise<this & COMPONENT>
+	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.ExtensionAsync<PARAMS, COMPONENT>, ...params: NoInfer<PARAMS>): Promise<this & COMPONENT>
 	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT>, ...params: NoInfer<PARAMS>): this & COMPONENT
 	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Extension<PARAMS, COMPONENT>, ...params: NoInfer<PARAMS>): this & COMPONENT
 	extend<T> (extensionProvider: (component: this & T) => Omit<T, typeof SYMBOL_COMPONENT_BRAND>): this & T
@@ -203,8 +205,17 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 		is: (builder): this is any => component.supers.includes(builder),
-		and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Extension<PARAMS, COMPONENT>, ...params: PARAMS) {
-			component = builder.from(component, ...params)
+		and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Extension<PARAMS, COMPONENT> | Component.ExtensionAsync<PARAMS, COMPONENT>, ...params: PARAMS) {
+			const result = builder.from(component, ...params)
+			if (result instanceof Promise)
+				return result.then(result => {
+					component = result
+					component.supers.push(builder)
+					component.attributes.prepend(`:${builder.name.kebabcase}`)
+					return component
+				})
+
+			component = result
 			component.supers.push(builder)
 			component.attributes.prepend(`:${builder.name.kebabcase}`)
 			return component as any
