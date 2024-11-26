@@ -206,6 +206,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Extension<PARAMS, COMPONENT>, ...params: PARAMS) {
 			component = builder.from(component, ...params)
 			component.supers.push(builder)
+			component.attributes.prepend(`:${builder.name.kebabcase}`)
 			return component as any
 		},
 		extend: extension => Object.assign(component, extension(component as never)) as never,
@@ -565,8 +566,7 @@ namespace Component {
 	export function Builder<PARAMS extends any[], COMPONENT extends Component> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => COMPONENT): Builder<PARAMS, COMPONENT>
 	export function Builder<PARAMS extends any[], COMPONENT extends Component> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => Promise<COMPONENT>): BuilderAsync<PARAMS, COMPONENT>
 	export function Builder (initialOrBuilder: keyof HTMLElementTagNameMap | AnyFunction, builder?: (component: Component, ...params: any[]) => Component | Promise<Component>): (component?: Component, ...params: any[]) => Component | Promise<Component> {
-		const stack = Strings.shiftLine((new Error().stack ?? ""), 2)
-		const name = stack.match(/\(http.*?(\w+)\.ts:\d+:\d+\)/)?.[1]
+		const name = getBuilderName()
 
 		const type = typeof initialOrBuilder === "string" ? initialOrBuilder : undefined
 		const initialBuilder: (type?: keyof HTMLElementTagNameMap) => Component = !builder || typeof initialOrBuilder === "string" ? defaultBuilder : initialOrBuilder
@@ -591,8 +591,8 @@ namespace Component {
 
 		function completeComponent (component: Component) {
 			if (name && Env.isDev) {
-				(component as Component & { [Symbol.toStringTag]?: string })[Symbol.toStringTag] ??= name
-				const tagName = `:${name.replace(/(?<=[a-z])(?=[A-Z])/g, "-")}`
+				(component as Component & { [Symbol.toStringTag]?: string })[Symbol.toStringTag] ??= name.toString()
+				const tagName = `:${name.kebabcase}`
 				if (component.element.tagName === "SPAN") {
 					component.replaceElement(tagName as keyof HTMLElementTagNameMap)
 				} else {
@@ -606,10 +606,12 @@ namespace Component {
 	}
 
 	export interface Extension<PARAMS extends any[], EXT_COMPONENT extends Component> {
+		name: BuilderName
 		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): COMPONENT & EXT_COMPONENT
 	}
 
 	export interface ExtensionAsync<PARAMS extends any[], EXT_COMPONENT extends Component> {
+		name: BuilderName
 		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): Promise<COMPONENT & EXT_COMPONENT>
 	}
 
@@ -617,6 +619,7 @@ namespace Component {
 	export function Extension<PARAMS extends any[], COMPONENT extends Component> (builder: (component: Component, ...params: PARAMS) => Promise<COMPONENT>): ExtensionAsync<PARAMS, COMPONENT>
 	export function Extension (builder: (component: Component, ...params: any[]) => Component | Promise<Component>) {
 		return {
+			name: getBuilderName(),
 			from: builder,
 		} as Extension<any[], Component> | ExtensionAsync<any[], Component>
 	}
@@ -633,6 +636,24 @@ namespace Component {
 			return undefined
 
 		return ELEMENT_TO_COMPONENT_MAP.get(element as Element)
+	}
+
+	const STACK_FILE_NAME_REGEX = /\(http.*?(\w+)\.ts:\d+:\d+\)/
+	const PASCAL_CASE_WORD_START = /(?<=[a-z0-9_-])(?=[A-Z])/g
+
+	interface BuilderName extends String {
+		kebabcase: string
+	}
+
+	function getBuilderName (): BuilderName | undefined {
+		const stack = Strings.shiftLine((new Error().stack ?? ""), 3)
+		const name = stack.match(STACK_FILE_NAME_REGEX)?.[1]
+		if (!name)
+			return undefined
+
+		return Object.assign(String(name), {
+			kebabcase: name.replaceAll(PASCAL_CASE_WORD_START, "-").toLowerCase(),
+		})
 	}
 
 }
