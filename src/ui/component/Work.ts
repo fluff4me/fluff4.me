@@ -4,6 +4,7 @@ import Tags from "model/Tags"
 import Component from "ui/Component"
 import Block from "ui/component/core/Block"
 import Button from "ui/component/core/Button"
+import Link from "ui/component/core/Link"
 import Timestamp from "ui/component/core/Timestamp"
 import Tag from "ui/component/Tag"
 
@@ -17,6 +18,7 @@ const Work = Component.Builder(async (component, work: WorkData, author?: Author
 	component
 		.viewTransition("work")
 		.style("work")
+		.style.toggle(component.is(Link), "work--link")
 
 	const block = component.and(Block)
 	const isFlush = block.type.state.mapManual(types => types.has("flush"))

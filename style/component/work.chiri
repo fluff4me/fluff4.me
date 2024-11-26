@@ -35,3 +35,12 @@
 	&-synopsis:
 
 	&-timestamp:
+
+	&--link:
+		%decoration-none
+		%overflow-hidden
+		#transition: #{transition("background")}
+
+		::hover, ::focus:
+			%background-4
+			$transition-duration: $transition-focus
