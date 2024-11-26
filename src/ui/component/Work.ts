@@ -74,7 +74,7 @@ const Work = Component.Builder(async (component, work: WorkData, author?: Author
 				.event.subscribe("click", () => { })
 				.appendTo(popover)
 
-		} else {
+		} else if (Session.Auth.loggedIn.value) {
 			Button()
 				.type("flush")
 				.text.use("view/author/works/action/label/follow")
