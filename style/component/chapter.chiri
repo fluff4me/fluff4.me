@@ -51,3 +51,6 @@
 			%unmargin-left-3
 			%unmargin-right-4
 			$transition-duration: $transition-blur
+
+	:last:
+		%border-bottom-radius-2
