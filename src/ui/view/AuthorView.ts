@@ -3,6 +3,7 @@ import EndpointWorkGetAllAuthor from "endpoint/work/EndpointWorkGetAllAuthor"
 import Session from "model/Session"
 import Author from "ui/component/Author"
 import Button from "ui/component/core/Button"
+import Link from "ui/component/core/Link"
 import Paginator from "ui/component/core/Paginator"
 import Slot from "ui/component/core/Slot"
 import Work from "ui/component/Work"
@@ -42,7 +43,8 @@ export default ViewDefinition({
 		})
 		await paginator.useEndpoint(worksQuery, async (slot, works) => {
 			for (const workData of works) {
-				const work = await Work(workData, author.data)
+				const work = await Link(`/work/${author.data.vanity}/${workData.vanity}`)
+					.and(Work, workData, author.data)
 				work
 					.viewTransition()
 					.type("flush")
