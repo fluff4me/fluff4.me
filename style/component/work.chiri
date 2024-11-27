@@ -37,7 +37,10 @@
 	&-timestamp:
 
 	&--link:
+		#after: .link
 		%decoration-none
+		%colour-inherit
+		%weight-inherit
 		%overflow-hidden
 		#transition: #{transition("background")}
 

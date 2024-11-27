@@ -1,1 +1,11 @@
 .link:
+	%weight-bold
+	%colour-blue
+	text-decoration-color: transparent
+	#transition: #{transition("color")}, #{transition("text-decoration-color")}
+
+	::hover, ::focus:
+		%decoration-underline
+		%colour-0
+		text-decoration-color: $colour-0
+		$transition-duration: $transition-focus
