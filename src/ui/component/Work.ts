@@ -32,7 +32,7 @@ const Work = Component.Builder(async (component, work: WorkData, author?: Author
 		block.description
 			.style("work-author-list")
 			.style.bind(isFlush, "work-author-list--flush")
-			.append(Component()
+			.append(Link(`/author/${author.vanity}`)
 				.style("work-author")
 				.text.set(author.name))
 

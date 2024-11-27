@@ -4,6 +4,7 @@
 		%grid
 		grid-template-columns: auto 1fr auto auto
 
+	#after: .link
 	%grid
 	%columns-subgrid
 	%padding-1-4
@@ -12,6 +13,7 @@
 	%cursor-pointer
 	%decoration-none
 	%colour-inherit
+	%weight-inherit
 	#transition: #{transition("background")}
 
 	::hover, ::focus:
