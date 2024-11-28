@@ -1,0 +1,7 @@
+.text-label:
+	%font-2
+
+	&-label, &-punctuation:
+		%colour-6
+
+	&-content:

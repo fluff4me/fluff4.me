@@ -5,20 +5,17 @@
 	%border-box
 	max-width: #{content-width}
 
-	&-left:
+	&-left, &-middle, &-right:
 		%flex
 		%flex-grow
-		%justify-content-start
 		%gap-3
+		%align-items-centre
+
+	&-left:
+		%justify-content-start
 
 	&-middle:
-		%flex
-		%flex-grow
 		%justify-content-centre
-		%gap-3
 
 	&-right:
-		%flex
-		%flex-grow
 		%justify-content-end
-		%gap-3
