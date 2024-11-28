@@ -211,13 +211,15 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 				return result.then(result => {
 					component = result
 					component.supers.push(builder)
-					component.attributes.prepend(`:${builder.name.kebabcase}`)
+					if (builder.name)
+						component.attributes.prepend(`:${builder.name.kebabcase}`)
 					return component
 				})
 
 			component = result
 			component.supers.push(builder)
-			component.attributes.prepend(`:${builder.name.kebabcase}`)
+			if (builder.name)
+				component.attributes.prepend(`:${builder.name.kebabcase}`)
 			return component as any
 		},
 		extend: extension => Object.assign(component, extension(component as never)) as never,
