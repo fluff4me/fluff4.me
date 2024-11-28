@@ -43,7 +43,6 @@ const Block = Component.Builder((component): Block => {
 			header: undefined!,
 			description: undefined!,
 			primaryActions: undefined!,
-			actionsMenuButton: undefined!,
 			content: Component().style("block-content").appendTo(component),
 			footer: undefined!,
 			type: Object.assign(

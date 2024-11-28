@@ -5,6 +5,7 @@ import Component from "ui/Component"
 import Block from "ui/component/core/Block"
 import Button from "ui/component/core/Button"
 import Link from "ui/component/core/Link"
+import TextLabel from "ui/component/core/TextLabel"
 import Timestamp from "ui/component/core/Timestamp"
 import Tag from "ui/component/Tag"
 
@@ -50,6 +51,11 @@ const Work = Component.Builder(async (component, work: WorkData, author?: Author
 				.style("work-tags")
 				.appendTo(block.content))
 	}
+
+	TextLabel()
+		.tweak(textLabel => textLabel.label.text.use("work/chapters/label"))
+		.tweak(textLabel => textLabel.content.text.set(`${work.chapter_count_public}`))
+		.appendTo(block.footer.left)
 
 	if (work.time_last_update)
 		block.footer.right.append(Timestamp(work.time_last_update).style("work-timestamp"))
