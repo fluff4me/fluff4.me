@@ -1,1 +1,1 @@
-#string content-width = "calc(#{space-5} * 13)
+#string content-width = "calc($space-5 * 13)

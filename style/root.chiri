@@ -1,6 +1,6 @@
 #macro tablet:
 	#body!component content
-	:container root (width < calc(#{space-5} * 20)):
+	:container root (width < calc($space-5 * 20)):
 		#include content
 
 colour-scheme: dark
