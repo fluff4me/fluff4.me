@@ -66,7 +66,9 @@ const ConfirmDialog = Object.assign(
 		prompt: (owner: Component, definition?: ConfirmDialogDefinition): Promise<boolean> =>
 			ConfirmDialog(definition)
 				.appendTo(document.body)
-				.event.subscribe("close", event => event.component.remove())
+				.event.subscribe("close", event =>
+					event.component.event.subscribe("transitionend", event =>
+						event.component.remove()))
 				.await(owner),
 	},
 )

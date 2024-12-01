@@ -20,8 +20,30 @@
 		z-index: 999999999
 
 	&-block:
-		%margin-auto
+		&-wrapper:
+			%overflow-visible
+			%margin-auto
+			#transition: #{transition("display")}, #{transition("overlay")}
+			%transition-discrete
 
-		@backdrop:
-			%background-dark-3-a80
-			%backdrop-blur
+			@backdrop:
+				background: color-mix(in lch, #{background-highlight}, transparent 5%)
+				%backdrop-blur
+
+				#transition: #{transition("display")}, #{transition("background")}, #{transition("backdrop-filter")}
+
+			&--closed:
+				@backdrop:
+					%background-none
+					%backdrop-filter-none
+
+		#transition: #{transition("opacity")}, #{transition("translate")}
+
+		&--closed:
+			%translate-down-5
+			%transparent
+
+		&--opening:
+			%translate-up-4
+			%transparent
+			%transition-none

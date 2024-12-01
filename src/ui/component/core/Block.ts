@@ -17,7 +17,7 @@ interface BlockTypeManipulator<HOST> {
 	remove (...buttonTypes: BlockType[]): HOST
 }
 
-interface BlockExtensions {
+export interface BlockExtensions {
 	readonly header: Component
 	readonly title: Heading
 	readonly primaryActions: Component
