@@ -5,6 +5,9 @@ home/label: home
 # shared
 preview: Preview
 
+## prompt
+confirm: Are you sure?
+
 ## term
 chapters: Chapters
 
@@ -15,9 +18,11 @@ love: Love
 edit: Edit
 follow: Follow
 ignore: Ignore
-delete: Delete
+delete: Delete{ 0??}
 save: Save Changes
 create: Create!
+cancel: Cancel
+confirm: Confirm
 
 ## form
 name/label: Name

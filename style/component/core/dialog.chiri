@@ -18,3 +18,10 @@
 		%fixed
 		%inset-auto
 		z-index: 999999999
+
+	&-block:
+		%margin-auto
+
+		@backdrop:
+			%background-dark-3-a80
+			%backdrop-blur
