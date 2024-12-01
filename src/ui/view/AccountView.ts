@@ -2,6 +2,7 @@ import EndpointAuthorDelete from "endpoint/author/EndpointAuthorDelete"
 import Session from "model/Session"
 import ActionRow from "ui/component/core/ActionRow"
 import Button from "ui/component/core/Button"
+import ConfirmDialog from "ui/component/core/ConfirmDialog"
 import type Form from "ui/component/core/Form"
 import Slot from "ui/component/core/Slot"
 import AccountViewForm from "ui/view/account/AccountViewForm"
@@ -62,6 +63,11 @@ export default ViewDefinition({
 							.append(Button()
 								.text.use("view/account/action/delete")
 								.event.subscribe("click", async () => {
+									const result = await ConfirmDialog.prompt(view)
+									console.log(result)
+
+									return
+
 									const response = await EndpointAuthorDelete.query()
 									if (response instanceof Error) {
 										console.error(response)

@@ -11,3 +11,8 @@
 #for var i = 1, i < 100, set i++:
 	%background-light-a#{i}: background: color-mix(in lch, $light-0, transparent #{100 - i}%)
 	%background-dark-a#{i}: background: color-mix(in lch, $dark-0, transparent #{100 - i}%)
+
+#each in 0...15 as var i:
+	#for var o = 1, o < 100, set o++:
+		%background-light-#{i}-a#{o}: background: color-mix(in lch, $light-#{i}, transparent #{100 - o}%)
+		%background-dark-#{i}-a#{o}: background: color-mix(in lch, $dark-#{i}, transparent #{100 - o}%)

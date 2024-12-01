@@ -1,4 +1,5 @@
 import type Component from "ui/Component"
+import type Arrays from "utility/Arrays"
 import Define from "utility/Define"
 import type { Mutable } from "utility/Type"
 
@@ -18,8 +19,8 @@ interface ReadableState<T, E = T> {
 	subscribeManual (subscriber: (value: E) => any): UnsubscribeState
 	unsubscribe (subscriber: (value: E) => any): void
 	emit (): void
-	await (owner: Component, value: T, then: (value: T) => any): State<T>
-	awaitManual (value: T, then: (value: T) => any): State<T>
+	await<R extends Arrays.Or<T>> (owner: Component, value: R, then: (value: R extends (infer R)[] ? R : R) => any): State<T>
+	awaitManual<R extends Arrays.Or<T>> (value: Arrays.Or<T>, then: (value: R extends (infer R)[] ? R : R) => any): State<T>
 
 	map<R> (owner: Component, mapper: (value: T) => R): State.Generator<R>
 	mapManual<R> (mapper: (value: T) => R): State.Generator<R>
@@ -96,29 +97,29 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 			result[SYMBOL_SUBSCRIBERS] = result[SYMBOL_SUBSCRIBERS].filter(s => s !== subscriber)
 			return result
 		},
-		await (owner, value, then) {
+		await (owner, values, then) {
 			result.subscribe(owner, function awaitValue (newValue) {
-				if (newValue !== value)
+				if (newValue !== values && (!Array.isArray(values) || !values.includes(newValue)))
 					return
 
 				result.unsubscribe(awaitValue)
-				then(newValue)
+				then(newValue as never)
 			})
 			return result
 		},
-		awaitManual (value, then) {
+		awaitManual (values, then) {
 			result.subscribeManual(function awaitValue (newValue) {
-				if (newValue !== value)
+				if (newValue !== values && (!Array.isArray(values) || !values.includes(newValue)))
 					return
 
 				result.unsubscribe(awaitValue)
-				then(newValue)
+				then(newValue as never)
 			})
 			return result
 		},
 
 		map: (owner, mapper) => State.Map(owner, result, mapper),
-		mapManual: (mapper) => State.MapManual(result, mapper),
+		mapManual: mapper => State.MapManual(result, mapper),
 		get nonNullish () {
 			return Define.set(result, "nonNullish", State
 				.Generator(() => result.value !== undefined && result.value !== null)

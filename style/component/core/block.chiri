@@ -1,4 +1,5 @@
 .block:
+	#after: .dialog
 	%block
 	%padding-4
 	%border-radius-2

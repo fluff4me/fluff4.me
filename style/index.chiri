@@ -23,6 +23,7 @@
 #import:
 	component/core/slot
 	component/core/paragraph
+	component/core/dialog
 	component/core/block
 	component/core/link
 	component/core/button
@@ -38,7 +39,6 @@
 	component/core/action-row
 	component/core/action-heading
 	component/core/popover
-	component/core/dialog
 	component/core/text-editor
 	component/core/form
 	component/core/paginator
