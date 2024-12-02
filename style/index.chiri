@@ -49,6 +49,7 @@
 	component/work
 	component/tag
 	component/chapter
+	component/oauth-service
 
 #import:
 	view/view

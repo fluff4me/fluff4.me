@@ -91,6 +91,10 @@ namespace Session {
 			return Store.items.session?.authorisations?.find(auth => auth.service === service)
 		}
 
+		export function isAuthed (service: AuthService) {
+			return Session.Auth.authorisations.value.some(auth => auth.service === service.name)
+		}
+
 		export async function unauth (authOrId: Authorisation | string) {
 			const id = typeof authOrId === "string" ? authOrId : authOrId.id
 			await EndpointAuthRemove.query({ body: { id } })

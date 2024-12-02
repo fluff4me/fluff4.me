@@ -1,6 +1,10 @@
+import type { DangerTokenType } from "model/Session"
+import Session from "model/Session"
 import Component from "ui/Component"
 import BlockDialog from "ui/component/core/BlockDialog"
 import Button from "ui/component/core/Button"
+import Paragraph from "ui/component/core/Paragraph"
+import OAuthServices from "ui/component/OAuthServices"
 import type { Quilt } from "ui/utility/StringApplicator"
 import State from "utility/State"
 
@@ -16,13 +20,14 @@ interface ConfirmDialogExtensions {
 interface ConfirmDialog extends BlockDialog, ConfirmDialogExtensions { }
 
 interface ConfirmDialogDefinition {
+	dangerToken?: DangerTokenType
 	titleTranslation?: Quilt.SimpleKey | Quilt.Handler
 	confirmButtonTranslation?: Quilt.SimpleKey | Quilt.Handler
 	cancelButtonTranslation?: Quilt.SimpleKey | Quilt.Handler
 }
 
 const ConfirmDialog = Object.assign(
-	Component.Builder((component, definition?: ConfirmDialogDefinition): ConfirmDialog => {
+	Component.Builder(async (component, definition?: ConfirmDialogDefinition): Promise<ConfirmDialog> => {
 		const dialog = component.and(BlockDialog)
 
 		const state = State<boolean | undefined>(undefined)
@@ -37,6 +42,17 @@ const ConfirmDialog = Object.assign(
 			.type("primary")
 			.text.use(definition?.confirmButtonTranslation ?? "shared/action/confirm")
 			.appendTo(dialog.footer.right)
+
+		if (definition?.dangerToken) {
+			confirmButton.setDisabled(true, "danger-token")
+
+			Paragraph()
+				.text.use("shared/prompt/reauth")
+				.appendTo(dialog.content)
+
+			const authServices = await OAuthServices(Session.Auth.state, "reauth-list")
+			authServices.appendTo(dialog.content)
+		}
 
 		return dialog
 			.extend<ConfirmDialogExtensions>(dialog => ({
@@ -63,8 +79,8 @@ const ConfirmDialog = Object.assign(
 			})
 	}),
 	{
-		prompt: (owner: Component, definition?: ConfirmDialogDefinition): Promise<boolean> =>
-			ConfirmDialog(definition)
+		prompt: async (owner: Component, definition?: ConfirmDialogDefinition): Promise<boolean> =>
+			(await ConfirmDialog(definition))
 				.appendTo(document.body)
 				.event.subscribe("close", event =>
 					event.component.event.subscribe("transitionend", event =>

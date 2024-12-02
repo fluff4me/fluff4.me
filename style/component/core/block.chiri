@@ -63,6 +63,7 @@
 		%background-unclip
 
 	&-type-flush:
+		#after: .block
 		%background-none
 		%box-shadow-none
 		%padding-block-3

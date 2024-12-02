@@ -7,6 +7,7 @@ preview: Preview
 
 ## prompt
 confirm: Are you sure?
+reauth: To perform this action, reauthenticate to verify your identity:
 
 ## term
 chapters: Chapters
