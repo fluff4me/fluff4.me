@@ -63,6 +63,15 @@ $$button-background-highlight!colour
 		$transition-duration: $transition-action
 
 	&--disabled:
+		#after: .button
+		$button-background: $background-interact-4
+		%box-shadow-none
+		%opacity-30
+		%cursor-default
+
+		::hover, ::focus, ::active:
+			%translate-y-0
+			%box-shadow-none
 
 	&-icon-plus:
 		#after: .button

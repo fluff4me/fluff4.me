@@ -1,0 +1,93 @@
+.oauth-service:
+	#after: .button
+
+	%relative
+	%flex
+	%gap-3
+	%align-items-centre
+	$button-background: $colour
+	%height-lh
+	colour: #{contrast($colour)}
+
+	::hover, ::focus:
+		$button-background: hsl(from $colour h s calc(l + 5))
+
+	::active:
+		$button-background: hsl(from $colour h calc(s - 40) calc(l - 15))
+
+	&-container:
+		%block
+
+		&--reauth-list:
+			#after: .block
+			%padding-0
+
+	&-list:
+		%flex
+		%flex-column
+		%gap-3
+
+	&-icon:
+		%size-constrain-em
+
+	&-name:
+		%font-vertical-align
+		%flex-grow
+
+	&-state:
+		&-wrapper:
+			%relative
+			%block
+			%size-100
+			$size: round(0.7lh, 2px)
+			size: $size
+			#transition: #{transition("translate")}
+
+			&--focus:
+				%translate-left-1
+
+		%block
+		%absolute
+		%inset-0
+		%rotate-45
+
+		@before, @after:
+			%block
+			%absolute
+			%size-1
+			%opacity-0
+			%background-currentcolour
+			left: calc(50% - $space-1 / 2)
+			top: calc(50% - $space-1 / 2)
+			#transition:
+				#{transition("top")},
+				#{transition("left")},
+				#{transition("height")},
+				#{transition("width")}
+
+		@before:
+			%height-100
+			%top-0
+
+		@after:
+			%width-50
+			%left-0
+			top: calc(100% - $space-1)
+
+		&--authenticated:
+			@before, @after:
+				%opacity-1
+
+		&--focus:
+			#after: .oauth-service-state
+			@after:
+				%width-100
+				top: calc(50% - $space-1 / 2)
+
+	&-username:
+		%transparent
+
+		&--has-username:
+			%opacity-70
+
+	&--authenticated:

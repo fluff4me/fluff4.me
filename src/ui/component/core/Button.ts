@@ -1,5 +1,6 @@
 import Component from "ui/Component"
 import type { ComponentName } from "ui/utility/StyleManipulator"
+import State from "utility/State"
 
 type ButtonType = keyof { [KEY in ComponentName as KEY extends `button-type-${infer TYPE}--${string}` ? TYPE
 	: KEY extends `button-type-${infer TYPE}` ? TYPE
@@ -14,7 +15,8 @@ interface ButtonTypeManipulator<HOST> {
 
 interface ButtonExtensions {
 	readonly textWrapper: Component
-	type: ButtonTypeManipulator<this>
+	readonly type: ButtonTypeManipulator<this>
+	readonly disabled: State.Generator<boolean>
 	setDisabled (disabled: boolean, reason: string): this
 	setIcon (icon?: ButtonIcon): this
 }
@@ -23,13 +25,16 @@ interface Button extends Component, ButtonExtensions { }
 
 const Button = Component.Builder("button", (button): Button => {
 	const disabledReasons = new Set<string>()
+	const disabled = State.Generator(() => !!disabledReasons.size)
 
 	let icon: ButtonIcon | undefined
 	return button
 		.attributes.set("type", "button")
 		.style("button")
+		.style.bind(disabled, "button--disabled")
 		.extend<ButtonExtensions>(button => ({
 			textWrapper: undefined!,
+			disabled,
 			type: Object.assign(
 				(...types: ButtonType[]) => {
 					for (const type of types)
@@ -44,12 +49,16 @@ const Button = Component.Builder("button", (button): Button => {
 					},
 				},
 			),
-			setDisabled (disabled, reason) {
-				if (disabled)
+			setDisabled (newState, reason) {
+				const size = disabledReasons.size
+				if (newState)
 					disabledReasons.add(reason)
 				else
 					disabledReasons.delete(reason)
-				button.style.toggle(!!disabledReasons.size, "button--disabled")
+
+				if (disabledReasons.size !== size)
+					disabled.refresh()
+
 				return button
 			},
 			setIcon (newIcon) {

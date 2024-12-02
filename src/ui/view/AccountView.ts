@@ -5,8 +5,8 @@ import Button from "ui/component/core/Button"
 import ConfirmDialog from "ui/component/core/ConfirmDialog"
 import type Form from "ui/component/core/Form"
 import Slot from "ui/component/core/Slot"
+import OAuthServices from "ui/component/OAuthServices"
 import AccountViewForm from "ui/view/account/AccountViewForm"
-import AccountViewOAuthServices from "ui/view/account/AccountViewOAuthServices"
 import View from "ui/view/shared/component/View"
 import ViewDefinition from "ui/view/shared/component/ViewDefinition"
 import ViewTransition from "ui/view/shared/ext/ViewTransition"
@@ -23,7 +23,7 @@ export default ViewDefinition({
 			.use(state, () => createForm()?.subviewTransition(id))
 			.appendTo(view)
 
-		const services = await AccountViewOAuthServices(state)
+		const services = await OAuthServices(state, "auth-block")
 		services.header.subviewTransition(id)
 		services.appendTo(view)
 
@@ -63,7 +63,7 @@ export default ViewDefinition({
 							.append(Button()
 								.text.use("view/account/action/delete")
 								.event.subscribe("click", async () => {
-									const result = await ConfirmDialog.prompt(view)
+									const result = await ConfirmDialog.prompt(view, { dangerToken: "delete-account" })
 									console.log(result)
 
 									return
