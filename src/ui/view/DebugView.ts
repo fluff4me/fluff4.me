@@ -107,9 +107,9 @@ export default ViewDefinition({
 				await BUTTON_REGISTRY.createAuthor.execute("single story author", "justonestory", "<mention vanity=\"somanystories\"> writes so much")
 				await BUTTON_REGISTRY.createWork.execute("one big work", "made by <mention vanity=\"justonestory\">", "wow description", "bigstory", "Ongoing", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 1", "start of a long story", "Public")
-				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story interlude", "middle of a long story", "Public", false)
-				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 2", "aaaa", "Public")
-				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3", "aaaaaaa", "Public")
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story interlude", "middle of a long story", "Public", false, "only notes before")
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 2", "aaaa", "Public", undefined, "only notes after")
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3", "aaaaaaa", "Public", true, "both notes before", "and notes after")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.1", "aaaaaaaaaaaaaaaaaaa", "Public", false)
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.2", "aaaaaaaaaaaaaaaaaaa", "Private", false)
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.3", "aaaaaaaaaaaaaaaaaaa", "Public")
@@ -147,6 +147,13 @@ export default ViewDefinition({
 			},
 		}))
 
+		profileButtons.append(createButton({
+			name: "Set Chiri Patreon chapters",
+			async execute () {
+				await BUTTON_REGISTRY.patreonSetThresholds.execute("justonestory", "bigstory", "Patreon", ["8", "9"], "4392761")
+			},
+		}))
+
 
 		const followButtons = Block().appendTo(view)
 
@@ -172,13 +179,11 @@ export default ViewDefinition({
 		}))
 
 		followButtons.append(createButton({
-			name: "Create 40 works",
+			name: "Create a work with loads of chapters",
 			async execute () {
-				for (let i = 0; i < 30; i++) {
-					await BUTTON_REGISTRY.createWork.execute(`test story ${i}`, "aaaaaaaaa", "short description aaaaa", `teststory${i}`, "Ongoing", "Public")
-				}
-				for (let i = 0; i < 30; i++) {
-					await BUTTON_REGISTRY.follow.execute("work", `teststory${i}`)
+				await BUTTON_REGISTRY.createWork.execute("even longer story", "aaaaaaaaa", "short description aaaaa", "wowbig", "Ongoing", "Public")
+				for (let i = 0; i < 2000; i++) {
+					await BUTTON_REGISTRY.createChapter.execute("justonestory", "wowbig", `chapter ${i}`, `wow chapter body ${i}`, "Public")
 				}
 
 			},
@@ -561,6 +566,24 @@ export default ViewDefinition({
 			name: "form length manifest",
 			async execute () {
 				await BUTTON_REGISTRY.manifestFormLengthGet.execute()
+			},
+		}))
+
+		const notifButtons = Block().appendTo(view)
+
+		notifButtons.append(createButton({
+			name: "Get Notifications",
+			async execute () {
+				await BUTTON_REGISTRY.notificationsGet.execute()
+				await BUTTON_REGISTRY.notificationsGetUnread.execute()
+			},
+		}))
+
+		notifButtons.append(createButton({
+			name: "Mark Notifications Read",
+			async execute () {
+				await BUTTON_REGISTRY.notificationsMark.execute("read", ["ba397c1b-02e5-462c-b367-04b007d1f09a", "d8830a0c-3e2c-4caa-ae4b-679a8c5cefa5"])
+				await BUTTON_REGISTRY.notificationsMark.execute("unread", ["ba397c1b-02e5-462c-b367-04b007d1f09a", "3b9781ea-d15d-4915-bbeb-4788ed734453"])
 			},
 		}))
 
