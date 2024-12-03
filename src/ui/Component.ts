@@ -149,8 +149,6 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 
 interface Component<ELEMENT extends HTMLElement = HTMLElement> extends BaseComponent<ELEMENT>, ComponentExtensions<ELEMENT> { }
 
-export type EventsOf<COMPONENT extends Component> = COMPONENT["event"] extends EventManipulator<any, infer EVENTS> ? EVENTS : never
-
 enum Classes {
 	ReceiveAncestorInsertEvents = "_receieve-ancestor-insert-events",
 	ReceiveAncestorRectDirtyEvents = "_receieve-ancestor-rect-dirty-events",
@@ -183,7 +181,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 
-		replaceElement: (newElement) => {
+		replaceElement: newElement => {
 			if (typeof newElement === "string")
 				newElement = document.createElement(newElement)
 
@@ -234,7 +232,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 					Define.set(component, property, value)
 					return value
 				},
-				set: (value) => {
+				set: value => {
 					Define.set(component, property, value)
 				},
 			})
@@ -483,7 +481,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 		ariaHidden: () => component.attributes.set("aria-hidden", "true"),
-		ariaChecked: (state) => {
+		ariaChecked: state => {
 			state.use(component, state =>
 				component.attributes.set("aria-checked", `${state}`))
 			return component
@@ -495,7 +493,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 
-		tabIndex: (index) => {
+		tabIndex: index => {
 			if (index === undefined)
 				component.element.removeAttribute("tabindex")
 			else if (index === "programmatic")

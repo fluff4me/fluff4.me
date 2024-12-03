@@ -23,7 +23,7 @@ export default ViewDefinition({
 			.use(state, () => createForm()?.subviewTransition(id))
 			.appendTo(view)
 
-		const services = await OAuthServices(state, "auth-block")
+		const services = await OAuthServices(state)
 		services.header.subviewTransition(id)
 		services.appendTo(view)
 
@@ -64,9 +64,8 @@ export default ViewDefinition({
 								.text.use("view/account/action/delete")
 								.event.subscribe("click", async () => {
 									const result = await ConfirmDialog.prompt(view, { dangerToken: "delete-account" })
-									console.log(result)
-
-									return
+									if (!result)
+										return
 
 									const response = await EndpointAuthorDelete.query()
 									if (response instanceof Error) {

@@ -1,14 +1,9 @@
-import type { EventsOf } from "ui/Component"
 import Component from "ui/Component"
 import Button from "ui/component/core/Button"
 import type EventManipulator from "ui/utility/EventManipulator"
+import type { Events } from "ui/utility/EventManipulator"
 import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
-
-interface CheckbuttonEvents extends EventsOf<Button> {
-	setChecked (checked: boolean): any
-	trySetChecked (checked: boolean): any
-}
 
 interface CheckbuttonExtensions {
 	readonly input: Component
@@ -20,7 +15,10 @@ interface CheckbuttonExtensions {
 }
 
 interface Checkbutton extends Button, CheckbuttonExtensions {
-	readonly event: EventManipulator<this, CheckbuttonEvents>
+	readonly event: EventManipulator<this, Events<Button, {
+		setChecked (checked: boolean): any
+		trySetChecked (checked: boolean): any
+	}>>
 }
 
 const Checkbutton = Component.Builder("label", (component): Checkbutton => {
@@ -29,7 +27,7 @@ const Checkbutton = Component.Builder("label", (component): Checkbutton => {
 		.style("checkbutton-input")
 		.attributes.set("type", "checkbox")
 
-	const inputElement = input.element as HTMLInputElement
+	const inputElement = input.element
 
 	const state = State<boolean>(false)
 
@@ -58,7 +56,7 @@ const Checkbutton = Component.Builder("label", (component): Checkbutton => {
 				onChange()
 				return checkbutton
 			},
-			use: (sourceState) => {
+			use: sourceState => {
 				unuse = sourceState.use(checkbutton, checked => {
 					if (inputElement.checked === checked)
 						return
