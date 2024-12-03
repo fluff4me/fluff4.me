@@ -50,8 +50,10 @@ const ConfirmDialog = Object.assign(
 				.text.use("shared/prompt/reauth")
 				.appendTo(dialog.content)
 
-			const authServices = await OAuthServices(Session.Auth.state, "reauth-list")
-			authServices.appendTo(dialog.content)
+			const authServices = await OAuthServices(Session.Auth.state, definition.dangerToken)
+			authServices
+				.event.subscribe("dangerTokenGranted", () => confirmButton.setDisabled(false, "danger-token"))
+				.appendTo(dialog.content)
 		}
 
 		return dialog

@@ -12,11 +12,23 @@ type ResolveEvent<EVENT extends Arrays.Or<PropertyKey>> = EVENT extends Property
 
 interface EventManipulator<HOST, EVENTS> {
 	emit<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean }
+	bubble<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean }
 	subscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 	unsubscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 }
 
 export type NativeEvents = { [KEY in keyof HTMLElementEventMap]: (event: KEY extends "toggle" ? ToggleEvent : HTMLElementEventMap[KEY]) => any }
+
+export type Events<HOST, EXTENSIONS> = HOST extends { event: EventManipulator<any, infer EVENTS> }
+	? {
+		[KEY in keyof EVENTS | keyof EXTENSIONS]:
+		| KEY extends keyof EVENTS ?
+		| KEY extends keyof EXTENSIONS ? EVENTS[KEY] & EXTENSIONS[KEY]
+		: EVENTS[KEY]
+		: KEY extends keyof EXTENSIONS ? EXTENSIONS[KEY]
+		: never
+	}
+	: never
 
 interface EventDetail {
 	result: any[]
@@ -33,6 +45,12 @@ function EventManipulator (component: Component): EventManipulator<Component, Na
 		emit (event, ...params) {
 			const detail: EventDetail = { result: [], params }
 			const eventObject = new CustomEvent(event, { detail })
+			component.element.dispatchEvent(eventObject)
+			return Object.assign(detail.result, { defaultPrevented: eventObject.defaultPrevented }) as any
+		},
+		bubble (event, ...params) {
+			const detail: EventDetail = { result: [], params }
+			const eventObject = new CustomEvent(event, { detail, bubbles: true })
 			component.element.dispatchEvent(eventObject)
 			return Object.assign(detail.result, { defaultPrevented: eventObject.defaultPrevented }) as any
 		},

@@ -120,10 +120,20 @@ namespace Session {
 			await Session.refresh()
 		}
 
+		let isRequestingDangerToken = false
+		export function canRequestDangerToken () {
+			return !isRequestingDangerToken
+		}
+
 		export async function requestDangerToken (type: DangerTokenType, service: AuthService) {
-			await popup(`Re-authenticate Using ${service.name}`, `${Env.URL_ORIGIN}danger-token/request/${type}/${service.id}/begin`, 600, 900)
+			if (isRequestingDangerToken)
+				return false
+
+			isRequestingDangerToken = true
+			const result = await popup(`Re-authenticate Using ${service.name}`, `${Env.API_ORIGIN}danger-token/request/${type}/${service.id}/begin`, 600, 900)
 				.then(() => true).catch(err => { console.warn(err); return false })
-			await Session.refresh()
+			isRequestingDangerToken = false
+			return result
 		}
 
 		export async function await (owner: Component) {

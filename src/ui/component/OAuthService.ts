@@ -1,11 +1,25 @@
 import { type AuthService } from "api.fluff4.me"
+import type { DangerTokenType } from "model/Session"
 import Session from "model/Session"
 import Component from "ui/Component"
 import Checkbutton from "ui/component/core/Checkbutton"
-import type { OAuthServicesDisplayMode } from "ui/component/OAuthServices"
+import type EventManipulator from "ui/utility/EventManipulator"
+import type { Events } from "ui/utility/EventManipulator"
 import State from "utility/State"
 
-export default Component.Builder((component, service: AuthService, mode: OAuthServicesDisplayMode) => {
+export interface OAuthServiceEvents {
+	dangerTokenGranted (dangerToken: DangerTokenType): any
+}
+
+interface OAuthServiceExtensions {
+
+}
+
+interface OAuthService extends Checkbutton, OAuthServiceExtensions {
+	readonly event: EventManipulator<this, Events<Checkbutton, OAuthServiceEvents>>
+}
+
+const OAuthService = Component.Builder((component, service: AuthService, reauthDangerToken?: DangerTokenType): OAuthService => {
 	const authedAtStart = !!Session.Auth.get(service.name)
 
 	const authorisationState = State.Map(component, Session.Auth.authorisations, authorisations =>
@@ -27,8 +41,9 @@ export default Component.Builder((component, service: AuthService, mode: OAuthSe
 		.append(Component()
 			.style("oauth-service-name")
 			.text.set(service.name))
+		.extend<OAuthServiceExtensions>(button => ({})) as OAuthService
 
-	if (mode !== "reauth-list")
+	if (!reauthDangerToken)
 		Component()
 			.style("oauth-service-state")
 			.style.bind(isAuthed, "oauth-service-state--authenticated")
@@ -53,6 +68,18 @@ export default Component.Builder((component, service: AuthService, mode: OAuthSe
 		button.event.subscribe("click", async event => {
 			event.preventDefault()
 
+			if (reauthDangerToken) {
+				if (!Session.Auth.canRequestDangerToken())
+					return
+
+				const granted = await Session.Auth.requestDangerToken(reauthDangerToken, service)
+				if (granted)
+					button.event.bubble("dangerTokenGranted", reauthDangerToken)
+				else;
+				// TODO show notification
+				return
+			}
+
 			let auth = Session.Auth.get(service.name)
 			if (auth)
 				await Session.Auth.unauth(auth.id)
@@ -66,3 +93,5 @@ export default Component.Builder((component, service: AuthService, mode: OAuthSe
 
 	return button
 })
+
+export default OAuthService
