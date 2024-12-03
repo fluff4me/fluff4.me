@@ -22,7 +22,7 @@ interface OAuthService extends Checkbutton, OAuthServiceExtensions {
 const OAuthService = Component.Builder((component, service: AuthService, reauthDangerToken?: DangerTokenType): OAuthService => {
 	const authedAtStart = !!Session.Auth.get(service.name)
 
-	const authorisationState = State.Map(component, Session.Auth.authorisations, authorisations =>
+	const authorisationState = Session.Auth.authorisations.map(component, authorisations =>
 		authorisations.find(authorisation => authorisation.service === service.name))
 
 	const isAuthed = State.Truthy(component, authorisationState)
