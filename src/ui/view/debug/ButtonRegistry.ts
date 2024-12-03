@@ -169,7 +169,7 @@ export const BUTTON_REGISTRY = {
 
 	createChapter: {
 		name: "Create Chapter",
-		async execute (author: string, work_url: string, name: string, body: string, visibility?: string, is_numbered?: boolean) {
+		async execute (author: string, work_url: string, name: string, body: string, visibility?: string, is_numbered?: boolean, notesBefore?: string, notesAfter?: string) {
 			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/create`, {
 				method: "POST",
 				credentials: "include",
@@ -181,6 +181,8 @@ export const BUTTON_REGISTRY = {
 					body: body,
 					visibility: visibility,
 					is_numbered: is_numbered,
+					notes_before: notesBefore,
+					notes_after: notesAfter,
 				}),
 			}).then(response => response.json())
 			console.log(response)
@@ -189,7 +191,7 @@ export const BUTTON_REGISTRY = {
 
 	updateChapter: {
 		name: "Update Chapter",
-		async execute (author: string, work_url: string, index: number, name?: string, body?: string, visibility?: string, is_numbered?: boolean) {
+		async execute (author: string, work_url: string, index: number, name?: string, body?: string, visibility?: string, is_numbered?: boolean, notesBefore?: string, notesAfter?: string) {
 			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/${index}/update`, {
 				method: "POST",
 				credentials: "include",
@@ -201,6 +203,8 @@ export const BUTTON_REGISTRY = {
 					body,
 					visibility,
 					is_numbered,
+					notes_before: notesBefore,
+					notes_after: notesAfter,
 				}),
 			}).then(response => response.json())
 			console.log(response)
@@ -885,6 +889,50 @@ export const BUTTON_REGISTRY = {
 				},
 			}).then(response => response.json())
 			console.log(response)
+		},
+	},
+
+	notificationsGet: {
+		name: "Get Notifications",
+		async execute () {
+			const response = await fetch(`${Env.API_ORIGIN}notifications/get/all`, {
+				method: "GET",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	notificationsGetUnread: {
+		name: "Get Unread Notifications",
+		async execute () {
+			const response = await fetch(`${Env.API_ORIGIN}notifications/get/unread`, {
+				method: "GET",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	notificationsMark: {
+		name: "Mark Notifications Read/Unread",
+		async execute (state: "read" | "unread", notifications: string[]) {
+			await fetch(`${Env.API_ORIGIN}notifications/mark/${state}`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					notification_ids: notifications,
+				}),
+			})
 		},
 	},
 
