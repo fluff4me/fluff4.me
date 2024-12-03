@@ -108,7 +108,7 @@ export default ViewDefinition({
 				await BUTTON_REGISTRY.createWork.execute("one big work", "made by <mention vanity=\"justonestory\">", "wow description", "bigstory", "Ongoing", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 1", "start of a long story", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story interlude", "middle of a long story", "Public", false, "only notes before")
-				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 2", "aaaa", "Public", undefined, "only notes after")
+				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 2", "aaaa", "Public", true, undefined, "only notes after")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3", "aaaaaaa", "Public", true, "both notes before", "and notes after")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.1", "aaaaaaaaaaaaaaaaaaa", "Public", false)
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 3.2", "aaaaaaaaaaaaaaaaaaa", "Private", false)
@@ -534,6 +534,24 @@ export default ViewDefinition({
 				await BUTTON_REGISTRY.viewWork.execute("work view 3", "thetagger", "testworktwo")
 				await BUTTON_REGISTRY.viewWork.execute("work view 4", "thetagger", "testworktwo")
 				await BUTTON_REGISTRY.getAllWorksByAuthor.execute("all works", "thetagger")
+			},
+		}))
+
+		tagButtons.append(createButton({
+			name: "Chapter Tag Test",
+			async execute () {
+				await BUTTON_REGISTRY.createChapter.execute("thetagger",
+					"testworktwo",
+					"test chapter",
+					"test chapter body",
+					"Public",
+					true,
+					undefined,
+					undefined,
+					["Category Two: Tag Two", "Category Two: Tag Three"],
+					["custom tag 2", "custom tag 3", "custom tag 4"]
+				)
+				await BUTTON_REGISTRY.viewChapter.execute("chapter", "thetagger", "testworktwo", 1)
 			},
 		}))
 

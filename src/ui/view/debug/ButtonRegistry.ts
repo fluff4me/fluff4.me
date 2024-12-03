@@ -169,7 +169,7 @@ export const BUTTON_REGISTRY = {
 
 	createChapter: {
 		name: "Create Chapter",
-		async execute (author: string, work_url: string, name: string, body: string, visibility?: string, is_numbered?: boolean, notesBefore?: string, notesAfter?: string) {
+		async execute (author: string, work_url: string, name: string, body: string, visibility?: string, is_numbered?: boolean, notesBefore?: string, notesAfter?: string, globalTags?: string[], customTags?: string[]) {
 			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/create`, {
 				method: "POST",
 				credentials: "include",
@@ -183,6 +183,8 @@ export const BUTTON_REGISTRY = {
 					is_numbered: is_numbered,
 					notes_before: notesBefore,
 					notes_after: notesAfter,
+					global_tags: globalTags,
+					custom_tags: customTags,
 				}),
 			}).then(response => response.json())
 			console.log(response)
@@ -191,7 +193,7 @@ export const BUTTON_REGISTRY = {
 
 	updateChapter: {
 		name: "Update Chapter",
-		async execute (author: string, work_url: string, index: number, name?: string, body?: string, visibility?: string, is_numbered?: boolean, notesBefore?: string, notesAfter?: string) {
+		async execute (author: string, work_url: string, index: number, name?: string, body?: string, visibility?: string, is_numbered?: boolean, notesBefore?: string, notesAfter?: string, globalTags?: string[], customTags?: string[]) {
 			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${work_url}/chapter/${index}/update`, {
 				method: "POST",
 				credentials: "include",
@@ -205,6 +207,8 @@ export const BUTTON_REGISTRY = {
 					is_numbered,
 					notes_before: notesBefore,
 					notes_after: notesAfter,
+					global_tags: globalTags,
+					custom_tags: customTags,
 				}),
 			}).then(response => response.json())
 			console.log(response)
