@@ -23,6 +23,7 @@ interface PaginatorExtensions<DATA = any> {
 	data: State<DATA>
 	useEndpoint<ROUTE extends PaginatedEndpointRoute, DATA extends ResponseData<EndpointResponse<Endpoint<ROUTE>>>> (endpoint: PreparedQueryOf<Endpoint<ROUTE>>, contentInitialiser: (slot: Slot, response: DATA, paginator: this) => any): Promise<this>
 	useInitial<DATA> (data: DATA, page: number, pageCount: number): PaginatorUseInitialFactory<DATA, this>
+	orElse (contentInitialiser: (slot: Slot) => any): this
 }
 
 interface Paginator<DATA = any> extends Block, PaginatorExtensions<DATA> { }
@@ -77,6 +78,8 @@ const Paginator = Component.Builder((component): Paginator => {
 	const cursor = State(0)
 	const data = cursor.mapManual(page => pageContent[page])
 	let showingPage = -1
+	let orElseContentInitialiser: ((slot: Slot) => any) | undefined
+	let isEmpty = true
 
 	let using: PaginatorUsing<Paginator> | undefined
 	const paginator = block
@@ -86,6 +89,7 @@ const Paginator = Component.Builder((component): Paginator => {
 			page: cursor,
 			data,
 			useInitial (initialData, page, pageCount) {
+				resetPages()
 				pageContent[page] = initialData as never
 				cursor.value = page
 				data.refresh()
@@ -97,23 +101,16 @@ const Paginator = Component.Builder((component): Paginator => {
 				return component
 			},
 			async withContent (contentInitialiser) {
-				content.removeContents()
-				block.footer.style("paginator-footer--hidden")
+				clearContent()
 				using!.initialiser = contentInitialiser as never
 				await setup(pageContent[cursor.value], cursor.value, using!.pageCount)
 				return component
 			},
 			async useEndpoint (endpoint, initialiser) {
-				content.removeContents()
-				block.footer.style("paginator-footer--hidden")
+				clearContent()
+				resetPages()
 
-				cursor.value = 0
-				pageContent = []
-				pages = []
-
-				const mainPage = Page()
-					.style("paginator-page--initial-load")
-				pages.push(mainPage)
+				const mainPage = MainPage()
 
 				let response: EndpointResponse<PaginatedEndpoint>
 				while (true) {
@@ -132,8 +129,31 @@ const Paginator = Component.Builder((component): Paginator => {
 				await setup(response.data, 0, response.page_count)
 				return component
 			},
+			orElse (contentInitialiser) {
+				orElseContentInitialiser = contentInitialiser
+				if (isEmpty) {
+					clearContent()
+					resetPages()
+					const mainPage = MainPage()
+						.style.remove("paginator-page--hidden")
+					content.style("paginator-content--or-else")
+					contentInitialiser(mainPage)
+				}
+				return component
+			},
 		}))
 	return paginator
+
+	function clearContent () {
+		content.removeContents()
+		block.footer.style("paginator-footer--hidden")
+	}
+
+	function resetPages () {
+		pageContent = []
+		pages = []
+		cursor.value = 0
+	}
 
 	async function setup (initialData: ResponseData<EndpointResponse<PaginatedEndpoint>>, page: number, pageCount: number) {
 		if (pageCount > 1)
@@ -149,9 +169,24 @@ const Paginator = Component.Builder((component): Paginator => {
 		pageContent[page] = initialData
 		cursor.value = page
 		data.refresh()
-		await using!.initialiser(pageComponent, initialData, paginator)
+
+		if (initialData && (!Array.isArray(initialData) || initialData.length)) {
+			await using!.initialiser(pageComponent, initialData, paginator)
+			isEmpty = false
+		}
+		else {
+			content.style("paginator-content--or-else")
+			orElseContentInitialiser?.(pageComponent)
+		}
 
 		updateButtons(page)
+	}
+
+	function MainPage () {
+		const mainPage = Page()
+			.style("paginator-page--initial-load")
+		pages.push(mainPage)
+		return mainPage
 	}
 
 	function Page () {
