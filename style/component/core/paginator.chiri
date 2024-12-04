@@ -71,6 +71,11 @@
 		%stack
 		%overflow-hidden
 
+		&--or-else:
+			#after: .paginator-content
+			%margin-0
+			%padding-block-3
+
 	&-page:
 		%block
 		#transition: #{transition("opacity")}, #{transition("translate")}, #{transition("display")}

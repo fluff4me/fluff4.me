@@ -23,6 +23,7 @@
 #import:
 	component/core/slot
 	component/core/paragraph
+	component/core/placeholder
 	component/core/dialog
 	component/core/block
 	component/core/link

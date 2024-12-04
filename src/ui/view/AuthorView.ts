@@ -1,6 +1,7 @@
 import EndpointAuthorGet from "endpoint/author/EndpointAuthorGet"
 import EndpointWorkGetAllAuthor from "endpoint/work/EndpointWorkGetAllAuthor"
 import Session from "model/Session"
+import Component from "ui/Component"
 import Author from "ui/component/Author"
 import Button from "ui/component/core/Button"
 import Link from "ui/component/core/Link"
@@ -51,6 +52,10 @@ export default ViewDefinition({
 					.appendTo(slot)
 			}
 		})
+		paginator.orElse(slot => Component()
+			.style("placeholder")
+			.text.use("view/author/works/content/empty")
+			.appendTo(slot))
 
 		return view
 	},

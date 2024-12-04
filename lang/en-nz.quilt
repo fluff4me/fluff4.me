@@ -163,6 +163,7 @@ submit=shared/action/save
 
 ### works
 title: Works
+content/empty: This author has not yet shared any work...
 action/label/new: New Work
 action/label/view=shared/action/view
 action/label/edit=shared/action/edit
