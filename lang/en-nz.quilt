@@ -107,6 +107,10 @@ popover/account: Account Settings
 
 # work
 chapters/label=shared/term/chapters
+description/empty: This work has no description.
+
+# author
+description/empty: This author prefers to remain elusive and mysterious...
 
 # view
 container/alt: main content
@@ -199,6 +203,7 @@ action/delete: Delete Work
 
 ### chapters
 title=shared/term/chapters
+content/empty: This work does not contain any chapters.
 action/label/new: New Chapter
 action/label/view=shared/action/view
 action/label/love=shared/action/love

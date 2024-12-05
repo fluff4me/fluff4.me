@@ -43,6 +43,7 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
 	const descriptionInput = Textarea()
+		.default.bind(state.map(component, work => work?.description))
 	table.label(label => label.text.use("view/work-edit/shared/form/description/label"))
 		.content((content, label) => content.append(descriptionInput.setLabel(label)))
 
@@ -82,7 +83,8 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 						body: {
 							name: nameInput.value,
 							vanity: vanityInput.value,
-							description: synopsisInput.useMarkdown(),
+							description: descriptionInput.value,
+							synopsis: synopsisInput.useMarkdown(),
 						},
 					})
 				}
