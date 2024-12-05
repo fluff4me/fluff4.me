@@ -1,6 +1,6 @@
 import Component from "ui/Component"
-import type State from "utility/State"
 import type { UnsubscribeState } from "utility/State"
+import State from "utility/State"
 
 export type SlotCleanup = () => any
 
@@ -63,18 +63,8 @@ const Slot = Object.assign(
 			.event.subscribe("remove", () => cleanup?.())
 	}),
 	{
-		// Using: Component.Builder(<T> (slot: Component, state: State<T>, contentSupplier: (value: T) => Component | undefined): Slot => {
-		// 	return slot.and(Slot)
-		// 		.use(state, (slot, value) => {
-		// 			contentSupplier(value)?.appendTo(slot)
-		// 		})
-		// }),
-		// If: Component.Builder((slot: Component, state: State<boolean>, contentSupplier: () => Component | undefined): Slot => {
-		// 	return slot.and(Slot)
-		// 		.if(state, (slot) => {
-		// 			contentSupplier()?.appendTo(slot)
-		// 		})
-		// }),
+		using: <T> (value: T | State<T>, initialiser: (slot: Slot, value: T) => SlotCleanup | Component | void) =>
+			Slot().use(State.get(value), initialiser),
 	}
 )
 

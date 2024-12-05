@@ -8,6 +8,7 @@ export type StateOr<T> = State<T> | T
 export type UnsubscribeState = () => void
 
 interface ReadableState<T, E = T> {
+	readonly isState: true
 	readonly value: T
 
 	readonly equals: <V extends T>(value: V) => boolean
@@ -49,6 +50,7 @@ interface InternalState<T> {
 
 function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> {
 	const result: Mutable<State<T>> & InternalState<T> = {
+		isState: true,
 		[SYMBOL_VALUE]: defaultValue,
 		[SYMBOL_SUBSCRIBERS]: [],
 		get value () {
@@ -150,6 +152,14 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 }
 
 namespace State {
+
+	export function is<T> (value: unknown): value is ReadableState<T> {
+		return typeof value === "object" && (value as ReadableState<T>)?.isState === true
+	}
+
+	export function get<T> (value: T | State<T>): ReadableState<T> {
+		return is<T>(value) ? value : State(value)
+	}
 
 	export interface Generator<T> extends ReadableState<T> {
 		refresh (): this

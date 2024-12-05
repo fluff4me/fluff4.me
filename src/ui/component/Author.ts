@@ -1,6 +1,7 @@
 import type { AuthorFull } from "api.fluff4.me"
 import Component from "ui/Component"
 import Block from "ui/component/core/Block"
+import Slot from "ui/component/core/Slot"
 
 export default Component.Builder((component, author: AuthorFull) => {
 	component
@@ -17,7 +18,12 @@ export default Component.Builder((component, author: AuthorFull) => {
 
 	Component()
 		.style("author-description")
-		.setMarkdownContent(author.description.body)
+		.append(Slot.using(author.description.body, (slot, body) => {
+			if (body)
+				slot.setMarkdownContent(body)
+			else
+				slot.style("placeholder").text.use("author/description/empty")
+		}))
 		.appendTo(block.content)
 
 	return block

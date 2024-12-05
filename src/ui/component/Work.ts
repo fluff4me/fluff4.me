@@ -1,10 +1,11 @@
-import type { Author, Work as WorkData } from "api.fluff4.me"
+import type { Author, Work as WorkData, WorkFull } from "api.fluff4.me"
 import Session from "model/Session"
 import Tags from "model/Tags"
 import Component from "ui/Component"
 import Block from "ui/component/core/Block"
 import Button from "ui/component/core/Button"
 import Link from "ui/component/core/Link"
+import Slot from "ui/component/core/Slot"
 import TextLabel from "ui/component/core/TextLabel"
 import Timestamp from "ui/component/core/Timestamp"
 import Tag from "ui/component/Tag"
@@ -15,7 +16,9 @@ interface WorkExtensions {
 
 interface Work extends Block, WorkExtensions { }
 
-const Work = Component.Builder(async (component, work: WorkData, author?: Author): Promise<Work> => {
+const Work = Component.Builder(async (component, work: WorkData & Partial<WorkFull>, author?: Author): Promise<Work> => {
+	author = author ?? work.synopsis?.mentions[0]
+
 	component
 		.viewTransition("work")
 		.style("work")
@@ -38,10 +41,38 @@ const Work = Component.Builder(async (component, work: WorkData, author?: Author
 				.text.set(author.name))
 
 	block.content.style("work-content")
-	Component()
-		.style("work-description")
-		.setMarkdownContent(work.description)
+
+	Slot()
+		.use(isFlush, (slot, isFlush) => {
+			const shouldShowDescription = isFlush || (work.synopsis?.body && work.description)
+			if (shouldShowDescription)
+				Component()
+					.style("work-description")
+					.style.toggle(!work.description, "placeholder")
+					.tweak(component => {
+						if (work.description)
+							component.text.set(work.description)
+						else
+							component.text.use("work/description/empty")
+					})
+					.appendTo(slot)
+
+			if (!isFlush)
+				Component()
+					.style("work-synopsis")
+					.style.toggle(!work.synopsis?.body && !work.description, "placeholder")
+					.append(Slot.using(work.synopsis ?? work.description, (slot, synopsis) => {
+						if (typeof synopsis === "string")
+							slot.text.set(synopsis)
+						else if (!synopsis.body)
+							slot.text.use("work/description/empty")
+						else
+							slot.setMarkdownContent(synopsis.body)
+					}))
+					.appendTo(slot)
+		})
 		.appendTo(block.content)
+
 
 	let tagsWrapper: Component | undefined
 	const tags = await Tags.resolve(work.global_tags)

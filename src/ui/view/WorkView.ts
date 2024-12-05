@@ -2,6 +2,7 @@ import EndpointChapterGetAll from "endpoint/chapter/EndpointChapterGetAll"
 import type { WorkParams } from "endpoint/work/EndpointWorkGet"
 import EndpointWorkGet from "endpoint/work/EndpointWorkGet"
 import Session from "model/Session"
+import Component from "ui/Component"
 import Chapter from "ui/component/Chapter"
 import Button from "ui/component/core/Button"
 import Paginator from "ui/component/core/Paginator"
@@ -51,6 +52,10 @@ export default ViewDefinition({
 				Chapter(chapterData, workData, authorData)
 					.appendTo(slot)
 		})
+		paginator.orElse(slot => Component()
+			.style("placeholder")
+			.text.use("view/work/chapters/content/empty")
+			.appendTo(slot))
 
 		return view
 	},
