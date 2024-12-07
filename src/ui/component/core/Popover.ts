@@ -97,7 +97,7 @@ Component.extend(component => {
 			return component.extend<PopoverComponentRegisteredExtensions>(component => ({
 				popover,
 				popoverDescendants: [],
-				tweakPopover: (initialiser) => {
+				tweakPopover: initialiser => {
 					initialiser(component.popover, component)
 					return component
 				},
@@ -215,7 +215,7 @@ const Popover = Component.Builder((component): Popover => {
 			popoverHasFocus: FocusListener.focused.map(popover, focused =>
 				visible.value && containsPopoverDescendant(focused)),
 
-			setMousePadding: (padding) => {
+			setMousePadding: padding => {
 				mousePadding = padding
 				return popover
 			},

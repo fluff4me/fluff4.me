@@ -30,6 +30,7 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 	const nameInput = TextInput()
 		.setRequired()
 		.default.bind(Session.Auth.author.map(component, author => author?.name))
+		.hint.use("view/account/name/hint")
 	table.label(label => label.text.use("shared/form/name/label"))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
@@ -38,11 +39,13 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 			.map(component, name => filterVanity(name)))
 		.default.bind(Session.Auth.author.map(component, author => author?.vanity))
 		.filter(filterVanity)
+		.hint.use("view/account/vanity/hint")
 	table.label(label => label.text.use("shared/form/vanity/label"))
 		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
 	const descriptionInput = TextEditor()
 		.default.bind(Session.Auth.author.map(component, author => author?.description.body))
+		.hint.use("view/account/description/hint")
 	table.label(label => label.text.use("shared/form/description/label"))
 		.content((content, label) => content.append(descriptionInput.setLabel(label)))
 

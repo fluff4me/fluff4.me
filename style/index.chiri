@@ -28,6 +28,8 @@
 	component/core/block
 	component/core/link
 	component/core/button
+	component/core/popover
+	component/core/input
 	component/core/text-input
 	component/core/text-area
 	component/core/heading
@@ -39,7 +41,6 @@
 	component/core/labelled-row
 	component/core/action-row
 	component/core/action-heading
-	component/core/popover
 	component/core/text-editor
 	component/core/form
 	component/core/paginator
