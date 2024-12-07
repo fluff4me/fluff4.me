@@ -31,11 +31,13 @@ export default Component.Builder((component, state: State<Chapter | undefined>, 
 	const nameInput = TextInput()
 		.setRequired()
 		.default.bind(state.map(component, work => work?.name))
+		.hint.use("view/chapter-edit/shared/form/name/hint")
 	table.label(label => label.text.use("view/chapter-edit/shared/form/name/label"))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
 	const bodyInput = TextEditor()
 		.default.bind(state.map(component, chapter => chapter?.body ?? undefined))
+		.hint.use("view/chapter-edit/shared/form/body/hint")
 	table.label(label => label.text.use("view/chapter-edit/shared/form/body/label"))
 		.content((content, label) => content.append(bodyInput.setLabel(label)))
 

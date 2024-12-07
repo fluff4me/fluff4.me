@@ -27,6 +27,10 @@ export interface BlockExtensions {
 	readonly type: BlockTypeManipulator<this>
 }
 
+export enum BlockClasses {
+	Main = "$block"
+}
+
 interface Block extends Component, BlockExtensions, CanHasActionsMenuButton { }
 
 const Block = Component.Builder((component): Block => {
@@ -36,6 +40,7 @@ const Block = Component.Builder((component): Block => {
 	let footer: Component | undefined
 
 	const block = component
+		.classes.add(BlockClasses.Main)
 		.viewTransition("block")
 		.style("block")
 		.extend<BlockExtensions>(block => ({

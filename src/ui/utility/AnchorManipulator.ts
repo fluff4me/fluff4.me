@@ -318,6 +318,17 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 		} else {
 			ref = from?.element.closest(selector)?.component
 			if (ref) {
+				if (getComputedStyle(ref.element).display === "contents") {
+					const children = ref.element.children
+					if (!children.length)
+						console.warn("Anchor ref has display: contents and no children")
+					else {
+						ref = children[0].component ?? ref
+						if (children.length > 1)
+							console.warn("Anchor ref has display: contents and multiple children")
+					}
+				}
+
 				refCache ??= {}
 				refCache[selector] = new WeakRef(ref)
 			}

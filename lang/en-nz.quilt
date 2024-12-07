@@ -187,7 +187,7 @@ vanity/url-preview=shared/preview
 description/label=shared/form/description/label
 description/hint: A simple 1-2 sentence description of the work. This will be the only descriptive text shown when works are displayed in lists.
 synopsis/label: Synopsis
-synopsis/hint: The full text describing this work. This will only appear on the full work view.
+synopsis/hint: The full text describing this work. This will only appear in the full work view.
 
 ## work-edit/create
 title: Create work
@@ -215,9 +215,9 @@ action/label/delete=shared/action/delete
 
 ### shared/form
 name/label=shared/form/name/label
-name/hint: The name of your chapter. This does not have to be unique.
+name/hint: The name of this chapter. This does not have to be unique.
 body/label=shared/form/body/label
-body/hint: The content of your chapter.
+body/hint: The content of this chapter. There is no specific character count limit, but if your chapter exceeds 1MB it will be rejected. You will probably never run into this.
 
 ## chapter-edit/create
 title: Create chapter

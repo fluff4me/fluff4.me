@@ -1,5 +1,5 @@
 import type Component from "ui/Component"
-import type Arrays from "utility/Arrays"
+import Arrays from "utility/Arrays"
 import Define from "utility/Define"
 import type { Mutable } from "utility/Type"
 
@@ -120,8 +120,8 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 			return result
 		},
 
-		map: (owner, mapper) => State.Map(owner, result, mapper),
-		mapManual: mapper => State.MapManual(result, mapper),
+		map: (owner, mapper) => State.Map(owner, [result], mapper),
+		mapManual: mapper => State.MapManual([result], mapper),
 		get nonNullish () {
 			return Define.set(result, "nonNullish", State
 				.Generator(() => result.value !== undefined && result.value !== null)
@@ -288,14 +288,14 @@ namespace State {
 			.observe(owner, ...anyOfStates)
 	}
 
-	export function Map<INPUT, OUTPUT> (owner: Component, input: ReadableState<INPUT>, outputGenerator: (input: INPUT) => OUTPUT): Generator<OUTPUT> {
-		return Generator(() => outputGenerator(input.value))
-			.observe(owner, input)
+	export function Map<const INPUT extends (ReadableState<any> | undefined)[], OUTPUT> (owner: Component, inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: INPUT[I] extends ReadableState<infer INPUT> ? INPUT : undefined }>) => OUTPUT): Generator<OUTPUT> {
+		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never))
+			.observe(owner, ...inputs.filter(Arrays.filterNullish))
 	}
 
-	export function MapManual<INPUT, OUTPUT> (input: ReadableState<INPUT>, outputGenerator: (input: INPUT) => OUTPUT): Generator<OUTPUT> {
-		return Generator(() => outputGenerator(input.value))
-			.observeManual(input)
+	export function MapManual<const INPUT extends (ReadableState<any> | undefined)[], OUTPUT> (inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: INPUT[I] extends ReadableState<infer INPUT> ? INPUT : undefined }>) => OUTPUT): Generator<OUTPUT> {
+		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never))
+			.observeManual(...inputs.filter(Arrays.filterNullish))
 	}
 }
 
