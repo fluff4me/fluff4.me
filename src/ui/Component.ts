@@ -1,3 +1,4 @@
+import type Label from "ui/component/core/Label"
 import AnchorManipulator from "ui/utility/AnchorManipulator"
 import AttributeManipulator from "ui/utility/AttributeManipulator"
 import ClassManipulator from "ui/utility/ClassManipulator"
@@ -99,6 +100,9 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 
 	is<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): this is COMPONENT
 	is<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): this is COMPONENT
+	as<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): COMPONENT | undefined
+	as<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): COMPONENT | undefined
+	cast<COMPONENT extends Component> (): this & Partial<COMPONENT>
 
 	/**
 	 * **Warning:** Replacing an element will leave any subscribed events on the original element, and not re-subscribe them on the new element.
@@ -206,6 +210,8 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 		is: (builder): this is any => component.supers.includes(builder),
+		as: (builder): any => component.supers.includes(builder) ? component : undefined,
+		cast: (): any => component,
 		and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Extension<PARAMS, COMPONENT> | Component.ExtensionAsync<PARAMS, COMPONENT>, ...params: PARAMS) {
 			const result = builder.from(component, ...params)
 			if (result instanceof Promise)
@@ -483,8 +489,12 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 		ariaLabelledBy: labelledBy => {
 			unuseAriaLabelledByIdState?.()
-			unuseAriaLabelledByIdState = labelledBy?.id.use(component, id =>
-				component.attributes.set("aria-labelledby", id))
+			if (labelledBy) {
+				const state = State.Generator(() => labelledBy.id.value ?? labelledBy.attributes.get("for"))
+					.observe(component, labelledBy.id, labelledBy.cast<Label>()?.for)
+				unuseAriaLabelledByIdState = state.use(component, id =>
+					component.attributes.set("aria-labelledby", id))
+			}
 			return component
 		},
 		ariaHidden: () => component.attributes.set("aria-hidden", "true"),

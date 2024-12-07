@@ -26,7 +26,9 @@ const Textarea = Component.Builder((component): Textarea => {
 		.and(Input)
 		.style("text-input", "text-area")
 		.attributes.set("contenteditable", "plaintext-only")
-		.extend<TextareaExtensions>(input => ({
+		.ariaRole("textbox")
+		.attributes.set("aria-multiline", "true")
+		.extend<TextareaExtensions & Partial<InputExtensions>>(input => ({
 			value: "",
 			state: State(""),
 			default: StringApplicator(input, value => {
@@ -40,6 +42,13 @@ const Textarea = Component.Builder((component): Textarea => {
 			}),
 			ignoreInputEvent: (ignore = true) => {
 				shouldIgnoreInputEvent = ignore
+				return input
+			},
+			setLabel (label) {
+				component.setName(label?.for)
+				component.setId(label?.for)
+				label?.setInput(input)
+				component.ariaLabelledBy(label)
 				return input
 			},
 		}))

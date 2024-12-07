@@ -163,9 +163,9 @@ namespace State {
 
 	export interface Generator<T> extends ReadableState<T> {
 		refresh (): this
-		observe (owner: Component, ...states: ReadableState<any>[]): this
-		observeManual (...states: ReadableState<any>[]): this
-		unobserve (...states: ReadableState<any>[]): this
+		observe (owner: Component, ...states: (ReadableState<any> | undefined)[]): this
+		observeManual (...states: (ReadableState<any> | undefined)[]): this
+		unobserve (...states: (ReadableState<any> | undefined)[]): this
 	}
 
 	export function Generator<T> (generate: () => T): Generator<T> {
@@ -187,26 +187,26 @@ namespace State {
 
 		result.observe = (owner, ...states) => {
 			for (const state of states)
-				state.subscribeManual(result.refresh)
+				state?.subscribeManual(result.refresh)
 			owner.event.subscribe("remove", onRemove)
 			return result
 
 			function onRemove () {
 				owner.event.unsubscribe("remove", onRemove)
 				for (const state of states)
-					state.unsubscribe(result.refresh)
+					state?.unsubscribe(result.refresh)
 			}
 		}
 
 		result.observeManual = (...states) => {
 			for (const state of states)
-				state.subscribeManual(result.refresh)
+				state?.subscribeManual(result.refresh)
 			return result
 		}
 
 		result.unobserve = (...states) => {
 			for (const state of states)
-				state.unsubscribe(result.refresh)
+				state?.unsubscribe(result.refresh)
 			return result
 		}
 
