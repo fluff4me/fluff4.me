@@ -1,5 +1,6 @@
 import Component from "ui/Component"
 import type { ComponentName } from "ui/utility/StyleManipulator"
+import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
 
 type ButtonType = keyof { [KEY in ComponentName as KEY extends `button-type-${infer TYPE}--${string}` ? TYPE
@@ -18,6 +19,8 @@ interface ButtonExtensions {
 	readonly type: ButtonTypeManipulator<this>
 	readonly disabled: State.Generator<boolean>
 	setDisabled (disabled: boolean, reason: string): this
+	bindDisabled (state: State<boolean>, reason: string): this
+	unbindDisabled (state: State<boolean>, reason: string): this
 	setIcon (icon?: ButtonIcon): this
 }
 
@@ -28,10 +31,12 @@ const Button = Component.Builder("button", (button): Button => {
 	const disabled = State.Generator(() => !!disabledReasons.size)
 
 	let icon: ButtonIcon | undefined
+	const unuseDisabledStateMap = new WeakMap<State<boolean>, UnsubscribeState>()
 	return button
 		.attributes.set("type", "button")
 		.style("button")
 		.style.bind(disabled, "button--disabled")
+		.attributes.bind(disabled, "disabled")
 		.extend<ButtonExtensions>(button => ({
 			textWrapper: undefined!,
 			disabled,
@@ -59,6 +64,16 @@ const Button = Component.Builder("button", (button): Button => {
 				if (disabledReasons.size !== size)
 					disabled.refresh()
 
+				return button
+			},
+			bindDisabled (state, reason) {
+				unuseDisabledStateMap.get(state)?.()
+				unuseDisabledStateMap.set(state, state.subscribe(button, newState => button.setDisabled(newState, reason)))
+				return button
+			},
+			unbindDisabled (state, reason) {
+				unuseDisabledStateMap.get(state)?.()
+				unuseDisabledStateMap.delete(state)
 				return button
 			},
 			setIcon (newIcon) {

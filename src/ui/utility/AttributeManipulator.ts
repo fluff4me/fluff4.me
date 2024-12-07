@@ -2,6 +2,8 @@ import quilt from "lang/en-nz"
 import type Component from "ui/Component"
 import type { Quilt } from "ui/utility/StringApplicator"
 import { QuiltHelper } from "ui/utility/StringApplicator"
+import type State from "utility/State"
+import type { UnsubscribeState } from "utility/State"
 
 interface AttributeManipulator<HOST> {
 	get (attribute: string): string | undefined
@@ -14,6 +16,7 @@ interface AttributeManipulator<HOST> {
 	prepend (...attributes: string[]): HOST
 	/** Sets the attribute to `value`, or removes the attribute if `value` is `undefined` */
 	set (attribute: string, value?: string): HOST
+	bind (state: State<boolean>, attribute: string, value?: string): HOST
 	/**
 	 * If the attribute is already set, does nothing. 
 	 * Otherwise, calls the supplier, and sets the attribute to the result, or removes the attribute if it's `undefined` 
@@ -30,6 +33,7 @@ interface AttributeManipulator<HOST> {
 
 function AttributeManipulator (component: Component): AttributeManipulator<Component> {
 	let translationHandlers: Record<string, Quilt.SimpleKey | Quilt.Handler> | undefined
+	const unuseAttributeMap = new Map<string, UnsubscribeState>()
 	const result: AttributeManipulator<Component> = {
 		get (attribute) {
 			return component.element.getAttribute(attribute) ?? undefined
@@ -62,6 +66,16 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 				component.element.removeAttribute(attribute)
 			else
 				component.element.setAttribute(attribute, value)
+			return component
+		},
+		bind (state, attribute, value) {
+			unuseAttributeMap.get(attribute)?.()
+			unuseAttributeMap.set(attribute, state.use(component, active => {
+				if (active)
+					component.element.setAttribute(attribute, value ?? "")
+				else
+					component.element.removeAttribute(attribute)
+			}))
 			return component
 		},
 		compute (attribute, supplier) {

@@ -58,6 +58,7 @@ interface ComponentEvents extends NativeEvents {
 	remove (): any
 	insert (): any
 	ancestorInsert (): any
+	descendantInsert (): any
 	ancestorRectDirty (): any
 	root (): any
 	unroot (): any
@@ -131,6 +132,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 	removeContents (): void
 
 	receiveAncestorInsertEvents (): this
+	receiveDescendantInsertEvents (): this
 	emitInsert (): this
 
 	onRooted (callback: (component: this) => any): this
@@ -151,6 +153,7 @@ interface Component<ELEMENT extends HTMLElement = HTMLElement> extends BaseCompo
 
 enum Classes {
 	ReceiveAncestorInsertEvents = "_receieve-ancestor-insert-events",
+	ReceiveDescendantInsertEvents = "_receieve-descendant-insert-events",
 	ReceiveAncestorRectDirtyEvents = "_receieve-ancestor-rect-dirty-events",
 }
 
@@ -455,6 +458,10 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			component.element.classList.add(Classes.ReceiveAncestorInsertEvents)
 			return component
 		},
+		receiveDescendantInsertEvents: () => {
+			component.element.classList.add(Classes.ReceiveAncestorInsertEvents)
+			return component
+		},
 		emitInsert: () => {
 			updateRooted(component)
 			emitInsert(component)
@@ -533,6 +540,12 @@ function emitInsert (component: Component | undefined) {
 	const descendantsListeningForEvent = component.element.getElementsByClassName(Classes.ReceiveAncestorInsertEvents)
 	for (const descendant of descendantsListeningForEvent)
 		descendant.component?.event.emit("ancestorInsert")
+
+	let cursor = component.element.parentElement
+	while (cursor) {
+		cursor.component?.event.emit("descendantInsert")
+		cursor = cursor.parentElement
+	}
 }
 
 function updateRooted (component: Component | undefined) {
