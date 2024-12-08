@@ -44,6 +44,7 @@ const TextInput = Component.Builder("input", (component): TextInput => {
 				if (input.value === "") {
 					input.value = value ?? ""
 					input.state.value = value ?? ""
+					input.length.value = value?.length ?? 0
 				}
 			}),
 			placeholder: StringApplicator(input, value => {
@@ -63,6 +64,7 @@ const TextInput = Component.Builder("input", (component): TextInput => {
 			set: (value: string) => {
 				(input.element as HTMLInputElement).value = value
 				input.state.value = value
+				input.length.value = value.length
 			},
 		}))
 
@@ -91,6 +93,7 @@ const TextInput = Component.Builder("input", (component): TextInput => {
 
 		if (shouldIgnoreInputEvent) return
 		input.state.value = input.value
+		input.length.value = input.value.length
 	})
 
 	return input

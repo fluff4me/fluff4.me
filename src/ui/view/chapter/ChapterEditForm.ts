@@ -3,6 +3,7 @@ import EndpointChapterCreate from "endpoint/chapter/EndpointChapterCreate"
 import EndpointChapterUpdate from "endpoint/chapter/EndpointChapterUpdate"
 import type { WorkParams } from "endpoint/work/EndpointWorkGet"
 import quilt from "lang/en-nz"
+import FormInputLengths from "model/FormInputLengths"
 import Session from "model/Session"
 import Component from "ui/Component"
 import Block from "ui/component/core/Block"
@@ -32,6 +33,7 @@ export default Component.Builder((component, state: State<Chapter | undefined>, 
 		.setRequired()
 		.default.bind(state.map(component, work => work?.name))
 		.hint.use("view/chapter-edit/shared/form/name/hint")
+		.setMaxLength(FormInputLengths.manifest?.chapter.name)
 	table.label(label => label.text.use("view/chapter-edit/shared/form/name/label"))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 

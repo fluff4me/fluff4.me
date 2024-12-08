@@ -1,2 +1,3 @@
 .text-area:
+	%wrap-anywhere
 	%white-space-pre-wrap

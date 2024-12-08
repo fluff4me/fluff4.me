@@ -640,7 +640,7 @@ const markdownParser = new MarkdownParser(schema, markdown, Objects.filterNullis
 	...Object.entries(markdownHTMLNodeRegistry)
 		.toObject(([tokenType, spec]) => [tokenType, ({
 			block: tokenType,
-			getAttrs: (token) => (token as FluffToken).nodeAttrs ?? {},
+			getAttrs: token => (token as FluffToken).nodeAttrs ?? {},
 		} satisfies ParseSpec)]),
 } satisfies Record<string, ParseSpec | undefined>))
 
@@ -1176,7 +1176,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.subviewTransition(viewTransitionName)
 		.style("text-editor")
 		.style.bind(isFullscreen, "text-editor--fullscreen")
-		.event.subscribe("click", (event) => {
+		.event.subscribe("click", event => {
 			const target = Component.get(event.target)
 			if (target !== toolbar && !target?.is(TextEditor))
 				return
@@ -1410,6 +1410,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			return
 
 		const body = !doc ? "" : markdownSerializer.serialize(doc)
+		editor.length.value = body.length
 		if (body === editor.default.state.value)
 			return clearLocal()
 
