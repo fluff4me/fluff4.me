@@ -1,4 +1,5 @@
 import quilt from "lang/en-nz"
+import FormInputLengths from "model/FormInputLengths"
 import Session from "model/Session"
 import Navigator from "navigation/Navigate"
 import style from "style"
@@ -56,6 +57,7 @@ async function App (): Promise<App> {
 	})
 
 	await Env.load()
+	await FormInputLengths.getManifest()
 
 	// const path = URL.path ?? URL.hash;
 	// if (path === AuthView.id) {

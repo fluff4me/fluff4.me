@@ -35,6 +35,7 @@ const Textarea = Component.Builder((component): Textarea => {
 				if (input.value === "") {
 					input.value = value ?? ""
 					input.state.value = value ?? ""
+					input.length.value = value?.length ?? 0
 				}
 			}),
 			placeholder: StringApplicator(input, value => {
@@ -57,12 +58,16 @@ const Textarea = Component.Builder((component): Textarea => {
 			set: (value: string) => {
 				input.element.textContent = value
 				input.state.value = value
+				input.length.value = value.length
 			},
 		}))
 
-	input.event.subscribe(["input", "change"], event => {
-		if (shouldIgnoreInputEvent) return
-		input.state.value = input.value
+	input.onRooted(input => {
+		input.event.subscribe(["input", "change"], event => {
+			if (shouldIgnoreInputEvent) return
+			input.state.value = input.value
+			input.length.value = input.value.length
+		})
 	})
 
 	return input

@@ -12,6 +12,7 @@ export interface InputExtensions {
 	readonly hint: StringApplicator.Optional<this>
 	readonly maxLength: State<number | undefined>
 	readonly length: State<number | undefined>
+	setMaxLength (maxLength?: number): this
 	setRequired (required?: boolean): this
 	/**
 	 * - Sets the `[name]` of this component to `label.for`
@@ -27,7 +28,9 @@ const Input = Component.Extension((component): Input => {
 	const hintText = State<string | undefined>(undefined)
 	const maxLength = State<number | undefined>(undefined)
 	const length = State<number | undefined>(undefined)
-	const hasPopover = State.Map(component, [hintText, maxLength], (hintText, maxLength) => !!hintText || !!maxLength)
+	const unusedPercent = State.MapManual([length, maxLength], (length, maxLength) => length === undefined || !maxLength ? undefined : 1 - length / maxLength)
+	const unusedChars = State.MapManual([length, maxLength], (length, maxLength) => length === undefined || !maxLength ? undefined : maxLength - length)
+	const hasPopover = State.MapManual([hintText, maxLength], (hintText, maxLength) => !!hintText || !!maxLength)
 	let popover: Popover | undefined
 	hasPopover.subscribeManual(hasPopover => {
 		if (!hasPopover) {
@@ -51,7 +54,14 @@ const Input = Component.Extension((component): Input => {
 
 				Slot.using(maxLength, (slot, maxLength) => !maxLength ? undefined
 					: Component()
-						.style("input-popover-max-length"))
+						.style("input-popover-max-length")
+						.append(Component()
+							.style("input-popover-max-length-icon")
+							.style.bind(unusedPercent.mapManual(p => (p ?? 0) < 0), "input-popover-max-length-icon--overflowing"))
+						.append(Component()
+							.style("input-popover-max-length-text")
+							.text.bind(unusedChars.mapManual(chars => chars === undefined ? "" : `${chars}`)))
+						.style.bindVariable("progress", unusedPercent))
 					.appendTo(popover)
 			})
 			.tweak(popoverInitialiser, component)
@@ -66,6 +76,10 @@ const Input = Component.Extension((component): Input => {
 		hint: StringApplicator(component, value => hintText.value = value),
 		maxLength,
 		length,
+		setMaxLength (newLength) {
+			maxLength.value = newLength
+			return component
+		},
 		setRequired: (required = true) => {
 			component.attributes.toggle(required, "required")
 			component.required.value = required

@@ -2,6 +2,7 @@ import type { WorkFull } from "api.fluff4.me"
 import EndpointWorkCreate from "endpoint/work/EndpointWorkCreate"
 import EndpointWorkUpdate from "endpoint/work/EndpointWorkUpdate"
 import quilt from "lang/en-nz"
+import FormInputLengths from "model/FormInputLengths"
 import Session from "model/Session"
 import Component from "ui/Component"
 import Block from "ui/component/core/Block"
@@ -32,6 +33,7 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 		.setRequired()
 		.default.bind(state.map(component, work => work?.name))
 		.hint.use("view/work-edit/shared/form/name/hint")
+		.setMaxLength(FormInputLengths.manifest?.work.name)
 	table.label(label => label.text.use("view/work-edit/shared/form/name/label"))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
@@ -41,18 +43,21 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 		.default.bind(state.map(component, work => work?.vanity))
 		.filter(filterVanity)
 		.hint.use("view/work-edit/shared/form/vanity/hint")
+		.setMaxLength(FormInputLengths.manifest?.work.vanity)
 	table.label(label => label.text.use("view/work-edit/shared/form/vanity/label"))
 		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
 	const descriptionInput = Textarea()
 		.default.bind(state.map(component, work => work?.description))
 		.hint.use("view/work-edit/shared/form/description/hint")
+		.setMaxLength(FormInputLengths.manifest?.work.description)
 	table.label(label => label.text.use("view/work-edit/shared/form/description/label"))
 		.content((content, label) => content.append(descriptionInput.setLabel(label)))
 
 	const synopsisInput = TextEditor()
 		.default.bind(state.map(component, work => work?.synopsis.body))
 		.hint.use("view/work-edit/shared/form/synopsis/hint")
+		.setMaxLength(FormInputLengths.manifest?.work.synopsis)
 	table.label(label => label.text.use("view/work-edit/shared/form/synopsis/label"))
 		.content((content, label) => content.append(synopsisInput.setLabel(label)))
 
