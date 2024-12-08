@@ -190,6 +190,8 @@ interface PopoverExtensions {
 
 	isMouseWithin (checkDescendants?: true): boolean
 	containsPopoverDescendant (node?: Node | Component): boolean
+	/** Defaults on */
+	setCloseOnInput (closeOnInput?: boolean): this
 
 	show (): this
 	hide (): this
@@ -204,6 +206,7 @@ const Popover = Component.Builder((component): Popover => {
 	let mousePadding: number | undefined
 	let unbind: UnsubscribeState | undefined
 	const visible = State(false)
+	let shouldCloseOnInput = true
 	const popover = component
 		.style("popover")
 		.tabIndex("programmatic")
@@ -215,6 +218,10 @@ const Popover = Component.Builder((component): Popover => {
 			popoverHasFocus: FocusListener.focused.map(popover, focused =>
 				visible.value && containsPopoverDescendant(focused)),
 
+			setCloseOnInput (closeOnInput = true) {
+				shouldCloseOnInput = closeOnInput
+				return popover
+			},
 			setMousePadding: padding => {
 				mousePadding = padding
 				return popover
@@ -277,7 +284,7 @@ const Popover = Component.Builder((component): Popover => {
 	return popover
 
 	function onInputDown (event: IInputEvent) {
-		if (!popover.visible.value)
+		if (!popover.visible.value || !shouldCloseOnInput)
 			return
 
 		if (!event.key.startsWith("Mouse") || popover.containsPopoverDescendant(HoverListener.hovered()))
