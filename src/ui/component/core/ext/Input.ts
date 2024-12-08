@@ -39,6 +39,7 @@ const Input = Component.Extension((component): Input => {
 		popover = Popover()
 			.anchor.from(component)
 			.anchor.add("off right", `.\\${BlockClasses.Main}`, "aligned top")
+			.setCloseOnInput(false)
 			.style("input-popover")
 			.setOwner(component)
 			.tweak(popover => {
