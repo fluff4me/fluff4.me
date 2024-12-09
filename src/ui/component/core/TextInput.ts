@@ -68,6 +68,8 @@ const TextInput = Component.Builder("input", (component): TextInput => {
 			},
 		}))
 
+	input.length.value = 0
+
 	input.event.subscribe(["input", "change"], event => {
 		const element = input.element.asType("input")
 		if (filterFunction && element) {
