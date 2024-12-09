@@ -68,7 +68,7 @@ const Input = Component.Extension((component): Input => {
 			.appendTo(document.body)
 	})
 
-	component.hasFocused.subscribeManual(hasFocused => popover?.anchor.apply().toggle(hasFocused))
+	component.hasFocused.subscribeManual(hasFocused => popover?.toggle(hasFocused).anchor.apply())
 
 	let popoverInitialiser: PopoverInitialiser<Component> | undefined
 	return component.extend<InputExtensions>(component => ({
