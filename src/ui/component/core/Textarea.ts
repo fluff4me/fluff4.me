@@ -62,6 +62,8 @@ const Textarea = Component.Builder((component): Textarea => {
 			},
 		}))
 
+	input.length.value = 0
+
 	input.onRooted(input => {
 		input.event.subscribe(["input", "change"], event => {
 			if (shouldIgnoreInputEvent) return
