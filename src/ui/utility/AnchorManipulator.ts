@@ -89,6 +89,12 @@ export interface AnchorLocationPreference {
 	xRefSelector: string
 	yAnchor: AnchorLocationVertical
 	yRefSelector: string
+	options?: AnchorLocationPreferenceOptions
+}
+
+export interface AnchorLocationPreferenceOptions {
+	xValid?(x: number, hostBox: DOMRect | undefined, anchoredBox: DOMRect): boolean
+	yValid?(y: number, hostBox: DOMRect | undefined, anchoredBox: DOMRect): boolean
 }
 
 export interface AnchorLocationHorizontal {
@@ -129,19 +135,19 @@ interface AnchorManipulator<HOST> {
 	/**
 	 * Add a location fallback by defining an x and y anchor on the source component.
 	 */
-	add (xAnchor: AnchorStringHorizontal, yAnchor: AnchorStringVertical): HOST
+	add (xAnchor: AnchorStringHorizontal, yAnchor: AnchorStringVertical, options?: AnchorLocationPreferenceOptions): HOST
 	/**
 	 * Add a location fallback by defining an x anchor on a selected ancestor component, and a y anchor on the source component.
 	 */
-	add (xAnchor: AnchorStringHorizontal, xRefSelector: string, yAnchor: AnchorStringVertical): HOST
+	add (xAnchor: AnchorStringHorizontal, xRefSelector: string, yAnchor: AnchorStringVertical, options?: AnchorLocationPreferenceOptions): HOST
 	/**
 	 * Add a location fallback by defining an x anchor on the source component, and a y anchor on a selected ancestor component.
 	 */
-	add (xAnchor: AnchorStringHorizontal, yAnchor: AnchorStringVertical, yRefSelector: string): HOST
+	add (xAnchor: AnchorStringHorizontal, yAnchor: AnchorStringVertical, yRefSelector: string, options?: AnchorLocationPreferenceOptions): HOST
 	/**
 	 * Add a location fallback by defining x and y anchors on selected ancestor components.
 	 */
-	add (xAnchor: AnchorStringHorizontal, xRefSelector: string, yAnchor: AnchorStringVertical, yRefSelector: string): HOST
+	add (xAnchor: AnchorStringHorizontal, xRefSelector: string, yAnchor: AnchorStringVertical, yRefSelector: string, options?: AnchorLocationPreferenceOptions): HOST
 
 	/**
 	 * Marks the anchor positioning "dirty", causing it to be recalculated from scratch on next poll
@@ -178,8 +184,11 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			result.markDirty()
 			return host
 		},
-		add: (...config: string[]) => {
-			let [xAnchor, xRefSelector, yAnchor, yRefSelector] = config
+		add: (...config: (string | AnchorLocationPreferenceOptions | undefined)[]) => {
+			const options = typeof config[config.length - 1] === "string" ? undefined
+				: config.pop() as AnchorLocationPreferenceOptions
+
+			let [xAnchor, xRefSelector, yAnchor, yRefSelector] = config as string[]
 			if (isAnchorString(xRefSelector)) {
 				yRefSelector = yAnchor
 				yAnchor = xRefSelector
@@ -194,6 +203,7 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 				xRefSelector,
 				yAnchor: parseAnchor(yAnchor as AnchorStringVertical),
 				yRefSelector,
+				options,
 			})
 
 			result.markDirty()
@@ -239,6 +249,10 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 							break
 					}
 
+					if (preference.options?.xValid?.(x, xBox, tooltipBox) === false) {
+						continue
+					}
+
 					if (!xConf.sticky && tooltipBox.width < Viewport.size.value.w) {
 						const isXOffScreen = x < 0 || x + tooltipBox.width > Viewport.size.value.w
 						if (isXOffScreen) {
@@ -264,6 +278,10 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 						case "centre":
 							y = yRefY - tooltipBox.height / 2
 							break
+					}
+
+					if (preference.options?.yValid?.(y, yBox, tooltipBox) === false) {
+						continue
 					}
 
 					if (!yConf.sticky && tooltipBox.height < Viewport.size.value.h) {
