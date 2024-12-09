@@ -41,7 +41,13 @@ const Input = Component.Extension((component): Input => {
 
 		popover = Popover()
 			.anchor.from(component)
-			.anchor.add("off right", `.\\${BlockClasses.Main}`, "aligned top")
+			.anchor.add("off right", `.\\${BlockClasses.Main}`, "aligned top", {
+				yValid (y, hostBox, popoverBox) {
+					// only align top if the popover box is taller than the host box
+					return popoverBox.height > (hostBox?.height ?? 0)
+				},
+			})
+			.anchor.add("off right", `.\\${BlockClasses.Main}`, "centre")
 			.setCloseOnInput(false)
 			.style("input-popover")
 			.setOwner(component)
