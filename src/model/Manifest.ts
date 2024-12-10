@@ -3,6 +3,7 @@ import Time from "utility/Time"
 
 interface ManifestDefinition<T> {
 	get (): Promise<Response<T> | ErrorResponse<Response<T>>>
+	orElse?(): T
 }
 
 interface Manifest<T> {
@@ -26,11 +27,19 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 				return result.manifest
 
 			return promise ??= (async () => {
-				const response = await definition.get()
-				if (response instanceof Error)
-					throw response
+				try {
+					const response = await definition.get()
+					if (response instanceof Error)
+						throw response
+					result.manifest = response.data
 
-				result.manifest = response.data
+				} catch (err) {
+					if (definition.orElse)
+						result.manifest = definition.orElse()
+					else
+						throw err
+				}
+
 				manifestTime = Date.now()
 				promise = undefined
 				return result.manifest
