@@ -1,3 +1,4 @@
+import Env from "./utility/Env"
 import Task from "./utility/Task"
 
 export default Task("chiri", () =>
@@ -7,10 +8,11 @@ export const chiriwatch = Task("chiriwatch", () =>
 	Task.cli(
 		{
 			env: {
-				// makes it so chirilang watches its lib folder
-				CHIRI_ENV: "dev",
-				CHIRI_STACK_LENGTH: "10",
-				CHIRI_AST: "true",
+				CHIRI_ENV: Env.CHIRI_ENV,
+				CHIRI_STACK_LENGTH: Env.CHIRI_STACK_LENGTH,
+				CHIRI_AST: Env.CHIRI_AST,
+				CHIRI_INSPECT: Env.CHIRI_INSPECT,
+				CHIRI_INSPECT_PORT: Env.CHIRI_INSPECT_PORT,
 			},
 		},
 		"chiri", "style/index.chiri", "--out", "docs", "--out-dts", "src", "-w"))
