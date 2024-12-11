@@ -7,4 +7,9 @@ export default process.env as {
 	NO_COLOURIZE_ERRORS?: string
 	NO_LOG_TSC_DURATION?: string
 	NPM_LINK?: string
+	CHIRI_ENV?: string
+	CHIRI_STACK_LENGTH?: `${bigint}`
+	CHIRI_AST?: "true"
+	CHIRI_INSPECT?: "true"
+	CHIRI_INSPECT_PORT?: `${bigint}`
 }
