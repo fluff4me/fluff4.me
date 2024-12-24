@@ -2,7 +2,7 @@ import Env from "./utility/Env"
 import Task from "./utility/Task"
 
 export default Task("chiri", () =>
-	Task.cli({ env: {} }, "chiri", "style/index.chiri", "--out", "docs", "--out-dts", "src"))
+	Task.cli(Env.ENVIRONMENT === "dev" ? { env: {} } : {}, "chiri", "style/index.chiri", "--out", "docs", "--out-dts", "src"))
 
 export const chiriwatch = Task("chiriwatch", () =>
 	Task.cli(
