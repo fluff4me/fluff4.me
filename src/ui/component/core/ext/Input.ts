@@ -67,7 +67,7 @@ const Input = Component.Extension((component): Input => {
 						.append(Component()
 							.style("input-popover-max-length-text")
 							.text.bind(unusedChars.mapManual(chars => chars === undefined ? "" : `${chars}`)))
-						.style.bindVariable("progress", unusedPercent))
+						.style.bindVariable("remaining", unusedPercent.mapManual(p => 1 - (p ?? 0))))
 					.appendTo(popover)
 			})
 			.tweak(popoverInitialiser, component)
