@@ -19,8 +19,16 @@
 			%flex
 			%gap-1
 			%align-items-centre
-			colour: color-mix(in lch, blue, red 50%)
-			$progress: 1
+			colour: #{gradient-mix(
+				in lch, $remaining,
+				#0097ff 10%,
+				#b6f6ff 30%,
+				#ffffff 35%,
+				#ffd900 60%,
+				#ff9e00 80%,
+				#ff0000 90%,
+
+			$remaining: 1
 			&-icon:
 				%block
 				%size-em
@@ -31,24 +39,24 @@
 					size: .75em
 					clip-path:
 						polygon(
-						50% 50%,
+							50% 50%,
 
-						calc(50% + 75% * cos(calc($progress * 360deg + 90deg)))
-						calc(50% - 75% * sin(calc($progress * 360deg + 90deg))),
+							calc(50% + 75% * cos(calc($progress * 360deg + 90deg)))
+							calc(50% - 75% * sin(calc($progress * 360deg + 90deg))),
 
-						calc(50% + 75% * cos(calc(min($progress, 0.875) * 360deg + 90deg)))
-						calc(50% - 75% * sin(calc(min($progress, 0.875) * 360deg + 90deg))),
+							calc(50% + 75% * cos(calc(min($progress, 0.875) * 360deg + 90deg)))
+							calc(50% - 75% * sin(calc(min($progress, 0.875) * 360deg + 90deg))),
 
-						calc(50% + 75% * cos(calc(min($progress, 0.625) * 360deg + 90deg)))
-						calc(50% - 75% * sin(calc(min($progress, 0.625) * 360deg + 90deg))),
+							calc(50% + 75% * cos(calc(min($progress, 0.625) * 360deg + 90deg)))
+							calc(50% - 75% * sin(calc(min($progress, 0.625) * 360deg + 90deg))),
 
-						calc(50% + 75% * cos(calc(min($progress, 0.375) * 360deg + 90deg)))
-						calc(50% - 75% * sin(calc(min($progress, 0.375) * 360deg + 90deg))),
+							calc(50% + 75% * cos(calc(min($progress, 0.375) * 360deg + 90deg)))
+							calc(50% - 75% * sin(calc(min($progress, 0.375) * 360deg + 90deg))),
 
-						calc(50% + 75% * cos(calc(min($progress, 0.125) * 360deg + 90deg)))
-						calc(50% - 75% * sin(calc(min($progress, 0.125) * 360deg + 90deg))),
+							calc(50% + 75% * cos(calc(min($progress, 0.125) * 360deg + 90deg)))
+							calc(50% - 75% * sin(calc(min($progress, 0.125) * 360deg + 90deg))),
 
-						50% 0%
+							50% 0%
 						)
 
 				&--overflowing:
