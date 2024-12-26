@@ -89,6 +89,7 @@ async function App (): Promise<App> {
 
 	const content = Component()
 		.style("app-content")
+		.monitorScrollEvents()
 		.append(view, related)
 
 	const app: App = Component()

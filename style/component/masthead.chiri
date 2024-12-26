@@ -5,6 +5,7 @@
 	%font-4
 	%padding-1-0
 	%border-box
+	%backdrop-blur
 	$border-colour: $dark-3
 	height: $masthead-height
 	line-height: round(1.2em, 1px)

@@ -2,6 +2,7 @@ import type Component from "ui/Component"
 import Mouse from "ui/utility/Mouse"
 import Viewport from "ui/utility/Viewport"
 import type { UnsubscribeState } from "utility/State"
+import Time from "utility/Time"
 import type { PartialRecord } from "utility/Type"
 
 ////////////////////////////////////
@@ -93,6 +94,8 @@ export interface AnchorLocationPreference {
 }
 
 export interface AnchorLocationPreferenceOptions {
+	allowXOffscreen?: true
+	allowYOffscreen?: true
 	xValid?(x: number, hostBox: DOMRect | undefined, anchoredBox: DOMRect): boolean
 	yValid?(y: number, hostBox: DOMRect | undefined, anchoredBox: DOMRect): boolean
 }
@@ -127,6 +130,9 @@ export interface AnchorLocation {
 
 ////////////////////////////////////
 //#region Implementation
+
+export const AllowYOffscreen: AnchorLocationPreferenceOptions = { allowYOffscreen: true }
+export const AllowXOffscreen: AnchorLocationPreferenceOptions = { allowXOffscreen: true }
 
 interface AnchorManipulator<HOST> {
 	isMouse (): boolean
@@ -168,6 +174,8 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 		from = undefined
 	}
 
+	let lastRender = 0
+	let rerenderTimeout: number | undefined
 	const subscribed: UnsubscribeState[] = []
 	const addSubscription = (use?: UnsubscribeState) => use && subscribed.push(use)
 
@@ -211,6 +219,15 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 		},
 		markDirty: () => {
 			location = undefined
+
+			if (lastRender) {
+				const timeSinceLastRender = Date.now() - lastRender
+				if (timeSinceLastRender > Time.frame)
+					result.apply()
+				else if (rerenderTimeout === undefined)
+					rerenderTimeout = window.setTimeout(result.apply, Time.frame - timeSinceLastRender)
+			}
+
 			return host
 		},
 		get: () => {
@@ -253,7 +270,7 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 						continue
 					}
 
-					if (!xConf.sticky && tooltipBox.width < Viewport.size.value.w) {
+					if (!xConf.sticky && tooltipBox.width < Viewport.size.value.w && !preference.options?.allowXOffscreen) {
 						const isXOffScreen = x < 0 || x + tooltipBox.width > Viewport.size.value.w
 						if (isXOffScreen) {
 							continue
@@ -284,7 +301,7 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 						continue
 					}
 
-					if (!yConf.sticky && tooltipBox.height < Viewport.size.value.h) {
+					if (!yConf.sticky && tooltipBox.height < Viewport.size.value.h && !preference.options?.allowYOffscreen) {
 						const isYOffScreen = y < 0
 							|| y + tooltipBox.height > Viewport.size.value.h
 						if (isYOffScreen) {
@@ -318,6 +335,9 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			host.element.style.left = `${location.x}px`
 			host.element.style.top = `${location.y}px`
 			host.rect.markDirty()
+
+			rerenderTimeout = undefined
+			lastRender = Date.now()
 
 			return host
 		},

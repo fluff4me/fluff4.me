@@ -31,3 +31,21 @@
 		:start:
 			%transparent
 			%translate-up-2
+
+	&--normal-stacking:
+		%absolute
+		%flex
+		%opaque
+		$transition-duration: $transition-focus
+		%translate-y-0
+
+		&--hidden:
+			#after: .popover--normal-stacking
+			%hidden
+			%transparent
+			%translate-down-3
+			$transition-duration: $transition-blur
+
+		:start:
+			%transparent
+			%translate-up-2

@@ -13,7 +13,9 @@ interface StyleManipulatorFunctions<HOST> {
 	unbind (state?: State<boolean>): HOST
 	refresh (): HOST
 
+	hasProperty (property: string): boolean
 	setProperty (property: string, value?: string | number | null): HOST
+	toggleProperty (enabled: boolean | undefined, property: string, value?: string | number | null): HOST
 	setVariable (variable: string, value?: string | number | null): HOST
 	bindProperty (property: string, state: State<string | number | undefined | null>): HOST
 	bindVariable (variable: string, state: State<string | number | undefined | null>): HOST
@@ -89,10 +91,20 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 			},
 			refresh: () => updateClasses(),
 
+			hasProperty (property) {
+				return component.element.style.getPropertyValue(property) !== ""
+			},
 			setProperty (property, value) {
 				unbindPropertyState[property]?.()
 				setProperty(property, value)
 				return component
+			},
+			toggleProperty (enabled, property, value) {
+				enabled ??= !result.hasProperty(property)
+				if (enabled === true)
+					return result.setProperty(property, enabled ? value : undefined)
+				else
+					return result.removeProperties(property)
 			},
 			setVariable (variable, value) {
 				return result.setProperty(`--${variable}`, value)

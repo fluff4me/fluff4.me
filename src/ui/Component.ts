@@ -59,6 +59,7 @@ interface ComponentEvents extends NativeEvents {
 	remove (): any
 	insert (): any
 	ancestorInsert (): any
+	ancestorScroll (): any
 	descendantInsert (): any
 	ancestorRectDirty (): any
 	root (): any
@@ -137,7 +138,9 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 
 	receiveAncestorInsertEvents (): this
 	receiveDescendantInsertEvents (): this
+	receiveAncestorScrollEvents (): this
 	emitInsert (): this
+	monitorScrollEvents (): this
 
 	onRooted (callback: (component: this) => any): this
 
@@ -159,6 +162,7 @@ enum Classes {
 	ReceiveAncestorInsertEvents = "_receieve-ancestor-insert-events",
 	ReceiveDescendantInsertEvents = "_receieve-descendant-insert-events",
 	ReceiveAncestorRectDirtyEvents = "_receieve-ancestor-rect-dirty-events",
+	ReceiveScrollEvents = "_receieve-scroll-events",
 }
 
 const componentExtensionsRegistry: ((component: Mutable<Component>) => any)[] = []
@@ -172,6 +176,8 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 	let unuseNameState: UnsubscribeState | undefined
 	let unuseAriaLabelledByIdState: UnsubscribeState | undefined
 	let unuseAriaControlsIdState: UnsubscribeState | undefined
+
+	let descendantsListeningForScroll: HTMLCollection | undefined
 
 	let owner: Component | undefined
 	let component = ({
@@ -310,8 +316,9 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 				return rectState
 			}
 			this.receiveAncestorInsertEvents()
+			this.receiveAncestorScrollEvents()
 			this.classes.add(Classes.ReceiveAncestorRectDirtyEvents)
-			this.event.subscribe(["insert", "ancestorInsert", "ancestorRectDirty"], rectState.markDirty)
+			this.event.subscribe(["insert", "ancestorInsert", "ancestorScroll", "ancestorRectDirty"], rectState.markDirty)
 			Viewport.size.subscribe(component, rectState.markDirty)
 			return Define.set(component, "rect", rectState)
 		},
@@ -468,9 +475,21 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			component.element.classList.add(Classes.ReceiveAncestorInsertEvents)
 			return component
 		},
+		receiveAncestorScrollEvents () {
+			component.element.classList.add(Classes.ReceiveScrollEvents)
+			return component
+		},
 		emitInsert: () => {
 			updateRooted(component)
 			emitInsert(component)
+			return component
+		},
+		monitorScrollEvents () {
+			descendantsListeningForScroll ??= component.element.getElementsByClassName(Classes.ReceiveScrollEvents)
+			component.event.subscribe("scroll", () => {
+				for (const descendant of [...descendantsListeningForScroll!])
+					descendant.component?.event.emit("ancestorScroll")
+			})
 			return component
 		},
 		onRooted (callback) {
