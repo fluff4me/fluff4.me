@@ -10,6 +10,7 @@
 		%background-none
 		%box-shadow-none
 		%border-radius-0
+		%z-index-bg
 
 		&-hint-text:
 			%italic

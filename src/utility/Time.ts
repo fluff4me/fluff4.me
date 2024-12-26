@@ -7,6 +7,7 @@ namespace Time {
 		return Math.floor(Date.now() / interval) * interval
 	}
 
+	export const frame = seconds(1) / 144
 	export function ms (ms: number) { return ms }
 	export function seconds (seconds: number) { return seconds * 1000 }
 	export function minutes (minutes: number) { return minutes * 1000 * 60 }

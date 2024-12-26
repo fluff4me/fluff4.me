@@ -4,6 +4,7 @@ import type Label from "ui/component/core/Label"
 import type { PopoverInitialiser } from "ui/component/core/Popover"
 import Popover from "ui/component/core/Popover"
 import Slot from "ui/component/core/Slot"
+import { AllowYOffscreen } from "ui/utility/AnchorManipulator"
 import StringApplicator from "ui/utility/StringApplicator"
 import State from "utility/State"
 
@@ -42,12 +43,14 @@ const Input = Component.Extension((component): Input => {
 		popover = Popover()
 			.anchor.from(component)
 			.anchor.add("off right", `.\\${BlockClasses.Main}`, "aligned top", {
+				...AllowYOffscreen,
 				yValid (y, hostBox, popoverBox) {
 					// only align top if the popover box is taller than the host box
 					return popoverBox.height > (hostBox?.height ?? 0)
 				},
 			})
-			.anchor.add("off right", `.\\${BlockClasses.Main}`, "centre")
+			.anchor.add("off right", `.\\${BlockClasses.Main}`, "centre", AllowYOffscreen)
+			.setNormalStacking()
 			.setCloseOnInput(false)
 			.style("input-popover")
 			.setOwner(component)

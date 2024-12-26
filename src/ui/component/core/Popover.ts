@@ -187,6 +187,8 @@ interface PopoverExtensions {
 
 	/** Sets the distance the mouse can be from the popover before it hides, if it's shown due to hover */
 	setMousePadding (padding?: number): this
+	/** Disables using the popover API for this element, using normal stacking instead of the element going into the top layer */
+	setNormalStacking (): this
 
 	isMouseWithin (checkDescendants?: true): boolean
 	containsPopoverDescendant (node?: Node | Component): boolean
@@ -207,6 +209,7 @@ const Popover = Component.Builder((component): Popover => {
 	let unbind: UnsubscribeState | undefined
 	const visible = State(false)
 	let shouldCloseOnInput = true
+	let normalStacking = false
 	const popover = component
 		.style("popover")
 		.tabIndex("programmatic")
@@ -226,6 +229,13 @@ const Popover = Component.Builder((component): Popover => {
 				mousePadding = padding
 				return popover
 			},
+			setNormalStacking () {
+				popover.style("popover--normal-stacking")
+				popover.attributes.remove("popover")
+				normalStacking = true
+				togglePopover(visible.value)
+				return popover
+			},
 
 			isMouseWithin: (checkDescendants: boolean = false) => {
 				if (popover.rect.value.expand(mousePadding ?? 100).intersects(Mouse.state.value))
@@ -242,26 +252,26 @@ const Popover = Component.Builder((component): Popover => {
 
 			show: () => {
 				unbind?.()
-				popover.element.togglePopover(true)
+				togglePopover(true)
 				popover.visible.value = true
 				return popover
 			},
 			hide: () => {
 				unbind?.()
-				popover.element.togglePopover(false)
+				togglePopover(false)
 				popover.visible.value = false
 				return popover
 			},
 			toggle: shown => {
 				unbind?.()
-				popover.element.togglePopover(shown)
+				togglePopover(shown)
 				popover.visible.value = shown ?? !popover.visible.value
 				return popover
 			},
 			bind: state => {
 				unbind?.()
 				unbind = state.use(popover, shown => {
-					popover.element.togglePopover(shown)
+					togglePopover(shown)
 					popover.visible.value = shown
 				})
 				return popover
@@ -282,6 +292,13 @@ const Popover = Component.Builder((component): Popover => {
 	})
 
 	return popover
+
+	function togglePopover (shown?: boolean) {
+		if (normalStacking)
+			popover.style.toggle(!shown, "popover--normal-stacking--hidden")
+		else
+			popover.element.togglePopover(shown)
+	}
 
 	function onInputDown (event: IInputEvent) {
 		if (!popover.visible.value || !shouldCloseOnInput)
