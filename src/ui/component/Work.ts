@@ -80,6 +80,7 @@ const Work = Component.Builder(async (component, work: WorkData & Partial<WorkFu
 		Tag(tag)
 			.appendTo(tagsWrapper ??= Component()
 				.style("work-tags")
+				.style.bind(isFlush, "work-tags--flush")
 				.appendTo(block.content))
 	}
 

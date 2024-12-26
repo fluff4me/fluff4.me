@@ -22,11 +22,18 @@
 		%gap-2
 		%span-2
 		%row-3
+		%padding-top-3
+		&--flush:
+			#after: .work-tags
+			%padding-0
+			%padding-top-2
+			%padding-bottom-2
 
 	&-description:
 		%block
 		%italic
 		%padding-bottom-3
+		%padding-top-3
 		%font-2
 
 	&-content:
