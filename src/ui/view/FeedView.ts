@@ -12,16 +12,16 @@ export default ViewDefinition({
 
 		const paginator = Paginator()
 			.viewTransition("author-view-feed")
+			.type("flush")
 			.tweak(p => p.title.text.use("view/feed/main/title"))
 			.appendTo(view)
 		await paginator.useEndpoint(EndpointFeedGet, async (slot, { works, authors }) => {
 			for (const workData of works) {
 				const author = authors.find(author => author.vanity === workData.author)
 				const work = await Link(author && `/work/${author.vanity}/${workData.vanity}`)
-					.and(Work, workData, author)
+					.and(Work, workData, author, true)
 				work
 					.viewTransition()
-					.type("flush")
 					.appendTo(slot)
 			}
 		})

@@ -41,14 +41,20 @@ interface PaginatorExtensionsInternal extends PaginatorExtensions, PaginatorUseI
 const Paginator = Component.Builder((component): Paginator => {
 	const block = component.and(Block)
 
+	const isFlush = block.type.state.mapManual(type => type.has("flush"))
+
+	block.style.bind(isFlush, "paginator--flush")
+
 	block.header
 		.style("paginator-header")
+		.style.bind(isFlush, "paginator-header--flush")
 
 	const content = block.content
 		.style("paginator-content")
 
 	block.footer
 		.style("paginator-footer", "paginator-footer--hidden")
+		.style.bind(isFlush, "paginator-footer--flush")
 
 	block.footer.left.style("paginator-footer-left")
 	block.footer.right.style("paginator-footer-right")
@@ -192,6 +198,7 @@ const Paginator = Component.Builder((component): Paginator => {
 	function Page () {
 		return Slot()
 			.style("paginator-page", "paginator-page--hidden")
+			.style.bind(isFlush, "paginator-page--flush")
 			.appendTo(content)
 	}
 

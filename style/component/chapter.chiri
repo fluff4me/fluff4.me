@@ -1,6 +1,7 @@
 .chapter:
 
 	&-list:
+		#after: .paginator-page
 		%grid
 		grid-template-columns: auto 1fr auto auto
 
