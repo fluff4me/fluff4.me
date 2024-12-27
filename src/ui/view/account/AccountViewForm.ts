@@ -46,12 +46,30 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 	table.label(label => label.text.use("shared/form/vanity/label"))
 		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
+	const pronounsInput = TextInput()
+		.hint.use("view/account/pronouns/hint")
+		.setMaxLength(FormInputLengths.manifest?.author.pronouns)
+	table.label(label => label.text.use("shared/form/pronouns/label"))
+		.content((content, label) => content.append(pronounsInput.setLabel(label)))
+
 	const descriptionInput = TextEditor()
 		.default.bind(Session.Auth.author.map(component, author => author?.description.body))
 		.hint.use("view/account/description/hint")
 		.setMaxLength(FormInputLengths.manifest?.author.description)
 	table.label(label => label.text.use("shared/form/description/label"))
 		.content((content, label) => content.append(descriptionInput.setLabel(label)))
+
+	const supportLinkInput = TextInput()
+		.hint.use("view/account/support_link/hint")
+		.setMaxLength(FormInputLengths.manifest?.author.support_link)
+	table.label(label => label.text.use("shared/form/support_link/label"))
+		.content((content, label) => content.append(supportLinkInput.setLabel(label)))
+
+	const supportMessageInput = TextInput()
+		.hint.use("view/account/support_message/hint")
+		.setMaxLength(FormInputLengths.manifest?.author.support_message)
+	table.label(label => label.text.use("shared/form/support_message/label"))
+		.content((content, label) => content.append(supportMessageInput.setLabel(label)))
 
 	form.event.subscribe("submit", async event => {
 		event.preventDefault()
@@ -61,6 +79,9 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 				name: nameInput.value,
 				vanity: vanityInput.value,
 				description: descriptionInput.useMarkdown(),
+				pronouns: pronounsInput.value,
+				support_link: supportLinkInput.value,
+				support_message: supportMessageInput.value,
 			},
 		})
 
