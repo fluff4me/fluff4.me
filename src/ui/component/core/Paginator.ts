@@ -4,6 +4,7 @@ import Component from "ui/Component"
 import Block from "ui/component/core/Block"
 import Button from "ui/component/core/Button"
 import Slot from "ui/component/core/Slot"
+import Async from "utility/Async"
 import State from "utility/State"
 
 type PaginatedEndpointRouteFiltered<DATA_FILTER> = keyof {
@@ -22,7 +23,7 @@ interface PaginatorExtensions<DATA = any> {
 	page: State<number>
 	data: State<DATA>
 	useEndpoint<ROUTE extends PaginatedEndpointRoute, DATA extends ResponseData<EndpointResponse<Endpoint<ROUTE>>>> (endpoint: PreparedQueryOf<Endpoint<ROUTE>>, contentInitialiser: (slot: Slot, response: DATA, paginator: this) => any): Promise<this>
-	useInitial<DATA> (data: DATA, page: number, pageCount: number): PaginatorUseInitialFactory<DATA, this>
+	useInitial<DATA> (data: DATA, page: number, pageCount: number | true): PaginatorUseInitialFactory<DATA, this>
 	orElse (contentInitialiser: (slot: Slot) => any): this
 }
 
@@ -32,7 +33,7 @@ type PageInitialiser<HOST extends Paginator> = (slot: Slot, response: ResponseDa
 
 interface PaginatorUsing<HOST extends Paginator> {
 	endpoint: PreparedQueryOf<PaginatedEndpoint>
-	pageCount: number
+	pageCount: number | true
 	initialiser: PageInitialiser<HOST>
 }
 
@@ -71,7 +72,7 @@ const Paginator = Component.Builder((component): Paginator => {
 
 	const buttonNext = Button()
 		.style("paginator-button", "paginator-button-next")
-		.event.subscribe("click", () => showPage(Math.min(cursor.value + 1, pages.length - 1)))
+		.event.subscribe("click", () => showPage(Math.min(cursor.value + 1, using?.pageCount === true ? Infinity : pages.length - 1)))
 		.appendTo(block.footer.right)
 
 	const buttonLast = Button()
@@ -161,12 +162,13 @@ const Paginator = Component.Builder((component): Paginator => {
 		cursor.value = 0
 	}
 
-	async function setup (initialData: ResponseData<EndpointResponse<PaginatedEndpoint>>, page: number, pageCount: number) {
-		if (pageCount > 1)
+	async function setup (initialData: ResponseData<EndpointResponse<PaginatedEndpoint>>, page: number, pageCount: number | true) {
+		if (pageCount === true || pageCount > 1)
 			block.footer.style.remove("paginator-footer--hidden")
 
-		while (pages.length < pageCount)
-			pages.push(Page())
+		if (pageCount !== true)
+			while (pages.length < pageCount)
+				pages.push(Page())
 
 		const pageComponent = pages[page]
 			.style("paginator-page--initial-load")
@@ -217,8 +219,9 @@ const Paginator = Component.Builder((component): Paginator => {
 	function updateButtons (page = cursor.value, pageCount = using?.pageCount ?? 0) {
 		buttonFirst.style.toggle(page <= 0, "paginator-button--disabled")
 		buttonPrev.style.toggle(page <= 0, "paginator-button--disabled")
-		buttonNext.style.toggle(page >= pageCount - 1, "paginator-button--disabled")
-		buttonLast.style.toggle(page >= pageCount - 1, "paginator-button--disabled")
+		buttonNext.style.toggle(pageCount !== true && page >= pageCount - 1, "paginator-button--disabled")
+		buttonLast.style.toggle(pageCount !== true && page >= pageCount - 1, "paginator-button--disabled")
+		buttonLast.style.toggle(pageCount === true, "paginator-button--hidden")
 	}
 
 	async function showPage (number: number) {
@@ -229,12 +232,15 @@ const Paginator = Component.Builder((component): Paginator => {
 		const direction = Math.sign(number - oldNumber)
 
 		pages[oldNumber]
-			.style.remove("paginator-page--initial-load")
+			.style.remove("paginator-page--initial-load", "paginator-page--bounce")
 			.style("paginator-page--hidden")
 			.style.setVariable("page-direction", direction)
 
-		const page = pages[number]
-			.style.setVariable("page-direction", direction)
+		let page = pages[number]
+		if (!page)
+			pages.push(page ??= Page())
+
+		page.style.setVariable("page-direction", direction)
 
 		updateButtons(number)
 
@@ -253,9 +259,17 @@ const Paginator = Component.Builder((component): Paginator => {
 			if (showingPage !== number)
 				return
 
+			const isError = result instanceof Error
+			if (!isError && !hasResults(result.data)) {
+				cursor.value = number
+				pages[oldNumber].style("paginator-page--bounce")
+				await Async.sleep(200)
+				return showPage(oldNumber)
+			}
+
 			page.style.remove("paginator-page--hidden")
 
-			if (result instanceof Error) {
+			if (isError) {
 				await new Promise<void>(resolve => {
 					RetryDialog(resolve).appendTo(page)
 					block.header.element.scrollIntoView()
@@ -281,5 +295,22 @@ const Paginator = Component.Builder((component): Paginator => {
 		scrollTarget?.scrollIntoView()
 	}
 })
+
+function hasResults (result: unknown) {
+	if (result === null || result === undefined)
+		return false
+
+	if (typeof result !== "object")
+		return true
+
+	if (Array.isArray(result))
+		return result.length > 0
+
+	for (const sub of Object.values(result))
+		if (hasResults(sub))
+			return true
+
+	return false
+}
 
 export default Paginator
