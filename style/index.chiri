@@ -66,5 +66,6 @@
 	view/type/tag
 	view/type/chapter
 	view/type/chapter-edit
+	view/type/feed
 
 #import: app

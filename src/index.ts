@@ -2,8 +2,10 @@ import Arrays from "utility/Arrays"
 import applyDOMRectPrototypes from "utility/DOMRect"
 import Elements from "utility/Elements"
 
-// @ts-expect-error
+// @ts-expect-error no types
 import sourceMapSupport from "browser-source-map-support"
+import Env from "utility/Env"
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 sourceMapSupport.install({
 	environment: "browser",
 })
@@ -25,4 +27,8 @@ applyDOMRectPrototypes()
 Arrays.applyPrototypes()
 Elements.applyPrototypes()
 
-void import("App").then(app => app.default())
+void (async () => {
+	await Env.load()
+	const app = await import("App")
+	await app.default()
+})()

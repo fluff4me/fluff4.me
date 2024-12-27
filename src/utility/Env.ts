@@ -1,4 +1,3 @@
-
 export interface IEnvironment {
 	ENVIRONMENT: "dev" | "beta" | "prod"
 	API_ORIGIN: string
