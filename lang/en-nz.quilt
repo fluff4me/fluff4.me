@@ -30,6 +30,9 @@ name/label: Name
 vanity/label: Vanity
 description/label: Description
 body/label: Body
+support_link/label: Support Link
+support_message/label: Support Message
+pronouns/label: Pronouns
 
 # component
 popover/button: open {0??details}{ 1??}
@@ -133,6 +136,12 @@ vanity/hint: Your username, and what people use to {#B:@ping} you in comments. T
 vanity/url-preview=shared/preview
 description/label=shared/form/description/label
 description/hint: This bio will appear on your profile above any works.
+support_link/label=shared/form/support_link/label
+support_link/hint: Add better text here
+support_message/label=shared/form/support_message/label
+support_message/hint: Add better text here
+pronouns/label=shared/form/pronouns/label
+pronouns/hint: Add better text here
 
 action/logout: Log Out
 action/delete: Delete Account
