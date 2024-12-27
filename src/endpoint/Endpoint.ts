@@ -60,7 +60,12 @@ interface Endpoint<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>
 	removeHeader (header: string): this
 	noResponse (): this
 	query: QUERY
-	prep: (...parameters: Parameters<QUERY>) => PreparedEndpointQuery<ROUTE, QUERY>
+	prep: (...parameters: Parameters<QUERY>) => ConfigurablePreparedEndpointQuery<ROUTE, QUERY>
+}
+
+interface ConfigurablePreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>> extends PreparedEndpointQuery<ROUTE, QUERY> {
+	getPageSize (): number | undefined
+	setPageSize (size: number): this
 }
 
 interface PreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>> extends Omit<Endpoint<ROUTE, QUERY>, "query"> {
@@ -70,7 +75,8 @@ interface PreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends Endpoin
 export type PreparedQueryOf<ENDPOINT extends Endpoint<any, any>> = ENDPOINT extends Endpoint<infer ROUTE, infer QUERY> ? PreparedEndpointQuery<ROUTE, QUERY> : never
 
 function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]["method"], headers?: Record<string, string>) {
-	const endpoint: Endpoint<ROUTE> = {
+	let pageSize: number | undefined
+	const endpoint: ConfigurablePreparedEndpointQuery<ROUTE, any> = {
 		header (header, value) {
 			headers ??= {}
 			headers[header] = value
@@ -84,30 +90,48 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 			delete headers?.[header]
 			return endpoint
 		},
+		getPageSize: () => pageSize,
+		setPageSize: (size: number) => {
+			pageSize = size
+			return endpoint
+		},
 		noResponse: () => endpoint.removeHeader("Accept"),
 		query: query as Endpoint<ROUTE>["query"],
 		prep: (...parameters) => {
-			return Object.assign(Endpoint(route, method, headers), {
+			const endpoint = Endpoint(route, method, headers) as any as ConfigurablePreparedEndpointQuery<ROUTE, any>
+			return Object.assign(endpoint, {
 				query: (...p2: any[]) => {
 					const newParameters: any[] = []
 					const length = Math.max(parameters.length, p2.length)
 					for (let i = 0; i < length; i++)
 						newParameters.push(Objects.merge(parameters[i], p2[i]))
+
+					const ownPageSize = pageSize
+					pageSize = endpoint.getPageSize()
+
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-					return query(...newParameters)
+					const result = query(...newParameters)
+
+					pageSize = ownPageSize
+					return result
 				},
 			}) as any
 		},
 	}
 
-	return endpoint
+	return endpoint as any as Endpoint<ROUTE>
 
 	async function query (data?: EndpointQueryData) {
 		const body = !data?.body ? undefined : JSON.stringify(data.body)
 		const url = route.slice(1)
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			.replaceAll(/\{([^}]+)\}/g, (match, paramName) => data?.params?.[paramName])
-		const qs = data?.query ? "?" + new URLSearchParams(data.query as Record<string, string>).toString() : ""
+
+		const params = new URLSearchParams(data?.query as Record<string, string>)
+		if (pageSize)
+			params.set("page_size", `${pageSize}`)
+
+		const qs = params.size ? "?" + params.toString() : ""
 
 		let error: ErrorResponse<any> | undefined
 		const response = await fetch(`${Env.API_ORIGIN}${url}${qs}`, {

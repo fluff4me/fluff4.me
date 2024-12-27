@@ -56,6 +56,13 @@
 			inset: 1px
 
 		&--flush:
+			#after: .paginator-footer, .block-type-flush-footer
+			%relative
+			%margin-top-2
+			%background-none
+			%border-none
+			@before:
+				%hidden
 
 		&--hidden:
 			%hidden
@@ -66,6 +73,9 @@
 	&-button--disabled:
 		%opacity-30
 		%no-pointer-events
+
+	&-button--hidden:
+		%hidden
 
 	&-button-first:
 		#after: .button
@@ -86,7 +96,6 @@
 		%margin-bottom-0
 		%grid
 		%stack
-		%overflow-hidden
 
 		&--or-else:
 			#after: .paginator-content
@@ -120,6 +129,11 @@
 			%transparent
 			translate: calc($space-4 * $page-direction * -1)
 			$transition-duration: $transition-focus
+
+		&--bounce:
+			#after: .paginator-page--hidden
+			%flex
+			%opaque
 
 	&-error:
 		&-text:

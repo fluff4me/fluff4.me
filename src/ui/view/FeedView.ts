@@ -15,7 +15,8 @@ export default ViewDefinition({
 			.type("flush")
 			.tweak(p => p.title.text.use("view/feed/main/title"))
 			.appendTo(view)
-		await paginator.useEndpoint(EndpointFeedGet, async (slot, { works, authors }) => {
+		const endpoint = EndpointFeedGet.prep().setPageSize(3)
+		await paginator.useEndpoint(endpoint, async (slot, { works, authors }) => {
 			for (const workData of works) {
 				const author = authors.find(author => author.vanity === workData.author)
 				const work = await Link(author && `/work/${author.vanity}/${workData.vanity}`)
