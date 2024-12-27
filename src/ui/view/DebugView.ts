@@ -77,6 +77,13 @@ export default ViewDefinition({
 		const profileButtons = Block().appendTo(view)
 
 		profileButtons.append(createButton({
+			name: "Seed Bulk Data",
+			async execute () {
+				await BUTTON_REGISTRY.seedBulk.execute()
+			},
+		}))
+
+		profileButtons.append(createButton({
 			name: "Create Profile 1",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("prolific author", "somanystories", "wow a description that mentions <mention vanity=\"somanystories\">", "she/her pronies m8")
@@ -147,12 +154,12 @@ export default ViewDefinition({
 			},
 		}))
 
-		profileButtons.append(createButton({
-			name: "Set Chiri Patreon chapters",
-			async execute () {
-				await BUTTON_REGISTRY.patreonSetThresholds.execute("justonestory", "bigstory", "Patreon", ["8", "9"], "4392761")
-			},
-		}))
+		// profileButtons.append(createButton({
+		// 	name: "Set Chiri Patreon chapters",
+		// 	async execute () {
+		// 		await BUTTON_REGISTRY.patreonSetThresholds.execute("justonestory", "bigstory", "Patreon", ["8", "9"], "4392761")
+		// 	},
+		// }))
 
 
 		const followButtons = Block().appendTo(view)
@@ -602,6 +609,13 @@ export default ViewDefinition({
 			async execute () {
 				await BUTTON_REGISTRY.notificationsMark.execute("read", ["ba397c1b-02e5-462c-b367-04b007d1f09a", "d8830a0c-3e2c-4caa-ae4b-679a8c5cefa5"])
 				await BUTTON_REGISTRY.notificationsMark.execute("unread", ["ba397c1b-02e5-462c-b367-04b007d1f09a", "3b9781ea-d15d-4915-bbeb-4788ed734453"])
+			},
+		}))
+
+		notifButtons.append(createButton({
+			name: "Get Front Page Feed",
+			async execute () {
+				await BUTTON_REGISTRY.feedGet.execute()
 			},
 		}))
 

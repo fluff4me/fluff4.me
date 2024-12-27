@@ -940,4 +940,31 @@ export const BUTTON_REGISTRY = {
 		},
 	},
 
+	seedBulk: {
+		name: "Seed Bulk",
+		async execute () {
+			await fetch(`${Env.API_ORIGIN}seed/bulk`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			})
+		},
+	},
+
+	feedGet: {
+		name: "Get Feed",
+		async execute () {
+			const response = await fetch(`${Env.API_ORIGIN}feed/get`, {
+				method: "GET",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
 } satisfies Record<string, IButtonImplementation<any[]>>
