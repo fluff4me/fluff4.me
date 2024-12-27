@@ -16,6 +16,7 @@ const Link = Component.Builder("a", (component, route: RoutePath | undefined) =>
 
 		component.event.subscribe("click", event => {
 			event.preventDefault()
+			event.stopImmediatePropagation()
 			void navigate.toURL(route)
 		})
 	}
