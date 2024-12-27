@@ -5,15 +5,17 @@ import AuthorView from "ui/view/AuthorView"
 import ChapterEditView from "ui/view/ChapterEditView"
 import ChapterView from "ui/view/ChapterView"
 import DebugView from "ui/view/DebugView"
+import FeedView from "ui/view/FeedView"
 import HomeView from "ui/view/HomeView"
 import TagView from "ui/view/TagView"
 import WorkEditView from "ui/view/WorkEditView"
 import WorkView from "ui/view/WorkView"
+import Env from "utility/Env"
 
 const Routes = [
 	Route("/debug", DebugView.navigate),
 
-	Route("/", HomeView.navigate),
+	Route("/", Env.isDev ? FeedView.navigate : HomeView.navigate),
 
 	Route("/account", AccountView.navigate),
 	Route("/author/$vanity", AuthorView.navigate),

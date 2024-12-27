@@ -8,15 +8,17 @@ interface LinkExtensions {
 
 interface Link extends Component, LinkExtensions { }
 
-const Link = Component.Builder("a", (component, route: RoutePath) => {
+const Link = Component.Builder("a", (component, route: RoutePath | undefined) => {
 	component.style("link")
 
-	component.attributes.set("href", `${Env.URL_ORIGIN}${route.slice(1)}`)
+	if (route !== undefined) {
+		component.attributes.set("href", `${Env.URL_ORIGIN}${route.slice(1)}`)
 
-	component.event.subscribe("click", event => {
-		event.preventDefault()
-		void navigate.toURL(route)
-	})
+		component.event.subscribe("click", event => {
+			event.preventDefault()
+			void navigate.toURL(route)
+		})
+	}
 
 	return component
 })

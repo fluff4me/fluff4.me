@@ -128,6 +128,10 @@ action=shared/action/login-or-signup
 title: Error {CODE}
 description-404: Your adventure has come to a close, your questions left unanswered, your goals unfulfilled. What will you do?
 
+## feed
+main/title: Recent Updates
+content/empty: And all was quiet...
+
 ## account
 name/label=shared/form/name/label
 name/hint: Your display name or penname — the name your comments and works are attributed to. This can be changed whenever you like, and doesn't have to be unique.

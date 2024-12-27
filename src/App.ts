@@ -12,7 +12,6 @@ import Mouse from "ui/utility/Mouse"
 import Viewport from "ui/utility/Viewport"
 import ViewContainer from "ui/view/shared/component/ViewContainer"
 import Async from "utility/Async"
-import Env from "utility/Env"
 import Store from "utility/Store"
 import Time from "utility/Time"
 
@@ -56,7 +55,6 @@ async function App (): Promise<App> {
 			document.documentElement.classList.remove("persist-tooltips")
 	})
 
-	await Env.load()
 	await FormInputLengths.getManifest()
 
 	// const path = URL.path ?? URL.hash;

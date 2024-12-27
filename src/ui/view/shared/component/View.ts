@@ -13,6 +13,7 @@ export type ViewId = keyof { [KEY in keyof typeof style as KEY extends `view-typ
 
 const View = Component.Builder((_, id: ViewId): View => Component()
 	.style("view", `view-type-${id}`)
+	.attributes.set("data-view", id)
 	.extend<ViewExtensions>(view => ({
 		viewId: id,
 		hash: "",
