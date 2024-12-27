@@ -16,7 +16,7 @@ interface WorkExtensions {
 
 interface Work extends Block, WorkExtensions { }
 
-const Work = Component.Builder(async (component, work: WorkData & Partial<WorkFull>, author?: Author): Promise<Work> => {
+const Work = Component.Builder(async (component, work: WorkData & Partial<WorkFull>, author?: Author, notFullOverride?: true): Promise<Work> => {
 	author = author ?? work.synopsis?.mentions[0]
 
 	component
@@ -44,6 +44,8 @@ const Work = Component.Builder(async (component, work: WorkData & Partial<WorkFu
 
 	Slot()
 		.use(isFlush, (slot, isFlush) => {
+			isFlush ||= notFullOverride ?? false
+
 			const shouldShowDescription = isFlush || (work.synopsis?.body && work.description)
 			if (shouldShowDescription)
 				Component()

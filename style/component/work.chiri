@@ -32,7 +32,6 @@
 	&-description:
 		%block
 		%italic
-		%padding-bottom-3
 		%padding-top-3
 		%font-2
 
@@ -40,6 +39,7 @@
 		%block
 
 	&-synopsis:
+		%padding-top-3
 
 	&-timestamp:
 
