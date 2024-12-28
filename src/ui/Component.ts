@@ -607,10 +607,12 @@ namespace Component {
 
 	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component> extends Extension<PARAMS, BUILD_COMPONENT> {
 		(...params: PARAMS): BUILD_COMPONENT
+		setName (name: string): this
 	}
 
 	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component> extends ExtensionAsync<PARAMS, BUILD_COMPONENT> {
 		(...params: PARAMS): Promise<BUILD_COMPONENT>
+		setName (name: string): this
 	}
 
 	const defaultBuilder = (type?: keyof HTMLElementTagNameMap) => Component(type)
@@ -619,7 +621,7 @@ namespace Component {
 	export function Builder<PARAMS extends any[], COMPONENT extends Component> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => COMPONENT): Builder<PARAMS, COMPONENT>
 	export function Builder<PARAMS extends any[], COMPONENT extends Component> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => Promise<COMPONENT>): BuilderAsync<PARAMS, COMPONENT>
 	export function Builder (initialOrBuilder: keyof HTMLElementTagNameMap | AnyFunction, builder?: (component: Component, ...params: any[]) => Component | Promise<Component>): (component?: Component, ...params: any[]) => Component | Promise<Component> {
-		const name = getBuilderName()
+		let name = getBuilderName()
 
 		const type = typeof initialOrBuilder === "string" ? initialOrBuilder : undefined
 		const initialBuilder: (type?: keyof HTMLElementTagNameMap) => Component = !builder || typeof initialOrBuilder === "string" ? defaultBuilder : initialOrBuilder
@@ -636,11 +638,17 @@ namespace Component {
 			return completeComponent(component)
 		}
 
-		Object.defineProperty(simpleBuilder, "name", { value: name })
+		Object.defineProperty(simpleBuilder, "name", { value: name, configurable: true })
 
-		return Object.assign(simpleBuilder, {
+		const resultBuilder = Object.assign(simpleBuilder, {
 			from: realBuilder,
+			setName (newName: string) {
+				name = addKebabCase(newName)
+				Object.defineProperty(simpleBuilder, "name", { value: name })
+				return resultBuilder
+			},
 		})
+		return resultBuilder
 
 		function completeComponent (component: Component) {
 			if (name && Env.isDev) {
@@ -698,17 +706,23 @@ namespace Component {
 		kebabcase: string
 	}
 
+	function addKebabCase (name: string): BuilderName {
+		return Object.assign(String(name), {
+			kebabcase: name.replaceAll(PASCAL_CASE_WORD_START, "-").toLowerCase(),
+		})
+	}
+
 	function getBuilderName (): BuilderName | undefined {
 		const stack = Strings.shiftLine((new Error().stack ?? ""), 3)
 		const name = stack.match(STACK_FILE_NAME_REGEX)?.[1]
 		if (!name)
 			return undefined
 
-		return Object.assign(String(name), {
-			kebabcase: name.replaceAll(PASCAL_CASE_WORD_START, "-").toLowerCase(),
-		})
+		return addKebabCase(name)
 	}
 
 }
+
+TextManipulator.setComponent(Component)
 
 export default Component

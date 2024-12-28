@@ -33,7 +33,7 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 		.default.bind(Session.Auth.author.map(component, author => author?.name))
 		.hint.use("view/account/name/hint")
 		.setMaxLength(FormInputLengths.manifest?.author.name)
-	table.label(label => label.text.use("shared/form/name/label"))
+	table.label(label => label.text.use("view/account/name/label"))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
 	const vanityInput = TextInput()
@@ -43,32 +43,32 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 		.filter(filterVanity)
 		.hint.use("view/account/vanity/hint")
 		.setMaxLength(FormInputLengths.manifest?.author.vanity)
-	table.label(label => label.text.use("shared/form/vanity/label"))
+	table.label(label => label.text.use("view/account/vanity/label"))
 		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
 	const pronounsInput = TextInput()
 		.hint.use("view/account/pronouns/hint")
 		.setMaxLength(FormInputLengths.manifest?.author.pronouns)
-	table.label(label => label.text.use("shared/form/pronouns/label"))
+	table.label(label => label.text.use("view/account/pronouns/label"))
 		.content((content, label) => content.append(pronounsInput.setLabel(label)))
 
 	const descriptionInput = TextEditor()
 		.default.bind(Session.Auth.author.map(component, author => author?.description.body))
 		.hint.use("view/account/description/hint")
 		.setMaxLength(FormInputLengths.manifest?.author.description)
-	table.label(label => label.text.use("shared/form/description/label"))
+	table.label(label => label.text.use("view/account/description/label"))
 		.content((content, label) => content.append(descriptionInput.setLabel(label)))
 
 	const supportLinkInput = TextInput()
-		.hint.use("view/account/support_link/hint")
+		.hint.use("view/account/support-link/hint")
 		.setMaxLength(FormInputLengths.manifest?.author.support_link)
-	table.label(label => label.text.use("shared/form/support_link/label"))
+	table.label(label => label.text.use("view/account/support-link/label"))
 		.content((content, label) => content.append(supportLinkInput.setLabel(label)))
 
 	const supportMessageInput = TextInput()
-		.hint.use("view/account/support_message/hint")
+		.hint.use("view/account/support-message/hint")
 		.setMaxLength(FormInputLengths.manifest?.author.support_message)
-	table.label(label => label.text.use("shared/form/support_message/label"))
+	table.label(label => label.text.use("view/account/support-message/label"))
 		.content((content, label) => content.append(supportMessageInput.setLabel(label)))
 
 	form.event.subscribe("submit", async event => {
