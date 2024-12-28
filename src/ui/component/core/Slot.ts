@@ -26,7 +26,10 @@ const Slot = Object.assign(
 						cleanup?.()
 						slot.removeContents()
 
-						const result = initialiser(slot, value) || undefined
+						let result = initialiser(slot, value) || undefined
+						if (result === slot)
+							result = undefined
+
 						if (Component.is(result)) {
 							result.appendTo(slot)
 							cleanup = undefined
@@ -48,7 +51,10 @@ const Slot = Object.assign(
 							return
 						}
 
-						const result = initialiser(slot) || undefined
+						let result = initialiser(slot) || undefined
+						if (result === slot)
+							result = undefined
+
 						if (Component.is(result)) {
 							result.appendTo(slot)
 							cleanup = undefined
