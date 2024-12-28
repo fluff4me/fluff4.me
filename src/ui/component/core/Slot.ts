@@ -3,10 +3,11 @@ import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
 
 export type SlotCleanup = () => any
+export type SlotInitialiserReturn = SlotCleanup | Component | undefined | false | 0 | "" | void
 
 interface SlotExtensions {
-	use<T> (state: State<T>, initialiser: (slot: Slot, value: T) => SlotCleanup | Component | void): this
-	if (state: State<boolean>, initialiser: (slot: Slot) => SlotCleanup | Component | void): this
+	use<T> (state: State<T>, initialiser: (slot: Slot, value: T) => SlotInitialiserReturn): this
+	if (state: State<boolean>, initialiser: (slot: Slot) => SlotInitialiserReturn): this
 }
 
 interface Slot extends Component, SlotExtensions { }
@@ -25,7 +26,7 @@ const Slot = Object.assign(
 						cleanup?.()
 						slot.removeContents()
 
-						const result = initialiser(slot, value) ?? undefined
+						const result = initialiser(slot, value) || undefined
 						if (Component.is(result)) {
 							result.appendTo(slot)
 							cleanup = undefined
@@ -47,7 +48,7 @@ const Slot = Object.assign(
 							return
 						}
 
-						const result = initialiser(slot) ?? undefined
+						const result = initialiser(slot) || undefined
 						if (Component.is(result)) {
 							result.appendTo(slot)
 							cleanup = undefined
@@ -63,7 +64,7 @@ const Slot = Object.assign(
 			.event.subscribe("remove", () => cleanup?.())
 	}),
 	{
-		using: <T> (value: T | State<T>, initialiser: (slot: Slot, value: T) => SlotCleanup | Component | void) =>
+		using: <T> (value: T | State<T>, initialiser: (slot: Slot, value: T) => SlotInitialiserReturn) =>
 			Slot().use(State.get(value), initialiser),
 	}
 )
