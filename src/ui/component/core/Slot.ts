@@ -3,7 +3,7 @@ import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
 
 export type SlotCleanup = () => any
-export type SlotInitialiserReturn = SlotCleanup | Component | undefined | false | 0 | "" | void
+export type SlotInitialiserReturn = SlotCleanup | Component | undefined | null | false | 0 | "" | void
 
 interface SlotExtensions {
 	use<T> (state: State<T>, initialiser: (slot: Slot, value: T) => SlotInitialiserReturn): this
