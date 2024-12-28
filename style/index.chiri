@@ -21,6 +21,7 @@
 	class/transition
 
 #import:
+	component/core/break
 	component/core/slot
 	component/core/paragraph
 	component/core/placeholder
