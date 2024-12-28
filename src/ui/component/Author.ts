@@ -13,8 +13,14 @@ export default Component.Builder((component, author: AuthorFull) => {
 		.style("author-name")
 		.text.set(author.name)
 	block.description
-		.style("author-vanity")
-		.text.set(`@${author.vanity}`)
+		.append(Component()
+			.style("author-vanity")
+			.text.set(`@${author.vanity}`))
+		.append(Slot.using(author.pronouns, (slot, pronouns) => pronouns && slot
+			.text.append(" · ")
+			.append(Component()
+				.style("author-pronouns")
+				.text.set(pronouns))))
 
 	Component()
 		.style("author-description")
