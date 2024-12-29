@@ -32,6 +32,7 @@
 	component/core/popover
 	component/core/input
 	component/core/text-input
+	component/core/text-input-block
 	component/core/text-area
 	component/core/heading
 	component/core/checkbutton
@@ -40,6 +41,7 @@
 	component/core/timestamp
 	component/core/labelled-table
 	component/core/labelled-row
+	component/core/labelled-text-input-block
 	component/core/action-row
 	component/core/action-heading
 	component/core/text-editor

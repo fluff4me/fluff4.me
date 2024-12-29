@@ -7,6 +7,7 @@ import Component from "ui/Component"
 import Block from "ui/component/core/Block"
 import Form from "ui/component/core/Form"
 import LabelledTable from "ui/component/core/LabelledTable"
+import LabelledTextInputBlock from "ui/component/core/LabelledTextInputBlock"
 import TextEditor from "ui/component/core/TextEditor"
 import TextInput from "ui/component/core/TextInput"
 
@@ -59,17 +60,20 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 	table.label(label => label.text.use("view/account/description/label"))
 		.content((content, label) => content.append(descriptionInput.setLabel(label)))
 
-	const supportLinkInput = TextInput()
-		.hint.use("view/account/support-link/hint")
-		.setMaxLength(FormInputLengths.manifest?.author.support_link)
-	table.label(label => label.text.use("view/account/support-link/label"))
-		.content((content, label) => content.append(supportLinkInput.setLabel(label)))
-
-	const supportMessageInput = TextInput()
-		.hint.use("view/account/support-message/hint")
-		.setMaxLength(FormInputLengths.manifest?.author.support_message)
-	table.label(label => label.text.use("view/account/support-message/label"))
-		.content((content, label) => content.append(supportMessageInput.setLabel(label)))
+	let supportLinkInput!: TextInput
+	let supportMessageInput!: TextInput
+	LabelledTextInputBlock()
+		.style("labelled-row--in-labelled-table")
+		.ariaLabel.use("view/account/support-link/label")
+		.label(label => label.text.use("view/account/support-link/label"))
+		.input(input => supportLinkInput = input
+			.hint.use("view/account/support-link/hint")
+			.setMaxLength(FormInputLengths.manifest?.author.support_link))
+		.label(label => label.text.use("view/account/support-message/label"))
+		.input(input => supportMessageInput = input
+			.hint.use("view/account/support-message/hint")
+			.setMaxLength(FormInputLengths.manifest?.author.support_message))
+		.appendTo(table)
 
 	form.event.subscribe("submit", async event => {
 		event.preventDefault()

@@ -1,0 +1,15 @@
+.labelled-text-input-block:
+	%row-gap-0
+
+	&-labels:
+		%contents
+
+	&-inputs:
+		%contents
+
+	&-label:
+		%column-1
+		%align-self-centre
+
+	&-input:
+		%column-2
