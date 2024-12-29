@@ -10,6 +10,7 @@ import LabelledTable from "ui/component/core/LabelledTable"
 import LabelledTextInputBlock from "ui/component/core/LabelledTextInputBlock"
 import TextEditor from "ui/component/core/TextEditor"
 import TextInput from "ui/component/core/TextInput"
+import VanityInput from "ui/component/VanityInput"
 
 type AccountViewFormType =
 	| "create"
@@ -37,11 +38,10 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 	table.label(label => label.text.use("view/account/name/label"))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
-	const vanityInput = TextInput()
+	const vanityInput = VanityInput()
 		.placeholder.bind(nameInput.state
-			.map(component, name => filterVanity(name)))
+			.map(component, name => VanityInput.filter(name)))
 		.default.bind(Session.Auth.author.map(component, author => author?.vanity))
-		.filter(filterVanity)
 		.hint.use("view/account/vanity/hint")
 		.setMaxLength(FormInputLengths.manifest?.author.vanity)
 	table.label(label => label.text.use("view/account/vanity/label"))
@@ -99,14 +99,4 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 
 	return form
 
-	function filterVanity (vanity: string, textBefore = "", isFullText = true) {
-		vanity = vanity.replace(/[\W_]+/g, "-")
-		if (isFullText)
-			vanity = vanity.replace(/^-|-$/g, "")
-
-		if (textBefore.endsWith("-") && vanity.startsWith("-"))
-			return vanity.slice(1)
-
-		return vanity
-	}
 })

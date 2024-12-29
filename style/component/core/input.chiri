@@ -1,3 +1,5 @@
+$input-divider-border-colour: color-mix(in lch, $border-colour, transparent 90%)
+
 .input:
 
 	&-popover:
