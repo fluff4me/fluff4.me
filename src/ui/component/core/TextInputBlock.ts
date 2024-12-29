@@ -8,7 +8,7 @@ interface TextInputBlockExtensions {
 
 interface TextInputBlock extends Component, TextInputBlockExtensions { }
 
-const TextInputBlock = Component.Builder("div", (component): TextInputBlock => {
+const TextInputBlock = Component.Builder((component): TextInputBlock => {
 	const inputs: TextInput[] = []
 
 	const block = component
@@ -21,17 +21,24 @@ const TextInputBlock = Component.Builder("div", (component): TextInputBlock => {
 					.tweak(initialiser)
 					.event.subscribe("remove", () => {
 						inputs.filterInPlace(i => i !== input)
-						inputs.at(0)?.style("text-input-block-input--first")
+						const firstInput = inputs.at(0)
+						firstInput?.style("text-input-block-input--first")
+						firstInput?.previousSibling?.remove() // remove previous divider if it exists
 						inputs.at(-1)?.style("text-input-block-input--last")
+						inputs.at(-1)?.parent?.style("text-input-block-input-wrapper--last")
 					})
-					.appendTo(block)
+					.appendTo(Component()
+						.style("text-input-block-input-wrapper")
+						.appendTo(block))
 
 				if (!inputs.length)
 					input.style("text-input-block-input--first")
 
 				inputs.at(-1)?.style.remove("text-input-block-input--last")
+				inputs.at(-1)?.parent?.style.remove("text-input-block-input-wrapper--last")
 				inputs.push(input)
 				input.style("text-input-block-input--last")
+				input.parent?.style("text-input-block-input-wrapper--last")
 				return block
 			},
 		}))

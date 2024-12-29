@@ -6,6 +6,7 @@ import type { UnsubscribeState } from "utility/State"
 export type ComponentName = keyof typeof style
 
 interface StyleManipulatorFunctions<HOST> {
+	get (): ComponentName[]
 	remove (...names: ComponentName[]): HOST
 	toggle (...names: ComponentName[]): HOST
 	toggle (enabled: boolean, ...names: ComponentName[]): HOST
@@ -44,6 +45,7 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 		}) as StyleManipulatorFunction<Component>,
 
 		{
+			get: () => [...styles].sort(),
 			remove (...names) {
 				for (const name of names)
 					styles.delete(name)
