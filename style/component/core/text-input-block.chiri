@@ -1,0 +1,19 @@
+.text-input-block:
+
+	&-input:
+		#after: .text-input
+		%border-radius-0
+		$border-top-width: 0px
+		border-top-width: $border-top-width
+		$border-bottom-colour: color-mix(in lch, $border-colour, transparent 90%)
+		border-bottom-colour: $border-bottom-colour
+
+		&--first:
+			#after: .text-input, .text-input-block-input
+			%border-top-radius-2
+			$border-top-width: 1px
+
+		&--last:
+			#after: .text-input, .text-input-block-input
+			%border-bottom-radius-2
+			$border-bottom-colour: $border-colour

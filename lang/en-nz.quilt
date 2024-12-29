@@ -139,7 +139,7 @@ description/label=shared/form/description/label
 description/hint: This bio will appear on your profile above any works.
 support-link/label: Support Link
 support-link/hint: An optional link that people can use to support you. You could link directly to a payment or subscription platform, or you could use a service like Linktree.
-support-message/label: Support Message
+support-message/label: Message
 support-message/hint: A message to display instead of the support link itself. This is required, and will default to "Support My Writing."\nIf you want it to actually display the link, for whatever reason, you can put the link here as well.
 support-message/placeholder: Support My Writing
 pronouns/label: Pronouns
