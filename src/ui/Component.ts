@@ -131,7 +131,10 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 	closest<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): COMPONENT | undefined
 	closest<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): COMPONENT | undefined
 
+	get parent (): Component | undefined
 	getAncestorComponents (): Generator<Component>
+	get previousSibling (): Component | undefined
+	get nextSibling (): Component | undefined
 
 	remove (): void
 	removeContents (): void
@@ -457,6 +460,15 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			}
 		},
 
+		get parent () {
+			return component.element.parentElement?.component
+		},
+		get previousSibling () {
+			return component.element.previousElementSibling?.component
+		},
+		get nextSibling () {
+			return component.element.nextElementSibling?.component
+		},
 		*getAncestorComponents () {
 			let cursor: HTMLElement | null = component.element
 			while (cursor) {
