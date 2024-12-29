@@ -48,6 +48,7 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
 	const pronounsInput = TextInput()
+		.default.bind(Session.Auth.author.map(component, author => author?.pronouns))
 		.hint.use("view/account/pronouns/hint")
 		.setMaxLength(FormInputLengths.manifest?.author.pronouns)
 	table.label(label => label.text.use("view/account/pronouns/label"))
@@ -67,10 +68,12 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 		.ariaLabel.use("view/account/support-link/label")
 		.label(label => label.text.use("view/account/support-link/label"))
 		.input(input => supportLinkInput = input
+			.default.bind(Session.Auth.author.map(component, author => author?.support_link))
 			.hint.use("view/account/support-link/hint")
 			.setMaxLength(FormInputLengths.manifest?.author.support_link))
 		.label(label => label.text.use("view/account/support-message/label"))
 		.input(input => supportMessageInput = input
+			.default.bind(Session.Auth.author.map(component, author => author?.support_message))
 			.hint.use("view/account/support-message/hint")
 			.setMaxLength(FormInputLengths.manifest?.author.support_message))
 		.appendTo(table)

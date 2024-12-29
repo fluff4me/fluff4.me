@@ -130,8 +130,8 @@ function StringApplicator<HOST> (host: HOST, defaultValueOrApply: string | undef
 		}
 	}
 
-	function setInternal (value?: string | Weave) {
-		if (typeof value === "object")
+	function setInternal (value?: string | Weave | null) {
+		if (typeof value === "object" && value !== null)
 			value = value.toString()
 
 		if (result.state.value !== value) {
@@ -144,9 +144,9 @@ function StringApplicator<HOST> (host: HOST, defaultValueOrApply: string | undef
 namespace StringApplicator {
 
 	export interface Optional<HOST> extends Omit<StringApplicator<HOST>, "state" | "set" | "bind" | "rehost"> {
-		state: State<string | undefined>
-		set (value?: string): HOST
-		bind (state?: State<string | Weave | undefined>): HOST
+		state: State<string | undefined | null>
+		set (value?: string | null): HOST
+		bind (state?: State<string | Weave | undefined | null>): HOST
 		rehost<NEW_HOST> (newHost: NEW_HOST): StringApplicator.Optional<NEW_HOST>
 	}
 
