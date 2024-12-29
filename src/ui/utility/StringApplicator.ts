@@ -72,6 +72,7 @@ interface StringApplicator<HOST> {
 	bind (state: State<string>): HOST
 	unbind (): HOST
 	refresh (): void
+	rehost<NEW_HOST> (newHost: NEW_HOST): StringApplicator<NEW_HOST>
 }
 
 function StringApplicator<HOST> (host: HOST, apply: (value?: string) => any): StringApplicator.Optional<HOST>
@@ -82,48 +83,52 @@ function StringApplicator<HOST> (host: HOST, defaultValueOrApply: string | undef
 
 	let translationHandler: Quilt.Handler | undefined
 	let unbind: UnsubscribeState | undefined
-	const result: StringApplicator.Optional<HOST> = {
-		state: State(defaultValue),
-		set: value => {
-			unbind?.()
-			translationHandler = undefined
-			setInternal(value)
-			return host
-		},
-		use: translation => {
-			unbind?.()
-			if (typeof translation === "string") {
-				translationHandler = undefined
-				setInternal(quilt[translation]().toString())
-				return host
-			}
-
-			translationHandler = translation
-			result.refresh()
-			return host
-		},
-		bind: state => {
-			translationHandler = undefined
-			unbind?.()
-			unbind = state?.use(host as Component, setInternal)
-			if (!state)
-				setInternal(defaultValue)
-			return host
-		},
-		unbind: () => {
-			unbind?.()
-			setInternal(defaultValue)
-			return host
-		},
-		refresh: () => {
-			if (!translationHandler)
-				return
-
-			setInternal(translationHandler(quilt, QuiltHelper).toString())
-		},
-	}
-
+	const result = makeApplicator(host)
 	return result
+
+	function makeApplicator<HOST> (host: HOST): StringApplicator.Optional<HOST> {
+		return {
+			state: State(defaultValue),
+			set: value => {
+				unbind?.()
+				translationHandler = undefined
+				setInternal(value)
+				return host
+			},
+			use: translation => {
+				unbind?.()
+				if (typeof translation === "string") {
+					translationHandler = undefined
+					setInternal(quilt[translation]().toString())
+					return host
+				}
+
+				translationHandler = translation
+				result.refresh()
+				return host
+			},
+			bind: state => {
+				translationHandler = undefined
+				unbind?.()
+				unbind = state?.use(host as Component, setInternal)
+				if (!state)
+					setInternal(defaultValue)
+				return host
+			},
+			unbind: () => {
+				unbind?.()
+				setInternal(defaultValue)
+				return host
+			},
+			refresh: () => {
+				if (!translationHandler)
+					return
+
+				setInternal(translationHandler(quilt, QuiltHelper).toString())
+			},
+			rehost: makeApplicator,
+		}
+	}
 
 	function setInternal (value?: string | Weave) {
 		if (typeof value === "object")
@@ -138,10 +143,11 @@ function StringApplicator<HOST> (host: HOST, defaultValueOrApply: string | undef
 
 namespace StringApplicator {
 
-	export interface Optional<HOST> extends Omit<StringApplicator<HOST>, "state" | "set" | "bind"> {
+	export interface Optional<HOST> extends Omit<StringApplicator<HOST>, "state" | "set" | "bind" | "rehost"> {
 		state: State<string | undefined>
 		set (value?: string): HOST
 		bind (state?: State<string | Weave | undefined>): HOST
+		rehost<NEW_HOST> (newHost: NEW_HOST): StringApplicator.Optional<NEW_HOST>
 	}
 
 }

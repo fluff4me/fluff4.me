@@ -1,5 +1,4 @@
 .text-input-block:
-	$divider-border-colour: color-mix(in lch, $border-colour, transparent 90%)
 
 	&-input:
 		#after: .text-input
@@ -31,7 +30,7 @@
 				%bottom-0
 				%inset-inline-2
 				%border-bottom-1
-				$border-colour: $divider-border-colour
+				$border-colour: $input-divider-border-colour
 
 			&--last:
 				#after: .text-input-block-input-wrapper

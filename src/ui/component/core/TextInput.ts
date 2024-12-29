@@ -10,7 +10,7 @@ import State from "utility/State"
  */
 type FilterFunction = (text: string, textBefore: string, isFullText: boolean) => string
 
-interface TextInputExtensions {
+export interface TextInputExtensions {
 	readonly state: State<string>
 	value: string
 	readonly default: StringApplicator.Optional<TextInput>
