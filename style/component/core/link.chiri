@@ -9,3 +9,11 @@
 		%colour-0
 		text-decoration-color: $colour-0
 		$transition-duration: $transition-focus
+
+	&-external:
+
+		@after:
+			%font-font-awesome
+			%vertical-align-super
+			content: " #{get-icon("up-right-from-square")}"
+			font-size: .5em
