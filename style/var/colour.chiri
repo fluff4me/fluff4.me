@@ -3,6 +3,10 @@
 		blue: "#69b3e2
 		blue-saturated: "#0173ba
 		pink: "#d94e8f
+		success: "#56d37a
+		success-bg: "#204731
+		warning: "#a8403e
+		warning-bg: "#4f2322
 
 	#each colours as var name, var colour:
 		$colour-#{name}: #{colour}

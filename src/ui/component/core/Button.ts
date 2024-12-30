@@ -1,13 +1,10 @@
 import Component from "ui/Component"
-import type { ComponentName } from "ui/utility/StyleManipulator"
+import type { ComponentNameType } from "ui/utility/StyleManipulator"
 import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
 
-type ButtonType = keyof { [KEY in ComponentName as KEY extends `button-type-${infer TYPE}--${string}` ? TYPE
-	: KEY extends `button-type-${infer TYPE}` ? TYPE
-	: never]: string[] }
-
-type ButtonIcon = keyof { [KEY in ComponentName as KEY extends `button-icon-${infer TYPE}` ? TYPE : never]: string[] }
+type ButtonType = ComponentNameType<"button-type">
+type ButtonIcon = ComponentNameType<"button-icon">
 
 interface ButtonTypeManipulator<HOST> {
 	(...buttonTypes: ButtonType[]): HOST

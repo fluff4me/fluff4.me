@@ -102,7 +102,6 @@ function Navigator (app: App): Navigator {
 	window.addEventListener("popstate", navigate.fromURL)
 
 	Object.assign(window, { navigate })
-
 	return navigate
 }
 

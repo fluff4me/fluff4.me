@@ -25,6 +25,10 @@ create: Create!
 cancel: Cancel
 confirm: Confirm
 
+## toast
+failed-to-save: Failed to save {0}
+saved: Saved {0}
+
 ## form
 name/label: Name
 vanity/label: Vanity
@@ -148,6 +152,9 @@ pronouns/hint: The pronouns that others should refer to you with. These will app
 action/logout: Log Out
 action/delete: Delete Account
 
+toast/failed-to-save=shared/toast/failed-to-save | account data
+toast/saved=shared/toast/saved | account data
+
 ## account/auth
 service/accessibility/connect: connect {0}
 service/accessibility/disconnect: disconnect {0} account {1}
@@ -189,7 +196,11 @@ action/label/delete=shared/action/delete
 
 ## work-edit
 
-### shared/form
+### shared
+toast/failed-to-save=shared/toast/failed-to-save
+toast/saved=shared/toast/saved
+
+#### form
 name/label=shared/form/name/label
 name/hint: The name of your work. This does not have to be unique.
 vanity/label=shared/form/vanity/label
@@ -224,7 +235,11 @@ action/label/delete=shared/action/delete
 
 ## chapter-edit
 
-### shared/form
+### shared
+toast/failed-to-save=shared/toast/failed-to-save | chapter
+toast/saved=shared/toast/saved | chapter
+
+#### form
 name/label=shared/form/name/label
 name/hint: The name of this chapter. This does not have to be unique.
 body/label=shared/form/body/label

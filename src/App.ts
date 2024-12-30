@@ -4,6 +4,7 @@ import Session from "model/Session"
 import Navigator from "navigation/Navigate"
 import style from "style"
 import Component from "ui/Component"
+import ToastList from "ui/component/core/toast/ToastList"
 import Masthead from "ui/component/Masthead"
 import InputBus from "ui/InputBus"
 import FocusListener from "ui/utility/FocusListener"
@@ -93,6 +94,7 @@ async function App (): Promise<App> {
 	const app: App = Component()
 		.style("app")
 		.append(masthead, masthead.sidebar, content)
+		.append(ToastList())
 		.extend<AppExtensions>(app => ({
 			navigate: Navigator(app),
 			view,

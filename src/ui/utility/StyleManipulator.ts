@@ -4,6 +4,9 @@ import type State from "utility/State"
 import type { UnsubscribeState } from "utility/State"
 
 export type ComponentName = keyof typeof style
+export type ComponentNameType<PREFIX extends string> = keyof { [KEY in ComponentName as KEY extends `${PREFIX}-${infer TYPE}--${string}` ? TYPE
+	: KEY extends `${PREFIX}-${infer TYPE}` ? TYPE
+	: never]: string[] }
 
 interface StyleManipulatorFunctions<HOST> {
 	get (): ComponentName[]
