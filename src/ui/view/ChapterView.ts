@@ -40,6 +40,7 @@ export default ViewDefinition({
 		const paginator = await view.paginator()
 			.viewTransition("chapter-view-chapter")
 			.style("view-type-chapter-block")
+			.type("flush")
 			.tweak(p => p.title.text.bind(chapterState.mapManual(chapter =>
 				quilt["view/chapter/title"](Maths.parseIntOrUndefined(chapter.url), chapter.name))))
 			.appendTo(view)
@@ -51,6 +52,9 @@ export default ViewDefinition({
 					.style("view-type-chapter-block-body")
 					.setMarkdownContent(chapter.body ?? "")
 			})
+
+		paginator.header.style("view-type-chapter-block-header")
+		paginator.footer.style("view-type-chapter-block-paginator-actions")
 
 		paginator.data.use(paginator, chapter => chapterState.value = chapter)
 

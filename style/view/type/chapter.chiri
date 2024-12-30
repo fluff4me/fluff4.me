@@ -2,7 +2,24 @@
 
 	&-work:
 	&-block:
+
+		&-header:
+			#after: .block-header, .paginator-header, .paginator-header--flush
+			%background-none
+			%border-none
+			%box-shadow-none
+			%relative
+			%padding-inline-0
+
+			@before:
+				%background-none
+				%backdrop-filter-none
+
 		&-body:
-			%padding-inline-4
+			#after: .paginator-page
 			%padding-top-3
 			%padding-bottom-4
+			$paginator-page-display: block
+
+		&-paginator-actions:
+			%padding-inline-0
