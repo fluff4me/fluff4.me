@@ -51,8 +51,7 @@ const VanityInput = Object.assign(
 
 				// text input
 				state: input.state,
-				get value () { return input.value },
-				set value (value: string) { input.value = value },
+				value: undefined!,
 				default: input.default.rehost(component),
 				placeholder: input.placeholder.rehost(component),
 				ignoreInputEvent (ignore = true) {
@@ -63,6 +62,10 @@ const VanityInput = Object.assign(
 					input.filter(filter)
 					return component
 				},
+			}))
+			.extendMagic("value", component => ({
+				get () { return input.value },
+				set (value: string) { input.value = value },
 			}))
 	}),
 	{
