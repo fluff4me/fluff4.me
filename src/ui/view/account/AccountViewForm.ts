@@ -10,6 +10,7 @@ import LabelledTable from "ui/component/core/LabelledTable"
 import LabelledTextInputBlock from "ui/component/core/LabelledTextInputBlock"
 import TextEditor from "ui/component/core/TextEditor"
 import TextInput from "ui/component/core/TextInput"
+import { TOAST_ERROR, TOAST_SUCCESS } from "ui/component/core/toast/Toast"
 import VanityInput from "ui/component/VanityInput"
 
 type AccountViewFormType =
@@ -93,10 +94,12 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 		})
 
 		if (response instanceof Error) {
+			toast.warning(TOAST_ERROR, "view/account/toast/failed-to-save", response)
 			console.error(response)
 			return
 		}
 
+		toast.success(TOAST_SUCCESS, "view/account/toast/saved")
 		Session.setAuthor(response.data)
 	})
 

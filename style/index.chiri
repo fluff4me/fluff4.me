@@ -47,6 +47,7 @@
 	component/core/text-editor
 	component/core/form
 	component/core/paginator
+	component/core/toast
 	component/vanity-input
 	component/flag
 	component/masthead

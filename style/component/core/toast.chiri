@@ -1,0 +1,77 @@
+.toast-list:
+	%no-pointer-events
+	%fixed
+	%right-5
+	%bottom-4
+	%flex
+	%flex-column
+	%justify-content-end
+	%align-items-end
+	%gap-3
+	width: calc(100vw - $space-5)
+
+$$toast-background!colour
+$$toast-background-highlight!colour
+
+.toast:
+	%absolute
+	%bottom-0
+	%right-0
+	%flex
+	%flex-column
+	%gap-1
+	%padding-3-4
+	%border-1
+	%box-shadow-1
+	%border-radius-2
+	%colour-0
+	%width-fit
+	%align-self-end
+	%pointer-events
+	$toast-background: $background-interact-4
+	$toast-background-highlight: hsl(from $toast-background h s calc(l + 6))
+	$border-colour: hsl(from $toast-background h s calc(l + 12))
+	background: radial-gradient(ellipse at left 20% top 20%, $toast-background-highlight, $toast-background)
+
+	&--measuring:
+		%no-pointer-events
+		%transparent
+		%fixed
+		%bottom-0
+		%right-0
+
+	#animate .5s ease-out:
+		from:
+			%translate-down-5
+			%transparent
+
+	&-wrapper:
+		%relative
+		%block
+		%height-0
+		%width-100
+		#transition: #{transition("height")}
+
+	&--hide:
+		#animate .3s ease-in forwards:
+			to:
+				%translate-right-5
+				%transparent
+
+	&-title:
+		%weight-bold
+
+	&-content:
+		%font-1
+		%margin-bottom-1
+
+	&-error-type:
+		%weight-bold
+
+	&-type-info:
+
+	&-type-success:
+		$toast-background: $colour-success-bg
+
+	&-type-warning:
+		$toast-background: $colour-warning-bg

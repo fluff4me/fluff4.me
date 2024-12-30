@@ -11,6 +11,7 @@ import LabelledTable from "ui/component/core/LabelledTable"
 import Textarea from "ui/component/core/Textarea"
 import TextEditor from "ui/component/core/TextEditor"
 import TextInput from "ui/component/core/TextInput"
+import { TOAST_ERROR, TOAST_SUCCESS } from "ui/component/core/toast/Toast"
 import type State from "utility/State"
 
 export default Component.Builder((component, state: State<WorkFull | undefined>) => {
@@ -64,12 +65,14 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 	form.event.subscribe("submit", async event => {
 		event.preventDefault()
 
+		const name = nameInput.value
+
 		const response = await (() => {
 			switch (type) {
 				case "create":
 					return EndpointWorkCreate.query({
 						body: {
-							name: nameInput.value,
+							name,
 							vanity: vanityInput.value,
 							description: descriptionInput.value,
 							synopsis: synopsisInput.useMarkdown(),
@@ -90,7 +93,7 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 							vanity: state.value.vanity,
 						},
 						body: {
-							name: nameInput.value,
+							name,
 							vanity: vanityInput.value,
 							description: descriptionInput.value,
 							synopsis: synopsisInput.useMarkdown(),
@@ -101,10 +104,12 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 		})()
 
 		if (response instanceof Error) {
+			toast.warning(TOAST_ERROR, quilt => quilt["view/work-edit/shared/toast/failed-to-save"](name), response)
 			console.error(response)
 			return
 		}
 
+		toast.success(TOAST_SUCCESS, quilt => quilt["view/work-edit/shared/toast/saved"](name))
 		state.value = response?.data
 	})
 

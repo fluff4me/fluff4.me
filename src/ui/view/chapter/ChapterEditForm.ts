@@ -11,6 +11,7 @@ import Form from "ui/component/core/Form"
 import LabelledTable from "ui/component/core/LabelledTable"
 import TextEditor from "ui/component/core/TextEditor"
 import TextInput from "ui/component/core/TextInput"
+import { TOAST_ERROR, TOAST_SUCCESS } from "ui/component/core/toast/Toast"
 import type State from "utility/State"
 
 export default Component.Builder((component, state: State<Chapter | undefined>, workParams: WorkParams) => {
@@ -82,10 +83,12 @@ export default Component.Builder((component, state: State<Chapter | undefined>, 
 		})()
 
 		if (response instanceof Error) {
+			toast.warning(TOAST_ERROR, "view/chapter-edit/shared/toast/failed-to-save", response)
 			console.error(response)
 			return
 		}
 
+		toast.success(TOAST_SUCCESS, "view/chapter-edit/shared/toast/saved")
 		state.value = response?.data
 	})
 
