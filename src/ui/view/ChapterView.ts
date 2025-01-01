@@ -4,6 +4,7 @@ import EndpointChapterGet from "endpoint/chapter/EndpointChapterGet"
 import EndpointChapterGetPaged from "endpoint/chapter/EndpointChapterGetPaged"
 import EndpointWorkGet from "endpoint/work/EndpointWorkGet"
 import quilt from "lang/en-nz"
+import Link from "ui/component/core/Link"
 import Work from "ui/component/Work"
 import PaginatedView from "ui/view/shared/component/PaginatedView"
 import ViewDefinition from "ui/view/shared/component/ViewDefinition"
@@ -23,7 +24,8 @@ export default ViewDefinition({
 		delete workData.synopsis
 		delete workData.custom_tags
 
-		const work = await Work(workData, author)
+		const work = await Link(`/work/${author?.vanity}/${workData.vanity}`)
+			.and(Work, workData, author)
 		work
 			.viewTransition("work-view-work")
 			.style("view-type-chapter-work")
