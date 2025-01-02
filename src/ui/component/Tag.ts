@@ -4,27 +4,30 @@ import Button from "ui/component/core/Button"
 import Link from "ui/component/core/Link"
 
 interface TagExtensions {
-	tag: TagData
+	tag: TagData | string
 }
 
 interface Tag extends Link, TagExtensions { }
 
 const toURLRegex = /\W+/g
 const toURL = (name: string) => name.replaceAll(toURLRegex, "-").toLowerCase()
-const Tag = Component.Builder("a", (component, tag: TagData): Tag => {
+const Tag = Component.Builder("a", (component, tag: TagData | string): Tag => {
 	component
-		.and(Link, `/tag/${toURL(tag.category)}/${toURL(tag.name)}`)
+		.and(Link, typeof tag === "string" ? `/tag/${tag}` : `/tag/${toURL(tag.category)}/${toURL(tag.name)}`)
 		.and(Button)
 		.style("tag")
+		.style.toggle(typeof tag === "string", "tag-custom")
+		.style.toggle(typeof tag !== "string", "tag-global")
 
-	Component()
-		.style("tag-category")
-		.text.set(tag.category)
-		.appendTo(component)
+	if (typeof tag !== "string")
+		Component()
+			.style("tag-category")
+			.text.set(tag.category)
+			.appendTo(component)
 
 	Component()
 		.style("tag-name")
-		.text.set(tag.name)
+		.text.set(typeof tag === "string" ? tag : tag.name)
 		.appendTo(component)
 
 	// component.href.use(`/tag/${tag.id}`)

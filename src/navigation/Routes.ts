@@ -29,6 +29,7 @@ const Routes = [
 	Route("/work/$author/$vanity/chapter/$url/edit", ChapterEditView.navigate),
 
 	Route("/tag/$category/$name", TagView.navigate),
+	Route("/tag/$custom_name", TagView.navigate),
 ]
 
 export default Routes
