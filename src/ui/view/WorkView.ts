@@ -25,8 +25,7 @@ export default ViewDefinition({
 		if (!authorData)
 			throw Errors.BadData("Work author not in synopsis authors")
 
-		const work = await Work(workData, authorData)
-		work
+		Work(workData, authorData)
 			.viewTransition("work-view-work")
 			.setContainsHeading()
 			.appendTo(view)

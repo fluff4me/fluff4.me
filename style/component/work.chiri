@@ -23,11 +23,15 @@
 		%span-2
 		%row-3
 		%padding-top-3
+
 		&--flush:
 			#after: .work-tags
 			%padding-0
 			%padding-top-2
 			%padding-bottom-2
+
+		&-custom:
+		&-global:
 
 	&-description:
 		%block

@@ -24,9 +24,8 @@ export default ViewDefinition({
 		delete workData.synopsis
 		delete workData.custom_tags
 
-		const work = await Link(`/work/${author?.vanity}/${workData.vanity}`)
+		Link(`/work/${author?.vanity}/${workData.vanity}`)
 			.and(Work, workData, author)
-		work
 			.viewTransition("work-view-work")
 			.style("view-type-chapter-work")
 			.setContainsHeading()

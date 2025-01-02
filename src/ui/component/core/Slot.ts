@@ -8,7 +8,7 @@ export type SlotCleanup = () => any
 export type SlotInitialiserReturn = AbortPromiseOr<SlotCleanup | Component | undefined | null | false | 0 | "" | void>
 
 interface SlotExtensions {
-	use<T> (state: State<T>, initialiser: (slot: Slot, value: T) => SlotInitialiserReturn): this
+	use<T> (state: T | State<T>, initialiser: (slot: Slot, value: T) => SlotInitialiserReturn): this
 	if (state: State<boolean>, initialiser: (slot: Slot) => SlotInitialiserReturn): this
 }
 
@@ -24,6 +24,8 @@ const Slot = Object.assign(
 		return slot
 			.extend<SlotExtensions>(slot => ({
 				use: (state, initialiser) => {
+					state = State.get(state)
+
 					unuse?.(); unuse = undefined
 					abort?.(); abort = undefined
 
