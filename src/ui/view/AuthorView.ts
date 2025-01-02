@@ -42,16 +42,13 @@ export default ViewDefinition({
 				author: params.vanity,
 			},
 		})
-		await paginator.useEndpoint(worksQuery, async (slot, works) => {
-			for (const workData of works) {
-				const work = await Link(`/work/${author.data.vanity}/${workData.vanity}`)
+		await paginator.useEndpoint(worksQuery, (slot, works) =>
+			slot.append(...works.map(workData =>
+				Link(`/work/${author.data.vanity}/${workData.vanity}`)
 					.and(Work, workData, author.data)
-				work
 					.viewTransition()
 					.type("flush")
-					.appendTo(slot)
-			}
-		})
+					.appendTo(slot))))
 		paginator.orElse(slot => Component()
 			.style("placeholder")
 			.text.use("view/author/works/content/empty")

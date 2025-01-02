@@ -9,6 +9,7 @@ import Slot from "ui/component/core/Slot"
 import TextLabel from "ui/component/core/TextLabel"
 import Timestamp from "ui/component/core/Timestamp"
 import Tag from "ui/component/Tag"
+import AbortPromise from "utility/AbortPromise"
 
 interface WorkExtensions {
 	work: WorkData
@@ -16,7 +17,7 @@ interface WorkExtensions {
 
 interface Work extends Block, WorkExtensions { }
 
-const Work = Component.Builder(async (component, work: WorkData & Partial<WorkFull>, author?: Author, notFullOverride?: true): Promise<Work> => {
+const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, author?: Author, notFullOverride?: true): Work => {
 	author = author ?? work.synopsis?.mentions[0]
 
 	component
@@ -75,16 +76,22 @@ const Work = Component.Builder(async (component, work: WorkData & Partial<WorkFu
 		})
 		.appendTo(block.content)
 
-
-	let tagsWrapper: Component | undefined
-	const tags = await Tags.resolve(work.global_tags)
-	for (const tag of tags) {
-		Tag(tag)
-			.appendTo(tagsWrapper ??= Component()
-				.style("work-tags")
+	Slot()
+		.use(work.global_tags, AbortPromise.asyncFunction(async (signal, slot, tagStrings) => {
+			const tags = await Tags.resolve(tagStrings)
+			return tags?.length && Component()
+				.style("work-tags", "work-tags-global")
 				.style.bind(isFlush, "work-tags--flush")
-				.appendTo(block.content))
-	}
+				.append(...tags.map(tag => Tag(tag)))
+		}))
+		.appendTo(block.content)
+
+	Slot()
+		.use(work.custom_tags, (slot, customTags) => customTags && Component()
+			.style("work-tags", "work-tags-custom")
+			.style.bind(isFlush, "work-tags--flush")
+			.append(...customTags.map(tag => Tag(tag))))
+		.appendTo(block.content)
 
 	TextLabel()
 		.tweak(textLabel => textLabel.label.text.use("work/chapters/label"))

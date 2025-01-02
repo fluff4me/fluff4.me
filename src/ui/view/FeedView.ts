@@ -16,12 +16,11 @@ export default ViewDefinition({
 			.tweak(p => p.title.text.use("view/feed/main/title"))
 			.appendTo(view)
 		const endpoint = EndpointFeedGet.prep().setPageSize(3)
-		await paginator.useEndpoint(endpoint, async (slot, { works, authors }) => {
+		await paginator.useEndpoint(endpoint, (slot, { works, authors }) => {
 			for (const workData of works) {
 				const author = authors.find(author => author.vanity === workData.author)
-				const work = await Link(author && `/work/${author.vanity}/${workData.vanity}`)
+				Link(author && `/work/${author.vanity}/${workData.vanity}`)
 					.and(Work, workData, author, true)
-				work
 					.viewTransition()
 					.appendTo(slot)
 			}
