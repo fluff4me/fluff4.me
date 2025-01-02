@@ -12,6 +12,8 @@ import Textarea from "ui/component/core/Textarea"
 import TextEditor from "ui/component/core/TextEditor"
 import TextInput from "ui/component/core/TextInput"
 import { TOAST_ERROR, TOAST_SUCCESS } from "ui/component/core/toast/Toast"
+import type { TagsState } from "ui/component/TagsEditor"
+import TagsEditor from "ui/component/TagsEditor"
 import type State from "utility/State"
 
 export default Component.Builder((component, state: State<WorkFull | undefined>) => {
@@ -61,6 +63,11 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 		.setMaxLength(FormInputLengths.manifest?.work.synopsis)
 	table.label(label => label.text.use("view/work-edit/shared/form/synopsis/label"))
 		.content((content, label) => content.append(synopsisInput.setLabel(label)))
+
+	const tagsEditor = TagsEditor()
+		.default.bind(state as State<TagsState>)
+	table.label(label => label.text.use("view/work-edit/shared/form/tags/label"))
+		.content((content, label) => content.append(tagsEditor.setLabel(label)))
 
 	form.event.subscribe("submit", async event => {
 		event.preventDefault()

@@ -57,6 +57,7 @@
 	component/tag
 	component/chapter
 	component/oauth-service
+	component/tags-editor
 
 #import:
 	view/view

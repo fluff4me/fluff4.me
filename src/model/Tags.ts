@@ -2,6 +2,8 @@ import type { Tag } from "api.fluff4.me"
 import EndpointTagManifest from "endpoint/tag/EndpointTagManifest"
 import Manifest from "model/Manifest"
 
+export type TagId = `${string}: ${string}`
+
 const Tags = Object.assign(
 	Manifest({
 		get () {

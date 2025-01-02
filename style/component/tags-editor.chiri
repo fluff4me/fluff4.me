@@ -1,0 +1,32 @@
+.tags-editor:
+	%flex
+	%flex-column
+	%gap-3
+
+	&-added:
+		%flex
+		%flex-column
+		%gap-2
+
+		&-type:
+			%flex
+			%flex-wrap
+			%gap-2
+
+		&-global:
+		&-custom:
+
+	&-tag:
+
+	&-input:
+
+	&-suggestions:
+
+		&-type:
+			%flex
+			%flex-wrap
+			%gap-2
+
+		&-custom:
+		&-category:
+		&-global:
