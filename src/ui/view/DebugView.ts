@@ -112,7 +112,7 @@ export default ViewDefinition({
 			name: "Create Profile 2",
 			async execute () {
 				await BUTTON_REGISTRY.createAuthor.execute("single story author", "justonestory", "<mention vanity=\"somanystories\"> writes so much")
-				await BUTTON_REGISTRY.createWork.execute("one big work", "made by <mention vanity=\"justonestory\">", "wow description", "bigstory", "Ongoing", "Public")
+				await BUTTON_REGISTRY.createWork.execute("one big work", "made by <mention vanity=\"justonestory\">", "wow description", "bigstory", "Ongoing", "Public", ["Protagonist: Transgender", "Genre: Fantasy", "Genre: Romance", "Setting: Urban Fantasy"], ["just a test work lmao", "gotta add some custom tags"])
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 1", "start of a long story", "Public")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story interlude", "middle of a long story", "Public", false, "only notes before")
 				await BUTTON_REGISTRY.createChapter.execute("justonestory", "bigstory", "big story 2", "aaaa", "Public", true, undefined, "only notes after")
