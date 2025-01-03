@@ -66,6 +66,9 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 			const categorySuggestions = category ? []
 				: Object.values(manifest.categories)
 					.filter(category => category.nameLowercase.startsWith(name))
+					// only include categories that have tags that haven't been added yet
+					.filter(category => Object.entries(manifest.tags)
+						.some(([tagId, tag]) => tag.category === category.name && !tags.global_tags.some(added => tagId === added)))
 					.sort(
 						category => -Object.values(manifest.tags).filter(tag => tag.category === category.name).length,
 						(a, b) => a.name.localeCompare(b.name),
@@ -79,17 +82,18 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 					.appendTo(slot)
 
 			const tagSuggestions = category
-				? Object.values(manifest.tags)
-					.filter(tag => tag.categoryLowercase.startsWith(category) && tag.nameLowercase.startsWith(name))
+				? Object.entries(manifest.tags)
+					.filter(([, tag]) => tag.categoryLowercase.startsWith(category) && tag.nameLowercase.startsWith(name))
 				: name
-					? Object.values(manifest.tags)
-						.filter(tag => tag.wordsLowercase.some(word => word.startsWith(name)))
+					? Object.entries(manifest.tags)
+						.filter(([, tag]) => tag.wordsLowercase.some(word => word.startsWith(name)))
 					: []
 
+			tagSuggestions.filterInPlace(([tagId]) => !tags.global_tags.some(added => added === tagId))
 			if (tagSuggestions.length)
 				Component()
 					.style("tags-editor-suggestions-type")
-					.append(...tagSuggestions.map(Tag))
+					.append(...tagSuggestions.map(([, tag]) => Tag(tag)))
 					.appendTo(slot)
 
 			if (!category && name)
