@@ -9,6 +9,7 @@ import Tag from "ui/component/Tag"
 import Applicator from "ui/utility/Applicator"
 import AbortPromise from "utility/AbortPromise"
 import State from "utility/State"
+import Strings from "utility/string/Strings"
 
 export interface TagsState {
 	global_tags: TagId[]
@@ -35,24 +36,71 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 			if (globalTags.length)
 				Component()
 					.style("tags-editor-added-type", "tags-editor-added-global")
-					.append(...globalTags.map(tag => Tag(tag)))
+					.append(...globalTags.map(Tag))
 					.appendTo(slot)
 
 			if (tags.custom_tags.length)
 				Component()
 					.style("tags-editor-added-type", "tags-editor-added-custom")
-					.append(...tags.custom_tags.map(tag => Tag(tag)))
+					.append(...tags.custom_tags.map(Tag))
 					.appendTo(slot)
 		}))
 
 	const input = TextInput()
 		.style("tags-editor-input")
-		.placeholder.use("view/work-edit/shared/form/tags/placeholder")
+		.placeholder.use("shared/form/tags/placeholder")
 
-	const tagSuggestions = Component().style("tags-editor-suggestions")
-	const tagCustomSuggestions = Component().style("tags-editor-suggestions-type").appendTo(tagSuggestions)
-	const tagCategorySuggestions = Component().style("tags-editor-suggestions-type").appendTo(tagSuggestions)
-	const tagGlobalSuggestions = Component().style("tags-editor-suggestions-type").appendTo(tagSuggestions)
+	const tagSuggestions = Slot()
+		.style("tags-editor-suggestions")
+		.use(State.UseManual({ tags: tagsState, input: input.state }), AbortPromise.asyncFunction(async (signal, slot, { tags, input }) => {
+			const manifest = await Tags.getManifest()
+			if (signal.aborted)
+				return
+
+			let [category, name] = Strings.splitOnce(input, ":")
+			if (name === undefined)
+				name = category, category = ""
+
+			category = category.trim(), name = name.trim()
+
+			const categorySuggestions = category ? []
+				: Object.values(manifest.categories)
+					.filter(category => category.nameLowercase.startsWith(name))
+					.sort(
+						category => -Object.values(manifest.tags).filter(tag => tag.category === category.name).length,
+						(a, b) => a.name.localeCompare(b.name),
+					)
+					.map(category => Tag({ category: category.name, name: "...", description: { body: category.description } }))
+
+			if (categorySuggestions.length)
+				Component()
+					.style("tags-editor-suggestions-type")
+					.append(...categorySuggestions)
+					.appendTo(slot)
+
+			const tagSuggestions = category
+				? Object.values(manifest.tags)
+					.filter(tag => tag.categoryLowercase.startsWith(category) && tag.nameLowercase.startsWith(name))
+				: name
+					? Object.values(manifest.tags)
+						.filter(tag => tag.wordsLowercase.some(word => word.startsWith(name)))
+					: []
+
+			if (tagSuggestions.length)
+				Component()
+					.style("tags-editor-suggestions-type")
+					.append(...tagSuggestions.map(Tag))
+					.appendTo(slot)
+
+			if (!category && name)
+				Component()
+					.style("tags-editor-suggestions-type")
+					.append(Component()
+						.style("tags-editor-suggestions-type-label")
+						.text.use("shared/form/tags/suggestion/add-as-custom"))
+					.append(Tag(name))
+					.appendTo(slot)
+		}))
 
 	const editor: TagsEditor = component
 		.and(Input)
@@ -65,26 +113,20 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 			get tags () {
 				return tagsState.value
 			},
-			default: Applicator(editor, value =>
-				tagsState.value = { global_tags: value?.global_tags?.slice() ?? [], custom_tags: value?.custom_tags?.slice() ?? [] }),
+			default: Applicator(editor, value => tagsState.value = {
+				global_tags: value?.global_tags?.slice() ?? [],
+				custom_tags: value?.custom_tags?.slice() ?? [],
+			}),
 		}))
 
 	input.event.subscribe("keydown", event => {
 		if (event.key === "Enter" && input.value.trim()) {
 			event.preventDefault()
 		}
-
-		updateSuggestions()
 	})
 
 	editor.length.value = 0
 	return editor
-
-	function updateSuggestions () {
-		tagCustomSuggestions
-		tagCategorySuggestions
-		tagGlobalSuggestions
-	}
 })
 
 export default TagsEditor

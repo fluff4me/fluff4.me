@@ -26,6 +26,12 @@
 			%flex
 			%flex-wrap
 			%gap-2
+			%align-items-centre
+
+			&-label:
+				%font-1
+				%colour-4
+				%unmargin-top-1
 
 		&-custom:
 		&-category:

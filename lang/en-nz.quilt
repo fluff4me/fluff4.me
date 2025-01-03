@@ -35,6 +35,8 @@ vanity/label: Vanity
 description/label: Description
 body/label: Body
 tags/label: Tags
+tags/placeholder: Type to filter tag suggestions...
+tags/suggestion/add-as-custom: Add custom tag:
 
 # component
 popover/button: open {0??details}{ 1??}
@@ -212,7 +214,6 @@ description/hint: A simple 1-2 sentence description of the work. This will be th
 synopsis/label: Synopsis
 synopsis/hint: The full text describing this work. This will only appear in the full work view.
 tags/label=shared/form/tags/label
-tags/placeholder: Type to filter tag suggestions...
 
 ## work-edit/create
 title: Create work

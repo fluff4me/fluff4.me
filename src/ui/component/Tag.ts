@@ -3,6 +3,8 @@ import Component from "ui/Component"
 import Button from "ui/component/core/Button"
 import Link from "ui/component/core/Link"
 
+export { TagData }
+
 interface TagExtensions {
 	tag: TagData | string
 }

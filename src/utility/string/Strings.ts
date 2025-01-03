@@ -19,6 +19,14 @@ namespace Strings {
 		return true
 	}
 
+	export function splitOnce (string: string, separator: string) {
+		const index = string.indexOf(separator)
+		if (index === -1)
+			return [string]
+
+		return [string.slice(0, index), string.slice(index + separator.length)]
+	}
+
 	export function sliceTo (string: string, substring: string, startAt?: number) {
 		const index = string.indexOf(substring, startAt)
 		if (index === -1)

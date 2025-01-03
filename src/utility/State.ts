@@ -297,6 +297,16 @@ namespace State {
 		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never))
 			.observeManual(...inputs.filter(Arrays.filterNullish))
 	}
+
+	export function Use<const INPUT extends Record<string, (ReadableState<any> | undefined)>> (owner: Component, input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends ReadableState<infer INPUT> ? INPUT : undefined }> {
+		return Generator(() => Object.entries(input).toObject(([key, state]) => [key, state?.value]) as never)
+			.observe(owner, ...Object.values(input).filter(Arrays.filterNullish))
+	}
+
+	export function UseManual<const INPUT extends Record<string, (ReadableState<any> | undefined)>> (input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends ReadableState<infer INPUT> ? INPUT : undefined }> {
+		return Generator(() => Object.entries(input).toObject(([key, state]) => [key, state?.value]) as never)
+			.observeManual(...Object.values(input).filter(Arrays.filterNullish))
+	}
 }
 
 export default State
