@@ -1,13 +1,49 @@
-import type { Tag } from "api.fluff4.me"
+import type { ErrorResponse, ManifestGlobalTags, Response, Tag, TagCategory } from "api.fluff4.me"
 import EndpointTagManifest from "endpoint/tag/EndpointTagManifest"
 import Manifest from "model/Manifest"
 
 export type TagId = `${string}: ${string}`
 
+export interface TagsManifestCategory extends TagCategory {
+	nameLowercase: string
+	wordsLowercase: string[]
+}
+
+export interface TagsManifestTag extends Tag {
+	categoryLowercase: string
+	categoryWordsLowercase: string[]
+	nameLowercase: string
+	wordsLowercase: string[]
+}
+
+export interface TagsManifest extends ManifestGlobalTags {
+	categories: Record<string, TagsManifestCategory>
+	tags: Record<TagId, TagsManifestTag>
+}
+
 const Tags = Object.assign(
 	Manifest({
-		get () {
-			return EndpointTagManifest.query()
+		async get () {
+			const response = await EndpointTagManifest.query()
+			if (!response.data)
+				return response as ErrorResponse<Response<TagsManifest>>
+
+			const rawManifest = response.data
+			for (const rawCategory of Object.values(rawManifest.categories)) {
+				const category = rawCategory as TagsManifestCategory
+				category.nameLowercase = category.name.toLowerCase()
+				category.wordsLowercase = category.nameLowercase.split(" ")
+			}
+
+			for (const rawTag of Object.values(rawManifest.tags)) {
+				const tag = rawTag as TagsManifestTag
+				tag.nameLowercase = tag.name.toLowerCase()
+				tag.wordsLowercase = tag.nameLowercase.split(" ")
+				tag.categoryLowercase = tag.category.toLowerCase()
+				tag.categoryWordsLowercase = tag.categoryLowercase.split(" ")
+			}
+
+			return response as Response<TagsManifest>
 		},
 	}),
 	{ resolve },
@@ -46,7 +82,7 @@ async function resolveInternal (tags: string[]) {
 	function resolveTags () {
 		result.splice(0, Infinity)
 		for (const tagString of tags) {
-			const tag = manifest.tags[tagString]
+			const tag = manifest.tags[tagString as TagId]
 			if (!tag)
 				continue
 
