@@ -5,6 +5,7 @@ namespace FocusListener {
 
 	export const hasFocus = State<boolean>(false)
 	export const focused = State<Element | undefined>(undefined)
+	export const focusedLast = State<Element | undefined>(undefined)
 
 	export function focusedComponent (): Component | undefined {
 		return focused.value?.component
@@ -75,6 +76,13 @@ namespace FocusListener {
 			return
 
 		// updatingFocusState = true
+		const lastLastFocusedComponent = focusedLast.value?.component
+		if (lastLastFocusedComponent) {
+			lastLastFocusedComponent.hadFocusedLast.value = false
+			for (const ancestor of lastLastFocusedComponent.getAncestorComponents())
+				ancestor.hadFocusedLast.value = false
+		}
+
 		const lastFocusedComponent = focused.value?.component
 		const focusedComponent = newFocused?.component
 
@@ -82,13 +90,21 @@ namespace FocusListener {
 		const newAncestors = !focusedComponent ? undefined : [...focusedComponent.getAncestorComponents()]
 		const lastFocusedContainsFocused = focused.value?.contains(newFocused ?? null)
 
+		focusedLast.value = focused.value
 		focused.value = newFocused
 		hasFocus.value = !!newFocused
 
 		if (lastFocusedComponent) {
-			lastFocusedComponent.focused.value = false
-			if (!lastFocusedContainsFocused)
+			if (!lastFocusedContainsFocused) {
+				if (!focusedComponent)
+					// setting "had focused" must happen before clearing "has focused"
+					// just in case anything is listening for hasFocused || hadFocusedLast
+					lastFocusedComponent.hadFocusedLast.value = true
+
 				lastFocusedComponent.hasFocused.value = false
+			}
+
+			lastFocusedComponent.focused.value = false
 		}
 
 		if (focusedComponent) {
@@ -99,8 +115,14 @@ namespace FocusListener {
 		if (oldAncestors)
 			for (const ancestor of oldAncestors)
 				if (!newAncestors?.includes(ancestor))
-					if (ancestor)
+					if (ancestor) {
+						if (!focusedComponent)
+							// setting "had focused" must happen before clearing "has focused"
+							// just in case anything is listening for hasFocused || hadFocusedLast
+							ancestor.hadFocusedLast.value = true
+
 						ancestor.hasFocused.value = false
+					}
 
 		if (newAncestors)
 			for (const ancestor of newAncestors)

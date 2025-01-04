@@ -40,7 +40,7 @@ const Tag = Object.assign(
 	}),
 	{
 		Category: Component
-			.Builder((component, category: TagsManifestCategory): Tag =>
+			.Builder("button", (component, category: TagsManifestCategory): Tag =>
 				component.and(Tag, { category: category.name, name: "...", description: { body: category.description } }))
 			.setName("TagCategory"),
 	}

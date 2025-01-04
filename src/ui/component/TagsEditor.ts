@@ -28,16 +28,20 @@ interface TagsEditor extends Component, TagsEditorExtensions, InputExtensions { 
 const TagsEditor = Component.Builder((component): TagsEditor => {
 	const tagsState = State<TagsState>({ global_tags: [], custom_tags: [] })
 
+	////////////////////////////////////
+	//#region Current
+
 	const tagsContainer = Slot()
-		.style("tags-editor-added")
+		.style("tags-editor-current")
 		.use(tagsState, AbortPromise.asyncFunction(async (signal, slot, tags) => {
+			slot.style.remove("tags-editor-current")
 			const globalTags = await Tags.resolve(tags.global_tags)
 			if (signal.aborted)
 				return
 
 			if (globalTags.length)
 				Component()
-					.style("tags-editor-added-type", "tags-editor-added-global")
+					.style("tags-editor-current-type", "tags-editor-current-global")
 					.append(...globalTags.map(tag => Tag(tag)
 						.setNavigationDisabled(true)
 						.event.subscribe("auxclick", event => event.preventDefault())
@@ -47,90 +51,136 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 
 			if (tags.custom_tags.length)
 				Component()
-					.style("tags-editor-added-type", "tags-editor-added-custom")
+					.style("tags-editor-current-type", "tags-editor-current-custom")
 					.append(...tags.custom_tags.map(tag => Tag(tag)
 						.setNavigationDisabled(true)
 						.event.subscribe("auxclick", event => event.preventDefault())
 						.event.subscribe("mouseup", event => Mouse.handleMiddle(event) && removeTag(tag))
 					))
 					.appendTo(slot)
+
+			if (globalTags.length || tags.custom_tags.length)
+				slot.style("tags-editor-current")
 		}))
+
+	//#endregion
+	////////////////////////////////////
+
+	const inputWrapper = Component()
+		.style("text-input", "tags-editor-input-wrapper")
+		.event.subscribe("click", () => input.focus())
 
 	const input = TextInput()
 		.style("tags-editor-input")
+		.style.remove("text-input")
 		.placeholder.use("shared/form/tags/placeholder")
 		.filter(TagsFilter)
+		.appendTo(inputWrapper)
 
-	const tagSuggestions = Slot()
+	////////////////////////////////////
+	//#region Suggestions
+
+	Slot()
 		.style("tags-editor-suggestions")
-		.use(State.UseManual({ tags: tagsState, input: input.state, focus: input.focused }), AbortPromise.asyncFunction(async (signal, slot, { tags, input, focus }) => {
-			if (!input && !focus)
-				return
+		.use(State.UseManual(
+			{
+				tags: tagsState,
+				filter: input.state,
+				focus: State.Some(component, component.hasFocused, component.hadFocusedLast),
+			}),
+			AbortPromise.asyncFunction(async (signal, slot, { tags, filter, focus }) => {
+				if (!filter && !focus)
+					return
 
-			const manifest = await Tags.getManifest()
-			if (signal.aborted)
-				return
+				const manifest = await Tags.getManifest()
+				if (signal.aborted)
+					return
 
-			let [category, name] = Strings.splitOnce(input, ":")
-			if (name === undefined)
-				name = category, category = ""
+				let [category, name] = Strings.splitOnce(filter, ":")
+				if (name === undefined)
+					name = category, category = ""
 
-			category = category.trim(), name = name.trim()
+				category = category.trim(), name = name.trim()
 
-			const categorySuggestions = category ? []
-				: Object.values(manifest.categories)
-					.filter(category => category.nameLowercase.startsWith(name))
-					// only include categories that have tags that haven't been added yet
-					.filter(category => Object.entries(manifest.tags)
-						.some(([tagId, tag]) => tag.category === category.name && !tags.global_tags.some(added => tagId === added)))
-					.sort(
-						category => -Object.values(manifest.tags).filter(tag => tag.category === category.name).length,
-						(a, b) => a.name.localeCompare(b.name),
-					)
-					.map(Tag.Category)
+				const categorySuggestions = category ? []
+					: Object.values(manifest.categories)
+						.filter(category => category.nameLowercase.startsWith(name))
+						// only include categories that have tags that haven't been added yet
+						.filter(category => Object.entries(manifest.tags)
+							.some(([tagId, tag]) => tag.category === category.name && !tags.global_tags.some(added => tagId === added)))
+						.sort(
+							category => -Object.values(manifest.tags).filter(tag => tag.category === category.name).length,
+							(a, b) => a.name.localeCompare(b.name),
+						)
+						.map(category => Tag.Category(category)
+							.event.subscribe("click", () => input.value = `${category.name}: `))
 
-			if (categorySuggestions.length)
-				Component()
-					.style("tags-editor-suggestions-type")
-					.append(...categorySuggestions)
-					.appendTo(slot)
+				if (categorySuggestions.length)
+					Component()
+						.style("tags-editor-suggestions-type")
+						.append(...categorySuggestions)
+						.appendTo(slot)
 
-			const tagSuggestions = category
-				? Object.entries(manifest.tags)
-					.filter(([, tag]) => tag.categoryLowercase.startsWith(category) && tag.nameLowercase.startsWith(name))
-				: name
+				const tagSuggestions = category
 					? Object.entries(manifest.tags)
-						.filter(([, tag]) => tag.wordsLowercase.some(word => word.startsWith(name)))
-					: []
+						.filter(([, tag]) => tag.categoryLowercase.startsWith(category) && tag.nameLowercase.startsWith(name))
+					: name
+						? Object.entries(manifest.tags)
+							.filter(([, tag]) => tag.wordsLowercase.some(word => word.startsWith(name)))
+						: []
 
-			tagSuggestions.filterInPlace(([tagId]) => !tags.global_tags.some(added => added === tagId))
-			if (tagSuggestions.length)
-				Component()
-					.style("tags-editor-suggestions-type")
-					.append(...tagSuggestions.map(([, tag]) => Tag(tag)))
-					.appendTo(slot)
+				tagSuggestions.filterInPlace(([tagId]) => !tags.global_tags.some(added => added === tagId))
+				if (tagSuggestions.length)
+					Component()
+						.style("tags-editor-suggestions-type")
+						.append(...tagSuggestions.map(([, tag]) => Tag(tag)
+							.setNavigationDisabled(true)
+							.event.subscribe("click", () => {
+								tags.global_tags.push(`${tag.category}: ${tag.name}`)
+								tagsState.emit()
+								input.value = ""
+							})
+						))
+						.appendTo(slot)
 
-			const customTagSuggestions = select(() => {
-				if (!name) return []
-				if (!category) return [Tag(name)]
-				return [Tag(`${name} ${category}`), Tag(`${category} ${name}`)]
+				const customTagSuggestions = select(() => {
+					if (!name) return []
+					if (!category) return [Tag(name)]
+					return [Tag(`${name} ${category}`), Tag(`${category} ${name}`)]
+				})
+				if (customTagSuggestions.length)
+					Component()
+						.style("tags-editor-suggestions-type")
+						.append(Component()
+							.style("tags-editor-suggestions-type-label")
+							.text.use("shared/form/tags/suggestion/add-as-custom"))
+						.append(...customTagSuggestions.map(tag => tag
+							.setNavigationDisabled(true)
+							.event.subscribe("click", () => {
+								tags.custom_tags.push(tag.tag as string)
+								tagsState.emit()
+								input.value = ""
+							})
+						))
+						.appendTo(slot)
+
+				if (slot.element.children.length)
+					Component()
+						.style("tags-editor-suggestions-label")
+						.text.use("shared/form/tags/suggestion/label")
+						.prependTo(slot)
 			})
-			if (customTagSuggestions.length)
-				Component()
-					.style("tags-editor-suggestions-type")
-					.append(Component()
-						.style("tags-editor-suggestions-type-label")
-						.text.use("shared/form/tags/suggestion/add-as-custom"))
-					.append(...customTagSuggestions)
-					.appendTo(slot)
-		}))
+		)
+		.appendTo(inputWrapper)
+
+	//#endregion
+	////////////////////////////////////
 
 	const editor: TagsEditor = component
 		.and(Input)
 		.style("tags-editor")
 		.append(tagsContainer)
-		.append(input)
-		.append(tagSuggestions)
+		.append(inputWrapper)
 		.extend<TagsEditorExtensions>(editor => ({
 			state: tagsState,
 			get tags () {
@@ -161,6 +211,9 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 		tagsState.emit()
 	}
 })
+
+////////////////////////////////////
+//#region Input Filter
 
 const TagsFilter = FilterFunction((before, selected, after) => {
 	before = filterSegment(before)
@@ -203,5 +256,8 @@ function filterSegment (text: string) {
 		.replace(/ {2,}/g, " ")
 		.replace(" :", ":")
 }
+
+//#endregion
+////////////////////////////////////
 
 export default TagsEditor

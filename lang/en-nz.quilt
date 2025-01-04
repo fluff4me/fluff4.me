@@ -37,6 +37,7 @@ body/label: Body
 tags/label: Tags
 tags/placeholder: Type to filter tag suggestions...
 tags/suggestion/add-as-custom: Add custom tag:
+tags/suggestion/label: Suggestions
 
 # component
 popover/button: open {0??details}{ 1??}

@@ -82,6 +82,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 	readonly hovered: State<boolean>
 	readonly focused: State<boolean>
 	readonly hasFocused: State<boolean>
+	readonly hadFocusedLast: State<boolean>
 	readonly hoveredOrFocused: State<boolean>
 	readonly hoveredOrHasFocused: State<boolean>
 	readonly active: State<boolean>
@@ -294,6 +295,9 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 		get hasFocused (): State<boolean> {
 			return Define.set(component, "hasFocused", State(false))
+		},
+		get hadFocusedLast (): State<boolean> {
+			return Define.set(component, "hadFocusedLast", State(false))
 		},
 		get hoveredOrFocused (): State<boolean> {
 			return Define.set(component, "hoveredOrFocused",
