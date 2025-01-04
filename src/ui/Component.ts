@@ -90,6 +90,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 	readonly id: State<string | undefined>
 	readonly name: State<string | undefined>
 	readonly rect: State.JIT<DOMRect>
+	readonly tagName: Uppercase<keyof HTMLElementTagNameMap>
 
 	readonly element: ELEMENT
 
@@ -189,6 +190,10 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		element: document.createElement(type),
 		removed: State(false),
 		rooted: State(false),
+
+		get tagName () {
+			return component.element.tagName as Uppercase<keyof HTMLElementTagNameMap>
+		},
 
 		setOwner: newOwner => {
 			owner?.event.unsubscribe("remove", component.remove)

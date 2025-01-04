@@ -112,6 +112,62 @@ namespace Arrays {
 	}
 
 	/**
+	 * Remove all instances of the given value from the given array.
+	 * @returns `true` if anything removed, `false` otherwise
+	 */
+	export function removeAll (array: any[] | undefined, ...values: any[]) {
+		if (!array)
+			return false
+
+		let removed = false
+		let insertIndex = 0
+		for (let i = 0; i < array.length; i++) {
+			if (values.includes(array[i])) {
+				removed = true
+				// do not increment insertion index so subsequent values will be swapped over the removed one
+				continue
+			}
+
+			if (insertIndex !== i)
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				array[insertIndex] = array[i]
+
+			insertIndex++
+		}
+
+		array.length = insertIndex // trim
+		return removed
+	}
+
+	/**
+	 * Removes all values matching the given predicate from the array.
+	 * @returns `true` if removed, `false` otherwise
+	 */
+	export function removeWhere<T> (array: T[] | undefined, predicate: (value: T, index: number, array: T[]) => any) {
+		if (!array)
+			return false
+
+		let removed = false
+		let insertIndex = 0
+		for (let i = 0; i < array.length; i++) {
+			if (predicate(array[i], i, array)) {
+				removed = true
+				// do not increment insertion index so subsequent values will be swapped over the removed one
+				continue
+			}
+
+			if (insertIndex !== i)
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				array[insertIndex] = array[i]
+
+			insertIndex++
+		}
+
+		array.length = insertIndex // trim
+		return removed
+	}
+
+	/**
 	 * Adds the given value to the given array if not present.
 	 * @returns `true` if added, `false` otherwise
 	 */
@@ -303,8 +359,8 @@ namespace Arrays {
 		})
 
 		Define(Array.prototype, "filterInPlace", function (filter): any[] {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-			return this.splice(0, Infinity, ...this.filter(filter))
+			Arrays.removeWhere(this, (value, index, arr) => !filter(value, index, arr))
+			return this
 		})
 
 		Define(Array.prototype, "mapInPlace", function (mapper): any[] {
