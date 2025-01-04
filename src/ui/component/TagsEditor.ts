@@ -5,9 +5,11 @@ import type { InputExtensions } from "ui/component/core/ext/Input"
 import Input from "ui/component/core/ext/Input"
 import Slot from "ui/component/core/Slot"
 import TextInput from "ui/component/core/TextInput"
+import type { TagData } from "ui/component/Tag"
 import Tag from "ui/component/Tag"
 import Applicator from "ui/utility/Applicator"
 import AbortPromise from "utility/AbortPromise"
+import Mouse from "utility/Mouse"
 import State from "utility/State"
 import Strings from "utility/string/Strings"
 
@@ -36,13 +38,21 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 			if (globalTags.length)
 				Component()
 					.style("tags-editor-added-type", "tags-editor-added-global")
-					.append(...globalTags.map(Tag))
+					.append(...globalTags.map(tag => Tag(tag)
+						.setNavigationDisabled(true)
+						.event.subscribe("auxclick", event => event.preventDefault())
+						.event.subscribe("mouseup", event => Mouse.handleMiddle(event) && removeTag(tag))
+					))
 					.appendTo(slot)
 
 			if (tags.custom_tags.length)
 				Component()
 					.style("tags-editor-added-type", "tags-editor-added-custom")
-					.append(...tags.custom_tags.map(Tag))
+					.append(...tags.custom_tags.map(tag => Tag(tag)
+						.setNavigationDisabled(true)
+						.event.subscribe("auxclick", event => event.preventDefault())
+						.event.subscribe("mouseup", event => Mouse.handleMiddle(event) && removeTag(tag))
+					))
 					.appendTo(slot)
 		}))
 
@@ -73,7 +83,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 						category => -Object.values(manifest.tags).filter(tag => tag.category === category.name).length,
 						(a, b) => a.name.localeCompare(b.name),
 					)
-					.map(category => Tag({ category: category.name, name: "...", description: { body: category.description } }))
+					.map(Tag.Category)
 
 			if (categorySuggestions.length)
 				Component()
@@ -131,6 +141,16 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 
 	editor.length.value = 0
 	return editor
+
+	function removeTag (tag: TagData | string) {
+		const tagString = typeof tag === "string" ? tag : `${tag.category}: ${tag.name}`
+		if (typeof tag === "string")
+			tagsState.value.custom_tags.filterInPlace(tag => tag !== tagString)
+		else
+			tagsState.value.global_tags.filterInPlace(tag => tag !== tagString)
+
+		tagsState.emit()
+	}
 })
 
 export default TagsEditor
