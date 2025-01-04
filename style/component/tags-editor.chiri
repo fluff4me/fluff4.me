@@ -3,7 +3,7 @@
 	%flex-column
 	%gap-3
 
-	&-added:
+	&-current:
 		%flex
 		%flex-column
 		%gap-2
@@ -19,8 +19,29 @@
 	&-tag:
 
 	&-input:
+		%font-family-inherit
+		%font-inherit
+		%background-none
+		%border-none
+		%outline-none
+
+		&-wrapper:
+			%flex
+			%flex-column
+			%gap-3
+
+			::focus, ::active:
+				outline: -webkit-focus-ring-color auto 1px
+				outline-offset: 1px
 
 	&-suggestions:
+
+		&-label:
+			%uppercase
+			%unmargin-bottom-2
+			%font-0
+			%bold
+			%colour-6
 
 		&-type:
 			%flex

@@ -69,19 +69,31 @@ const TextInput = Component.Builder("input", (component): TextInput => {
 		.extendMagic("value", input => ({
 			get: () => (input.element as HTMLInputElement).value || "",
 			set: (value: string) => {
-				(input.element as HTMLInputElement).value = value
-				input.state.value = value
-				input.length.value = value.length
+				const element = input.element as HTMLInputElement
+				element.value = value
+				applyFilter("change")
+				input.state.value = element.value
+				input.length.value = element.value.length
 			},
 		}))
 
 	input.length.value = 0
 
 	input.event.subscribe(["input", "change"], event => {
+		applyFilter(event.type as "input" | "change")
+
+		if (shouldIgnoreInputEvent) return
+		input.state.value = input.value
+		input.length.value = input.value.length
+	})
+
+	return input
+
+	function applyFilter (type: "input" | "change") {
 		const element = input.element.asType("input")
 		if (filterFunction && element) {
-			if (event.type === "change") {
-				input.value = filterFunction("", input.value, "").join("")
+			if (type === "change") {
+				element.value = filterFunction("", input.value, "").join("")
 			} else {
 				let { selectionStart, selectionEnd, value } = element
 				const hasSelection = selectionStart !== null || selectionEnd !== null
@@ -92,19 +104,13 @@ const TextInput = Component.Builder("input", (component): TextInput => {
 				const [beforeSelection, selection, afterSelection] =
 					filterFunction(value.slice(0, selectionStart), value.slice(selectionStart, selectionEnd), value.slice(selectionEnd))
 
-				input.value = beforeSelection + selection + afterSelection
+				element.value = beforeSelection + selection + afterSelection
 
 				if (hasSelection)
 					element.setSelectionRange(beforeSelection.length, beforeSelection.length + selection.length)
 			}
 		}
-
-		if (shouldIgnoreInputEvent) return
-		input.state.value = input.value
-		input.length.value = input.value.length
-	})
-
-	return input
+	}
 })
 
 export default TextInput
