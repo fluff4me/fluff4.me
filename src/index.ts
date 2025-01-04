@@ -2,6 +2,16 @@ import Arrays from "utility/Arrays"
 import applyDOMRectPrototypes from "utility/DOMRect"
 import Elements from "utility/Elements"
 
+declare global {
+	export const _: undefined
+	export function select<R> (fn: () => R): R
+}
+
+Object.assign(window, {
+	_: undefined,
+	select: (fn: () => any) => fn(),
+})
+
 // @ts-expect-error no types
 import sourceMapSupport from "browser-source-map-support"
 import Env from "utility/Env"
