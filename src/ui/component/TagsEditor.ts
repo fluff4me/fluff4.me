@@ -62,7 +62,10 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 
 	const tagSuggestions = Slot()
 		.style("tags-editor-suggestions")
-		.use(State.UseManual({ tags: tagsState, input: input.state }), AbortPromise.asyncFunction(async (signal, slot, { tags, input }) => {
+		.use(State.UseManual({ tags: tagsState, input: input.state, focus: input.focused }), AbortPromise.asyncFunction(async (signal, slot, { tags, input, focus }) => {
+			if (!input && !focus)
+				return
+
 			const manifest = await Tags.getManifest()
 			if (signal.aborted)
 				return
