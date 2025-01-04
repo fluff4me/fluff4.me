@@ -4,7 +4,7 @@ import Component from "ui/Component"
 import type { InputExtensions } from "ui/component/core/ext/Input"
 import Input from "ui/component/core/ext/Input"
 import Slot from "ui/component/core/Slot"
-import TextInput from "ui/component/core/TextInput"
+import TextInput, { FilterFunction } from "ui/component/core/TextInput"
 import type { TagData } from "ui/component/Tag"
 import Tag from "ui/component/Tag"
 import Applicator from "ui/utility/Applicator"
@@ -59,6 +59,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 	const input = TextInput()
 		.style("tags-editor-input")
 		.placeholder.use("shared/form/tags/placeholder")
+		.filter(TagsFilter)
 
 	const tagSuggestions = Slot()
 		.style("tags-editor-suggestions")
@@ -109,13 +110,18 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 					.append(...tagSuggestions.map(([, tag]) => Tag(tag)))
 					.appendTo(slot)
 
-			if (!category && name)
+			const customTagSuggestions = select(() => {
+				if (!name) return []
+				if (!category) return [Tag(name)]
+				return [Tag(`${name} ${category}`), Tag(`${category} ${name}`)]
+			})
+			if (customTagSuggestions.length)
 				Component()
 					.style("tags-editor-suggestions-type")
 					.append(Component()
 						.style("tags-editor-suggestions-type-label")
 						.text.use("shared/form/tags/suggestion/add-as-custom"))
-					.append(Tag(name))
+					.append(...customTagSuggestions)
 					.appendTo(slot)
 		}))
 
@@ -155,5 +161,47 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 		tagsState.emit()
 	}
 })
+
+const TagsFilter = FilterFunction((before, selected, after) => {
+	before = filterSegment(before)
+	selected = filterSegment(selected)
+	after = filterSegment(after)
+
+	if (before.includes(":")) {
+		selected = selected.replaceAll(":", " ")
+		after = after.replaceAll(":", " ")
+	} else if (selected.includes(":")) {
+		after = after.replaceAll(":", " ")
+	}
+
+	const shouldTrimBeforeEnd = true
+		&& before.endsWith(" ")
+		&& (false
+			|| selected.startsWith(" ") || selected.startsWith(":")
+			|| !selected && (after.startsWith(" ") || after.startsWith(":"))
+		)
+	if (shouldTrimBeforeEnd)
+		before = before.trimEnd()
+
+	if (selected.endsWith(" ") && (after.startsWith(" ") || after.startsWith(":")))
+		selected = selected.trimEnd()
+
+	before = before.trimStart()
+	after = after.trimEnd()
+	if (!before)
+		selected = selected.trimStart()
+	if (!after)
+		selected = selected.trimEnd()
+
+	return [before, selected, after]
+})
+
+function filterSegment (text: string) {
+	return text.toLowerCase()
+		.replace(/[^a-z0-9: -]/g, " ")
+		.replace(/(?<=:.*?):/g, " ")
+		.replace(/ {2,}/g, " ")
+		.replace(" :", ":")
+}
 
 export default TagsEditor

@@ -11,7 +11,7 @@ import LabelledTextInputBlock from "ui/component/core/LabelledTextInputBlock"
 import TextEditor from "ui/component/core/TextEditor"
 import TextInput from "ui/component/core/TextInput"
 import { TOAST_ERROR, TOAST_SUCCESS } from "ui/component/core/toast/Toast"
-import VanityInput from "ui/component/VanityInput"
+import VanityInput, { FilterVanity } from "ui/component/VanityInput"
 
 type AccountViewFormType =
 	| "create"
@@ -41,7 +41,7 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 
 	const vanityInput = VanityInput()
 		.placeholder.bind(nameInput.state
-			.map(component, name => VanityInput.filter(name)))
+			.map(component, name => FilterVanity(name)))
 		.default.bind(Session.Auth.author.map(component, author => author?.vanity))
 		.hint.use("view/account/vanity/hint")
 		.setMaxLength(FormInputLengths.manifest?.author.vanity)

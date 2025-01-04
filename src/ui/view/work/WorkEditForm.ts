@@ -14,6 +14,7 @@ import TextInput from "ui/component/core/TextInput"
 import { TOAST_ERROR, TOAST_SUCCESS } from "ui/component/core/toast/Toast"
 import type { TagsState } from "ui/component/TagsEditor"
 import TagsEditor from "ui/component/TagsEditor"
+import { FilterVanity } from "ui/component/VanityInput"
 import type State from "utility/State"
 
 export default Component.Builder((component, state: State<WorkFull | undefined>) => {
@@ -42,9 +43,9 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 
 	const vanityInput = TextInput()
 		.placeholder.bind(nameInput.state
-			.map(component, name => filterVanity(name)))
+			.map(component, name => FilterVanity(name)))
 		.default.bind(state.map(component, work => work?.vanity))
-		.filter(filterVanity)
+		.filter(FilterVanity)
 		.hint.use("view/work-edit/shared/form/vanity/hint")
 		.setMaxLength(FormInputLengths.manifest?.work.vanity)
 	table.label(label => label.text.use("view/work-edit/shared/form/vanity/label"))
@@ -121,15 +122,4 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 	})
 
 	return form
-
-	function filterVanity (vanity: string, textBefore = "", isFullText = true) {
-		vanity = vanity.replace(/[\W_]+/g, "-")
-		if (isFullText)
-			vanity = vanity.replace(/^-|-$/g, "")
-
-		if (textBefore.endsWith("-") && vanity.startsWith("-"))
-			return vanity.slice(1)
-
-		return vanity
-	}
 })

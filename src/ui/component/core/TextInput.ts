@@ -4,11 +4,18 @@ import Input from "ui/component/core/ext/Input"
 import StringApplicator from "ui/utility/StringApplicator"
 import State from "utility/State"
 
-/** 
- * @param text The text to filter
- * @param textBefore The text that appears before this text
- */
-type FilterFunction = (text: string, textBefore: string, isFullText: boolean) => string
+export type FilterFunction = (before: string, selected: string, after: string) => readonly [string, string, string]
+export interface FilterFunctionFull {
+	(before: string, selected: string, after: string): readonly [string, string, string]
+	(text: string): string
+}
+export function FilterFunction (fn: FilterFunction): FilterFunctionFull {
+	return (
+		(before, selected, after) => selected === undefined
+			? fn("", before, "").join("")
+			: fn(before, selected, after)
+	) as FilterFunctionFull
+}
 
 export interface TextInputExtensions {
 	readonly state: State<string>
@@ -23,7 +30,7 @@ export interface TextInputExtensions {
 	/**
 	 * Prevent the user from entering invalid characters in this input via a filter function.
 	 */
-	filter (filter?: FilterFunction): this
+	filter (filterFn?: FilterFunction): this
 }
 
 interface TextInput extends Component, TextInputExtensions, InputExtensions { }
@@ -74,7 +81,7 @@ const TextInput = Component.Builder("input", (component): TextInput => {
 		const element = input.element.asType("input")
 		if (filterFunction && element) {
 			if (event.type === "change") {
-				input.value = filterFunction(input.value, "", true)
+				input.value = filterFunction("", input.value, "").join("")
 			} else {
 				let { selectionStart, selectionEnd, value } = element
 				const hasSelection = selectionStart !== null || selectionEnd !== null
@@ -82,9 +89,8 @@ const TextInput = Component.Builder("input", (component): TextInput => {
 				selectionStart ??= value.length
 				selectionEnd ??= value.length
 
-				const beforeSelection = filterFunction(value.slice(0, selectionStart), "", false)
-				const selection = filterFunction(value.slice(selectionStart, selectionEnd), beforeSelection, false)
-				const afterSelection = filterFunction(value.slice(selectionEnd), selection || beforeSelection, false)
+				const [beforeSelection, selection, afterSelection] =
+					filterFunction(value.slice(0, selectionStart), value.slice(selectionStart, selectionEnd), value.slice(selectionEnd))
 
 				input.value = beforeSelection + selection + afterSelection
 
