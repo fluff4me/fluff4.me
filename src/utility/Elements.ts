@@ -1,4 +1,4 @@
-import Define from "utility/Define"
+import Define from 'utility/Define'
 
 declare global {
 	interface Element {
@@ -8,11 +8,9 @@ declare global {
 
 namespace Elements {
 	export function applyPrototypes () {
-
-		Define.set(Element.prototype, "asType", function (this: Element, tagName): any {
+		Define.set(Element.prototype, 'asType', function (this: Element, tagName): any {
 			return this.tagName.toLowerCase() === tagName ? this : undefined
 		})
-
 	}
 }
 

@@ -1,10 +1,10 @@
-import Component from "ui/Component"
-import type { ComponentNameType } from "ui/utility/StyleManipulator"
-import type { UnsubscribeState } from "utility/State"
-import State from "utility/State"
+import Component from 'ui/Component'
+import type { ComponentNameType } from 'ui/utility/StyleManipulator'
+import type { UnsubscribeState } from 'utility/State'
+import State from 'utility/State'
 
-type ButtonType = ComponentNameType<"button-type">
-type ButtonIcon = ComponentNameType<"button-icon">
+type ButtonType = ComponentNameType<'button-type'>
+type ButtonIcon = ComponentNameType<'button-icon'>
 
 interface ButtonTypeManipulator<HOST> {
 	(...buttonTypes: ButtonType[]): HOST
@@ -23,17 +23,17 @@ interface ButtonExtensions {
 
 interface Button extends Component, ButtonExtensions { }
 
-const Button = Component.Builder("button", (button): Button => {
+const Button = Component.Builder('button', (button): Button => {
 	const disabledReasons = new Set<string>()
 	const disabled = State.Generator(() => !!disabledReasons.size)
 
 	let icon: ButtonIcon | undefined
 	const unuseDisabledStateMap = new WeakMap<State<boolean>, UnsubscribeState>()
 	return button
-		.attributes.set("type", "button")
-		.style("button")
-		.style.bind(disabled, "button--disabled")
-		.attributes.bind(disabled, "disabled")
+		.attributes.set('type', 'button')
+		.style('button')
+		.style.bind(disabled, 'button--disabled')
+		.attributes.bind(disabled, 'disabled')
 		.extend<ButtonExtensions>(button => ({
 			textWrapper: undefined!,
 			disabled,
@@ -84,8 +84,8 @@ const Button = Component.Builder("button", (button): Button => {
 				return button
 			},
 		}))
-		.extendJIT("textWrapper", button => Component()
-			.style("button-text")
+		.extendJIT('textWrapper', button => Component()
+			.style('button-text')
 			.appendTo(button))
 })
 

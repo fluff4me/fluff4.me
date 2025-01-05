@@ -1,22 +1,22 @@
-import Async from "utility/Async"
-import Time from "utility/Time"
+import Async from 'utility/Async'
+import Time from 'utility/Time'
 
-declare const scheduler: { yield (): Promise<void>; postTask<T> (task: () => Promise<T>, options?: unknown): Promise<T> } | undefined
+declare const scheduler: { yield (): Promise<void>, postTask<T> (task: () => Promise<T>, options?: unknown): Promise<T> } | undefined
 
 const DEFAULT_INTERVAL = Time.seconds(1) / 144
 
 export default class Task {
 
 	public static async yield (instantIfUnsupported = false): Promise<void> {
-		if (typeof scheduler !== "undefined" && typeof scheduler.yield === "function")
+		if (typeof scheduler !== 'undefined' && typeof scheduler.yield === 'function')
 			return scheduler.yield()
 
 		if (!instantIfUnsupported)
 			await Async.sleep(1)
 	}
 
-	public static post<T> (callback: () => Promise<T>, priority: "user-blocking" | "user-visible" | "background"): Promise<T> {
-		if (typeof scheduler === "undefined" || typeof scheduler.postTask !== "function")
+	public static post<T> (callback: () => Promise<T>, priority: 'user-blocking' | 'user-visible' | 'background'): Promise<T> {
+		if (typeof scheduler === 'undefined' || typeof scheduler.postTask !== 'function')
 			return callback()
 
 		return scheduler.postTask(callback, { priority })
@@ -36,4 +36,5 @@ export default class Task {
 			this.lastYieldEnd = Date.now()
 		}
 	}
+
 }

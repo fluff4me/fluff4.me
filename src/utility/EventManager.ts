@@ -1,27 +1,28 @@
+import type { AnyFunction } from 'utility/Type'
 
-export interface IEventSubscriptionManager<EVENTS = {}, TARGET extends EventTarget = EventTarget> {
-	subscribe<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): this
-	subscribe (type: string | string[], listener: (this: TARGET, event: Event) => any): this
-	subscribeOnce<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): this
-	subscribeOnce (type: string | string[], listener: (this: TARGET, event: Event) => any): this
+export interface IEventSubscriptionManager<EVENTS = object, TARGET extends EventTarget = EventTarget> {
+	subscribe<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => unknown): this
+	subscribe (type: string | string[], listener: (this: TARGET, event: Event) => unknown): this
+	subscribeOnce<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => unknown): this
+	subscribeOnce (type: string | string[], listener: (this: TARGET, event: Event) => unknown): this
 }
 
-export class EventManager<HOST extends object, EVENTS = {}, TARGET extends EventTarget = EventTarget> {
+export class EventManager<HOST extends object, EVENTS = object, TARGET extends EventTarget = EventTarget> {
 
 	public static readonly global = EventManager.make<GlobalEventHandlersEventMap>()
 
 	public static make<EVENTS> () {
-		return new EventManager<{}, EVENTS>({})
+		return new EventManager<object, EVENTS>({})
 	}
 
-	public static emit (target: EventTarget | undefined, event: Event | string, init?: ((event: Event) => any) | object) {
+	public static emit (target: EventTarget | undefined, event: Event | string, init?: ((event: Event) => unknown) | object) {
 		if (init instanceof Event)
 			event = init
 
-		if (typeof event === "string")
+		if (typeof event === 'string')
 			event = new Event(event, { cancelable: true })
 
-		if (typeof init === "function")
+		if (typeof init === 'function')
 			init?.(event)
 		else if (init && event !== init)
 			Object.assign(event, init)
@@ -42,9 +43,9 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 		this._target = target
 	}
 
-	public subscribe<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST
-	public subscribe (type: string | string[], listener: (this: TARGET, event: Event) => any): HOST
-	public subscribe (type: string | string[], listener: (this: TARGET, event: any) => any) {
+	public subscribe<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => unknown): HOST
+	public subscribe (type: string | string[], listener: (this: TARGET, event: Event) => unknown): HOST
+	public subscribe (type: string | string[], listener: (this: TARGET, event: any) => unknown) {
 		if (!Array.isArray(type))
 			type = [type]
 
@@ -54,10 +55,10 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 		return this.host.deref() as HOST
 	}
 
-	private readonly subscriptions: Record<string, WeakMap<Function, Function>> = {}
-	public subscribeOnce<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST
-	public subscribeOnce (type: string | string[], listener: (this: TARGET, event: Event) => any): HOST
-	public subscribeOnce (types: string | string[], listener: (this: TARGET, event: any) => any) {
+	private readonly subscriptions: Record<string, WeakMap<AnyFunction, AnyFunction>> = {}
+	public subscribeOnce<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => unknown): HOST
+	public subscribeOnce (type: string | string[], listener: (this: TARGET, event: Event) => unknown): HOST
+	public subscribeOnce (types: string | string[], listener: (this: TARGET, event: any) => unknown) {
 		if (!Array.isArray(types))
 			types = [types]
 
@@ -83,9 +84,9 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 		return this.host.deref() as HOST
 	}
 
-	public unsubscribe<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => any): HOST
-	public unsubscribe (type: string | string[], listener: (this: TARGET, event: Event) => any): HOST
-	public unsubscribe (types: string | string[], listener: (this: TARGET, event: any) => any) {
+	public unsubscribe<TYPE extends keyof EVENTS> (type: TYPE | TYPE[], listener: (this: TARGET, event: Event & EVENTS[TYPE]) => unknown): HOST
+	public unsubscribe (type: string | string[], listener: (this: TARGET, event: Event) => unknown): HOST
+	public unsubscribe (types: string | string[], listener: (this: TARGET, event: any) => unknown) {
 		if (!Array.isArray(types))
 			types = [types]
 
@@ -110,17 +111,17 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 			this.subscribeOnce(types, resolve))
 	}
 
-	public until (promise: Promise<any> | keyof EVENTS, initialiser?: (manager: IEventSubscriptionManager<EVENTS, TARGET>) => any): HOST {
-		if (typeof promise !== "object")
+	public until (promise: Promise<any> | keyof EVENTS, initialiser?: (manager: IEventSubscriptionManager<EVENTS, TARGET>) => unknown): HOST {
+		if (typeof promise !== 'object')
 			promise = this.waitFor(promise)
 
 		const manager: IEventSubscriptionManager<EVENTS, TARGET> = {
-			subscribe: (type: never, listener: (this: TARGET, event: any) => any) => {
+			subscribe: (type: never, listener: (this: TARGET, event: any) => unknown) => {
 				this.subscribe(type, listener)
 				void (promise).then(() => this.unsubscribe(type, listener))
 				return manager
 			},
-			subscribeOnce: (type: never, listener: (this: TARGET, event: any) => any) => {
+			subscribeOnce: (type: never, listener: (this: TARGET, event: any) => unknown) => {
 				this.subscribeOnce(type, listener)
 				void (promise).then(() => this.unsubscribe(type, listener))
 				return manager
@@ -136,9 +137,9 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 	public emit<TYPE extends keyof EVENTS> (type: TYPE, init: Pick<EVENTS[TYPE], Exclude<keyof EVENTS[TYPE], Event>>): void
 	public emit<TYPE extends keyof EVENTS> (type: TYPE, initializer: (event: Event) => EVENTS[TYPE]): void
 	public emit<EVENT extends Event> (event: EVENT, init: Omit<EVENTS[keyof EVENTS], keyof EVENT>): void
-	public emit<EVENT extends EVENTS[keyof EVENTS]> (event: EVENT, initializer?: (event: EVENT) => any): void
+	public emit<EVENT extends EVENTS[keyof EVENTS]> (event: EVENT, initializer?: (event: EVENT) => unknown): void
 	public emit<EVENT extends Event> (event: EVENT, initializer: (event: EVENT) => EVENTS[keyof EVENTS]): void
-	public emit (event: Event | string, init?: ((event: any) => any) | object) {
+	public emit (event: Event | string, init?: ((event: any) => unknown) | object) {
 		event = EventManager.emit(this.target, event, init)
 
 		// const pipeTargets = this.pipeTargets.get(event.type)
@@ -200,4 +201,5 @@ export class EventManager<HOST extends object, EVENTS = {}, TARGET extends Event
 	// 			this.pipes.delete(type);
 	// 	}
 	// }
+
 }

@@ -1,6 +1,6 @@
-import Component from "ui/Component"
-import State from "utility/State"
-import Time from "utility/Time"
+import Component from 'ui/Component'
+import State from 'utility/State'
+import Time from 'utility/Time'
 
 interface TimestampExtensions {
 	time: State<Date>
@@ -13,12 +13,12 @@ const Timestamp = Component.Builder((component, time?: number | string | Date) =
 	state.use(component, update)
 
 	return component
-		.style("timestamp")
+		.style('timestamp')
 		.extend(component => ({ time: state }))
 		.onRooted(component => {
 			update()
 			const interval = setInterval(update, Time.seconds(1))
-			component.event.subscribe("remove", () => clearInterval(interval))
+			component.event.subscribe('remove', () => clearInterval(interval))
 		})
 
 	function update () {

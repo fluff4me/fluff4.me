@@ -1,11 +1,11 @@
-import Component from "ui/Component"
-import type Label from "ui/component/core/Label"
-import { AutoLabel } from "ui/component/core/Label"
-import type TextInput from "ui/component/core/TextInput"
-import TextInputBlock from "ui/component/core/TextInputBlock"
+import Component from 'ui/Component'
+import type Label from 'ui/component/core/Label'
+import { AutoLabel } from 'ui/component/core/Label'
+import type TextInput from 'ui/component/core/TextInput'
+import TextInputBlock from 'ui/component/core/TextInputBlock'
 
 interface LabelledRowFactory<HOST extends LabelledTextInputBlock> {
-	input (inputInitialiser: (input: TextInput, label: Label) => any): HOST
+	input (inputInitialiser: (input: TextInput, label: Label) => unknown): HOST
 }
 
 interface LabelledTextInputBlockExtensions {
@@ -17,15 +17,15 @@ interface LabelledTextInputBlockExtensions {
 interface LabelledTextInputBlock extends Component, LabelledTextInputBlockExtensions { }
 
 const LabelledTextInputBlock = Component.Builder((block): LabelledTextInputBlock => {
-	block.style("labelled-text-input-block", "labelled-row")
-		.ariaRole("group")
+	block.style('labelled-text-input-block', 'labelled-row')
+		.ariaRole('group')
 
 	const labels = Component()
-		.style("labelled-text-input-block-labels")
+		.style('labelled-text-input-block-labels')
 		.appendTo(block)
 
 	const inputs = TextInputBlock()
-		.style("labelled-text-input-block-inputs")
+		.style('labelled-text-input-block-inputs')
 		.appendTo(block)
 
 	let labelInitialiser: ((label: AutoLabel) => Label) | undefined
@@ -40,14 +40,14 @@ const LabelledTextInputBlock = Component.Builder((block): LabelledTextInputBlock
 				input: inputInitialiser => {
 					const rowNumber = inputs.inputs.length + 1
 					const label = AutoLabel()
-						.style("labelled-text-input-block-label")
-						.style.setProperty("grid-row", `${rowNumber}`)
+						.style('labelled-text-input-block-label')
+						.style.setProperty('grid-row', `${rowNumber}`)
 						.appendTo(labels)
 
 					labelInitialiser!(label)
 					inputs.addInput(input => input
-						.style("labelled-text-input-block-input")
-						.style.setProperty("grid-row", `${rowNumber}`)
+						.style('labelled-text-input-block-input')
+						.style.setProperty('grid-row', `${rowNumber}`)
 						.tweak(input => inputInitialiser(input.setLabel(label), label)))
 					labelInitialiser = undefined
 					return block

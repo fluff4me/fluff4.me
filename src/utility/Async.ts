@@ -1,4 +1,4 @@
-import type { AnyFunction, Mutable, PromiseOr } from "utility/Type"
+import type { AnyFunction, Mutable, PromiseOr } from 'utility/Type'
 
 namespace Async {
 
@@ -50,11 +50,11 @@ namespace Async {
 			}
 
 			timeoutId = window.setTimeout(() => {
-				signal.removeEventListener("abort", onAbort)
+				signal.removeEventListener('abort', onAbort)
 				resolve(false)
 			}, ms)
 
-			signal.addEventListener("abort", onAbort, { once: true })
+			signal.addEventListener('abort', onAbort, { once: true })
 		})
 	}
 
@@ -82,15 +82,16 @@ namespace Async {
 	export function debounce (...args: any[]) {
 		let ms: number | undefined
 		let callback: AnyFunction
-		if (typeof args[0] === "function") {
+		if (typeof args[0] === 'function') {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			[callback, ...args] = args
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			return debounceByPromise(callback, ...args)
-		} else {
+		}
+		else {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			[ms, callback, ...args] = args
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
 			return debounceByTime(ms as number, callback, ...args)
 		}
 	}
@@ -138,7 +139,7 @@ namespace Async {
 	}
 
 	const debouncedByPromise = new WeakMap<AnyFunction, IDebounceByPromiseInfo>()
-	function debounceByPromise<ARGS extends any[]> (callback: (...args: ARGS) => any, ...args: ARGS) {
+	function debounceByPromise<ARGS extends any[]> (callback: (...args: ARGS) => unknown, ...args: ARGS) {
 		const debounceInfo = debouncedByPromise.get(callback)
 		if (debounceInfo?.nextQueued) {
 			return debounceInfo.promise
@@ -154,7 +155,6 @@ namespace Async {
 					return
 				}
 
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 				const result = callback(...args)
 				const promise = Promise.resolve(result)
 				debouncedByPromise.set(callback, {
@@ -165,20 +165,22 @@ namespace Async {
 				(callback as AnyFunction | undefined) = undefined
 				promise.catch(reason => {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-					window.dispatchEvent(new PromiseRejectionEvent("unhandledrejection", { promise, reason }))
+					window.dispatchEvent(new PromiseRejectionEvent('unhandledrejection', { promise, reason }))
 				})
 				return promise
-			} catch (error) {
-				window.dispatchEvent(new ErrorEvent("error", { error }))
+			}
+			catch (error) {
+				window.dispatchEvent(new ErrorEvent('error', { error }))
 				return
 			}
 		}
 
 		if (debounceInfo) {
 			debounceInfo.nextQueued = true
-			// eslint-disable-next-line @typescript-eslint/no-misused-promises
+
 			return debounceInfo.promise.catch(realCallback).then(realCallback)
-		} else {
+		}
+		else {
 			return realCallback()
 		}
 	}
@@ -199,7 +201,7 @@ namespace Async {
 		/**
 		 * Adds a callback for when the call is cancelled. Given the same arguments as parameters as the scheduled callback would have been.
 		 */
-		onCancel (callback: (...args: ARGS) => any): this
+		onCancel (callback: (...args: ARGS) => unknown): this
 	}
 
 	/**
@@ -209,7 +211,7 @@ namespace Async {
 	 * **Note that args passed are temporarily held in memory.** WeakRef them if that's relevant.
 	 * @returns An object containing properties and methods related to this scheduled call.
 	 */
-	export function schedule<ARGS extends any[]> (callback: (...args: ARGS) => any, ...args: ARGS): IScheduleHandler<ARGS>
+	export function schedule<ARGS extends any[]> (callback: (...args: ARGS) => unknown, ...args: ARGS): IScheduleHandler<ARGS>
 	/**
 	 * Schedule the `callback` to be executed after `ms`, with `args` as parameters.
 	 * @param ms The time in milliseconds the callback should be executed after.
@@ -218,7 +220,7 @@ namespace Async {
 	 * **Note that args passed are temporarily held in memory.** WeakRef them if that's relevant.
 	 * @returns An object containing properties and methods related to this scheduled call.
 	 */
-	export function schedule<ARGS extends any[]> (ms: number, callback: (...args: ARGS) => any, ...args: ARGS): IScheduleHandler<ARGS>
+	export function schedule<ARGS extends any[]> (ms: number, callback: (...args: ARGS) => unknown, ...args: ARGS): IScheduleHandler<ARGS>
 	/**
 	 * Schedule the `callback` to be executed after `ms`, with `args` as parameters. Cancel if receiving abort signal.
 	 * @param ms The time in milliseconds the callback should be executed after.
@@ -228,7 +230,7 @@ namespace Async {
 	 * **Note that args passed are temporarily held in memory.** WeakRef them if that's relevant.
 	 * @returns An object containing properties and methods related to this scheduled call.
 	 */
-	export function schedule<ARGS extends any[]> (ms: number, signal: AbortSignal, callback: (...args: ARGS) => any, ...args: ARGS): IScheduleHandler<ARGS>
+	export function schedule<ARGS extends any[]> (ms: number, signal: AbortSignal, callback: (...args: ARGS) => unknown, ...args: ARGS): IScheduleHandler<ARGS>
 	/**
 	 * Schedule the `callback` to be executed after `ms`, with `args` as parameters. Cancel if receiving abort signal.
 	 * @param ms The time in milliseconds the callback should be executed after.
@@ -240,7 +242,7 @@ namespace Async {
 	 * **Note that args passed are temporarily held in memory.** WeakRef them if that's relevant.
 	 * @returns An object containing properties and methods related to this scheduled call.
 	 */
-	export function schedule<ARGS extends any[]> (ms: number, debounceTime: number | true, callback: (...args: ARGS) => any, ...args: ARGS): IScheduleHandler<ARGS>
+	export function schedule<ARGS extends any[]> (ms: number, debounceTime: number | true, callback: (...args: ARGS) => unknown, ...args: ARGS): IScheduleHandler<ARGS>
 	/**
 	 * Schedule the `callback` to be executed after `ms`, with `args` as parameters. Cancel if receiving abort signal.
 	 * @param ms The time in milliseconds the callback should be executed after.
@@ -253,35 +255,38 @@ namespace Async {
 	 * **Note that args passed are temporarily held in memory.** WeakRef them if that's relevant.
 	 * @returns An object containing properties and methods related to this scheduled call.
 	 */
-	export function schedule<ARGS extends any[]> (ms: number, debounceTime: number | true, signal: AbortSignal, callback: (...args: ARGS) => any, ...args: ARGS): IScheduleHandler<ARGS>
+	export function schedule<ARGS extends any[]> (ms: number, debounceTime: number | true, signal: AbortSignal, callback: (...args: ARGS) => unknown, ...args: ARGS): IScheduleHandler<ARGS>
 	export function schedule (...args: any[]) {
-
 		let ms = 0
 		let callback: AnyFunction | undefined
 		let debounceMs: number | boolean = false
 		let signal: AbortSignal | undefined
-		if (typeof args[0] === "function") {
+		if (typeof args[0] === 'function') {
 			// (cb, ...args)
+
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			[callback, ...args] = args
-
-		} else if (typeof args[1] === "function") {
+		}
+		else if (typeof args[1] === 'function') {
 			// (ms, cb, ...args)
+
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			[ms, callback, ...args] = args
-
-		} else if (typeof args[2] === "function") {
+		}
+		else if (typeof args[2] === 'function') {
 			// (ms, debounce | signal, cb, ...args)
-			if (typeof args[1] === "object") {
+			if (typeof args[1] === 'object') {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 				[ms, signal, callback, ...args] = args
-			} else {
+			}
+			else {
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 				[ms, debounceMs, callback, ...args] = args
 			}
-
-		} else {
+		}
+		else {
 			// (ms, debounce, signal, cb, ...args)
+
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			[ms, debounceMs, signal, callback, ...args] = args
 		}
@@ -302,20 +307,21 @@ namespace Async {
 					return
 				}
 
-				signal?.removeEventListener("abort", result.cancel)
+				signal?.removeEventListener('abort', result.cancel)
 				result.cancelled = true
 				window.clearTimeout(timeoutId)
 				for (const callback of cancelCallbacks) {
 					try {
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
 						const result = callback(...args)
 						const promise = Promise.resolve(result)
 						promise.catch(reason => {
 							// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-							window.dispatchEvent(new PromiseRejectionEvent("unhandledrejection", { promise, reason }))
+							window.dispatchEvent(new PromiseRejectionEvent('unhandledrejection', { promise, reason }))
 						})
-					} catch (error) {
-						window.dispatchEvent(new ErrorEvent("error", { error }))
+					}
+					catch (error) {
+						window.dispatchEvent(new ErrorEvent('error', { error }))
 					}
 				}
 
@@ -329,17 +335,19 @@ namespace Async {
 
 				if (result.cancelled) {
 					try {
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 						const result = callback(...args)
 						const promise = Promise.resolve(result)
 						promise.catch(reason => {
 							// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-							window.dispatchEvent(new PromiseRejectionEvent("unhandledrejection", { promise, reason }))
+							window.dispatchEvent(new PromiseRejectionEvent('unhandledrejection', { promise, reason }))
 						})
-					} catch (error) {
-						window.dispatchEvent(new ErrorEvent("error", { error }))
 					}
-				} else {
+					catch (error) {
+						window.dispatchEvent(new ErrorEvent('error', { error }))
+					}
+				}
+				else {
 					cancelCallbacks.push(callback)
 				}
 
@@ -347,27 +355,28 @@ namespace Async {
 			},
 		}
 
-		signal?.addEventListener("abort", result.cancel, { once: true })
+		signal?.addEventListener('abort', result.cancel, { once: true })
 
 		timeoutId = window.setTimeout(() => {
 			if (result.cancelled) {
 				return
 			}
 
-			signal?.removeEventListener("abort", result.cancel)
+			signal?.removeEventListener('abort', result.cancel)
 			result.completed = true
 			cancelCallbacks.length = 0
 
 			try {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
 				const result = debounceMs ? debounce(debounceMs, callback!, ...args) : callback!(...args)
 				const promise = Promise.resolve(result)
 				promise.catch(reason => {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-					window.dispatchEvent(new PromiseRejectionEvent("unhandledrejection", { promise, reason }))
+					window.dispatchEvent(new PromiseRejectionEvent('unhandledrejection', { promise, reason }))
 				})
-			} catch (error) {
-				window.dispatchEvent(new ErrorEvent("error", { error }))
+			}
+			catch (error) {
+				window.dispatchEvent(new ErrorEvent('error', { error }))
 			}
 		}, ms)
 

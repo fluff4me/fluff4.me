@@ -1,4 +1,4 @@
-import type Component from "ui/Component"
+import type Component from 'ui/Component'
 
 interface ClassManipulator<HOST> {
 	has (...classes: string[]): boolean
@@ -27,10 +27,10 @@ function ClassManipulator (component: Component): ClassManipulator<Component> {
 			return component
 		},
 		toggle (present, ...classes) {
-			return this[present ? "add" : "remove"](...classes)
+			return this[present ? 'add' : 'remove'](...classes)
 		},
 		copy (element) {
-			if ("element" in element)
+			if ('element' in element)
 				element = element.element
 
 			component.element.classList.add(...element.classList)

@@ -1,6 +1,7 @@
 export type AbortPromiseOr<T> = T | AbortPromise<T>
 
 class AbortPromise<T> extends Promise<T> {
+
 	#controller?: AbortController
 
 	/**
@@ -29,6 +30,7 @@ class AbortPromise<T> extends Promise<T> {
 
 		this.#controller?.abort()
 	}
+
 }
 
 namespace AbortPromise {

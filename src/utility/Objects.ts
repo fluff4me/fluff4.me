@@ -1,4 +1,4 @@
-import type { PromiseOr } from "utility/Type"
+import type { PromiseOr } from 'utility/Type'
 
 namespace Objects {
 	export const EMPTY = {}
@@ -10,13 +10,15 @@ namespace Objects {
 	}
 
 	export function values<O extends object> (object: O): O[keyof O][] {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return Object.values(object)
 	}
 
-	export function inherit<T extends { prototype: any }> (obj: any, inherits: T): T["prototype"] {
+	export function inherit<T extends { prototype: any }> (obj: any, inherits: T): T['prototype'] {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
 		Object.setPrototypeOf(obj, (inherits as any).prototype)
-		return obj as T["prototype"]
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		return obj as T['prototype']
 	}
 
 	export function filterNullish<T> (object: T): { [KEY in keyof T as undefined extends T[KEY] ? never : null extends T[KEY] ? never : KEY]: T[KEY] } {
@@ -24,9 +26,9 @@ namespace Objects {
 	}
 
 	export function filter<T, R extends [keyof T, any]> (object: T, filter: (pair: { [K in keyof T]: [K, T[K]] }[keyof T]) => pair is R): { [P in R as P[0]]: P[1] }
-	export function filter<T> (object: T, filter: (pair: { [K in keyof T]: [K, T[K]] }[keyof T]) => any): T
+	export function filter<T> (object: T, filter: (pair: { [K in keyof T]: [K, T[K]] }[keyof T]) => unknown): T
 	export function filter<T, R extends [PropertyKeySafe, any]> (object: T, filter: (pair: { [K in keyof T]: [K, T[K]] }[keyof T]) => R) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unnecessary-type-assertion
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		return Object.fromEntries(Object.entries(object as any).filter(filter as any))
 	}
 
@@ -43,9 +45,10 @@ namespace Objects {
 
 	export function followPath (obj: any, keys: (string | number)[]) {
 		for (const key of keys)
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
 			obj = obj?.[key]
 
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return obj
 	}
 
@@ -79,7 +82,7 @@ namespace Objects {
 		if (!descriptor)
 			return
 
-		if ("value" in descriptor) {
+		if ('value' in descriptor) {
 			target[key] = from[key]
 			return
 		}
@@ -91,31 +94,33 @@ namespace Objects {
 		applyJIT(target, key, compute)
 	}
 
-	export const assign: (typeof Object)["assign"] = function (target: any, ...sources: any[]) {
+	export const assign: (typeof Object)['assign'] = function (target: any, ...sources: any[]) {
 		for (const source of sources) {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			for (const key of Object.keys(source)) {
 				const descriptor = Object.getOwnPropertyDescriptor(target, key)
 				if (!descriptor || descriptor.writable) {
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
 					target[key] = source[key]
 				}
 			}
 		}
 
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return target
 	}
 
 	export function merge<A, B> (a: A, b: B): A & B {
-		if (typeof a !== "object" || typeof b !== "object" || a === null || b === null || Array.isArray(a) || Array.isArray(b))
+		if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null || Array.isArray(a) || Array.isArray(b))
 			return (b === undefined ? a : b) as A & B
 
 		const result: any = {}
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
 		for (const key of new Set([...Object.keys(a), ...Object.keys(b)]))
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
 			result[key] = merge((a as any)[key], (b as any)[key])
 
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return result
 	}
 }

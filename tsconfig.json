@@ -11,5 +11,11 @@
 		"skipLibCheck": true,
 		"paths": {
 		}
-	}
+	},
+	"include": [
+		"**/*.ts",
+		"**/*.mts",
+		"**/*.js",
+		"**/*.mjs",
+	]
 }

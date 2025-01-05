@@ -1,4 +1,4 @@
-import type Component from "ui/Component"
+import type Component from 'ui/Component'
 
 namespace ActiveListener {
 	let lastActive: Element[] = []
@@ -24,11 +24,11 @@ namespace ActiveListener {
 	}
 
 	export function listen () {
-		document.addEventListener("mousedown", updateActive)
-		document.addEventListener("mouseup", updateActive)
+		document.addEventListener('mousedown', updateActive)
+		document.addEventListener('mouseup', updateActive)
 
 		function updateActive () {
-			const allActive = document.querySelectorAll(":active")
+			const allActive = document.querySelectorAll(':active')
 			const active = allActive[allActive.length - 1]
 			if (active === lastActive[lastActive.length - 1])
 				return

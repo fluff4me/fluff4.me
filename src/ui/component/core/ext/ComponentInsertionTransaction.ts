@@ -1,6 +1,6 @@
-import type Component from "ui/Component"
-import type { ComponentInsertionDestination } from "ui/Component"
-import type { Mutable } from "utility/Type"
+import type Component from 'ui/Component'
+import type { ComponentInsertionDestination } from 'ui/Component'
+import type { Mutable } from 'utility/Type'
 
 interface ComponentInsertionTransaction extends ComponentInsertionDestination {
 	readonly closed: boolean
@@ -9,8 +9,8 @@ interface ComponentInsertionTransaction extends ComponentInsertionDestination {
 	close (): void
 }
 
-function ComponentInsertionTransaction (component?: Component, onEnd?: (transaction: ComponentInsertionTransaction) => any): ComponentInsertionTransaction {
-	component?.event.subscribe("remove", onComponentRemove)
+function ComponentInsertionTransaction (component?: Component, onEnd?: (transaction: ComponentInsertionTransaction) => unknown): ComponentInsertionTransaction {
+	component?.event.subscribe('remove', onComponentRemove)
 
 	let removed = false
 	const result: Mutable<ComponentInsertionTransaction> = {
@@ -61,7 +61,7 @@ function ComponentInsertionTransaction (component?: Component, onEnd?: (transact
 
 	function close () {
 		result.closed = true
-		component?.event.unsubscribe("remove", onComponentRemove)
+		component?.event.unsubscribe('remove', onComponentRemove)
 		component = undefined
 	}
 

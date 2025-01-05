@@ -1,27 +1,27 @@
-import type Component from "ui/Component"
-import Mouse from "ui/utility/Mouse"
-import Viewport from "ui/utility/Viewport"
-import type { UnsubscribeState } from "utility/State"
-import Time from "utility/Time"
-import type { PartialRecord } from "utility/Type"
+import type Component from 'ui/Component'
+import Mouse from 'ui/utility/Mouse'
+import Viewport from 'ui/utility/Viewport'
+import type { UnsubscribeState } from 'utility/State'
+import Time from 'utility/Time'
+import type { PartialRecord } from 'utility/Type'
 
 ////////////////////////////////////
 //#region Anchor Strings
 
-export const ANCHOR_TYPES = ["off", "aligned"] as const
+export const ANCHOR_TYPES = ['off', 'aligned'] as const
 export type AnchorType = (typeof ANCHOR_TYPES)[number]
 
-export const ANCHOR_SIDE_HORIZONTAL = ["left", "right"] as const
+export const ANCHOR_SIDE_HORIZONTAL = ['left', 'right'] as const
 export type AnchorSideHorizontal = (typeof ANCHOR_SIDE_HORIZONTAL)[number]
 
-export const ANCHOR_SIDE_VERTICAL = ["top", "bottom"] as const
+export const ANCHOR_SIDE_VERTICAL = ['top', 'bottom'] as const
 export type AnchorSideVertical = (typeof ANCHOR_SIDE_VERTICAL)[number]
 
 export type AnchorOffset = `+${number}` | `-${number}`
-export type AnchorStringHorizontalSimple = `${AnchorType} ${AnchorSideHorizontal}` | "centre"
-export type AnchorStringHorizontal = `${"sticky " | ""}${AnchorStringHorizontalSimple}${"" | ` ${AnchorOffset}`}`
-export type AnchorStringVerticalSimple = `${AnchorType} ${AnchorSideVertical}` | "centre"
-export type AnchorStringVertical = `${"sticky " | ""}${AnchorStringVerticalSimple}${"" | ` ${AnchorOffset}`}`
+export type AnchorStringHorizontalSimple = `${AnchorType} ${AnchorSideHorizontal}` | 'centre'
+export type AnchorStringHorizontal = `${'sticky ' | ''}${AnchorStringHorizontalSimple}${'' | ` ${AnchorOffset}`}`
+export type AnchorStringVerticalSimple = `${AnchorType} ${AnchorSideVertical}` | 'centre'
+export type AnchorStringVertical = `${'sticky ' | ''}${AnchorStringVerticalSimple}${'' | ` ${AnchorOffset}`}`
 export type AnchorStringSimple = AnchorStringHorizontalSimple | AnchorStringVerticalSimple
 export type AnchorString = AnchorStringHorizontal | AnchorStringVertical
 
@@ -31,19 +31,19 @@ const anchorStrings = new Set<AnchorString>(ANCHOR_TYPES
 			.map(side => `${type} ${side}` as const)))
 	.flatMap(type => [type, `sticky ${type}` as const]))
 
-anchorStrings.add("centre")
-anchorStrings.add("sticky centre")
+anchorStrings.add('centre')
+anchorStrings.add('sticky centre')
 
 function isAnchorString (value: unknown): value is AnchorString {
 	if (anchorStrings.has(value as AnchorString)) {
 		return true
 	}
 
-	if (typeof value !== "string") {
+	if (typeof value !== 'string') {
 		return false
 	}
 
-	const lastSpace = value.lastIndexOf(" ")
+	const lastSpace = value.lastIndexOf(' ')
 	if (lastSpace === -1) {
 		return false
 	}
@@ -60,17 +60,17 @@ function isAnchorString (value: unknown): value is AnchorString {
 function parseAnchor (anchor: AnchorStringHorizontal): AnchorLocationHorizontal
 function parseAnchor (anchor: AnchorStringVertical): AnchorLocationVertical
 function parseAnchor (anchor: AnchorString): AnchorLocationHorizontal | AnchorLocationVertical {
-	const sticky = anchor.startsWith("sticky")
+	const sticky = anchor.startsWith('sticky')
 	if (sticky) {
 		anchor = anchor.slice(7) as AnchorStringSimple
 	}
 
 	const simpleAnchor = anchor as AnchorStringSimple
-	if (simpleAnchor === "centre") {
-		return { sticky, type: "centre", side: "centre", offset: 0 }
+	if (simpleAnchor === 'centre') {
+		return { sticky, type: 'centre', side: 'centre', offset: 0 }
 	}
 
-	const [type, side, offset] = simpleAnchor.split(" ") as [AnchorType, AnchorSideHorizontal | AnchorSideVertical, AnchorOffset?]
+	const [type, side, offset] = simpleAnchor.split(' ') as [AnchorType, AnchorSideHorizontal | AnchorSideVertical, AnchorOffset?]
 	return {
 		sticky,
 		type,
@@ -101,20 +101,20 @@ export interface AnchorLocationPreferenceOptions {
 }
 
 export interface AnchorLocationHorizontal {
-	type: AnchorType | "centre"
-	side: AnchorSideHorizontal | "centre"
+	type: AnchorType | 'centre'
+	side: AnchorSideHorizontal | 'centre'
 	sticky: boolean
 	offset: number
 }
 
 export interface AnchorLocationVertical {
-	type: AnchorType | "centre"
-	side: AnchorSideVertical | "centre"
+	type: AnchorType | 'centre'
+	side: AnchorSideVertical | 'centre'
 	sticky: boolean
 	offset: number
 }
 
-export const ANCHOR_LOCATION_ALIGNMENTS = ["left", "centre", "right"] as const
+export const ANCHOR_LOCATION_ALIGNMENTS = ['left', 'centre', 'right'] as const
 export type AnchorLocationAlignment = (typeof ANCHOR_LOCATION_ALIGNMENTS)[number]
 
 export interface AnchorLocation {
@@ -182,9 +182,9 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 	const result: AnchorManipulator<HOST> = {
 		isMouse: () => !locationPreference?.length,
 		from: component => {
-			from?.event.unsubscribe("remove", onFromRemove)
+			from?.event.unsubscribe('remove', onFromRemove)
 			from = component
-			component.event.subscribe("remove", onFromRemove)
+			component.event.subscribe('remove', onFromRemove)
 			return host
 		},
 		reset: () => {
@@ -193,17 +193,17 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			return host
 		},
 		add: (...config: (string | AnchorLocationPreferenceOptions | undefined)[]) => {
-			const options = typeof config[config.length - 1] === "string" ? undefined
+			const options = typeof config[config.length - 1] === 'string' ? undefined
 				: config.pop() as AnchorLocationPreferenceOptions
 
 			let [xAnchor, xRefSelector, yAnchor, yRefSelector] = config as string[]
 			if (isAnchorString(xRefSelector)) {
 				yRefSelector = yAnchor
 				yAnchor = xRefSelector
-				xRefSelector = "*"
+				xRefSelector = '*'
 			}
 
-			yRefSelector ??= "*"
+			yRefSelector ??= '*'
 
 			locationPreference ??= []
 			locationPreference.push({
@@ -240,7 +240,7 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			const tooltipBox = host?.rect.value
 			if (tooltipBox && locationPreference && from) {
 				for (const preference of locationPreference) {
-					let alignment: AnchorLocationAlignment = "left"
+					let alignment: AnchorLocationAlignment = 'left'
 
 					const xConf = preference.xAnchor
 					const xRef = resolveAnchorRef(preference.xRefSelector)
@@ -248,21 +248,21 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 					addSubscription(xRef?.rect.subscribe(host, result.markDirty))
 
 					const xCenter = (xBox?.left ?? 0) + (xBox?.width ?? Viewport.size.value.w) / 2
-					const xRefX = (xConf.side === "right" ? xBox?.right : xConf.side === "left" ? xBox?.left : xCenter) ?? xCenter
+					const xRefX = (xConf.side === 'right' ? xBox?.right : xConf.side === 'left' ? xBox?.left : xCenter) ?? xCenter
 					let x: number
 					switch (xConf.type) {
-						case "aligned":
-							x = xConf.side === "right" ? xRefX - tooltipBox.width - xConf.offset : xRefX + xConf.offset
+						case 'aligned':
+							x = xConf.side === 'right' ? xRefX - tooltipBox.width - xConf.offset : xRefX + xConf.offset
 							alignment = xConf.side
 							break
-						case "off":
-							x = xConf.side === "right" ? xRefX + xConf.offset : xRefX - tooltipBox.width - xConf.offset
+						case 'off':
+							x = xConf.side === 'right' ? xRefX + xConf.offset : xRefX - tooltipBox.width - xConf.offset
 							// alignment is inverted side for "off"
-							alignment = xConf.side === "left" ? "right" : "left"
+							alignment = xConf.side === 'left' ? 'right' : 'left'
 							break
-						case "centre":
+						case 'centre':
 							x = xRefX - tooltipBox.width / 2
-							alignment = "centre"
+							alignment = 'centre'
 							break
 					}
 
@@ -283,16 +283,16 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 					addSubscription(yRef?.rect.subscribe(host, result.markDirty))
 
 					const yCenter = (yBox?.top ?? 0) + (yBox?.height ?? Viewport.size.value.h) / 2
-					const yRefY = (yConf.side === "bottom" ? yBox?.bottom : yConf.side === "top" ? yBox?.top : yCenter) ?? yCenter
+					const yRefY = (yConf.side === 'bottom' ? yBox?.bottom : yConf.side === 'top' ? yBox?.top : yCenter) ?? yCenter
 					let y: number
 					switch (yConf.type) {
-						case "aligned":
-							y = yConf.side === "bottom" ? yRefY - tooltipBox.height - yConf.offset : yRefY + yConf.offset
+						case 'aligned':
+							y = yConf.side === 'bottom' ? yRefY - tooltipBox.height - yConf.offset : yRefY + yConf.offset
 							break
-						case "off":
-							y = yConf.side === "bottom" ? yRefY + yConf.offset : yRefY - tooltipBox.height - yConf.offset
+						case 'off':
+							y = yConf.side === 'bottom' ? yRefY + yConf.offset : yRefY - tooltipBox.height - yConf.offset
 							break
-						case "centre":
+						case 'centre':
 							y = yRefY - tooltipBox.height / 2
 							break
 					}
@@ -309,7 +309,7 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 						}
 					}
 
-					return location ??= { mouse: false, padX: xConf.type === "off", alignment, x, y }
+					return location ??= { mouse: false, padX: xConf.type === 'off', alignment, x, y }
 				}
 			}
 
@@ -319,9 +319,9 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			const location = result.get()
 			let alignment = location.alignment ?? currentAlignment
 			if (location.mouse) {
-				const shouldFlip = currentAlignment === "centre" || (currentAlignment === "right" ? location.x < Viewport.size.value.w / 2 - 200 : location.x > Viewport.size.value.w / 2 + 200)
+				const shouldFlip = currentAlignment === 'centre' || (currentAlignment === 'right' ? location.x < Viewport.size.value.w / 2 - 200 : location.x > Viewport.size.value.w / 2 + 200)
 				if (shouldFlip) {
-					alignment = currentAlignment === "left" ? "right" : "left"
+					alignment = currentAlignment === 'left' ? 'right' : 'left'
 				}
 			}
 
@@ -345,25 +345,24 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 
 	return result
 
-
 	function resolveAnchorRef (selector: string): Component | undefined {
 		const refRef = refCache?.[selector]
 
 		let ref: Component | undefined
 		if (refRef) {
 			ref = refRef.deref()
-
-		} else {
+		}
+		else {
 			ref = from?.element.closest(selector)?.component
 			if (ref) {
-				if (getComputedStyle(ref.element).display === "contents") {
+				if (getComputedStyle(ref.element).display === 'contents') {
 					const children = ref.element.children
 					if (!children.length)
-						console.warn("Anchor ref has display: contents and no children")
+						console.warn('Anchor ref has display: contents and no children')
 					else {
 						ref = children[0].component ?? ref
 						if (children.length > 1)
-							console.warn("Anchor ref has display: contents and multiple children")
+							console.warn('Anchor ref has display: contents and multiple children')
 					}
 				}
 

@@ -1,10 +1,10 @@
-import Component from "ui/Component"
-import ActionRow from "ui/component/core/ActionRow"
-import CanHasActionsMenuButton from "ui/component/core/ext/CanHasActionsMenuButton"
-import Heading from "ui/component/core/Heading"
-import Paragraph from "ui/component/core/Paragraph"
-import type { ComponentName } from "ui/utility/StyleManipulator"
-import State from "utility/State"
+import Component from 'ui/Component'
+import ActionRow from 'ui/component/core/ActionRow'
+import CanHasActionsMenuButton from 'ui/component/core/ext/CanHasActionsMenuButton'
+import Heading from 'ui/component/core/Heading'
+import Paragraph from 'ui/component/core/Paragraph'
+import type { ComponentName } from 'ui/utility/StyleManipulator'
+import State from 'utility/State'
 
 type BlockType = keyof { [KEY in ComponentName as KEY extends `block-type-${infer TYPE}--${string}` ? TYPE
 	: KEY extends `block-type-${infer TYPE}-${string}` ? TYPE
@@ -28,7 +28,7 @@ export interface BlockExtensions {
 }
 
 export enum BlockClasses {
-	Main = "$block"
+	Main = '$block'
 }
 
 interface Block extends Component, BlockExtensions, CanHasActionsMenuButton { }
@@ -41,14 +41,14 @@ const Block = Component.Builder((component): Block => {
 
 	const block = component
 		.classes.add(BlockClasses.Main)
-		.viewTransition("block")
-		.style("block")
+		.viewTransition('block')
+		.style('block')
 		.extend<BlockExtensions>(block => ({
 			title: undefined!,
 			header: undefined!,
 			description: undefined!,
 			primaryActions: undefined!,
-			content: Component().style("block-content").appendTo(component),
+			content: Component().style('block-content').appendTo(component),
 			footer: undefined!,
 			type: Object.assign(
 				(...newTypes: BlockType[]) => {
@@ -80,14 +80,14 @@ const Block = Component.Builder((component): Block => {
 				},
 			),
 		}))
-		.extendJIT("header", block => header = Component("hgroup")
-			.style("block-header", ...[...types.value].map(t => `block-type-${t}-header` as const))
+		.extendJIT('header', block => header = Component('hgroup')
+			.style('block-header', ...[...types.value].map(t => `block-type-${t}-header` as const))
 			.prependTo(block))
-		.extendJIT("title", block => Heading().style("block-title").prependTo(block.header))
-		.extendJIT("primaryActions", block => Component().style("block-actions-primary").appendTo(block.header))
-		.extendJIT("description", block => Paragraph().style("block-description").appendTo(block.header))
-		.extendJIT("footer", block => footer = ActionRow()
-			.style("block-footer", ...[...types.value].map(t => `block-type-${t}-footer` as const))
+		.extendJIT('title', block => Heading().style('block-title').prependTo(block.header))
+		.extendJIT('primaryActions', block => Component().style('block-actions-primary').appendTo(block.header))
+		.extendJIT('description', block => Paragraph().style('block-description').appendTo(block.header))
+		.extendJIT('footer', block => footer = ActionRow()
+			.style('block-footer', ...[...types.value].map(t => `block-type-${t}-footer` as const))
 			.appendTo(block))
 
 	return block

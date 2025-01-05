@@ -1,39 +1,39 @@
-import type Label from "ui/component/core/Label"
-import AnchorManipulator from "ui/utility/AnchorManipulator"
-import AttributeManipulator from "ui/utility/AttributeManipulator"
-import ClassManipulator from "ui/utility/ClassManipulator"
-import type { NativeEvents } from "ui/utility/EventManipulator"
-import EventManipulator from "ui/utility/EventManipulator"
-import FocusListener from "ui/utility/FocusListener"
-import StringApplicator from "ui/utility/StringApplicator"
-import StyleManipulator from "ui/utility/StyleManipulator"
-import TextManipulator from "ui/utility/TextManipulator"
-import Viewport from "ui/utility/Viewport"
-import Arrays from "utility/Arrays"
-import Define from "utility/Define"
-import Env from "utility/Env"
-import Errors from "utility/Errors"
-import type { UnsubscribeState } from "utility/State"
-import State from "utility/State"
-import Strings from "utility/string/Strings"
-import type { AnyFunction, Falsy, Mutable } from "utility/Type"
+import type Label from 'ui/component/core/Label'
+import AnchorManipulator from 'ui/utility/AnchorManipulator'
+import AttributeManipulator from 'ui/utility/AttributeManipulator'
+import ClassManipulator from 'ui/utility/ClassManipulator'
+import type { NativeEvents } from 'ui/utility/EventManipulator'
+import EventManipulator from 'ui/utility/EventManipulator'
+import FocusListener from 'ui/utility/FocusListener'
+import StringApplicator from 'ui/utility/StringApplicator'
+import StyleManipulator from 'ui/utility/StyleManipulator'
+import TextManipulator from 'ui/utility/TextManipulator'
+import Viewport from 'ui/utility/Viewport'
+import Arrays from 'utility/Arrays'
+import Define from 'utility/Define'
+import Env from 'utility/Env'
+import Errors from 'utility/Errors'
+import type { UnsubscribeState } from 'utility/State'
+import State from 'utility/State'
+import Strings from 'utility/string/Strings'
+import type { AnyFunction, Falsy, Mutable } from 'utility/Type'
 
-const SYMBOL_COMPONENT_BRAND = Symbol("COMPONENT_BRAND")
+const SYMBOL_COMPONENT_BRAND = Symbol('COMPONENT_BRAND')
 export interface ComponentBrand<TYPE extends string> {
 	[SYMBOL_COMPONENT_BRAND]: TYPE
 }
 
 type AriaRole =
-	| "button"
-	| "checkbox"
-	| "form"
-	| "main"
-	| "navigation"
-	| "toolbar"
-	| "textbox"
-	| "group"
-	| "radio"
-	| "radiogroup"
+	| 'button'
+	| 'checkbox'
+	| 'form'
+	| 'main'
+	| 'navigation'
+	| 'toolbar'
+	| 'textbox'
+	| 'group'
+	| 'radio'
+	| 'radiogroup'
 
 const ELEMENT_TO_COMPONENT_MAP = new WeakMap<Element, Component>()
 
@@ -43,14 +43,15 @@ declare global {
 	}
 }
 
-Define.magic(Element.prototype, "component", {
+Define.magic(Element.prototype, 'component', {
 	get (): Component | undefined {
 		return ELEMENT_TO_COMPONENT_MAP.get(this)
 	},
 	set (component): void {
 		if (component) {
 			ELEMENT_TO_COMPONENT_MAP.set(this, component)
-		} else {
+		}
+		else {
 			ELEMENT_TO_COMPONENT_MAP.delete(this)
 		}
 	},
@@ -60,12 +61,12 @@ export interface ComponentInsertionDestination {
 	readonly isInsertionDestination: true
 	append (...contents: (Component | Node | Falsy)[]): this
 	prepend (...contents: (Component | Node | Falsy)[]): this
-	insert (direction: "before" | "after", sibling: Component | Element | undefined, ...contents: (Component | Node | Falsy)[]): this
+	insert (direction: 'before' | 'after', sibling: Component | Element | undefined, ...contents: (Component | Node | Falsy)[]): this
 }
 
 export namespace ComponentInsertionDestination {
 	export function is (value: unknown): value is ComponentInsertionDestination {
-		return typeof value === "object" && !!(value as ComponentInsertionDestination)?.isInsertionDestination
+		return typeof value === 'object' && !!(value as ComponentInsertionDestination)?.isInsertionDestination
 	}
 }
 
@@ -134,11 +135,11 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	extendMagic<K extends keyof this, O extends this = this> (property: K, magic: (component: this) => { get (): O[K], set?(value: O[K]): void }): this
 	extendJIT<K extends keyof this, O extends this = this> (property: K, supplier: (component: this) => O[K]): this
 
-	tweak<PARAMS extends any[]> (tweaker?: (component: this, ...params: PARAMS) => any, ...params: PARAMS): this
+	tweak<PARAMS extends any[]> (tweaker?: (component: this, ...params: PARAMS) => unknown, ...params: PARAMS): this
 
 	appendTo (destination: ComponentInsertionDestination | Element): this
 	prependTo (destination: ComponentInsertionDestination | Element): this
-	insertTo (destination: ComponentInsertionDestination | Element, direction: "before" | "after", sibling?: Component | Element): this
+	insertTo (destination: ComponentInsertionDestination | Element, direction: 'before' | 'after', sibling?: Component | Element): this
 
 	closest<BUILDER extends Component.Builder<any[], Component> | Component.Extension<any[], Component>> (builder: BUILDER): (BUILDER extends Component.Builder<any[], infer COMPONENT> ? COMPONENT : BUILDER extends Component.Extension<any[], infer COMPONENT> ? COMPONENT : never) | undefined
 	closest<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): COMPONENT | undefined
@@ -158,7 +159,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	emitInsert (): this
 	monitorScrollEvents (): this
 
-	onRooted (callback: (component: this) => any): this
+	onRooted (callback: (component: this) => unknown): this
 
 	ariaRole (role?: AriaRole): this
 	ariaLabel: StringApplicator.Optional<this>
@@ -167,7 +168,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	ariaChecked (state: State<boolean>): this
 	ariaControls (component?: Component): this
 
-	tabIndex (index?: "programmatic" | "auto" | number): this
+	tabIndex (index?: 'programmatic' | 'auto' | number): this
 	focus (): this
 	blur (): this
 }
@@ -175,19 +176,18 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 interface Component<ELEMENT extends HTMLElement = HTMLElement> extends BaseComponent<ELEMENT>, ComponentExtensions<ELEMENT> { }
 
 enum Classes {
-	ReceiveAncestorInsertEvents = "_receieve-ancestor-insert-events",
-	ReceiveDescendantInsertEvents = "_receieve-descendant-insert-events",
-	ReceiveAncestorRectDirtyEvents = "_receieve-ancestor-rect-dirty-events",
-	ReceiveScrollEvents = "_receieve-scroll-events",
+	ReceiveAncestorInsertEvents = '_receieve-ancestor-insert-events',
+	ReceiveDescendantInsertEvents = '_receieve-descendant-insert-events',
+	ReceiveAncestorRectDirtyEvents = '_receieve-ancestor-rect-dirty-events',
+	ReceiveScrollEvents = '_receieve-scroll-events'
 }
 
-const componentExtensionsRegistry: ((component: Mutable<Component>) => any)[] = []
+const componentExtensionsRegistry: ((component: Mutable<Component>) => unknown)[] = []
 
 function Component<TYPE extends keyof HTMLElementTagNameMap> (type: TYPE): Component<HTMLElementTagNameMap[TYPE]>
 function Component (): Component<HTMLSpanElement>
 function Component (type?: keyof HTMLElementTagNameMap): Component
-function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
-
+function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 	let unuseIdState: UnsubscribeState | undefined
 	let unuseNameState: UnsubscribeState | undefined
 	let unuseAriaLabelledByIdState: UnsubscribeState | undefined
@@ -209,14 +209,14 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 
 		setOwner: newOwner => {
-			owner?.event.unsubscribe("remove", component.remove)
+			owner?.event.unsubscribe('remove', component.remove)
 			owner = newOwner
-			owner.event.subscribe("remove", component.remove)
+			owner.event.subscribe('remove', component.remove)
 			return component
 		},
 
 		replaceElement: newElement => {
-			if (typeof newElement === "string")
+			if (typeof newElement === 'string')
 				newElement = document.createElement(newElement)
 
 			const oldElement = component.element
@@ -254,6 +254,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			component.supers.push(builder)
 			if (builder.name)
 				component.attributes.prepend(`:${builder.name.kebabcase}`)
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return component as any
 		},
 		extend: extension => Object.assign(component, extension(component as never)) as never,
@@ -275,61 +276,61 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 
-		tweak: (tweaker: (component: Component, ...params: any[]) => any, ...params: any[]) => {
+		tweak: (tweaker: (component: Component, ...params: any[]) => unknown, ...params: any[]) => {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			tweaker?.(component, ...params)
 			return component
 		},
 
 		get style () {
-			return Define.set(component, "style", StyleManipulator(component))
+			return Define.set(component, 'style', StyleManipulator(component))
 		},
 		get classes () {
-			return Define.set(component, "classes", ClassManipulator(component))
+			return Define.set(component, 'classes', ClassManipulator(component))
 		},
 		get attributes () {
-			return Define.set(component, "attributes", AttributeManipulator(component))
+			return Define.set(component, 'attributes', AttributeManipulator(component))
 		},
 		get event () {
-			return Define.set(component, "event", EventManipulator(component))
+			return Define.set(component, 'event', EventManipulator(component))
 		},
 		get text () {
-			return Define.set(component, "text", TextManipulator(component))
+			return Define.set(component, 'text', TextManipulator(component))
 		},
 		get anchor () {
-			return Define.set(component, "anchor", AnchorManipulator(component))
+			return Define.set(component, 'anchor', AnchorManipulator(component))
 		},
 
 		get hovered (): State<boolean> {
-			return Define.set(component, "hovered", State(false))
+			return Define.set(component, 'hovered', State(false))
 		},
 		get focused (): State<boolean> {
-			return Define.set(component, "focused", State(false))
+			return Define.set(component, 'focused', State(false))
 		},
 		get hasFocused (): State<boolean> {
-			return Define.set(component, "hasFocused", State(false))
+			return Define.set(component, 'hasFocused', State(false))
 		},
 		get hadFocusedLast (): State<boolean> {
-			return Define.set(component, "hadFocusedLast", State(false))
+			return Define.set(component, 'hadFocusedLast', State(false))
 		},
 		get hoveredOrFocused (): State<boolean> {
-			return Define.set(component, "hoveredOrFocused",
+			return Define.set(component, 'hoveredOrFocused',
 				State.Generator(() => component.hovered.value || component.focused.value)
 					.observe(component, component.hovered, component.focused))
 		},
 		get hoveredOrHasFocused (): State<boolean> {
-			return Define.set(component, "hoveredOrHasFocused",
+			return Define.set(component, 'hoveredOrHasFocused',
 				State.Generator(() => component.hovered.value || component.hasFocused.value)
 					.observe(component, component.hovered, component.hasFocused))
 		},
 		get active (): State<boolean> {
-			return Define.set(component, "active", State(false))
+			return Define.set(component, 'active', State(false))
 		},
 		get id (): State<string | undefined> {
-			return Define.set(component, "id", State(undefined))
+			return Define.set(component, 'id', State(undefined))
 		},
 		get name (): State<string | undefined> {
-			return Define.set(component, "name", State(undefined))
+			return Define.set(component, 'name', State(undefined))
 		},
 		get rect (): State.JIT<DOMRect> {
 			const rectState = State.JIT(() => component.element.getBoundingClientRect())
@@ -337,22 +338,22 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			rectState.markDirty = () => {
 				oldMarkDirty()
 				for (const descendant of this.element.getElementsByClassName(Classes.ReceiveAncestorRectDirtyEvents))
-					descendant.component?.event.emit("ancestorRectDirty")
+					descendant.component?.event.emit('ancestorRectDirty')
 				return rectState
 			}
 			this.receiveAncestorInsertEvents()
 			this.receiveAncestorScrollEvents()
 			this.classes.add(Classes.ReceiveAncestorRectDirtyEvents)
-			this.event.subscribe(["insert", "ancestorInsert", "ancestorScroll", "ancestorRectDirty"], rectState.markDirty)
+			this.event.subscribe(['insert', 'ancestorInsert', 'ancestorScroll', 'ancestorRectDirty'], rectState.markDirty)
 			Viewport.size.subscribe(component, rectState.markDirty)
-			return Define.set(component, "rect", rectState)
+			return Define.set(component, 'rect', rectState)
 		},
 
 		setId: id => {
 			unuseIdState?.()
 			unuseIdState = undefined
 
-			if (id && typeof id !== "string")
+			if (id && typeof id !== 'string')
 				unuseIdState = id.use(component, setId)
 			else
 				setId(id)
@@ -361,10 +362,11 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 			function setId (id?: string) {
 				if (id) {
-					component.element.setAttribute("id", id)
+					component.element.setAttribute('id', id)
 					component.id.value = id
-				} else {
-					component.element.removeAttribute("id")
+				}
+				else {
+					component.element.removeAttribute('id')
 					component.id.value = undefined
 				}
 			}
@@ -373,7 +375,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			unuseNameState?.()
 			unuseNameState = undefined
 
-			if (name && typeof name !== "string")
+			if (name && typeof name !== 'string')
 				unuseNameState = name.use(component, setName)
 			else
 				setName(name)
@@ -382,11 +384,12 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 			function setName (name?: string) {
 				if (name) {
-					name = name.replace(/[^\w-]+/g, "-").toLowerCase()
-					component.element.setAttribute("name", name)
+					name = name.replace(/[^\w-]+/g, '-').toLowerCase()
+					component.element.setAttribute('name', name)
 					component.name.value = name
-				} else {
-					component.element.removeAttribute("name")
+				}
+				else {
+					component.element.removeAttribute('name')
 					component.name.value = undefined
 				}
 			}
@@ -401,15 +404,15 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			}
 
 			if (internal !== true)
-				for (const descendant of component.element.querySelectorAll<HTMLElementRemovable>("*"))
+				for (const descendant of component.element.querySelectorAll<HTMLElementRemovable>('*'))
 					descendant.component?.remove(true)
 
 			component.element.component = undefined
 			component.element.remove()
 
-			component.event.emit("unroot")
-			component.event.emit("remove")
-			owner?.event.unsubscribe("remove", component.remove)
+			component.event.emit('unroot')
+			component.event.emit('remove')
+			owner?.event.unsubscribe('remove', component.remove)
 		},
 		appendTo (destination) {
 			destination.append(component.element)
@@ -429,7 +432,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			}
 
 			const siblingElement = sibling ? Component.element(sibling) : null
-			if (direction === "before")
+			if (direction === 'before')
 				destination.insertBefore(component.element, siblingElement)
 			else
 				destination.insertBefore(component.element, siblingElement?.nextSibling ?? null)
@@ -459,7 +462,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			const siblingElement = sibling ? Component.element(sibling) : null
 			const elements = contents.filter(Arrays.filterFalsy).map(Component.element)
 
-			if (direction === "before")
+			if (direction === 'before')
 				for (let i = elements.length - 1; i >= 0; i--)
 					component.element.insertBefore(elements[i], siblingElement)
 			else
@@ -481,6 +484,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			while (cursor) {
 				cursor = cursor.parentElement
 				const component = cursor?.component
+
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 				if (component?.is(builder))
 					return component
@@ -525,9 +529,9 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 		monitorScrollEvents () {
 			descendantsListeningForScroll ??= component.element.getElementsByClassName(Classes.ReceiveScrollEvents)
-			component.event.subscribe("scroll", () => {
+			component.event.subscribe('scroll', () => {
 				for (const descendant of [...descendantsListeningForScroll!])
-					descendant.component?.event.emit("ancestorScroll")
+					descendant.component?.event.emit('ancestorScroll')
 			})
 			return component
 		},
@@ -538,45 +542,45 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 
 		ariaRole: (role?: string) => {
 			if (!role)
-				return component.attributes.remove("role")
+				return component.attributes.remove('role')
 
-			return component.attributes.set("role", role)
+			return component.attributes.set('role', role)
 		},
 		get ariaLabel () {
-			return Define.set(component, "ariaLabel", StringApplicator(component as Component, value => component.attributes.set("aria-label", value)))
+			return Define.set(component, 'ariaLabel', StringApplicator(component as Component, value => component.attributes.set('aria-label', value)))
 		},
 		ariaLabelledBy: labelledBy => {
 			unuseAriaLabelledByIdState?.()
 			if (labelledBy) {
-				const state = State.Generator(() => labelledBy.id.value ?? labelledBy.attributes.get("for"))
+				const state = State.Generator(() => labelledBy.id.value ?? labelledBy.attributes.get('for'))
 					.observe(component, labelledBy.id, labelledBy.cast<Label>()?.for)
 				unuseAriaLabelledByIdState = state.use(component, id =>
-					component.attributes.set("aria-labelledby", id))
+					component.attributes.set('aria-labelledby', id))
 			}
 			return component
 		},
-		ariaHidden: () => component.attributes.set("aria-hidden", "true"),
+		ariaHidden: () => component.attributes.set('aria-hidden', 'true'),
 		ariaChecked: state => {
 			state.use(component, state =>
-				component.attributes.set("aria-checked", `${state}`))
+				component.attributes.set('aria-checked', `${state}`))
 			return component
 		},
 		ariaControls: target => {
 			unuseAriaControlsIdState?.()
 			unuseAriaControlsIdState = target?.id.use(component, id =>
-				component.attributes.set("aria-controls", id))
+				component.attributes.set('aria-controls', id))
 			return component
 		},
 
 		tabIndex: index => {
 			if (index === undefined)
-				component.element.removeAttribute("tabindex")
-			else if (index === "programmatic")
-				component.element.setAttribute("tabindex", "-1")
-			else if (index === "auto")
-				component.element.setAttribute("tabindex", "0")
+				component.element.removeAttribute('tabindex')
+			else if (index === 'programmatic')
+				component.element.setAttribute('tabindex', '-1')
+			else if (index === 'auto')
+				component.element.setAttribute('tabindex', '0')
 			else
-				component.element.setAttribute("tabindex", `${index}`)
+				component.element.setAttribute('tabindex', `${index}`)
 
 			return component
 		},
@@ -604,14 +608,14 @@ function emitInsert (component: Component | undefined) {
 	if (!component)
 		return
 
-	component.event.emit("insert")
+	component.event.emit('insert')
 	const descendantsListeningForEvent = component.element.getElementsByClassName(Classes.ReceiveAncestorInsertEvents)
 	for (const descendant of descendantsListeningForEvent)
-		descendant.component?.event.emit("ancestorInsert")
+		descendant.component?.event.emit('ancestorInsert')
 
 	let cursor = component.element.parentElement
 	while (cursor) {
-		cursor.component?.event.emit("descendantInsert")
+		cursor.component?.event.emit('descendantInsert')
 		cursor = cursor.parentElement
 	}
 }
@@ -623,13 +627,13 @@ function updateRooted (component: Component | undefined) {
 			return
 
 		component.rooted.value = rooted
-		component.event.emit(rooted ? "root" : "unroot")
+		component.event.emit(rooted ? 'root' : 'unroot')
 
-		for (const descendant of component.element.querySelectorAll<Element>("*")) {
+		for (const descendant of component.element.querySelectorAll<Element>('*')) {
 			const component = descendant.component
 			if (component) {
 				component.rooted.value = rooted
-				component.event.emit(rooted ? "root" : "unroot")
+				component.event.emit(rooted ? 'root' : 'unroot')
 			}
 		}
 	}
@@ -637,7 +641,7 @@ function updateRooted (component: Component | undefined) {
 
 namespace Component {
 	export function is (value: unknown): value is Component {
-		return typeof value === "object" && !!(value as Component)?.isComponent
+		return typeof value === 'object' && !!(value as Component)?.isComponent
 	}
 
 	export function element<NODE extends Node> (from: Component | NODE): NODE {
@@ -662,8 +666,8 @@ namespace Component {
 	export function Builder (initialOrBuilder: keyof HTMLElementTagNameMap | AnyFunction, builder?: (component: Component, ...params: any[]) => Component | Promise<Component>): (component?: Component, ...params: any[]) => Component | Promise<Component> {
 		let name = getBuilderName()
 
-		const type = typeof initialOrBuilder === "string" ? initialOrBuilder : undefined
-		const initialBuilder: (type?: keyof HTMLElementTagNameMap) => Component = !builder || typeof initialOrBuilder === "string" ? defaultBuilder : initialOrBuilder
+		const type = typeof initialOrBuilder === 'string' ? initialOrBuilder : undefined
+		const initialBuilder: (type?: keyof HTMLElementTagNameMap) => Component = !builder || typeof initialOrBuilder === 'string' ? defaultBuilder : initialOrBuilder
 		builder ??= initialOrBuilder as AnyFunction
 
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -677,13 +681,13 @@ namespace Component {
 			return completeComponent(component)
 		}
 
-		Object.defineProperty(simpleBuilder, "name", { value: name, configurable: true })
+		Object.defineProperty(simpleBuilder, 'name', { value: name, configurable: true })
 
 		const resultBuilder = Object.assign(simpleBuilder, {
 			from: realBuilder,
 			setName (newName: string) {
 				name = addKebabCase(newName)
-				Object.defineProperty(simpleBuilder, "name", { value: name })
+				Object.defineProperty(simpleBuilder, 'name', { value: name })
 				return resultBuilder
 			},
 		})
@@ -693,9 +697,10 @@ namespace Component {
 			if (name && Env.isDev) {
 				(component as Component & { [Symbol.toStringTag]?: string })[Symbol.toStringTag] ??= name.toString()
 				const tagName = `:${name.kebabcase}`
-				if (component.element.tagName === "SPAN") {
+				if (component.element.tagName === 'SPAN') {
 					component.replaceElement(tagName as keyof HTMLElementTagNameMap)
-				} else {
+				}
+				else {
 					component.attributes.prepend(tagName)
 				}
 			}
@@ -724,15 +729,15 @@ namespace Component {
 		} as Extension<any[], Component> | ExtensionAsync<any[], Component>
 	}
 
-	export function extend (extension: (component: Mutable<Component>) => any) {
-		componentExtensionsRegistry.push(extension as (component: Mutable<Component>) => any)
+	export function extend (extension: (component: Mutable<Component>) => unknown) {
+		componentExtensionsRegistry.push(extension as (component: Mutable<Component>) => unknown)
 	}
 
 	/**
 	 * Returns the component for the given element, if it exists
 	 */
 	export function get (element?: unknown): Component | undefined {
-		if (!element || (typeof element !== "object" && typeof element !== "function"))
+		if (!element || (typeof element !== 'object' && typeof element !== 'function'))
 			return undefined
 
 		return ELEMENT_TO_COMPONENT_MAP.get(element as Element)
@@ -741,18 +746,19 @@ namespace Component {
 	const STACK_FILE_NAME_REGEX = /\(http.*?(\w+)\.ts:\d+:\d+\)/
 	const PASCAL_CASE_WORD_START = /(?<=[a-z0-9_-])(?=[A-Z])/g
 
+	// eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
 	interface BuilderName extends String {
 		kebabcase: string
 	}
 
 	function addKebabCase (name: string): BuilderName {
 		return Object.assign(String(name), {
-			kebabcase: name.replaceAll(PASCAL_CASE_WORD_START, "-").toLowerCase(),
+			kebabcase: name.replaceAll(PASCAL_CASE_WORD_START, '-').toLowerCase(),
 		})
 	}
 
 	function getBuilderName (): BuilderName | undefined {
-		const stack = Strings.shiftLine((new Error().stack ?? ""), 3)
+		const stack = Strings.shiftLine((new Error().stack ?? ''), 3)
 		const name = stack.match(STACK_FILE_NAME_REGEX)?.[1]
 		if (!name)
 			return undefined

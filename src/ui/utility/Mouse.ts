@@ -1,12 +1,12 @@
-import type Vector2 from "utility/maths/Vector2"
-import State from "utility/State"
+import type Vector2 from 'utility/maths/Vector2'
+import State from 'utility/State'
 
 namespace Mouse {
 
 	const pos: Vector2 = { x: 0, y: 0 }
 	export const state: State<Vector2> = State(pos)
 
-	export type MouseMoveHandler = (mouse: Vector2) => any
+	export type MouseMoveHandler = (mouse: Vector2) => unknown
 	const handlers = new Set<MouseMoveHandler>()
 	export function onMove (handler: MouseMoveHandler) {
 		handlers.add(handler)
@@ -16,7 +16,7 @@ namespace Mouse {
 	}
 
 	export function listen () {
-		document.addEventListener("mousemove", event => {
+		document.addEventListener('mousemove', event => {
 			if (pos.x === event.clientX && pos.y === event.clientY)
 				return
 

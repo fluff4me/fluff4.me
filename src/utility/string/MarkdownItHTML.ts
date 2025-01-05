@@ -1,6 +1,6 @@
-import entities from "entities"
-import type MarkdownIt from "markdown-it"
-import type { PluginWithOptions, StateBlock, StateInline, Token as TokenBase } from "markdown-it"
+import entities from 'entities'
+import type MarkdownIt from 'markdown-it'
+import type { PluginWithOptions, StateBlock, StateInline, Token as TokenBase } from 'markdown-it'
 
 interface MarkdownItHTMLState {
 	block: StateBlock | undefined
@@ -21,7 +21,7 @@ const html = Object.assign(
 			i: 0,
 			l: 0,
 			e: 0,
-			src: "",
+			src: '',
 			silent: false,
 			options: {
 				...html.defaultOptions,
@@ -29,7 +29,7 @@ const html = Object.assign(
 			},
 		}
 
-		md.block.ruler.at("html_block", (block, startLine, endLine, silent) => {
+		md.block.ruler.at('html_block', (block, startLine, endLine, silent) => {
 			state.block = block
 			state.src = state.block.src
 			state.l = startLine
@@ -39,9 +39,9 @@ const html = Object.assign(
 			const result = html.consumeBlock(state)
 			state.block = undefined
 			return result
-		}, { alt: ["paragraph"] })
+		}, { alt: ['paragraph'] })
 
-		md.inline.ruler.at("html_inline", (inline, silent) => {
+		md.inline.ruler.at('html_inline', (inline, silent) => {
 			state.inline = inline
 			state.e = inline.posMax
 			state.i = inline.pos
@@ -51,7 +51,6 @@ const html = Object.assign(
 			state.inline = undefined
 			return result
 		})
-
 	}) as PluginWithOptions<MarkdownItHTML.Options.Factory>,
 	{
 
@@ -59,146 +58,146 @@ const html = Object.assign(
 
 		defaultOptions: {
 			voidElements: [
-				"area",
-				"base",
-				"br",
-				"col",
-				"embed",
-				"hr",
-				"img",
-				"input",
-				"link",
-				"meta",
-				"source",
-				"track",
-				"wbr",
+				'area',
+				'base',
+				'br',
+				'col',
+				'embed',
+				'hr',
+				'img',
+				'input',
+				'link',
+				'meta',
+				'source',
+				'track',
+				'wbr',
 			],
 			allowedTags: [
 				// headings
-				"hgroup",
-				"h1",
-				"h2",
-				"h3",
-				"h4",
-				"h5",
-				"h6",
+				'hgroup',
+				'h1',
+				'h2',
+				'h3',
+				'h4',
+				'h5',
+				'h6',
 				// layout
-				"div",
-				"p",
-				"br",
-				"wbr",
-				"hr",
-				"details",
-				"summary",
-				"label",
+				'div',
+				'p',
+				'br',
+				'wbr',
+				'hr',
+				'details',
+				'summary',
+				'label',
 				// lists
-				"ol",
-				"ul",
-				"li",
+				'ol',
+				'ul',
+				'li',
 				// tables
-				"table",
-				"tr",
-				"th",
-				"td",
-				"caption",
-				"thead",
-				"tbody",
-				"tfoot",
+				'table',
+				'tr',
+				'th',
+				'td',
+				'caption',
+				'thead',
+				'tbody',
+				'tfoot',
 				// text
-				"span",
+				'span',
 				// text style
-				"i",
-				"b",
-				"u",
-				"s",
-				"strike",
-				"sup",
-				"sub",
-				"em",
-				"mark",
-				"small",
-				"strong",
+				'i',
+				'b',
+				'u',
+				's',
+				'strike',
+				'sup',
+				'sub',
+				'em',
+				'mark',
+				'small',
+				'strong',
 				// quoting/referencing
-				"q",
-				"cite",
-				"blockquote",
+				'q',
+				'cite',
+				'blockquote',
 				// links
-				"a",
+				'a',
 				// definitions
-				"abbr",
-				"dfn",
-				"dd",
-				"dt",
-				"dl",
+				'abbr',
+				'dfn',
+				'dd',
+				'dt',
+				'dl',
 				// code
-				"code",
-				"samp",
-				"kbd",
+				'code',
+				'samp',
+				'kbd',
 				// images
-				"img",
-				"figure",
-				"figcaption",
-				"area",
-				"map",
+				'img',
+				'figure',
+				'figcaption',
+				'area',
+				'map',
 			],
 			allTagsAllowedAttributes: [
-				"title",
-				"name",
-				"style",
-				"aria-label",
-				"aria-labelledby",
-				"aria-describedby",
-				"aria-hidden",
+				'title',
+				'name',
+				'style',
+				'aria-label',
+				'aria-labelledby',
+				'aria-describedby',
+				'aria-hidden',
 			],
 			allTagsAllowedAttributeValues: {},
 			perTagAllowedAttributes: {
-				"a": ["href"],
-				"img": ["src", "alt", "usemap", "width", "height"],
-				"area": ["shape", "coords"],
-				"details": ["open"],
-				"ol": ["type", "start", "reversed"],
-				"li": ["value"],
-				"th": ["colspan", "rowspan", "headers", "scope", "abbr"],
-				"td": ["colspan", "rowspan", "headers"],
-				"q": ["cite"],
+				a: ['href'],
+				img: ['src', 'alt', 'usemap', 'width', 'height'],
+				area: ['shape', 'coords'],
+				details: ['open'],
+				ol: ['type', 'start', 'reversed'],
+				li: ['value'],
+				th: ['colspan', 'rowspan', 'headers', 'scope', 'abbr'],
+				td: ['colspan', 'rowspan', 'headers'],
+				q: ['cite'],
 			},
 			perTagAllowedAttributeValues: {
-				"a": { "href": /^https?:/ },
-				"img": { "src": /^https?:/ },
-				"area": { "href": /^https?:/ },
-				"q": { "cite": /^https?:/ },
-				"blockquote": { "cite": /^https?:/ },
+				a: { href: /^https?:/ },
+				img: { src: /^https?:/ },
+				area: { href: /^https?:/ },
+				q: { cite: /^https?:/ },
+				blockquote: { cite: /^https?:/ },
 			},
 			allTagsAllowedStyleProperties: [
-				"color",
-				"text-align",
-				"font-family",
-				"font-style",
-				"font-weight",
-				"text-decoration",
-				"text-transform",
-				"line-height",
-				"letter-spacing",
-				"word-spacing",
-				"vertical-align",
-				"background-color",
-				"opacity",
-				"margin",
-				"padding",
-				"width",
-				"height",
-				"vertical-align",
-				"box-shadow",
-				"border-width",
-				"border-style",
-				"border-color",
-				"border-radius",
-				"text-indent",
-				"display",
-				"position",
+				'color',
+				'text-align',
+				'font-family',
+				'font-style',
+				'font-weight',
+				'text-decoration',
+				'text-transform',
+				'line-height',
+				'letter-spacing',
+				'word-spacing',
+				'vertical-align',
+				'background-color',
+				'opacity',
+				'margin',
+				'padding',
+				'width',
+				'height',
+				'vertical-align',
+				'box-shadow',
+				'border-width',
+				'border-style',
+				'border-color',
+				'border-radius',
+				'text-indent',
+				'display',
+				'position',
 			],
 			allTagsAllowedStylePropertyValues: {
-				"position": ["relative", "absolute", "sticky"],
+				position: ['relative', 'absolute', 'sticky'],
 			},
 			perTagAllowedStyleProperties: {},
 			perTagAllowedStylePropertyValues: {},
@@ -260,7 +259,7 @@ const html = Object.assign(
 		},
 
 		consumeInline (state: MarkdownItHTMLState) {
-			if (!state.inline || state.src[state.i] !== "<")
+			if (!state.inline || state.src[state.i] !== '<')
 				return false
 
 			const tag = html.consumeTag(state)
@@ -272,7 +271,7 @@ const html = Object.assign(
 		},
 
 		consumeTerminator (state: MarkdownItHTMLState) {
-			const noSetBlockIndent = new Error().stack?.split("\n")?.at(4)?.includes("Array.lheading")
+			const noSetBlockIndent = new Error().stack?.split('\n')?.at(4)?.includes('Array.lheading')
 
 			const indent = html.consumeInlineWhitespace(state) || 0
 			if (!html.consumeTagsLine(state))
@@ -288,8 +287,8 @@ const html = Object.assign(
 			let consumed = false
 			const tokens: TokenBase[] = []
 			let token: TokenBase | true | undefined
-			while (token = html.consumeTag(state)) {
-				if (typeof token === "object")
+			while ((token = html.consumeTag(state))) {
+				if (typeof token === 'object')
 					tokens.push(token)
 
 				consumed = true
@@ -317,16 +316,16 @@ const html = Object.assign(
 			if (state.inline)
 				return false
 
-			if (state.src[state.i] === "\n") {
+			if (state.src[state.i] === '\n') {
 				state.i++
 				return true
 			}
 
-			if (state.src[state.i] !== "\r")
+			if (state.src[state.i] !== '\r')
 				return false
 
 			state.i++
-			if (state.src[state.i] === "\n")
+			if (state.src[state.i] === '\n')
 				state.i++
 
 			return true
@@ -359,9 +358,9 @@ const html = Object.assign(
 
 			let indent = 0
 			for (state.i; state.i < state.e; state.i++) {
-				if (state.src[state.i] === " ")
+				if (state.src[state.i] === ' ')
 					indent++
-				else if (state.src[state.i] === "\t")
+				else if (state.src[state.i] === '\t')
 					indent += 4
 				else
 					break
@@ -371,7 +370,7 @@ const html = Object.assign(
 		},
 
 		consumeTag (state: MarkdownItHTMLState): TokenBase | true | undefined {
-			if (state.src[state.i] !== "<")
+			if (state.src[state.i] !== '<')
 				return undefined
 
 			state.i++
@@ -405,7 +404,7 @@ const html = Object.assign(
 					continue
 
 				value = entities.decodeHTML5Strict(value)
-				if (name !== "style") {
+				if (name !== 'style') {
 					const allowedValues = o.perTagAllowedAttributeValues[tagName]?.[name] ?? o.allTagsAllowedAttributeValues[name]
 					if (allowedValues !== undefined && !html.matchesAllowedValues(value, allowedValues))
 						continue
@@ -415,13 +414,13 @@ const html = Object.assign(
 				}
 
 				style = html.parseStyleAttributeValue(value)
-				let styleValue = ""
+				let styleValue = ''
 				for (let [property, value] of style) {
 					property = property.toLowerCase()
 					if (!o.allTagsAllowedStyleProperties.includes(property) && !o.perTagAllowedStyleProperties[tagName]?.includes(property))
 						continue
 
-					const importantToken = "!important"
+					const importantToken = '!important'
 					const important = value.slice(-importantToken.length).toLowerCase() === importantToken
 					if (important)
 						value = value.slice(0, -importantToken.length).trim()
@@ -430,17 +429,17 @@ const html = Object.assign(
 					if (allowedValues !== undefined && !html.matchesAllowedValues(value, allowedValues))
 						continue
 
-					styleValue += `${property}:${value}${important ? importantToken : ""};`
+					styleValue += `${property}:${value}${important ? importantToken : ''};`
 				}
 
 				if (styleValue.length)
-					attributes.push(["style", styleValue.slice(0, -1)])
+					attributes.push(['style', styleValue.slice(0, -1)])
 			}
 
-			if (state.src[state.i] === "/")
+			if (state.src[state.i] === '/')
 				state.i++
 
-			if (state.src[state.i] !== ">") {
+			if (state.src[state.i] !== '>') {
 				state.i = start
 				return undefined
 			}
@@ -450,9 +449,9 @@ const html = Object.assign(
 			if (state.silent)
 				return true
 
-			let type = `html_${state.block ? "block" : "inline"}${nesting ? "_open" : ""}`
-			if (tagName === "br")
-				type = "softbreak"
+			let type = `html_${state.block ? 'block' : 'inline'}${nesting ? '_open' : ''}`
+			if (tagName === 'br')
+				type = 'softbreak'
 
 			const mdState = state.block ?? state.inline!
 			const token = mdState.push(type, tagName, nesting)
@@ -469,7 +468,7 @@ const html = Object.assign(
 
 		consumeCloseTag (state: MarkdownItHTMLState): TokenBase | true | undefined {
 			const start = state.i
-			if (state.src[state.i] !== "/")
+			if (state.src[state.i] !== '/')
 				return undefined
 
 			state.i++
@@ -477,7 +476,7 @@ const html = Object.assign(
 			if (!tagNameRaw)
 				return undefined
 
-			if (state.src[state.i] !== ">") {
+			if (state.src[state.i] !== '>') {
 				state.i = start
 				return undefined
 			}
@@ -492,7 +491,7 @@ const html = Object.assign(
 			if (state.silent || state.options.voidElements.includes(tagName))
 				return true
 
-			const type = `html_${state.block ? "block" : "inline"}_close`
+			const type = `html_${state.block ? 'block' : 'inline'}_close`
 			const mdState = state.block ?? state.inline!
 
 			const token = mdState.push(type, tagName, -1)
@@ -527,9 +526,9 @@ const html = Object.assign(
 
 			const valueStart = state.i
 			html.consumeWhitespace(state)
-			if (state.src[state.i] !== "=") {
+			if (state.src[state.i] !== '=') {
 				state.i = valueStart
-				return [name, ""]
+				return [name, '']
 			}
 
 			state.i++
@@ -575,7 +574,7 @@ const html = Object.assign(
 		},
 
 		consumeUnquotedAttributeValue (state: MarkdownItHTMLState) {
-			let result = ""
+			let result = ''
 
 			while (state.i < state.e) {
 				const charCode = state.src.charCodeAt(state.i)
@@ -600,7 +599,7 @@ const html = Object.assign(
 
 				const charRef = html.consumeCharacterReference(state)
 				if (!charRef) {
-					result += "&amp;"
+					result += '&amp;'
 					state.i++
 					continue
 				}
@@ -616,11 +615,11 @@ const html = Object.assign(
 			const start = state.i
 
 			const quoteChar = state.src[state.i]
-			if (quoteChar !== "'" && quoteChar !== '"')
+			if (quoteChar !== '\'' && quoteChar !== '"')
 				return undefined
 
 			state.i++
-			let result = ""
+			let result = ''
 
 			while (state.i < state.e) {
 				const charCode = state.src.charCodeAt(state.i)
@@ -638,7 +637,7 @@ const html = Object.assign(
 						continue
 					}
 
-					const isNewlineInInlineMode = state.inline && html.isWhitespace(state) && state.src[state.i] !== " " && state.src[state.i] !== "\t"
+					const isNewlineInInlineMode = state.inline && html.isWhitespace(state) && state.src[state.i] !== ' ' && state.src[state.i] !== '\t'
 					if (isNewlineInInlineMode) {
 						state.i = start
 						return undefined
@@ -651,7 +650,7 @@ const html = Object.assign(
 
 				const charRef = html.consumeCharacterReference(state)
 				if (!charRef) {
-					result += "&amp;"
+					result += '&amp;'
 					state.i++
 					continue
 				}
@@ -667,7 +666,7 @@ const html = Object.assign(
 
 		consumeCharacterReference (state: MarkdownItHTMLState) {
 			const start = state.i
-			if (state.src[state.i] !== "&")
+			if (state.src[state.i] !== '&')
 				return undefined
 
 			state.i++
@@ -687,7 +686,7 @@ const html = Object.assign(
 				if (!html.isAlpha(state))
 					break
 
-			if (state.i === nameStart || state.src[state.i] !== ";")
+			if (state.i === nameStart || state.src[state.i] !== ';')
 				return false
 
 			state.i++
@@ -695,12 +694,12 @@ const html = Object.assign(
 		},
 
 		consumeNumericCharacterReference (state: MarkdownItHTMLState) {
-			if (state.src[state.i] !== "#")
+			if (state.src[state.i] !== '#')
 				return false
 
 			state.i++
 
-			const isHex = state.src[state.i] === "x" || state.src[state.i] === "X"
+			const isHex = state.src[state.i] === 'x' || state.src[state.i] === 'X'
 			if (isHex)
 				state.i++
 
@@ -709,7 +708,7 @@ const html = Object.assign(
 				if (isHex ? !html.isHexadecimal(state) : !html.isNumeric(state))
 					break
 
-			if (state.i === digitsStart || state.src[state.i] !== ";")
+			if (state.i === digitsStart || state.src[state.i] !== ';')
 				return false
 
 			const codePoint = parseInt(state.src.slice(digitsStart, state.i), isHex ? 16 : 10)
@@ -725,19 +724,19 @@ const html = Object.assign(
 				return undefined
 
 			const styles = new Map<string, string>()
-			let key = ""
-			let value = ""
+			let key = ''
+			let value = ''
 			let inValue = false
 			let isEscaped = false
 			let isQuoted = false
 			let isComment = false
-			let quoteChar = ""
+			let quoteChar = ''
 			let parenCount = 0
 
 			for (let i = 0; i < style.length; i++) {
 				const char = style[i]
 				if (isComment) {
-					if (char !== "*" && style[i + 1] !== "/")
+					if (char !== '*' && style[i + 1] !== '/')
 						continue
 
 					isComment = false
@@ -745,7 +744,7 @@ const html = Object.assign(
 					continue
 				}
 
-				if (char === "\\") {
+				if (char === '\\') {
 					isEscaped = true
 					continue
 				}
@@ -756,7 +755,7 @@ const html = Object.assign(
 					continue
 				}
 
-				if (!isComment && char === "/" && style[i + 1] === "*") {
+				if (!isComment && char === '/' && style[i + 1] === '*') {
 					isComment = true
 					i++
 					continue
@@ -768,9 +767,9 @@ const html = Object.assign(
 						value += char
 						continue
 					}
-
-				} else {
-					if (char === '"' || char === "'") {
+				}
+				else {
+					if (char === '"' || char === '\'') {
 						isQuoted = true
 						quoteChar = char
 						value += char
@@ -778,32 +777,32 @@ const html = Object.assign(
 					}
 				}
 
-				if (char === "(" && !isQuoted) {
+				if (char === '(' && !isQuoted) {
 					parenCount++
 					value += char
 					continue
 				}
 
-				if (char === ")" && !isQuoted) {
+				if (char === ')' && !isQuoted) {
 					parenCount--
 					value += char
 					continue
 				}
 
-				if (char === ":" && !isQuoted && parenCount === 0) {
+				if (char === ':' && !isQuoted && parenCount === 0) {
 					inValue = true
 					continue
 				}
 
-				if (char === ";" && !isQuoted && parenCount === 0) {
+				if (char === ';' && !isQuoted && parenCount === 0) {
 					if (key && value) {
 						key = key.trim()
 						if (!html.regexCSSProperty.test(key))
 							console.warn(`Invalid CSS property "${key}"`)
 						else
 							styles.set(key, value.trim())
-						key = ""
-						value = ""
+						key = ''
+						value = ''
 					}
 					inValue = false
 					continue
@@ -811,7 +810,8 @@ const html = Object.assign(
 
 				if (inValue) {
 					value += char
-				} else {
+				}
+				else {
 					key += char
 				}
 			}
@@ -887,10 +887,10 @@ const html = Object.assign(
 			if (Array.isArray(allowed))
 				return allowed.some(allowed => html.matchesAllowedValues(value, allowed))
 
-			if (typeof allowed === "string")
+			if (typeof allowed === 'string')
 				return value === allowed
 
-			if (typeof allowed === "function")
+			if (typeof allowed === 'function')
 				return allowed(value)
 
 			return allowed.test(value)
@@ -939,7 +939,6 @@ namespace MarkdownItHTML {
 	}
 
 	export type AttributeTuple = [name: string, value: string]
-
 
 	export interface Token extends TokenBase {
 		readonly raw?: string

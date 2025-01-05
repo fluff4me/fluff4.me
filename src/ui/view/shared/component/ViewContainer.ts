@@ -1,14 +1,14 @@
-import type { ErrorResponse } from "api.fluff4.me"
-import Session from "model/Session"
-import Component from "ui/Component"
-import Button from "ui/component/core/Button"
-import Dialog from "ui/component/core/Dialog"
-import AccountView from "ui/view/AccountView"
-import ErrorView from "ui/view/ErrorView"
-import RequireLoginView from "ui/view/RequireLoginView"
-import type View from "ui/view/shared/component/View"
-import type ViewDefinition from "ui/view/shared/component/ViewDefinition"
-import ViewTransition from "ui/view/shared/ext/ViewTransition"
+import type { ErrorResponse } from 'api.fluff4.me'
+import Session from 'model/Session'
+import Component from 'ui/Component'
+import Button from 'ui/component/core/Button'
+import Dialog from 'ui/component/core/Dialog'
+import AccountView from 'ui/view/AccountView'
+import ErrorView from 'ui/view/ErrorView'
+import RequireLoginView from 'ui/view/RequireLoginView'
+import type View from 'ui/view/shared/component/View'
+import type ViewDefinition from 'ui/view/shared/component/ViewDefinition'
+import ViewTransition from 'ui/view/shared/ext/ViewTransition'
 
 interface ViewContainerExtensions {
 	view?: View
@@ -24,14 +24,13 @@ interface ViewContainer extends Component, ViewContainerExtensions { }
 
 let globalId = 0
 const ViewContainer = (): ViewContainer => {
-
 	let cancelLogin: (() => void) | undefined
 
 	const container = Component()
-		.style("view-container")
-		.tabIndex("programmatic")
-		.ariaRole("main")
-		.ariaLabel.use("view/container/alt")
+		.style('view-container')
+		.tabIndex('programmatic')
+		.ariaRole('main')
+		.ariaLabel.use('view/container/alt')
 		.extend<ViewContainerExtensions>(container => ({
 			show: async <VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined> (definition: ViewDefinition<VIEW, PARAMS, LOAD_PARAMS>, params: PARAMS) => {
 				const showingId = ++globalId
@@ -42,7 +41,7 @@ const ViewContainer = (): ViewContainer => {
 				const needsLogin = definition.requiresLogin && !Session.Auth.loggedIn.value
 				if (needsLogin || definition.load) {
 					let loginPromise: Promise<boolean> | undefined
-					const transition = ViewTransition.perform("view", async () => {
+					const transition = ViewTransition.perform('view', async () => {
 						swapRemove()
 						if (!needsLogin)
 							return
@@ -57,7 +56,7 @@ const ViewContainer = (): ViewContainer => {
 					if (needsLogin && !Session.Auth.loggedIn.value) {
 						let setLoggedIn!: () => void
 						const loggedIn = new Promise<void>(resolve => setLoggedIn = resolve)
-						ViewTransition.perform("view", async () => {
+						ViewTransition.perform('view', async () => {
 							hideEphemeral()
 							const view = await swapAdd(RequireLoginView)
 							if (!view)
@@ -77,9 +76,10 @@ const ViewContainer = (): ViewContainer => {
 					return
 
 				if (container.view || showingId > 1) {
-					const transition = ViewTransition.perform("view", swap)
+					const transition = ViewTransition.perform('view', swap)
 					await transition.updateCallbackDone
-				} else {
+				}
+				else {
 					await swap()
 				}
 
@@ -114,13 +114,13 @@ const ViewContainer = (): ViewContainer => {
 			},
 
 			ephemeralDialog: Dialog()
-				.style("view-container-ephemeral")
-				.tweak(dialog => dialog.style.bind(dialog.opened, "view-container-ephemeral--open"))
+				.style('view-container-ephemeral')
+				.tweak(dialog => dialog.style.bind(dialog.opened, 'view-container-ephemeral--open'))
 				.setOwner(container)
 				.setNotModal()
 				.append(Button()
-					.style("view-container-ephemeral-close")
-					.event.subscribe("click", () => {
+					.style('view-container-ephemeral-close')
+					.event.subscribe('click', () => {
 						if (cancelLogin)
 							cancelLogin()
 						else
@@ -157,7 +157,7 @@ const ViewContainer = (): ViewContainer => {
 			shownView.appendTo(container.ephemeralDialog)
 			container.ephemeral = shownView
 			container.ephemeralDialog.open()
-			container.attributes.append("inert")
+			container.attributes.append('inert')
 			container.ephemeralDialog.opened.subscribe(shownView, opened => {
 				if (!opened) {
 					hideEphemeral()
@@ -172,7 +172,7 @@ const ViewContainer = (): ViewContainer => {
 		container.ephemeralDialog.close()
 		container.ephemeral?.remove()
 		delete container.ephemeral
-		container.attributes.remove("inert")
+		container.attributes.remove('inert')
 	}
 
 	function logIn () {

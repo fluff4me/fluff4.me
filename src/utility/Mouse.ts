@@ -2,7 +2,7 @@ namespace Mouse {
 
 	type UnorderedArgs = [number, Event] | [Event, number]
 	function extractArgs (args: UnorderedArgs): [Event, number] {
-		if (typeof args[0] === "number")
+		if (typeof args[0] === 'number')
 			return args.reverse() as [Event, number]
 		else
 			return args as [Event, number]
@@ -16,7 +16,7 @@ namespace Mouse {
 	export function as (button: number, event: Event): MouseEvent | undefined
 	export function as (...args: [number, Event] | [Event, number]): MouseEvent | undefined {
 		const [event, button] = extractArgs(args)
-		if (event.type !== "click" && event.type !== "mousedown" && event.type !== "mouseup")
+		if (event.type !== 'click' && event.type !== 'mousedown' && event.type !== 'mouseup')
 			return undefined
 
 		const mouseEvent = event as MouseEvent
@@ -31,7 +31,7 @@ namespace Mouse {
 	export function is (button: number, event: Event): event is MouseEvent
 	export function is (...args: [number, Event] | [Event, number]): boolean {
 		const [event, button] = extractArgs(args)
-		if (event.type !== "click" && event.type !== "mousedown" && event.type !== "mouseup")
+		if (event.type !== 'click' && event.type !== 'mousedown' && event.type !== 'mouseup')
 			return false
 
 		const mouseEvent = event as MouseEvent

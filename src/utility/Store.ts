@@ -1,4 +1,4 @@
-import State from "utility/State"
+import State from 'utility/State'
 
 export interface ILocalStorage {
 	databases: IDBDatabaseInfo[]
@@ -24,7 +24,6 @@ export default class Store {
 				return Store.has(key as string)
 			},
 			get (_, key) {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 				return Store.get(key as string)
 			},
 			set (_, key, value) {
@@ -51,7 +50,7 @@ export default class Store {
 	public static get full () {
 		const result: any = {}
 		for (const [key, value] of Object.entries(localStorage))
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
 			result[key] = JSON.parse(value)
 		return result
 	}
@@ -63,9 +62,9 @@ export default class Store {
 	public static get<T> (key: string): T | null {
 		const value = localStorage.getItem(key)
 		try {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return value === null ? null : JSON.parse(value)
-		} catch {
+		}
+		catch {
 			localStorage.removeItem(key)
 			return null
 		}
@@ -77,11 +76,10 @@ export default class Store {
 			localStorage.removeItem(key)
 		else
 			localStorage.setItem(key, JSON.stringify(value))
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		// Store.event.emit(`set${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { value, oldValue } as never)
 		const state = states?.[key as keyof ILocalStorage]
 		if (state)
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			state.value = value
 		return true
 	}
@@ -89,14 +87,14 @@ export default class Store {
 	public static delete (key: string) {
 		// const oldValue = Store.get(key)
 		localStorage.removeItem(key)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		// Store.event.emit(`delete${key[0].toUpperCase()}${key.slice(1)}` as keyof IStoreEvents, { oldValue } as never)
 		const state = states?.[key as keyof ILocalStorage]
 		if (state)
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			state.value = undefined
 		return true
 	}
+
 }
 
 Object.assign(window, { Store })

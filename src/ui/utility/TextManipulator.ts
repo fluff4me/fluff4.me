@@ -1,5 +1,5 @@
-import type Component from "ui/Component"
-import StringApplicator from "ui/utility/StringApplicator"
+import type Component from 'ui/Component'
+import StringApplicator from 'ui/utility/StringApplicator'
 
 type ComponentClass = typeof Component
 let Break!: Component.Builder<[], Component>
@@ -17,7 +17,7 @@ const TextManipulator = Object.assign(
 				if (!value)
 					return value
 
-				const texts = value.split("\n")
+				const texts = value.split('\n')
 				for (let i = 0; i < texts.length; i++) {
 					if (i > 0)
 						component.append(Break())
@@ -29,7 +29,7 @@ const TextManipulator = Object.assign(
 			}),
 			{
 				prepend (text: string) {
-					const texts = text.split("\n")
+					const texts = text.split('\n')
 					for (let i = texts.length - 1; i >= 0; i--) {
 						if (i < texts.length - 1)
 							component.prepend(Break())
@@ -40,7 +40,7 @@ const TextManipulator = Object.assign(
 					return component
 				},
 				append (text: string) {
-					const texts = text.split("\n")
+					const texts = text.split('\n')
 					for (let i = 0; i < texts.length; i++) {
 						if (i > 0)
 							component.append(Break())
@@ -56,8 +56,8 @@ const TextManipulator = Object.assign(
 	{
 		setComponent (Component: ComponentClass) {
 			Break = Component
-				.Builder("br", component => component.style("break"))
-				.setName("Break")
+				.Builder('br', component => component.style('break'))
+				.setName('Break')
 		},
 	}
 )

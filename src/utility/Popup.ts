@@ -1,6 +1,6 @@
-import Store from "utility/Store"
+import Store from 'utility/Store'
 
-declare module "utility/Store" {
+declare module 'utility/Store' {
 	interface ILocalStorage {
 		popupError: PopupError
 	}
@@ -21,14 +21,14 @@ export default function popup (name: string, url: string, width = 600, height = 
 	const top = (window.innerHeight - height) / 2 + window.screenTop
 	return new Promise<void>((resolve, reject) => {
 		delete Store.items.popupError
-		const options = "width=" + width + ",height=" + height + ",top=" + top + ",left=" + left
+		const options = 'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left
 		const oauthPopup = window.open(url, name, options)
 		const interval = setInterval(() => {
 			if (oauthPopup?.closed) {
 				clearInterval(interval)
 				const popupError = Store.items.popupError
 				if (popupError)
-					return reject(Object.assign(new Error(popupError.message ?? "Internal Server Error"), { code: popupError.code }))
+					return reject(Object.assign(new Error(popupError.message ?? 'Internal Server Error'), { code: popupError.code }))
 
 				resolve()
 			}

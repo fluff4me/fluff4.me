@@ -1,7 +1,7 @@
-import type App from "App"
-import type { Empty } from "utility/Type"
+import type App from 'App'
+import type { Empty } from 'utility/Type'
 
-type RouteHandler<PARAMS extends object | undefined> = (app: App, params: PARAMS) => any
+type RouteHandler<PARAMS extends object | undefined> = (app: App, params: PARAMS) => unknown
 
 interface RouteDefinition<PARAMS extends object | undefined> {
 	handler: RouteHandler<PARAMS>
@@ -15,7 +15,7 @@ interface Route<PATH extends string, PARAMS extends object | undefined> extends 
 export type ExtractData<PATH extends string[]> = PATH extends infer PATH2 ? { [INDEX in keyof PATH2 as PATH2[INDEX] extends `$$${infer VAR_NAME}` ? VAR_NAME : PATH2[INDEX] extends `$${infer VAR_NAME}` ? VAR_NAME : never]: string } : never
 export type SplitPath<PATH extends string> = PATH extends `${infer X}/${infer Y}` ? [X, ...SplitPath<Y>] : [PATH]
 
-type JoinPath<PATH extends string[]> = PATH extends [infer X extends string, ...infer Y extends string[]] ? Y["length"] extends 0 ? X : `${X}/${JoinPath<Y>}` : never
+type JoinPath<PATH extends string[]> = PATH extends [infer X extends string, ...infer Y extends string[]] ? Y['length'] extends 0 ? X : `${X}/${JoinPath<Y>}` : never
 
 export type RoutePathInput<PATH extends string> = SplitPath<PATH> extends infer SPLIT ?
 
@@ -32,34 +32,34 @@ type RouteParams<PATH extends string> =
 	: never
 
 function Route<PATH extends `/${string}`, PARAMS extends RouteParams<PATH>> (path: PATH, route: RouteHandler<PARAMS> | RouteDefinition<PARAMS>): Route<PATH, PARAMS> {
-	const segments = (path.startsWith("/") ? path.slice(1) : path).split("/")
+	const segments = (path.startsWith('/') ? path.slice(1) : path).split('/')
 	const varGroups: string[] = []
-	let regexString = "^"
+	let regexString = '^'
 	for (const segment of segments) {
-		regexString += "/+"
-		if (segment[0] !== "$") {
+		regexString += '/+'
+		if (segment[0] !== '$') {
 			regexString += segment
 			continue
 		}
 
-		if (segment[1] === "$") {
+		if (segment[1] === '$') {
 			varGroups.push(segment.slice(2))
-			regexString += "(.*)"
+			regexString += '(.*)'
 			continue
 		}
 
 		varGroups.push(segment.slice(1))
-		regexString += "([^/]+)"
+		regexString += '([^/]+)'
 	}
 
-	regexString += "$"
+	regexString += '$'
 
 	const regex = new RegExp(regexString)
 	const rawRoutePath = path
 
 	return {
 		path,
-		...typeof route === "function" ? { handler: route } : route,
+		...typeof route === 'function' ? { handler: route } : route,
 		match: path => {
 			const match = path.match(regex)
 			if (!match)

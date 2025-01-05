@@ -1,9 +1,9 @@
-import quilt from "lang/en-nz"
-import type Component from "ui/Component"
-import type { Quilt } from "ui/utility/StringApplicator"
-import { QuiltHelper } from "ui/utility/StringApplicator"
-import type State from "utility/State"
-import type { UnsubscribeState } from "utility/State"
+import quilt from 'lang/en-nz'
+import type Component from 'ui/Component'
+import type { Quilt } from 'ui/utility/StringApplicator'
+import { QuiltHelper } from 'ui/utility/StringApplicator'
+import type State from 'utility/State'
+import type { UnsubscribeState } from 'utility/State'
 
 interface AttributeManipulator<HOST> {
 	get (attribute: string): string | undefined
@@ -41,7 +41,7 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 		append (...attributes) {
 			for (const attribute of attributes) {
 				delete translationHandlers?.[attribute]
-				component.element.setAttribute(attribute, "")
+				component.element.setAttribute(attribute, '')
 			}
 			return component
 		},
@@ -53,7 +53,7 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 			}
 
 			for (const attribute of attributes)
-				component.element.setAttribute(attribute, oldAttributes[attribute] ?? "")
+				component.element.setAttribute(attribute, oldAttributes[attribute] ?? '')
 
 			for (const name of Object.keys(oldAttributes))
 				component.element.setAttribute(name, oldAttributes[name])
@@ -72,7 +72,7 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 			unuseAttributeMap.get(attribute)?.()
 			unuseAttributeMap.set(attribute, state.use(component, active => {
 				if (active)
-					component.element.setAttribute(attribute, value ?? "")
+					component.element.setAttribute(attribute, value ?? '')
 				else
 					component.element.removeAttribute(attribute)
 			}))
@@ -105,7 +105,7 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 
 			for (const attribute in translationHandlers) {
 				const translationHandler = translationHandlers[attribute]
-				const weave = typeof translationHandler === "string" ? quilt[translationHandler]() : translationHandler(quilt, QuiltHelper)
+				const weave = typeof translationHandler === 'string' ? quilt[translationHandler]() : translationHandler(quilt, QuiltHelper)
 				component.element.setAttribute(attribute, weave.toString())
 			}
 		},
@@ -116,11 +116,11 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 			}
 			return component
 		},
-		toggle (present, attribute, value = "") {
-			return this[present ? "set" : "remove"](attribute, value)
+		toggle (present, attribute, value = '') {
+			return this[present ? 'set' : 'remove'](attribute, value)
 		},
 		copy (element) {
-			if ("element" in element)
+			if ('element' in element)
 				element = element.element
 
 			for (const attribute of element.attributes)

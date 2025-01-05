@@ -1,12 +1,12 @@
-import Component from "ui/Component"
-import { BlockClasses } from "ui/component/core/Block"
-import type Label from "ui/component/core/Label"
-import type { PopoverInitialiser } from "ui/component/core/Popover"
-import Popover from "ui/component/core/Popover"
-import Slot from "ui/component/core/Slot"
-import { AllowYOffscreen } from "ui/utility/AnchorManipulator"
-import StringApplicator from "ui/utility/StringApplicator"
-import State from "utility/State"
+import Component from 'ui/Component'
+import { BlockClasses } from 'ui/component/core/Block'
+import type Label from 'ui/component/core/Label'
+import type { PopoverInitialiser } from 'ui/component/core/Popover'
+import Popover from 'ui/component/core/Popover'
+import Slot from 'ui/component/core/Slot'
+import { AllowYOffscreen } from 'ui/utility/AnchorManipulator'
+import StringApplicator from 'ui/utility/StringApplicator'
+import State from 'utility/State'
 
 export interface InputExtensions {
 	readonly required: State<boolean>
@@ -42,35 +42,35 @@ const Input = Component.Extension((component): Input => {
 
 		popover = Popover()
 			.anchor.from(component)
-			.anchor.add("off right", `.\\${BlockClasses.Main}`, "aligned top", {
+			.anchor.add('off right', `.\\${BlockClasses.Main}`, 'aligned top', {
 				...AllowYOffscreen,
 				yValid (y, hostBox, popoverBox) {
 					// only align top if the popover box is taller than the host box
 					return popoverBox.height > (hostBox?.height ?? 0)
 				},
 			})
-			.anchor.add("off right", `.\\${BlockClasses.Main}`, "centre", AllowYOffscreen)
+			.anchor.add('off right', `.\\${BlockClasses.Main}`, 'centre', AllowYOffscreen)
 			.setNormalStacking()
 			.setCloseOnInput(false)
-			.style("input-popover")
+			.style('input-popover')
 			.setOwner(component)
 			.tweak(popover => {
 				Slot.using(hintText, (slot, hintText) => !hintText ? undefined
 					: Component()
-						.style("input-popover-hint-text")
+						.style('input-popover-hint-text')
 						.text.set(hintText))
 					.appendTo(popover)
 
 				Slot.using(maxLength, (slot, maxLength) => !maxLength ? undefined
 					: Component()
-						.style("input-popover-max-length")
+						.style('input-popover-max-length')
 						.append(Component()
-							.style("input-popover-max-length-icon")
-							.style.bind(unusedPercent.mapManual(p => (p ?? 0) < 0), "input-popover-max-length-icon--overflowing"))
+							.style('input-popover-max-length-icon')
+							.style.bind(unusedPercent.mapManual(p => (p ?? 0) < 0), 'input-popover-max-length-icon--overflowing'))
 						.append(Component()
-							.style("input-popover-max-length-text")
-							.text.bind(unusedChars.mapManual(chars => chars === undefined ? "" : `${chars}`)))
-						.style.bindVariable("remaining", unusedPercent.mapManual(p => 1 - (p ?? 0))))
+							.style('input-popover-max-length-text')
+							.text.bind(unusedChars.mapManual(chars => chars === undefined ? '' : `${chars}`)))
+						.style.bindVariable('remaining', unusedPercent.mapManual(p => 1 - (p ?? 0))))
 					.appendTo(popover)
 			})
 			.tweak(popoverInitialiser, component)
@@ -90,7 +90,7 @@ const Input = Component.Extension((component): Input => {
 			return component
 		},
 		setRequired: (required = true) => {
-			component.attributes.toggle(required, "required")
+			component.attributes.toggle(required, 'required')
 			component.required.value = required
 			return component
 		},
