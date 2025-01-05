@@ -1,6 +1,6 @@
-import Component from "ui/Component"
-import type Label from "ui/component/core/Label"
-import { AutoLabel } from "ui/component/core/Label"
+import Component from 'ui/Component'
+import type Label from 'ui/component/core/Label'
+import { AutoLabel } from 'ui/component/core/Label'
 
 interface LabelledRowExtensions {
 	label: Label
@@ -10,16 +10,16 @@ interface LabelledRowExtensions {
 interface LabelledRow extends Component, LabelledRowExtensions { }
 
 const LabelledRow = Component.Builder((row): LabelledRow => {
-	row.style("labelled-row")
+	row.style('labelled-row')
 
-	let label: Label = AutoLabel().style("labelled-row-label").appendTo(row)
-	let content = Component().style("labelled-row-content").appendTo(row)
+	let label: Label = AutoLabel().style('labelled-row-label').appendTo(row)
+	let content = Component().style('labelled-row-content').appendTo(row)
 
 	return row
 		.extend<LabelledRowExtensions>(row => ({
 			label, content,
 		}))
-		.extendMagic("label", row => ({
+		.extendMagic('label', row => ({
 			get: () => label,
 			set: newLabel => {
 				if (label === newLabel)
@@ -29,7 +29,7 @@ const LabelledRow = Component.Builder((row): LabelledRow => {
 				label = newLabel
 			},
 		}))
-		.extendMagic("content", row => ({
+		.extendMagic('content', row => ({
 			get: () => content,
 			set: newContent => {
 				if (content === newContent)
@@ -39,7 +39,6 @@ const LabelledRow = Component.Builder((row): LabelledRow => {
 				content = newContent
 			},
 		}))
-
 })
 
 export default LabelledRow

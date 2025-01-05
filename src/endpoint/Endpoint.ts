@@ -1,10 +1,10 @@
-import type { ErrorResponse, PaginatedResponse, Paths, Response } from "api.fluff4.me"
-import Env from "utility/Env"
-import Objects from "utility/Objects"
-import Time from "utility/Time"
-import type { Empty } from "utility/Type"
+import type { ErrorResponse, PaginatedResponse, Paths, Response } from 'api.fluff4.me'
+import Env from 'utility/Env'
+import Objects from 'utility/Objects'
+import Time from 'utility/Time'
+import type { Empty } from 'utility/Type'
 
-declare module "api.fluff4.me" {
+declare module 'api.fluff4.me' {
 	interface Response<T> {
 		headers: Headers
 	}
@@ -24,16 +24,16 @@ type ExtractData<PATH extends string[]> = PATH extends infer PATH2 ? { [INDEX in
 type SplitPath<PATH extends string> = PATH extends `${infer X}/${infer Y}` ? [X, ...SplitPath<Y>] : [PATH]
 
 type EndpointQuery<ROUTE extends keyof Paths> =
-	Paths[ROUTE]["body"] extends infer BODY ?
+	Paths[ROUTE]['body'] extends infer BODY ?
 
-	Exclude<Paths[ROUTE]["response"], ErrorResponse<any>> extends infer RESPONSE ?
+	Exclude<Paths[ROUTE]['response'], ErrorResponse<any>> extends infer RESPONSE ?
 	(RESPONSE | ErrorResponse<RESPONSE>) extends infer RESPONSE ?
 
 	(
-		& ([keyof BODY] extends [never] ? {} : { body: BODY })
+		& ([keyof BODY] extends [never] ? object : { body: BODY })
 		& (
 			ExtractData<SplitPath<ROUTE>> extends infer PARAMS ?
-			PARAMS extends Empty ? {}
+			PARAMS extends Empty ? object
 			: { params: PARAMS }
 			: never
 		)
@@ -68,13 +68,13 @@ interface ConfigurablePreparedEndpointQuery<ROUTE extends keyof Paths, QUERY ext
 	setPageSize (size: number): this
 }
 
-interface PreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>> extends Omit<Endpoint<ROUTE, QUERY>, "query"> {
+interface PreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>> extends Omit<Endpoint<ROUTE, QUERY>, 'query'> {
 	query (...overrides: any[]): ReturnType<QUERY>
 }
 
 export type PreparedQueryOf<ENDPOINT extends Endpoint<any, any>> = ENDPOINT extends Endpoint<infer ROUTE, infer QUERY> ? PreparedEndpointQuery<ROUTE, QUERY> : never
 
-function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]["method"], headers?: Record<string, string>) {
+function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]['method'], headers?: Record<string, string>) {
 	let pageSize: number | undefined
 	const endpoint: ConfigurablePreparedEndpointQuery<ROUTE, any> = {
 		header (header, value) {
@@ -95,10 +95,11 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 			pageSize = size
 			return endpoint
 		},
-		noResponse: () => endpoint.removeHeader("Accept"),
-		query: query as Endpoint<ROUTE>["query"],
+		noResponse: () => endpoint.removeHeader('Accept'),
+		query: query as Endpoint<ROUTE>['query'],
 		prep: (...parameters) => {
 			const endpoint = Endpoint(route, method, headers) as any as ConfigurablePreparedEndpointQuery<ROUTE, any>
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return Object.assign(endpoint, {
 				query: (...p2: any[]) => {
 					const newParameters: any[] = []
@@ -124,30 +125,30 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 	async function query (data?: EndpointQueryData) {
 		const body = !data?.body ? undefined : JSON.stringify(data.body)
 		const url = route.slice(1)
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
 			.replaceAll(/\{([^}]+)\}/g, (match, paramName) => data?.params?.[paramName])
 
 		const params = new URLSearchParams(data?.query as Record<string, string>)
 		if (pageSize)
-			params.set("page_size", `${pageSize}`)
+			params.set('page_size', `${pageSize}`)
 
-		const qs = params.size ? "?" + params.toString() : ""
+		const qs = params.size ? '?' + params.toString() : ''
 
 		let error: ErrorResponse<any> | undefined
 		const response = await fetch(`${Env.API_ORIGIN}${url}${qs}`, {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 			method,
 			headers: {
-				"Content-Type": body ? "application/json" : undefined,
-				"Accept": "application/json",
+				'Content-Type': body ? 'application/json' : undefined,
+				'Accept': 'application/json',
 				...headers,
 			} as HeadersInit,
-			credentials: "include",
+			credentials: 'include',
 			body,
 			signal: AbortSignal.timeout(Time.seconds(5)),
 		}).catch((e: Error): undefined => {
-			if (e.name === "AbortError") {
-				error = Object.assign(new Error("Request timed out"), {
+			if (e.name === 'AbortError') {
+				error = Object.assign(new Error('Request timed out'), {
 					code: 408,
 					data: null,
 					headers: new Headers(),
@@ -155,11 +156,11 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 				return
 			}
 
-			if (e.name === "TypeError" && /invalid URL|Failed to construct/.test(e.message))
+			if (e.name === 'TypeError' && /invalid URL|Failed to construct/.test(e.message))
 				throw e
 
-			if (e.name === "TypeError" || e.name === "NetworkError") {
-				error = Object.assign(new Error("Network connection failed"), {
+			if (e.name === 'TypeError' || e.name === 'NetworkError') {
+				error = Object.assign(new Error('Network connection failed'), {
 					code: 503,
 					data: null,
 					headers: new Headers(),
@@ -184,14 +185,15 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 		if (!response.body)
 			return Object.assign(error ?? {}, responseHeaders)
 
-		const responseType = response.headers.get("Content-Type")
-		if (responseType === "application/json") {
+		const responseType = response.headers.get('Content-Type')
+		if (responseType === 'application/json') {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const json = await response.json().catch(e => {
-				error ??= Object.assign(e instanceof Error ? e : new Error("Failed to parse JSON"), { code, retry: () => query(data) }) as ErrorResponse<any>
+				error ??= Object.assign(e instanceof Error ? e : new Error('Failed to parse JSON'), { code, retry: () => query(data) }) as ErrorResponse<any>
 				delete error.stack
 			})
 			if (error)
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 				return Object.assign(error, json, responseHeaders)
 
 			const paginated = json as PaginatedResponse<any>
@@ -210,6 +212,7 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 				})
 			}
 
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return Object.assign(json, responseHeaders)
 		}
 
@@ -219,7 +222,7 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 
 export default Endpoint
 
-export type EndpointResponse<ENDPOINT extends Endpoint<any, any>> = Exclude<Awaited<ReturnType<ENDPOINT["query"]>>, ErrorResponse<any> | void>
+export type EndpointResponse<ENDPOINT extends Endpoint<any, any>> = Exclude<Awaited<ReturnType<ENDPOINT['query']>>, ErrorResponse<any> | void>
 export type ResponseData<RESPONSE> = RESPONSE extends Response<infer DATA> ? DATA : never
 
 export type PaginatedEndpointRoutes = keyof {

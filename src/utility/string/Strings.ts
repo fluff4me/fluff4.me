@@ -1,5 +1,5 @@
-import MarkdownIt from "markdown-it"
-import MarkdownItHTML from "utility/string/MarkdownItHTML"
+import MarkdownIt from 'markdown-it'
+import MarkdownItHTML from 'utility/string/MarkdownItHTML'
 
 namespace Strings {
 	export type Replace<STRING extends string, MATCH extends string, REPLACE extends string> =
@@ -66,7 +66,7 @@ namespace Strings {
 	}
 
 	export function extractFromQuotes (string?: string | null) {
-		let substring = (string ?? "").trim()
+		let substring = (string ?? '').trim()
 		if (substring[0] === '"')
 			substring = substring.slice(1)
 		if (substring[substring.length - 1] === '"')
@@ -76,19 +76,19 @@ namespace Strings {
 	}
 
 	export function extractFromSquareBrackets (string?: string | null) {
-		let substring = (string ?? "")
-		if (substring[0] === "[")
+		let substring = (string ?? '')
+		if (substring[0] === '[')
 			substring = substring.slice(1).trimStart()
-		if (substring[substring.length - 1] === "]")
+		if (substring[substring.length - 1] === ']')
 			substring = substring.slice(0, -1).trimEnd()
 
 		return substring
 	}
 
 	export function mergeRegularExpressions (flags: string, ...expressions: RegExp[]) {
-		let exprString = ""
+		let exprString = ''
 		for (const expr of expressions)
-			exprString += "|" + expr.source
+			exprString += '|' + expr.source
 
 		return new RegExp(exprString.slice(1), flags)
 	}
@@ -114,48 +114,50 @@ namespace Strings {
 
 	export function getVariations (name: string) {
 		const variations = [name]
-		variations.push(name + "d", name + "ed")
+		variations.push(name + 'd', name + 'ed')
 
-		if (name.endsWith("d"))
+		if (name.endsWith('d'))
 			variations.push(...getVariations(name.slice(0, -1)))
 
-		if (name.endsWith("ed"))
+		if (name.endsWith('ed'))
 			variations.push(...getVariations(name.slice(0, -2)))
 
-		if (name.endsWith("ing")) {
+		if (name.endsWith('ing')) {
 			variations.push(name.slice(0, -3))
 			if (name[name.length - 4] === name[name.length - 5])
 				variations.push(name.slice(0, -4))
-		} else {
-			variations.push(name + "ing", name + name[name.length - 1] + "ing")
-			if (name.endsWith("y"))
-				variations.push(name.slice(0, -1) + "ing")
+		}
+		else {
+			variations.push(name + 'ing', name + name[name.length - 1] + 'ing')
+			if (name.endsWith('y'))
+				variations.push(name.slice(0, -1) + 'ing')
 		}
 
-		if (name.endsWith("ion")) {
+		if (name.endsWith('ion')) {
 			variations.push(...getVariations(name.slice(0, -3)))
 			if (name[name.length - 4] === name[name.length - 5])
 				variations.push(name.slice(0, -4))
-		} else
-			variations.push(name + "ion")
+		}
+		else
+			variations.push(name + 'ion')
 
-		if (name.endsWith("er"))
+		if (name.endsWith('er'))
 			variations.push(name.slice(0, -1), name.slice(0, -2))
 		else {
-			variations.push(name + "r", name + "er")
-			if (name.endsWith("y"))
-				variations.push(name.slice(0, -1) + "ier")
+			variations.push(name + 'r', name + 'er')
+			if (name.endsWith('y'))
+				variations.push(name.slice(0, -1) + 'ier')
 		}
 
-		if (name.endsWith("ier"))
-			variations.push(name.slice(0, -3) + "y")
+		if (name.endsWith('ier'))
+			variations.push(name.slice(0, -3) + 'y')
 
-		variations.push(name + "s", name + "es")
-		if (name.endsWith("s"))
+		variations.push(name + 's', name + 'es')
+		if (name.endsWith('s'))
 			variations.push(name.slice(0, -1))
 		else {
-			if (name.endsWith("y"))
-				variations.push(name.slice(0, -1) + "ies")
+			if (name.endsWith('y'))
+				variations.push(name.slice(0, -1) + 'ies')
 		}
 
 		return variations
@@ -163,7 +165,7 @@ namespace Strings {
 
 	export function shiftLine (lines: string, count = 1) {
 		for (let i = 0; i < count; i++) {
-			const index = lines.indexOf("\n")
+			const index = lines.indexOf('\n')
 			if (index === -1)
 				return lines
 
@@ -176,7 +178,7 @@ namespace Strings {
 	const REGEX_NON_WORD_MULTI = /\W+/g
 	export function getWords (text: string) {
 		return text.toLowerCase()
-			.replace(REGEX_APOSTROPHE, "")
+			.replace(REGEX_APOSTROPHE, '')
 			.split(REGEX_NON_WORD_MULTI)
 			.filter(Boolean)
 	}
@@ -259,12 +261,12 @@ namespace Strings {
 	export function toTitleCase (text: string) {
 		return text.split(REGEX_NON_WORD_MULTI_PREV)
 			.map(word => word[0].toUpperCase() + word.slice(1))
-			.join("")
+			.join('')
 	}
 
-	export const markdown = new MarkdownIt("commonmark", { html: true, breaks: true })
+	export const markdown = new MarkdownIt('commonmark', { html: true, breaks: true })
 	MarkdownItHTML.use(markdown, MarkdownItHTML.Options()
-		.disallowTags("img", "figure", "figcaption", "map", "area"))
+		.disallowTags('img', 'figure', 'figcaption', 'map', 'area'))
 }
 
 export default Strings

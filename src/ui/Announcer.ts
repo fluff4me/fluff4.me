@@ -1,48 +1,48 @@
-import Component from "ui/Component"
-import type { Quilt } from "ui/utility/StringApplicator"
+import Component from 'ui/Component'
+import type { Quilt } from 'ui/utility/StringApplicator'
 
 namespace Announcer {
 
 	const assertive = Component()
-		.attributes.set("aria-live", "assertive")
-		.style.setProperty("opacity", "0")
-		.style.setProperty("user-select", "none")
-		.style.setProperty("pointer-events", "none")
-		.style.setProperty("position", "fixed")
+		.attributes.set('aria-live', 'assertive')
+		.style.setProperty('opacity', '0')
+		.style.setProperty('user-select', 'none')
+		.style.setProperty('pointer-events', 'none')
+		.style.setProperty('position', 'fixed')
 		.appendTo(document.body)
 
 	const polite = Component()
-		.attributes.set("aria-live", "polite")
-		.style.setProperty("opacity", "0")
-		.style.setProperty("user-select", "none")
-		.style.setProperty("pointer-events", "none")
-		.style.setProperty("position", "fixed")
+		.attributes.set('aria-live', 'polite')
+		.style.setProperty('opacity', '0')
+		.style.setProperty('user-select', 'none')
+		.style.setProperty('pointer-events', 'none')
+		.style.setProperty('position', 'fixed')
 		.appendTo(document.body)
 
 	export interface Announcer {
 		(keyOrHandler: Quilt.SimpleKey | Quilt.Handler): void
 	}
 
-	export function interrupt (id: string, announcer: (announce: Announcer) => any) {
+	export function interrupt (id: string, announcer: (announce: Announcer) => unknown) {
 		announceInternal(assertive, id, announcer)
 	}
 
-	export function announce (id: string, announcer: (announce: Announcer) => any) {
+	export function announce (id: string, announcer: (announce: Announcer) => unknown) {
 		announceInternal(polite, id, announcer)
 	}
 
-	function announceInternal (within: Component, id: string, announcer: (announce: Announcer) => any) {
+	function announceInternal (within: Component, id: string, announcer: (announce: Announcer) => unknown) {
 		const components: Component[] = []
 		announcer(keyOrHandler => {
-			components.push(Component("p")
-				.attributes.set("data-id", id)
+			components.push(Component('p')
+				.attributes.set('data-id', id)
 				.text.use(keyOrHandler))
 		})
 
 		const current = getAnnouncementElements(within, id)
 		if (current.length) {
-			const currentText = current.map(el => el.textContent).join("\n")
-			const newText = components.map(component => component.element.textContent).join("\n")
+			const currentText = current.map(el => el.textContent).join('\n')
+			const newText = components.map(component => component.element.textContent).join('\n')
 			if (newText === currentText)
 				return
 

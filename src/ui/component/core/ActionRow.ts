@@ -1,4 +1,4 @@
-import Component from "ui/Component"
+import Component from 'ui/Component'
 
 interface ActionRowExtensions {
 	readonly left: Component
@@ -9,7 +9,7 @@ interface ActionRowExtensions {
 interface ActionRow extends Component, ActionRowExtensions { }
 
 const ActionRow = Component.Builder((row): ActionRow => {
-	row.style("action-row")
+	row.style('action-row')
 
 	return row
 		.extend<ActionRowExtensions>(row => ({
@@ -17,14 +17,14 @@ const ActionRow = Component.Builder((row): ActionRow => {
 			middle: undefined!,
 			right: undefined!,
 		}))
-		.extendJIT("left", row => Component()
-			.style("action-row-left")
+		.extendJIT('left', row => Component()
+			.style('action-row-left')
 			.appendTo(row))
-		.extendJIT("middle", row => Component()
-			.style("action-row-middle")
+		.extendJIT('middle', row => Component()
+			.style('action-row-middle')
 			.appendTo(row))
-		.extendJIT("right", row => Component()
-			.style("action-row-right")
+		.extendJIT('right', row => Component()
+			.style('action-row-right')
 			.appendTo(row))
 })
 

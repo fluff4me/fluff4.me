@@ -1,5 +1,5 @@
-import Define from "utility/Define"
-import type Vector2 from "utility/maths/Vector2"
+import Define from 'utility/Define'
+import type Vector2 from 'utility/maths/Vector2'
 
 declare global {
 	interface DOMRect {
@@ -13,34 +13,34 @@ declare global {
 }
 
 export default function () {
-	Define.magic(DOMRect.prototype, "centreX", {
+	Define.magic(DOMRect.prototype, 'centreX', {
 		get () {
 			return this.left + this.width / 2
 		},
 	})
 
-	Define.magic(DOMRect.prototype, "centreY", {
+	Define.magic(DOMRect.prototype, 'centreY', {
 		get () {
 			return this.top + this.height / 2
 		},
 	})
 
-	Define(DOMRect.prototype, "expand", function (this: DOMRect, amount: number) {
+	Define(DOMRect.prototype, 'expand', function (this: DOMRect, amount: number) {
 		return new DOMRect(
 			this.x - amount, this.y - amount,
 			this.width + amount * 2, this.height + amount * 2,
 		)
 	})
 
-	Define(DOMRect.prototype, "contract", function (this: DOMRect, amount: number) {
+	Define(DOMRect.prototype, 'contract', function (this: DOMRect, amount: number) {
 		return new DOMRect(
 			Math.min(this.x + amount, this.centreX), Math.min(this.y - amount, this.centreY),
 			Math.max(0, this.width - amount * 2), Math.max(0, this.height - amount * 2),
 		)
 	})
 
-	Define(DOMRect.prototype, "intersects", function (this: DOMRect, target: DOMRect | Vector2) {
-		if ("width" in target)
+	Define(DOMRect.prototype, 'intersects', function (this: DOMRect, target: DOMRect | Vector2) {
+		if ('width' in target)
 			return true
 				&& this.left >= target.right
 				&& this.right <= target.left

@@ -1,6 +1,6 @@
-import Arrays from "utility/Arrays"
-import applyDOMRectPrototypes from "utility/DOMRect"
-import Elements from "utility/Elements"
+import Arrays from 'utility/Arrays'
+import applyDOMRectPrototypes from 'utility/DOMRect'
+import Elements from 'utility/Elements'
 
 declare global {
 	export const _: undefined
@@ -9,15 +9,15 @@ declare global {
 
 Object.assign(window, {
 	_: undefined,
-	select: (fn: () => any) => fn(),
+	select: (fn: () => unknown) => fn(),
 })
 
 // @ts-expect-error no types
-import sourceMapSupport from "browser-source-map-support"
-import Env from "utility/Env"
+import sourceMapSupport from 'browser-source-map-support'
+import Env from 'utility/Env'
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 sourceMapSupport.install({
-	environment: "browser",
+	environment: 'browser',
 })
 
 // view transition api fallback
@@ -39,6 +39,6 @@ Elements.applyPrototypes()
 
 void (async () => {
 	await Env.load()
-	const app = await import("App")
+	const app = await import('App')
 	await app.default()
 })()

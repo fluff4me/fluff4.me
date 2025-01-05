@@ -1,7 +1,7 @@
-import Tags from "model/Tags"
-import View from "ui/view/shared/component/View"
-import ViewDefinition from "ui/view/shared/component/ViewDefinition"
-import Errors from "utility/Errors"
+import Tags from 'model/Tags'
+import View from 'ui/view/shared/component/View'
+import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
+import Errors from 'utility/Errors'
 
 interface TagViewGlobalParams {
 	category: string
@@ -18,10 +18,10 @@ interface TagViewCustomParams {
 type TagViewParams = TagViewGlobalParams | TagViewCustomParams
 
 const fromURLRegex = /(-|^)(.)/g
-const fromURL = (name: string) => name.replaceAll(fromURLRegex, (_, dash: string, char: string) => `${dash ? " " : ""}${char.toUpperCase()}`)
+const fromURL = (name: string) => name.replaceAll(fromURLRegex, (_, dash: string, char: string) => `${dash ? ' ' : ''}${char.toUpperCase()}`)
 export default ViewDefinition({
 	create: async (params: TagViewParams) => {
-		const view = View("tag")
+		const view = View('tag')
 
 		const tag = params.custom_name ?? await Tags.resolve(fromURL(params.category), fromURL(params.name))
 		if (!tag)

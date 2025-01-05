@@ -1,15 +1,16 @@
-import Component from "ui/Component"
-import { EventManager } from "utility/EventManager"
+import Component from 'ui/Component'
+import { EventManager } from 'utility/EventManager'
 
 enum Classes {
-	ReceiveFocusedClickEvents = "_receieve-focused-click-events",
+	ReceiveFocusedClickEvents = '_receieve-focused-click-events'
 }
 
 interface InputBusComponentExtensions {
 	receiveFocusedClickEvents (): this
 }
 
-declare module "ui/Component" {
+declare module 'ui/Component' {
+
 	interface ComponentExtensions extends InputBusComponentExtensions { }
 }
 
@@ -19,7 +20,7 @@ Component.extend(component => {
 	}))
 })
 
-type Modifier = "ctrl" | "shift" | "alt"
+type Modifier = 'ctrl' | 'shift' | 'alt'
 
 export interface IInputEvent {
 	key: string
@@ -45,14 +46,14 @@ export interface IInputBusEvents {
 }
 
 const MOUSE_KEYNAME_MAP: Record<string, string> = {
-	[0]: "MouseLeft",
-	[1]: "MouseMiddle",
-	[2]: "MouseRight",
-	[3]: "Mouse3",
-	[4]: "Mouse4",
-	[5]: "Mouse5",
-	// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-	[`${undefined}`]: "Mouse?",
+	[0]: 'MouseLeft',
+	[1]: 'MouseMiddle',
+	[2]: 'MouseRight',
+	[3]: 'Mouse3',
+	[4]: 'Mouse4',
+	[5]: 'Mouse5',
+
+	[`${undefined}`]: 'Mouse?',
 }
 
 type RawEvent = Partial<KeyboardEvent> & Partial<MouseEvent> & (KeyboardEvent | MouseEvent)
@@ -72,17 +73,17 @@ const InputBus = Object.assign(
 
 function emitKeyEvent (e: RawEvent) {
 	const target = e.target as HTMLElement
-	const input = target.closest<HTMLElement>("input[type=text], textarea, [contenteditable]")
+	const input = target.closest<HTMLElement>('input[type=text], textarea, [contenteditable]')
 	let usedByInput = !!input
 
 	const isClick = true
 		&& !usedByInput
-		&& e.type === "keydown"
-		&& (e.key === "Enter" || e.key === "Space")
+		&& e.type === 'keydown'
+		&& (e.key === 'Enter' || e.key === 'Space')
 		&& !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey
 		&& target.classList.contains(Classes.ReceiveFocusedClickEvents)
 	if (isClick) {
-		const result = target.component?.event.emit("click")
+		const result = target.component?.event.emit('click')
 		if (result?.defaultPrevented) {
 			e.preventDefault()
 			return
@@ -90,8 +91,8 @@ function emitKeyEvent (e: RawEvent) {
 	}
 
 	const eventKey = e.key ?? MOUSE_KEYNAME_MAP[e.button!]
-	const eventType = e.type === "mousedown" ? "keydown" : e.type === "mouseup" ? "keyup" : e.type as "keydown" | "keyup"
-	if (eventType === "keydown")
+	const eventType = e.type === 'mousedown' ? 'keydown' : e.type === 'mouseup' ? 'keyup' : e.type as 'keydown' | 'keyup'
+	if (eventType === 'keydown')
 		inputDownTime[eventKey] = Date.now()
 
 	let cancelInput = false
@@ -134,18 +135,18 @@ function emitKeyEvent (e: RawEvent) {
 			return true
 		},
 		cancelInput: () => cancelInput = true,
-		hovering: (selector) => {
-			const hovered = [...document.querySelectorAll<HTMLElement>(":hover")]
+		hovering: selector => {
+			const hovered = [...document.querySelectorAll<HTMLElement>(':hover')]
 			return selector ? hovered[hovered.length - 1]?.closest<HTMLElement>(selector) ?? undefined : hovered[hovered.length - 1]
 		},
 	}
 
-	if (eventType === "keyup") {
+	if (eventType === 'keyup') {
 		event.usedAnotherKeyDuring = lastUsed > (inputDownTime[eventKey] ?? 0)
 		delete inputDownTime[eventKey]
 	}
 
-	InputBus.emit(eventType === "keydown" ? "down" : "up", event)
+	InputBus.emit(eventType === 'keydown' ? 'down' : 'up', event)
 
 	if ((event.used && !usedByInput) || (usedByInput && cancelInput)) {
 		e.preventDefault()
@@ -153,23 +154,24 @@ function emitKeyEvent (e: RawEvent) {
 	}
 
 	if (usedByInput) {
-		if (e.type === "keydown" && eventKey === "Enter" && !event.shift && !event.alt) {
-			const form = target.closest("form")
-			if (form && (target.tagName.toLowerCase() === "input" || target.closest("[contenteditable]")) && !event.ctrl) {
+		if (e.type === 'keydown' && eventKey === 'Enter' && !event.shift && !event.alt) {
+			const form = target.closest('form')
+			if (form && (target.tagName.toLowerCase() === 'input' || target.closest('[contenteditable]')) && !event.ctrl) {
 				e.preventDefault()
-			} else {
+			}
+			else {
 				form?.requestSubmit()
 			}
 		}
 	}
 }
 
-document.addEventListener("keydown", emitKeyEvent)
-document.addEventListener("keyup", emitKeyEvent)
+document.addEventListener('keydown', emitKeyEvent)
+document.addEventListener('keyup', emitKeyEvent)
 
-document.addEventListener("mousedown", emitKeyEvent)
-document.addEventListener("mouseup", emitKeyEvent)
-document.addEventListener("click", emitKeyEvent)
+document.addEventListener('mousedown', emitKeyEvent)
+document.addEventListener('mouseup', emitKeyEvent)
+document.addEventListener('click', emitKeyEvent)
 
 declare global {
 	interface MouseEvent {
@@ -188,13 +190,13 @@ interface MouseEventInternal extends MouseEvent {
 	_used?: boolean
 }
 
-Object.defineProperty(MouseEvent.prototype, "used", {
+Object.defineProperty(MouseEvent.prototype, 'used', {
 	get (this: MouseEventInternal) {
 		return this._used ?? false
 	},
 })
 
-Object.defineProperty(MouseEvent.prototype, "use", {
+Object.defineProperty(MouseEvent.prototype, 'use', {
 	value: function (this: MouseEventInternal, key: string, ...modifiers: Modifier[]) {
 		if (this._used)
 			return false
@@ -210,7 +212,7 @@ Object.defineProperty(MouseEvent.prototype, "use", {
 	},
 })
 
-Object.defineProperty(MouseEvent.prototype, "matches", {
+Object.defineProperty(MouseEvent.prototype, 'matches', {
 	value: function (this: MouseEventInternal, key: string, ...modifiers: Modifier[]) {
 		if (MOUSE_KEYNAME_MAP[this.button] !== key)
 			return false

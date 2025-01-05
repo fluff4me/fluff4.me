@@ -23,6 +23,7 @@ namespace Maths {
 	}
 
 	export class BitsSet<FLAG_TYPE extends number> extends Set<FLAG_TYPE> {
+
 		public everyIn (type?: FLAG_TYPE) {
 			const t = type ?? 0
 			for (const bit of this)
@@ -41,7 +42,7 @@ namespace Maths {
 			return false
 		}
 
-		public every (predicate: (type: FLAG_TYPE) => any) {
+		public every (predicate: (type: FLAG_TYPE) => unknown) {
 			for (const bit of this)
 				if (!predicate(bit))
 					return false
@@ -49,13 +50,14 @@ namespace Maths {
 			return true
 		}
 
-		public some (predicate: (type: FLAG_TYPE) => any) {
+		public some (predicate: (type: FLAG_TYPE) => unknown) {
 			for (const bit of this)
 				if (predicate(bit))
 					return true
 
 			return false
 		}
+
 	}
 
 	export function bitsn<FLAG_TYPE extends bigint> (flag: FLAG_TYPE) {
@@ -68,6 +70,7 @@ namespace Maths {
 	}
 
 	export class BitsSetN<FLAG_TYPE extends bigint> extends Set<FLAG_TYPE> {
+
 		public everyIn (type?: FLAG_TYPE) {
 			const t = type ?? 0n
 			for (const bit of this)
@@ -86,7 +89,7 @@ namespace Maths {
 			return false
 		}
 
-		public every (predicate: (type: FLAG_TYPE) => any) {
+		public every (predicate: (type: FLAG_TYPE) => unknown) {
 			for (const bit of this)
 				if (!predicate(bit))
 					return false
@@ -94,13 +97,14 @@ namespace Maths {
 			return true
 		}
 
-		public some (predicate: (type: FLAG_TYPE) => any) {
+		public some (predicate: (type: FLAG_TYPE) => unknown) {
 			for (const bit of this)
 				if (predicate(bit))
 					return true
 
 			return false
 		}
+
 	}
 
 	export function lerp (from: number, to: number, t: number): number {

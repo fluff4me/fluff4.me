@@ -1,18 +1,18 @@
-import Component from "ui/Component"
-import MarkdownContent from "ui/utility/MarkdownContent"
-import type { ComponentName } from "ui/utility/StyleManipulator"
+import Component from 'ui/Component'
+import MarkdownContent from 'ui/utility/MarkdownContent'
+import type { ComponentName } from 'ui/utility/StyleManipulator'
 
 interface ComponentHeadingExtensions {
 	containsHeading (): boolean
 	setContainsHeading (): this
 }
 
-declare module "ui/Component" {
+declare module 'ui/Component' {
 	interface ComponentExtensions extends ComponentHeadingExtensions { }
 }
 
 export enum HeadingClasses {
-	_ContainsHeading = "_contains-heading",
+	_ContainsHeading = '_contains-heading'
 }
 
 Component.extend(component => component.extend<ComponentHeadingExtensions>(component => ({
@@ -42,15 +42,15 @@ interface HeadingExtensions {
 
 interface Heading extends Component, HeadingExtensions { }
 
-const Heading = Component.Builder("h1", (component): Heading => {
-	component.style("heading")
+const Heading = Component.Builder('h1', (component): Heading => {
+	component.style('heading')
 
-	component.text.state.use(component, text => component.setId(text?.toString().toLowerCase().replace(/\W+/g, "-")))
+	component.text.state.use(component, text => component.setId(text?.toString().toLowerCase().replace(/\W+/g, '-')))
 
-	component.tabIndex("programmatic")
+	component.tabIndex('programmatic')
 
 	component.receiveAncestorInsertEvents()
-	component.event.subscribe(["insert", "ancestorInsert"], updateHeadingLevel)
+	component.event.subscribe(['insert', 'ancestorInsert'], updateHeadingLevel)
 	component.rooted.subscribeManual(updateHeadingLevel)
 
 	let initial = true
@@ -59,7 +59,7 @@ const Heading = Component.Builder("h1", (component): Heading => {
 
 	return component.extend<HeadingExtensions>(heading => ({
 		setAestheticLevel (level) {
-			const style = aestheticStyle ?? "heading"
+			const style = aestheticStyle ?? 'heading'
 
 			const oldLevel = getHeadingLevel(component.element)
 			if (isStyledHeadingLevel(oldLevel))
@@ -77,11 +77,11 @@ const Heading = Component.Builder("h1", (component): Heading => {
 		setAestheticStyle (style) {
 			const level = aestheticLevel ?? getHeadingLevel(component.element)
 			if (isStyledHeadingLevel(level))
-				component.style.remove(`${aestheticStyle ?? "heading"}`, `${aestheticStyle ?? "heading"}-${level}`)
+				component.style.remove(`${aestheticStyle ?? 'heading'}`, `${aestheticStyle ?? 'heading'}-${level}`)
 
 			aestheticStyle = style
 			if (isStyledHeadingLevel(level))
-				component.style(`${style ?? "heading"}`, `${style ?? "heading"}-${level}`)
+				component.style(`${style ?? 'heading'}`, `${style ?? 'heading'}-${level}`)
 
 			return heading
 		},
@@ -99,7 +99,7 @@ const Heading = Component.Builder("h1", (component): Heading => {
 		if (isSameLevel && !initial)
 			return
 
-		const style = aestheticStyle ?? "heading"
+		const style = aestheticStyle ?? 'heading'
 
 		initial = false
 		if (isStyledHeadingLevel(oldLevel))
@@ -115,11 +115,11 @@ const Heading = Component.Builder("h1", (component): Heading => {
 		if (isSameLevel)
 			return
 
-		component.event.unsubscribe(["insert", "ancestorInsert"], updateHeadingLevel)
-		component.replaceElement(isStyledLevel ? `h${newLevel}` : "span")
-		component.attributes.toggle(!isStyledLevel, "role", "heading")
-		component.attributes.toggle(!isStyledLevel && typeof newLevel === "number", "aria-level", `${newLevel}`)
-		component.event.subscribe(["insert", "ancestorInsert"], updateHeadingLevel)
+		component.event.unsubscribe(['insert', 'ancestorInsert'], updateHeadingLevel)
+		component.replaceElement(isStyledLevel ? `h${newLevel}` : 'span')
+		component.attributes.toggle(!isStyledLevel, 'role', 'heading')
+		component.attributes.toggle(!isStyledLevel && typeof newLevel === 'number', 'aria-level', `${newLevel}`)
+		component.event.subscribe(['insert', 'ancestorInsert'], updateHeadingLevel)
 	}
 })
 
@@ -163,17 +163,17 @@ function getPreviousSiblingHeading (node?: Node): HTMLElement | undefined {
 		if (isHeadingElement(siblingElement))
 			return siblingElement
 
-		if (siblingElement.getAttribute("role") === "heading")
+		if (siblingElement.getAttribute('role') === 'heading')
 			return siblingElement
 
-		if (siblingElement.tagName === "HGROUP") {
-			const [heading] = siblingElement.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6, [role='heading']")
+		if (siblingElement.tagName === 'HGROUP') {
+			const [heading] = siblingElement.querySelectorAll<HTMLElement>('h1, h2, h3, h4, h5, h6, [role=\'heading\']')
 			if (heading)
 				return heading
 		}
 
 		if (siblingElement.component?.containsHeading()) {
-			const [heading] = siblingElement.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6, [role='heading']")
+			const [heading] = siblingElement.querySelectorAll<HTMLElement>('h1, h2, h3, h4, h5, h6, [role=\'heading\']')
 			if (heading)
 				return heading
 		}
@@ -181,19 +181,19 @@ function getPreviousSiblingHeading (node?: Node): HTMLElement | undefined {
 }
 
 function isHeadingElement (value: unknown): value is HTMLHeadingElement {
-	if (!value || typeof value !== "object" || !("tagName" in value))
+	if (!value || typeof value !== 'object' || !('tagName' in value))
 		return false
 
 	const element = value as HTMLElement
-	return element.tagName[0] === "H" && element.tagName.length === 2 && !isNaN(+element.tagName[1])
+	return element.tagName[0] === 'H' && element.tagName.length === 2 && !isNaN(+element.tagName[1])
 }
 
 function getHeadingLevel (element: HTMLElement): number | undefined {
-	return +element.tagName.slice(1) || +element.getAttribute("aria-level")! || undefined
+	return +element.tagName.slice(1) || +element.getAttribute('aria-level')! || undefined
 }
 
 function isStyledHeadingLevel (level: unknown): level is HeadingLevel {
-	return typeof level === "number" && level >= 1 && level <= 6
+	return typeof level === 'number' && level >= 1 && level <= 6
 }
 
 //#endregion
@@ -203,7 +203,7 @@ MarkdownContent.handle(element => {
 	if (isHeadingElement(element)) {
 		const level = getHeadingLevel(element)
 
-		const heading = Heading().setAestheticStyle("markdown-heading")
+		const heading = Heading().setAestheticStyle('markdown-heading')
 		heading.element.replaceChildren(...element.childNodes)
 		element.replaceWith(heading.element)
 		heading.emitInsert()

@@ -1,25 +1,25 @@
-import type { Chapter } from "api.fluff4.me"
-import EndpointChapterCreate from "endpoint/chapter/EndpointChapterCreate"
-import EndpointChapterUpdate from "endpoint/chapter/EndpointChapterUpdate"
-import type { WorkParams } from "endpoint/work/EndpointWorkGet"
-import quilt from "lang/en-nz"
-import FormInputLengths from "model/FormInputLengths"
-import Session from "model/Session"
-import Component from "ui/Component"
-import Block from "ui/component/core/Block"
-import Form from "ui/component/core/Form"
-import LabelledTable from "ui/component/core/LabelledTable"
-import TextEditor from "ui/component/core/TextEditor"
-import TextInput from "ui/component/core/TextInput"
-import { TOAST_ERROR, TOAST_SUCCESS } from "ui/component/core/toast/Toast"
-import type State from "utility/State"
+import type { Chapter } from 'api.fluff4.me'
+import EndpointChapterCreate from 'endpoint/chapter/EndpointChapterCreate'
+import EndpointChapterUpdate from 'endpoint/chapter/EndpointChapterUpdate'
+import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
+import quilt from 'lang/en-nz'
+import FormInputLengths from 'model/FormInputLengths'
+import Session from 'model/Session'
+import Component from 'ui/Component'
+import Block from 'ui/component/core/Block'
+import Form from 'ui/component/core/Form'
+import LabelledTable from 'ui/component/core/LabelledTable'
+import TextEditor from 'ui/component/core/TextEditor'
+import TextInput from 'ui/component/core/TextInput'
+import { TOAST_ERROR, TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
+import type State from 'utility/State'
 
 export default Component.Builder((component, state: State<Chapter | undefined>, workParams: WorkParams) => {
 	const block = component.and(Block)
 	const form = block.and(Form, block.title)
-	form.viewTransition("chapter-edit-form")
+	form.viewTransition('chapter-edit-form')
 
-	const type = state.value ? "update" : "create"
+	const type = state.value ? 'update' : 'create'
 
 	form.title.text.use(`view/chapter-edit/${type}/title`)
 	form.setName(quilt[`view/chapter-edit/${type}/title`]().toString())
@@ -33,39 +33,39 @@ export default Component.Builder((component, state: State<Chapter | undefined>, 
 	const nameInput = TextInput()
 		.setRequired()
 		.default.bind(state.map(component, work => work?.name))
-		.hint.use("view/chapter-edit/shared/form/name/hint")
+		.hint.use('view/chapter-edit/shared/form/name/hint')
 		.setMaxLength(FormInputLengths.manifest?.chapter.name)
-	table.label(label => label.text.use("view/chapter-edit/shared/form/name/label"))
+	table.label(label => label.text.use('view/chapter-edit/shared/form/name/label'))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
 	const bodyInput = TextEditor()
 		.default.bind(state.map(component, chapter => chapter?.body ?? undefined))
-		.hint.use("view/chapter-edit/shared/form/body/hint")
-	table.label(label => label.text.use("view/chapter-edit/shared/form/body/label"))
+		.hint.use('view/chapter-edit/shared/form/body/hint')
+	table.label(label => label.text.use('view/chapter-edit/shared/form/body/label'))
 		.content((content, label) => content.append(bodyInput.setLabel(label)))
 
-	form.event.subscribe("submit", async event => {
+	form.event.subscribe('submit', async event => {
 		event.preventDefault()
 
 		const response = await (() => {
 			switch (type) {
-				case "create":
+				case 'create':
 					return EndpointChapterCreate.query({
 						params: workParams,
 						body: {
 							name: nameInput.value,
 							body: bodyInput.useMarkdown(),
-							visibility: "Private",
+							visibility: 'Private',
 						},
 					})
 
-				case "update": {
+				case 'update': {
 					if (!state.value)
 						return
 
 					const authorVanity = Session.Auth.author.value?.vanity
 					if (!authorVanity)
-						return new Error("Cannot update a work when not signed in")
+						return new Error('Cannot update a work when not signed in')
 
 					return EndpointChapterUpdate.query({
 						params: {
@@ -75,7 +75,7 @@ export default Component.Builder((component, state: State<Chapter | undefined>, 
 						body: {
 							name: nameInput.value,
 							body: bodyInput.useMarkdown(),
-							visibility: "Private",
+							visibility: 'Private',
 						},
 					})
 				}
@@ -83,12 +83,12 @@ export default Component.Builder((component, state: State<Chapter | undefined>, 
 		})()
 
 		if (response instanceof Error) {
-			toast.warning(TOAST_ERROR, "view/chapter-edit/shared/toast/failed-to-save", response)
+			toast.warning(TOAST_ERROR, 'view/chapter-edit/shared/toast/failed-to-save', response)
 			console.error(response)
 			return
 		}
 
-		toast.success(TOAST_SUCCESS, "view/chapter-edit/shared/toast/saved")
+		toast.success(TOAST_SUCCESS, 'view/chapter-edit/shared/toast/saved')
 		state.value = response?.data
 	})
 

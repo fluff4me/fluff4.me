@@ -1,4 +1,4 @@
-import Component from "ui/Component"
+import Component from 'ui/Component'
 
 interface ExternalLinkExtensions {
 
@@ -6,11 +6,11 @@ interface ExternalLinkExtensions {
 
 interface ExternalLink extends Component, ExternalLinkExtensions { }
 
-const ExternalLink = Component.Builder("a", (component, href: string | undefined) => {
-	component.style("link", "link-external")
+const ExternalLink = Component.Builder('a', (component, href: string | undefined) => {
+	component.style('link', 'link-external')
 
 	if (href !== undefined)
-		component.attributes.set("href", href)
+		component.attributes.set('href', href)
 
 	return component
 })

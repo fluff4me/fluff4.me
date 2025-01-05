@@ -1,5 +1,5 @@
 type Implementation<P, K extends keyof P> =
-	(this: P, ...args: P[K] extends (...args: infer A) => any ? A : []) => P[K] extends (...args: any[]) => infer R ? R : never
+	(this: P, ...args: P[K] extends (...args: infer A) => unknown ? A : []) => P[K] extends (...args: any[]) => infer R ? R : never
 
 function Define<P, K extends string & keyof P> (proto: P, key: K, implementation: Implementation<P, K>): void {
 	try {
@@ -8,12 +8,11 @@ function Define<P, K extends string & keyof P> (proto: P, key: K, implementation
 			writable: true,
 			value: implementation,
 		})
-	} catch (err) {
-
 	}
+	catch { }
 }
 
-module Define {
+namespace Define {
 	export function all<P, K extends string & keyof P> (protos: P[], key: K, implementation: Implementation<P, K>): void {
 		for (const proto of protos) {
 			Define(proto, key, implementation)
@@ -31,9 +30,8 @@ module Define {
 				configurable: true,
 				...implementation,
 			})
-		} catch (err) {
-
 		}
+		catch { }
 	}
 
 	export function set<O, K extends string & keyof O> (obj: O, key: K, value: O[K]): O[K] {
@@ -43,9 +41,8 @@ module Define {
 				writable: true,
 				value,
 			})
-		} catch (err) {
-
 		}
+		catch { }
 
 		return value
 	}

@@ -1,11 +1,11 @@
-import type { ErrorResponse } from "api.fluff4.me"
-import Component from "ui/Component"
-import type { ToastComponent } from "ui/component/core/toast/ToastList"
-import type { Quilt } from "ui/utility/StringApplicator"
+import type { ErrorResponse } from 'api.fluff4.me'
+import Component from 'ui/Component'
+import type { ToastComponent } from 'ui/component/core/toast/ToastList'
+import type { Quilt } from 'ui/utility/StringApplicator'
 
 interface Toast<PARAMS extends any[] = []> {
 	duration: number
-	initialise: (toast: ToastComponent, ...params: PARAMS) => any
+	initialise: (toast: ToastComponent, ...params: PARAMS) => unknown
 }
 
 function Toast<PARAMS extends any[]> (toast: Toast<PARAMS>) {
@@ -34,9 +34,9 @@ export const TOAST_ERROR = Toast({
 		else
 			toast.content
 				.append(Component()
-					.style("toast-error-type")
+					.style('toast-error-type')
 					.text.set(error.message))
-				.text.append(": ")
+				.text.append(': ')
 				.text.append(error.detail)
 	},
 })

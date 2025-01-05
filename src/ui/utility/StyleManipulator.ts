@@ -1,7 +1,7 @@
-import style from "style"
-import type Component from "ui/Component"
-import type State from "utility/State"
-import type { UnsubscribeState } from "utility/State"
+import style from 'style'
+import type Component from 'ui/Component'
+import type State from 'utility/State'
+import type { UnsubscribeState } from 'utility/State'
 
 export type ComponentName = keyof typeof style
 export type ComponentNameType<PREFIX extends string> = keyof { [KEY in ComponentName as KEY extends `${PREFIX}-${infer TYPE}--${string}` ? TYPE
@@ -97,7 +97,7 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 			refresh: () => updateClasses(),
 
 			hasProperty (property) {
-				return component.element.style.getPropertyValue(property) !== ""
+				return component.element.style.getPropertyValue(property) !== ''
 			},
 			setProperty (property, value) {
 				unbindPropertyState[property]?.()

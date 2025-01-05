@@ -1,4 +1,4 @@
-import Define from "utility/Define"
+import Define from 'utility/Define'
 
 declare global {
 	interface Array<T> {
@@ -60,15 +60,15 @@ declare global {
 		toMap<MAPPER extends (value: T) => readonly [KEY, VALUE, ...any[]], KEY, VALUE> (mapper?: MAPPER): Map<KEY, VALUE> | (T extends readonly [infer KEY, infer VALUE, ...any[]] ? Map<KEY, VALUE> : never)
 
 		distinct (): this
-		distinct (mapper: (value: T) => any): this
+		distinct (mapper: (value: T) => unknown): this
 
 		findMap<FILTER extends T, RETURN> (predicate: (value: T, index: number, obj: T[]) => value is FILTER, mapper: (value: FILTER, index: number, obj: T[]) => RETURN): RETURN | undefined
 		findMap<RETURN> (predicate: (value: T, index: number, obj: T[]) => boolean, mapper: (value: T, index: number, obj: T[]) => RETURN): RETURN | undefined
 
 		groupBy<GROUP> (grouper: (value: T, index: number, obj: T[]) => GROUP): [GROUP, T[]][]
 
-		filterInPlace: Array<T>["filter"]
-		mapInPlace: Array<T>["filter"]
+		filterInPlace: Array<T>['filter']
+		mapInPlace: Array<T>['filter']
 	}
 }
 
@@ -143,7 +143,7 @@ namespace Arrays {
 	 * Removes all values matching the given predicate from the array.
 	 * @returns `true` if removed, `false` otherwise
 	 */
-	export function removeWhere<T> (array: T[] | undefined, predicate: (value: T, index: number, array: T[]) => any) {
+	export function removeWhere<T> (array: T[] | undefined, predicate: (value: T, index: number, array: T[]) => unknown) {
 		if (!array)
 			return false
 
@@ -157,7 +157,6 @@ namespace Arrays {
 			}
 
 			if (insertIndex !== i)
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 				array[insertIndex] = array[i]
 
 			insertIndex++
@@ -194,7 +193,7 @@ namespace Arrays {
 	export function range (start: number, end: number, step?: number): number[]
 	export function range (start: number, end?: number, step?: number): number[] {
 		if (step === 0)
-			throw new Error("Invalid step for range")
+			throw new Error('Invalid step for range')
 
 		const result: number[] = []
 
@@ -213,7 +212,7 @@ namespace Arrays {
 		return value !== null && value !== undefined
 	}
 
-	export function filterFalsy<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined | 0 | 0n | false | ""> {
+	export function filterFalsy<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined | 0 | 0n | false | ''> {
 		return !!value
 	}
 
@@ -254,7 +253,8 @@ namespace Arrays {
 			if (indexOfPerson1InList2 === -1) {
 				merged.push(v1!)
 				index1++
-			} else {
+			}
+			else {
 				merged.push(v2!)
 				index2++
 			}
@@ -264,7 +264,7 @@ namespace Arrays {
 	}
 
 	export function applyPrototypes () {
-		Define(Array.prototype, "findLast", function (predicate): any {
+		Define(Array.prototype, 'findLast', function (predicate): any {
 			if (this.length > 0)
 				for (let i = this.length - 1; i >= 0; i--)
 					if (predicate(this[i], i, this))
@@ -273,7 +273,7 @@ namespace Arrays {
 			return undefined
 		})
 
-		Define(Array.prototype, "findLastIndex", function (predicate) {
+		Define(Array.prototype, 'findLastIndex', function (predicate) {
 			if (this.length > 0)
 				for (let i = this.length - 1; i >= 0; i--)
 					if (predicate(this[i], i, this))
@@ -283,7 +283,7 @@ namespace Arrays {
 		})
 
 		const originalSort = Array.prototype.sort
-		Define(Array.prototype, "sort", function (...sorters): any[] {
+		Define(Array.prototype, 'sort', function (...sorters): any[] {
 			if (this.length <= 1)
 				return this
 
@@ -296,7 +296,8 @@ namespace Arrays {
 						const mapper = sorter as (item: any) => number
 						const sortValue = mapper(b) - mapper(a)
 						if (sortValue) return sortValue
-					} else {
+					}
+					else {
 						const sortValue = sorter(a, b)
 						if (sortValue) return sortValue
 					}
@@ -306,27 +307,27 @@ namespace Arrays {
 			})
 		})
 
-		Define(Array.prototype, "collect", function (collector, ...args): any {
+		Define(Array.prototype, 'collect', function (collector, ...args): any {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			return collector?.(this, ...args)
 		})
 
-		Define(Array.prototype, "splat", function (collector, ...args): any {
+		Define(Array.prototype, 'splat', function (collector, ...args): any {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			return collector?.(...this, ...args)
 		})
 
-		Define(Array.prototype, "toObject", function (mapper): Record<string | number, any> {
+		Define(Array.prototype, 'toObject', function (mapper): Record<string | number, any> {
 			return Object.fromEntries(mapper ? this.map(mapper) : this)
 		})
 
-		Define(Array.prototype, "toMap", function (mapper): Map<any, any> {
+		Define(Array.prototype, 'toMap', function (mapper): Map<any, any> {
 			return new Map(mapper ? this.map(mapper) : this)
 		})
 
-		Define(Array.prototype, "distinct", function <T> (this: T[], mapper?: (value: T) => any) {
+		Define(Array.prototype, 'distinct', function <T, D> (this: T[], mapper?: (value: T) => D) {
 			const result: T[] = []
-			const encountered = mapper ? [] : result
+			const encountered: (T | D)[] = mapper ? [] : result
 
 			for (const value of this) {
 				const encounterValue = mapper ? mapper(value) : value
@@ -342,7 +343,7 @@ namespace Arrays {
 			return result
 		})
 
-		Define(Array.prototype, "findMap", function (predicate, mapper) {
+		Define(Array.prototype, 'findMap', function (predicate, mapper) {
 			for (let i = 0; i < this.length; i++)
 				if (predicate(this[i], i, this))
 					return mapper(this[i], i, this)
@@ -350,7 +351,7 @@ namespace Arrays {
 			return undefined
 		})
 
-		Define(Array.prototype, "groupBy", function (grouper) {
+		Define(Array.prototype, 'groupBy', function (grouper) {
 			const result: Record<string, any[]> = {}
 			for (let i = 0; i < this.length; i++)
 				(result[String(grouper(this[i], i, this))] ??= []).push(this[i])
@@ -358,13 +359,12 @@ namespace Arrays {
 			return Object.entries(result)
 		})
 
-		Define(Array.prototype, "filterInPlace", function (filter): any[] {
+		Define(Array.prototype, 'filterInPlace', function (filter): any[] {
 			Arrays.removeWhere(this, (value, index, arr) => !filter(value, index, arr))
 			return this
 		})
 
-		Define(Array.prototype, "mapInPlace", function (mapper): any[] {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+		Define(Array.prototype, 'mapInPlace', function (mapper): any[] {
 			return this.splice(0, Infinity, ...this.map(mapper))
 		})
 	}

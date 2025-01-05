@@ -1,17 +1,17 @@
-import type { TagId } from "model/Tags"
-import Tags from "model/Tags"
-import Component from "ui/Component"
-import type { InputExtensions } from "ui/component/core/ext/Input"
-import Input from "ui/component/core/ext/Input"
-import Slot from "ui/component/core/Slot"
-import TextInput, { FilterFunction } from "ui/component/core/TextInput"
-import type { TagData } from "ui/component/Tag"
-import Tag from "ui/component/Tag"
-import Applicator from "ui/utility/Applicator"
-import AbortPromise from "utility/AbortPromise"
-import Mouse from "utility/Mouse"
-import State from "utility/State"
-import Strings from "utility/string/Strings"
+import type { TagId } from 'model/Tags'
+import Tags from 'model/Tags'
+import Component from 'ui/Component'
+import type { InputExtensions } from 'ui/component/core/ext/Input'
+import Input from 'ui/component/core/ext/Input'
+import Slot from 'ui/component/core/Slot'
+import TextInput, { FilterFunction } from 'ui/component/core/TextInput'
+import type { TagData } from 'ui/component/Tag'
+import Tag from 'ui/component/Tag'
+import Applicator from 'ui/utility/Applicator'
+import AbortPromise from 'utility/AbortPromise'
+import Mouse from 'utility/Mouse'
+import State from 'utility/State'
+import Strings from 'utility/string/Strings'
 
 export interface TagsState {
 	global_tags: TagId[]
@@ -32,7 +32,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 	//#region Current
 
 	const tagsContainer = Slot()
-		.style("tags-editor-current")
+		.style('tags-editor-current')
 		.use(tagsState, AbortPromise.asyncFunction(async (signal, slot, tags) => {
 			const globalTags = await Tags.resolve(tags.global_tags)
 			if (signal.aborted)
@@ -40,41 +40,41 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 
 			if (globalTags.length)
 				Component()
-					.style("tags-editor-current-type", "tags-editor-current-global")
+					.style('tags-editor-current-type', 'tags-editor-current-global')
 					.append(...globalTags.map(tag => Tag(tag)
 						.setNavigationDisabled(true)
-						.event.subscribe("auxclick", event => event.preventDefault())
-						.event.subscribe("mouseup", event => Mouse.handleMiddle(event) && removeTag(tag))
+						.event.subscribe('auxclick', event => event.preventDefault())
+						.event.subscribe('mouseup', event => Mouse.handleMiddle(event) && removeTag(tag))
 						.addDeleteButton(() => removeTag(tag))
 					))
 					.appendTo(slot)
 
 			if (tags.custom_tags.length)
 				Component()
-					.style("tags-editor-current-type", "tags-editor-current-custom")
+					.style('tags-editor-current-type', 'tags-editor-current-custom')
 					.append(...tags.custom_tags.map(tag => Tag(tag)
 						.setNavigationDisabled(true)
-						.event.subscribe("auxclick", event => event.preventDefault())
-						.event.subscribe("mouseup", event => Mouse.handleMiddle(event) && removeTag(tag))
+						.event.subscribe('auxclick', event => event.preventDefault())
+						.event.subscribe('mouseup', event => Mouse.handleMiddle(event) && removeTag(tag))
 						.addDeleteButton(() => removeTag(tag))
 					))
 					.appendTo(slot)
 
 			const hasTags = !!globalTags.length || !!tags.custom_tags.length
-			tagsContainer.style.toggle(hasTags, "tags-editor-current")
+			tagsContainer.style.toggle(hasTags, 'tags-editor-current')
 		}))
 
 	//#endregion
 	////////////////////////////////////
 
 	const inputWrapper = Component()
-		.style("text-input", "tags-editor-input-wrapper")
-		.event.subscribe("click", () => input.focus())
+		.style('text-input', 'tags-editor-input-wrapper')
+		.event.subscribe('click', () => input.focus())
 
 	const input = TextInput()
-		.style("tags-editor-input")
-		.style.remove("text-input")
-		.placeholder.use("shared/form/tags/placeholder")
+		.style('tags-editor-input')
+		.style.remove('text-input')
+		.placeholder.use('shared/form/tags/placeholder')
 		.filter(TagsFilter)
 		.appendTo(inputWrapper)
 
@@ -82,7 +82,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 	//#region Suggestions
 
 	Slot()
-		.style("tags-editor-suggestions")
+		.style('tags-editor-suggestions')
 		.use(State.UseManual(
 			{
 				tags: tagsState,
@@ -97,9 +97,9 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 				if (signal.aborted)
 					return
 
-				let [category, name] = Strings.splitOnce(filter, ":")
+				let [category, name] = Strings.splitOnce(filter, ':')
 				if (name === undefined)
-					name = category, category = ""
+					name = category, category = ''
 
 				category = category.trim(), name = name.trim()
 
@@ -114,11 +114,11 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 							(a, b) => a.name.localeCompare(b.name),
 						)
 						.map(category => Tag.Category(category)
-							.event.subscribe("click", () => input.value = `${category.name}: `))
+							.event.subscribe('click', () => input.value = `${category.name}: `))
 
 				if (categorySuggestions.length)
 					Component()
-						.style("tags-editor-suggestions-type")
+						.style('tags-editor-suggestions-type')
 						.append(...categorySuggestions)
 						.appendTo(slot)
 
@@ -133,13 +133,13 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 				tagSuggestions.filterInPlace(([tagId]) => !tags.global_tags.some(added => added === tagId))
 				if (tagSuggestions.length)
 					Component()
-						.style("tags-editor-suggestions-type")
+						.style('tags-editor-suggestions-type')
 						.append(...tagSuggestions.map(([, tag]) => Tag(tag)
 							.setNavigationDisabled(true)
-							.event.subscribe("click", () => {
+							.event.subscribe('click', () => {
 								tags.global_tags.push(`${tag.category}: ${tag.name}`)
 								tagsState.emit()
-								input.value = ""
+								input.value = ''
 							})
 						))
 						.appendTo(slot)
@@ -151,24 +151,24 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 				})
 				if (customTagSuggestions.length)
 					Component()
-						.style("tags-editor-suggestions-type")
+						.style('tags-editor-suggestions-type')
 						.append(Component()
-							.style("tags-editor-suggestions-type-label")
-							.text.use("shared/form/tags/suggestion/add-as-custom"))
+							.style('tags-editor-suggestions-type-label')
+							.text.use('shared/form/tags/suggestion/add-as-custom'))
 						.append(...customTagSuggestions.map(tag => tag
 							.setNavigationDisabled(true)
-							.event.subscribe("click", () => {
+							.event.subscribe('click', () => {
 								tags.custom_tags.push(tag.tag as string)
 								tagsState.emit()
-								input.value = ""
+								input.value = ''
 							})
 						))
 						.appendTo(slot)
 
 				if (slot.size)
 					Component()
-						.style("tags-editor-suggestions-label")
-						.text.use("shared/form/tags/suggestion/label")
+						.style('tags-editor-suggestions-label')
+						.text.use('shared/form/tags/suggestion/label')
 						.prependTo(slot)
 			})
 		)
@@ -179,7 +179,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 
 	const editor: TagsEditor = component
 		.and(Input)
-		.style("tags-editor")
+		.style('tags-editor')
 		.append(tagsContainer)
 		.append(inputWrapper)
 		.extend<TagsEditorExtensions>(editor => ({
@@ -193,8 +193,8 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 			}),
 		}))
 
-	input.event.subscribe("keydown", event => {
-		if (event.key === "Enter" && input.value.trim()) {
+	input.event.subscribe('keydown', event => {
+		if (event.key === 'Enter' && input.value.trim()) {
 			event.preventDefault()
 		}
 	})
@@ -203,8 +203,8 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 	return editor
 
 	function removeTag (tag: TagData | string) {
-		const tagString = typeof tag === "string" ? tag : `${tag.category}: ${tag.name}`
-		if (typeof tag === "string")
+		const tagString = typeof tag === 'string' ? tag : `${tag.category}: ${tag.name}`
+		if (typeof tag === 'string')
 			tagsState.value.custom_tags.filterInPlace(tag => tag !== tagString)
 		else
 			tagsState.value.global_tags.filterInPlace(tag => tag !== tagString)
@@ -221,23 +221,24 @@ const TagsFilter = FilterFunction((before, selected, after) => {
 	selected = filterSegment(selected)
 	after = filterSegment(after)
 
-	if (before.includes(":")) {
-		selected = selected.replaceAll(":", " ")
-		after = after.replaceAll(":", " ")
-	} else if (selected.includes(":")) {
-		after = after.replaceAll(":", " ")
+	if (before.includes(':')) {
+		selected = selected.replaceAll(':', ' ')
+		after = after.replaceAll(':', ' ')
+	}
+	else if (selected.includes(':')) {
+		after = after.replaceAll(':', ' ')
 	}
 
 	const shouldTrimBeforeEnd = true
-		&& before.endsWith(" ")
+		&& before.endsWith(' ')
 		&& (false
-			|| selected.startsWith(" ") || selected.startsWith(":")
-			|| !selected && (after.startsWith(" ") || after.startsWith(":"))
+			|| selected.startsWith(' ') || selected.startsWith(':')
+			|| (!selected && (after.startsWith(' ') || after.startsWith(':')))
 		)
 	if (shouldTrimBeforeEnd)
 		before = before.trimEnd()
 
-	if (selected.endsWith(" ") && (after.startsWith(" ") || after.startsWith(":")))
+	if (selected.endsWith(' ') && (after.startsWith(' ') || after.startsWith(':')))
 		selected = selected.trimEnd()
 
 	before = before.trimStart()
@@ -252,10 +253,10 @@ const TagsFilter = FilterFunction((before, selected, after) => {
 
 function filterSegment (text: string) {
 	return text.toLowerCase()
-		.replace(/[^a-z0-9: -]/g, " ")
-		.replace(/(?<=:.*?):/g, " ")
-		.replace(/ {2,}/g, " ")
-		.replace(" :", ":")
+		.replace(/[^a-z0-9: -]/g, ' ')
+		.replace(/(?<=:.*?):/g, ' ')
+		.replace(/ {2,}/g, ' ')
+		.replace(' :', ':')
 }
 
 //#endregion

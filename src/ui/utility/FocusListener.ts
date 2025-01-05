@@ -1,5 +1,5 @@
-import type Component from "ui/Component"
-import State from "utility/State"
+import type Component from 'ui/Component'
+import State from 'utility/State'
 
 namespace FocusListener {
 
@@ -30,7 +30,7 @@ namespace FocusListener {
 	}
 
 	function focusInternal (element: HTMLElement) {
-		if (document.querySelector(":focus-visible") === element)
+		if (document.querySelector(':focus-visible') === element)
 			return
 
 		element.focus()
@@ -47,15 +47,15 @@ namespace FocusListener {
 	}
 
 	function blurInternal (element: HTMLElement) {
-		if (document.querySelector(":focus-visible") !== element)
+		if (document.querySelector(':focus-visible') !== element)
 			return
 
 		element.blur()
 	}
 
 	export function listen () {
-		document.addEventListener("focusin", onFocusIn)
-		document.addEventListener("focusout", onFocusOut)
+		document.addEventListener('focusin', onFocusIn)
+		document.addEventListener('focusout', onFocusOut)
 	}
 
 	function onFocusIn () {
@@ -69,9 +69,9 @@ namespace FocusListener {
 	// let exhaustingQueue = false
 	function updateFocusState () {
 		if (document.activeElement && document.activeElement !== document.body && location.hash && document.activeElement.id !== location.hash.slice(1))
-			history.pushState(undefined, "", " ")
+			history.pushState(undefined, '', ' ')
 
-		const newFocused = document.querySelector(":focus-visible") ?? undefined
+		const newFocused = document.querySelector(':focus-visible') ?? undefined
 		if (newFocused === focused.value)
 			return
 

@@ -1,19 +1,19 @@
-import type { Work as WorkData, WorkFull } from "api.fluff4.me"
-import type { ChapterParams } from "endpoint/chapter/EndpointChapterGet"
-import EndpointChapterGet from "endpoint/chapter/EndpointChapterGet"
-import EndpointChapterGetPaged from "endpoint/chapter/EndpointChapterGetPaged"
-import EndpointWorkGet from "endpoint/work/EndpointWorkGet"
-import quilt from "lang/en-nz"
-import Link from "ui/component/core/Link"
-import Work from "ui/component/Work"
-import PaginatedView from "ui/view/shared/component/PaginatedView"
-import ViewDefinition from "ui/view/shared/component/ViewDefinition"
-import Maths from "utility/maths/Maths"
-import State from "utility/State"
+import type { Work as WorkData, WorkFull } from 'api.fluff4.me'
+import type { ChapterParams } from 'endpoint/chapter/EndpointChapterGet'
+import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
+import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
+import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
+import quilt from 'lang/en-nz'
+import Link from 'ui/component/core/Link'
+import Work from 'ui/component/Work'
+import PaginatedView from 'ui/view/shared/component/PaginatedView'
+import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
+import Maths from 'utility/maths/Maths'
+import State from 'utility/State'
 
 export default ViewDefinition({
 	create: async (params: ChapterParams) => {
-		const view = PaginatedView("chapter")
+		const view = PaginatedView('chapter')
 
 		const response = await EndpointWorkGet.query({ params })
 		if (response instanceof Error)
@@ -26,8 +26,8 @@ export default ViewDefinition({
 
 		Link(`/work/${author?.vanity}/${workData.vanity}`)
 			.and(Work, workData, author)
-			.viewTransition("work-view-work")
-			.style("view-type-chapter-work")
+			.viewTransition('work-view-work')
+			.style('view-type-chapter-work')
 			.setContainsHeading()
 			.appendTo(view)
 
@@ -39,23 +39,23 @@ export default ViewDefinition({
 
 		const chaptersQuery = EndpointChapterGetPaged.prep({ params })
 		const paginator = await view.paginator()
-			.viewTransition("chapter-view-chapter")
-			.style("view-type-chapter-block")
-			.type("flush")
+			.viewTransition('chapter-view-chapter')
+			.style('view-type-chapter-block')
+			.type('flush')
 			.tweak(p => p.title.text.bind(chapterState.mapManual(chapter =>
-				quilt["view/chapter/title"](Maths.parseIntOrUndefined(chapter.url), chapter.name))))
+				quilt['view/chapter/title'](Maths.parseIntOrUndefined(chapter.url), chapter.name))))
 			.appendTo(view)
 			.useInitial(initialChapterResponse.data, initialChapterResponse.page, initialChapterResponse.page_count)
 			.thenUse(chaptersQuery)
 			.withContent((slot, chapter, paginator) => {
 				paginator.setURL(`/work/${params.author}/${params.vanity}/chapter/${chapter.url}`)
 				slot
-					.style("view-type-chapter-block-body")
-					.setMarkdownContent(chapter.body ?? "")
+					.style('view-type-chapter-block-body')
+					.setMarkdownContent(chapter.body ?? '')
 			})
 
-		paginator.header.style("view-type-chapter-block-header")
-		paginator.footer.style("view-type-chapter-block-paginator-actions")
+		paginator.header.style('view-type-chapter-block-header')
+		paginator.footer.style('view-type-chapter-block-paginator-actions')
 
 		paginator.data.use(paginator, chapter => chapterState.value = chapter)
 

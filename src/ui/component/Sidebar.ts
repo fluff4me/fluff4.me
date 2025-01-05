@@ -1,9 +1,9 @@
-import Component from "ui/Component"
-import Button from "ui/component/core/Button"
-import Env from "utility/Env"
-import Store from "utility/Store"
+import Component from 'ui/Component'
+import Button from 'ui/component/core/Button'
+import Env from 'utility/Env'
+import Store from 'utility/Store'
 
-declare module "utility/Store" {
+declare module 'utility/Store' {
 	interface ILocalStorage {
 		sidebar: boolean
 	}
@@ -15,14 +15,14 @@ interface SidebarExtensions {
 
 interface Sidebar extends Component, SidebarExtensions { }
 
-const Sidebar = Component.Builder("nav", (sidebar): Sidebar => {
-	sidebar.style("sidebar")
-		.ariaLabel.use("masthead/primary-nav/alt")
+const Sidebar = Component.Builder('nav', (sidebar): Sidebar => {
+	sidebar.style('sidebar')
+		.ariaLabel.use('masthead/primary-nav/alt')
 
-	if (Env.ENVIRONMENT === "dev")
+	if (Env.ENVIRONMENT === 'dev')
 		Button()
-			.text.set("Debug")
-			.event.subscribe("click", () => navigate.toURL("/debug"))
+			.text.set('Debug')
+			.event.subscribe('click', () => navigate.toURL('/debug'))
 			.appendTo(sidebar)
 
 	updateSidebarVisibility()
@@ -35,7 +35,7 @@ const Sidebar = Component.Builder("nav", (sidebar): Sidebar => {
 	}))
 
 	function updateSidebarVisibility () {
-		sidebar.style.toggle(!!Store.items.sidebar, "sidebar--visible")
+		sidebar.style.toggle(!!Store.items.sidebar, 'sidebar--visible')
 	}
 })
 

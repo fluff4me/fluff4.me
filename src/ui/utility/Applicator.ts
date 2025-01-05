@@ -1,6 +1,6 @@
-import type Component from "ui/Component"
-import type { UnsubscribeState } from "utility/State"
-import State from "utility/State"
+import type Component from 'ui/Component'
+import type { UnsubscribeState } from 'utility/State'
+import State from 'utility/State'
 
 interface Applicator<HOST, T> {
 	readonly state: State<T>
@@ -10,11 +10,11 @@ interface Applicator<HOST, T> {
 	rehost<NEW_HOST> (newHost: NEW_HOST): Applicator<NEW_HOST, T>
 }
 
-function Applicator<HOST, T> (host: HOST, apply: (value?: T) => any): Applicator.Optional<HOST, T>
-function Applicator<HOST, T> (host: HOST, defaultValue: T, apply: (value: T) => any): Applicator<HOST, T>
-function Applicator<HOST, T> (host: HOST, defaultValueOrApply: T | undefined | ((value?: T) => any), apply?: (value: T) => any): Applicator.Optional<HOST, T> {
+function Applicator<HOST, T> (host: HOST, apply: (value?: T) => unknown): Applicator.Optional<HOST, T>
+function Applicator<HOST, T> (host: HOST, defaultValue: T, apply: (value: T) => unknown): Applicator<HOST, T>
+function Applicator<HOST, T> (host: HOST, defaultValueOrApply: T | undefined | ((value?: T) => unknown), apply?: (value: T) => unknown): Applicator.Optional<HOST, T> {
 	const defaultValue = !apply ? undefined : defaultValueOrApply as T
-	apply ??= defaultValueOrApply as (value?: T) => any
+	apply ??= defaultValueOrApply as (value?: T) => unknown
 
 	let unbind: UnsubscribeState | undefined
 	const result = makeApplicator(host)
@@ -54,7 +54,7 @@ function Applicator<HOST, T> (host: HOST, defaultValueOrApply: T | undefined | (
 
 namespace Applicator {
 
-	export interface Optional<HOST, T> extends Omit<Applicator<HOST, T>, "state" | "set" | "bind" | "rehost"> {
+	export interface Optional<HOST, T> extends Omit<Applicator<HOST, T>, 'state' | 'set' | 'bind' | 'rehost'> {
 		state: State<T | undefined | null>
 		set (value?: T | null): HOST
 		bind (state?: State<T | undefined | null>): HOST
@@ -64,4 +64,3 @@ namespace Applicator {
 }
 
 export default Applicator
-

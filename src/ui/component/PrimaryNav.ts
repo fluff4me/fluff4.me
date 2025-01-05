@@ -1,4 +1,4 @@
-import Component from "ui/Component"
+import Component from 'ui/Component'
 
 export default Component.Builder(nav => {
 	// Heading()

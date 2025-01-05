@@ -1,12 +1,12 @@
-import type { DangerTokenType } from "model/Session"
-import Session from "model/Session"
-import Component from "ui/Component"
-import BlockDialog from "ui/component/core/BlockDialog"
-import Button from "ui/component/core/Button"
-import Paragraph from "ui/component/core/Paragraph"
-import OAuthServices from "ui/component/OAuthServices"
-import type { Quilt } from "ui/utility/StringApplicator"
-import State from "utility/State"
+import type { DangerTokenType } from 'model/Session'
+import Session from 'model/Session'
+import Component from 'ui/Component'
+import BlockDialog from 'ui/component/core/BlockDialog'
+import Button from 'ui/component/core/Button'
+import Paragraph from 'ui/component/core/Paragraph'
+import OAuthServices from 'ui/component/OAuthServices'
+import type { Quilt } from 'ui/utility/StringApplicator'
+import State from 'utility/State'
 
 interface ConfirmDialogExtensions {
 	readonly state: State<boolean | undefined>
@@ -32,27 +32,27 @@ const ConfirmDialog = Object.assign(
 
 		const state = State<boolean | undefined>(undefined)
 
-		dialog.title.text.use(definition?.titleTranslation ?? "shared/prompt/confirm")
+		dialog.title.text.use(definition?.titleTranslation ?? 'shared/prompt/confirm')
 
 		const cancelButton = Button()
-			.text.use(definition?.confirmButtonTranslation ?? "shared/action/cancel")
+			.text.use(definition?.confirmButtonTranslation ?? 'shared/action/cancel')
 			.appendTo(dialog.footer.right)
 
 		const confirmButton = Button()
-			.type("primary")
-			.text.use(definition?.confirmButtonTranslation ?? "shared/action/confirm")
+			.type('primary')
+			.text.use(definition?.confirmButtonTranslation ?? 'shared/action/confirm')
 			.appendTo(dialog.footer.right)
 
 		if (definition?.dangerToken) {
-			confirmButton.setDisabled(true, "danger-token")
+			confirmButton.setDisabled(true, 'danger-token')
 
 			Paragraph()
-				.text.use("shared/prompt/reauth")
+				.text.use('shared/prompt/reauth')
 				.appendTo(dialog.content)
 
 			const authServices = await OAuthServices(Session.Auth.state, definition.dangerToken)
 			authServices
-				.event.subscribe("dangerTokenGranted", () => confirmButton.setDisabled(false, "danger-token"))
+				.event.subscribe('dangerTokenGranted', () => confirmButton.setDisabled(false, 'danger-token'))
 				.appendTo(dialog.content)
 		}
 
@@ -76,16 +76,16 @@ const ConfirmDialog = Object.assign(
 				},
 			}))
 			.onRooted(dialog => {
-				dialog.cancelButton.event.subscribe("click", dialog.cancel)
-				dialog.confirmButton.event.subscribe("click", dialog.confirm)
+				dialog.cancelButton.event.subscribe('click', dialog.cancel)
+				dialog.confirmButton.event.subscribe('click', dialog.confirm)
 			})
 	}),
 	{
 		prompt: async (owner: Component, definition?: ConfirmDialogDefinition): Promise<boolean> =>
 			(await ConfirmDialog(definition))
 				.appendTo(document.body)
-				.event.subscribe("close", event =>
-					event.component.event.subscribe("transitionend", event =>
+				.event.subscribe('close', event =>
+					event.component.event.subscribe('transitionend', event =>
 						event.component.remove()))
 				.await(owner),
 	},

@@ -1,20 +1,20 @@
-import quilt from "lang/en-nz"
-import FormInputLengths from "model/FormInputLengths"
-import Session from "model/Session"
-import Navigator from "navigation/Navigate"
-import style from "style"
-import Component from "ui/Component"
-import ToastList from "ui/component/core/toast/ToastList"
-import Masthead from "ui/component/Masthead"
-import InputBus from "ui/InputBus"
-import FocusListener from "ui/utility/FocusListener"
-import HoverListener from "ui/utility/HoverListener"
-import Mouse from "ui/utility/Mouse"
-import Viewport from "ui/utility/Viewport"
-import ViewContainer from "ui/view/shared/component/ViewContainer"
-import Async from "utility/Async"
-import Store from "utility/Store"
-import Time from "utility/Time"
+import quilt from 'lang/en-nz'
+import FormInputLengths from 'model/FormInputLengths'
+import Session from 'model/Session'
+import Navigator from 'navigation/Navigate'
+import style from 'style'
+import Component from 'ui/Component'
+import ToastList from 'ui/component/core/toast/ToastList'
+import Masthead from 'ui/component/Masthead'
+import InputBus from 'ui/InputBus'
+import FocusListener from 'ui/utility/FocusListener'
+import HoverListener from 'ui/utility/HoverListener'
+import Mouse from 'ui/utility/Mouse'
+import Viewport from 'ui/utility/Viewport'
+import ViewContainer from 'ui/view/shared/component/ViewContainer'
+import Async from 'utility/Async'
+import Store from 'utility/Store'
+import Time from 'utility/Time'
 
 interface AppExtensions {
 	navigate: Navigator
@@ -24,36 +24,35 @@ interface AppExtensions {
 interface App extends Component, AppExtensions { }
 
 async function App (): Promise<App> {
-
-	if (location.pathname.startsWith("/auth/")) {
-		if (location.pathname.endsWith("/error")) {
+	if (location.pathname.startsWith('/auth/')) {
+		if (location.pathname.endsWith('/error')) {
 			const params = new URLSearchParams(location.search)
 			// eslint-disable-next-line no-debugger
 			debugger
 			Store.items.popupError = {
-				code: +(params.get("code") ?? "500"),
-				message: params.get("message") ?? "Internal Server Error",
+				code: +(params.get('code') ?? '500'),
+				message: params.get('message') ?? 'Internal Server Error',
 			}
 		}
 		window.close()
 	}
 
-	await screen?.orientation?.lock?.("portrait-primary").catch(() => { })
+	await screen?.orientation?.lock?.('portrait-primary').catch(() => { })
 
-	InputBus.subscribe("down", event => {
-		if (event.use("F6"))
-			for (const stylesheet of document.querySelectorAll("link[rel=stylesheet]")) {
-				const href = stylesheet.getAttribute("href")!
-				const newHref = `${href.slice(0, Math.max(0, href.indexOf("?")) || Infinity)}?${Math.random().toString().slice(2)}`
-				stylesheet.setAttribute("href", newHref)
+	InputBus.subscribe('down', event => {
+		if (event.use('F6'))
+			for (const stylesheet of document.querySelectorAll('link[rel=stylesheet]')) {
+				const href = stylesheet.getAttribute('href')!
+				const newHref = `${href.slice(0, Math.max(0, href.indexOf('?')) || Infinity)}?${Math.random().toString().slice(2)}`
+				stylesheet.setAttribute('href', newHref)
 			}
 
-		if (event.use("F4"))
-			document.documentElement.classList.add("persist-tooltips")
+		if (event.use('F4'))
+			document.documentElement.classList.add('persist-tooltips')
 	})
-	InputBus.subscribe("up", event => {
-		if (event.use("F4"))
-			document.documentElement.classList.remove("persist-tooltips")
+	InputBus.subscribe('up', event => {
+		if (event.use('F4'))
+			document.documentElement.classList.remove('persist-tooltips')
 	})
 
 	await FormInputLengths.getManifest()
@@ -76,7 +75,7 @@ async function App (): Promise<App> {
 	Mouse.listen()
 	Viewport.listen()
 
-	document.title = quilt["fluff4me/title"]().toString()
+	document.title = quilt['fluff4me/title']().toString()
 
 	document.body.classList.add(...style.body)
 
@@ -84,15 +83,15 @@ async function App (): Promise<App> {
 	const masthead = Masthead(view)
 
 	const related = Component()
-		.style("app-content-related")
+		.style('app-content-related')
 
 	const content = Component()
-		.style("app-content")
+		.style('app-content')
 		.monitorScrollEvents()
 		.append(view, related)
 
 	const app: App = Component()
-		.style("app")
+		.style('app')
 		.append(masthead, masthead.sidebar, content)
 		.append(ToastList())
 		.extend<AppExtensions>(app => ({

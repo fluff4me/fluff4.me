@@ -1,8 +1,8 @@
-import type { RoutePath } from "navigation/Routes"
-import Component from "ui/Component"
-import Paginator from "ui/component/core/Paginator"
-import type { ViewId } from "ui/view/shared/component/View"
-import View from "ui/view/shared/component/View"
+import type { RoutePath } from 'navigation/Routes'
+import Component from 'ui/Component'
+import Paginator from 'ui/component/core/Paginator'
+import type { ViewId } from 'ui/view/shared/component/View'
+import View from 'ui/view/shared/component/View'
 
 interface PaginatedViewPaginatorExtensions {
 	setURL (route: RoutePath): void

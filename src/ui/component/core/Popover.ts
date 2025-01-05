@@ -1,17 +1,17 @@
-import Component from "ui/Component"
-import type { IInputEvent } from "ui/InputBus"
-import InputBus from "ui/InputBus"
-import FocusListener from "ui/utility/FocusListener"
-import HoverListener from "ui/utility/HoverListener"
-import Mouse from "ui/utility/Mouse"
-import type { UnsubscribeState } from "utility/State"
-import State from "utility/State"
-import Task from "utility/Task"
+import Component from 'ui/Component'
+import type { IInputEvent } from 'ui/InputBus'
+import InputBus from 'ui/InputBus'
+import FocusListener from 'ui/utility/FocusListener'
+import HoverListener from 'ui/utility/HoverListener'
+import Mouse from 'ui/utility/Mouse'
+import type { UnsubscribeState } from 'utility/State'
+import State from 'utility/State'
+import Task from 'utility/Task'
 
 const FOCUS_TRAP = Component()
-	.tabIndex("auto")
+	.tabIndex('auto')
 	.ariaHidden()
-	.style.setProperty("display", "none")
+	.style.setProperty('display', 'none')
 	.prependTo(document.body)
 
 export interface PopoverComponentRegisteredExtensions {
@@ -23,18 +23,18 @@ interface InternalPopoverExtensions {
 	clickState: boolean
 }
 
-export type PopoverInitialiser<HOST> = (popover: Popover, host: HOST) => any
+export type PopoverInitialiser<HOST> = (popover: Popover, host: HOST) => unknown
 
 interface PopoverComponentExtensions {
 	/** Disallow any popovers to continue showing if this component is hovered */
 	clearPopover (): this
-	setPopover (event: "hover" | "click", initialiser: PopoverInitialiser<this>): this & PopoverComponentRegisteredExtensions
+	setPopover (event: 'hover' | 'click', initialiser: PopoverInitialiser<this>): this & PopoverComponentRegisteredExtensions
 }
 
 Component.extend(component => {
 	component.extend<PopoverComponentExtensions>((component: Component & PopoverComponentExtensions & Partial<PopoverComponentRegisteredExtensions> & Partial<InternalPopoverExtensions>) => ({
 		clearPopover: () => component
-			.attributes.set("data-clear-popover", "true"),
+			.attributes.set('data-clear-popover', 'true'),
 		setPopover: (popoverEvent, initialiser) => {
 			if (component.popover)
 				component.popover.remove()
@@ -45,9 +45,9 @@ Component.extend(component => {
 				.anchor.from(component)
 				.setOwner(component)
 				.tweak(initialiser, component)
-				.event.subscribe("toggle", e => {
+				.event.subscribe('toggle', e => {
 					const event = e as ToggleEvent & { component: Popover }
-					if (event.newState === "closed") {
+					if (event.newState === 'closed') {
 						isShown = false
 						component.clickState = false
 						Mouse.offMove(updatePopoverState)
@@ -55,19 +55,19 @@ Component.extend(component => {
 				})
 				.appendTo(document.body)
 
-			if (popoverEvent === "hover" && !component.popover)
+			if (popoverEvent === 'hover' && !component.popover)
 				component.hoveredOrFocused.subscribe(component, updatePopoverState)
 
-			const ariaLabel = component.attributes.getUsing("aria-label") ?? popover.attributes.get("aria-label")
-			const ariaRole = popover.attributes.getUsing("role") ?? popover.attributes.get("role")
-			component.ariaLabel.use((quilt, { arg }) => quilt["component/popover/button"](arg(ariaLabel), arg(ariaRole)))
-			popover.ariaLabel.use((quilt, { arg }) => quilt["component/popover"](arg(ariaLabel)))
+			const ariaLabel = component.attributes.getUsing('aria-label') ?? popover.attributes.get('aria-label')
+			const ariaRole = popover.attributes.getUsing('role') ?? popover.attributes.get('role')
+			component.ariaLabel.use((quilt, { arg }) => quilt['component/popover/button'](arg(ariaLabel), arg(ariaRole)))
+			popover.ariaLabel.use((quilt, { arg }) => quilt['component/popover'](arg(ariaLabel)))
 
 			component.clickState = false
 			if (!component.popover) {
-				component.event.subscribe("click", async event => {
+				component.event.subscribe('click', async event => {
 					// always subscribe click because we need to handle it for keyboard navigation
-					if (!component.focused.value && popoverEvent !== "click")
+					if (!component.focused.value && popoverEvent !== 'click')
 						return
 
 					event.stopPropagation()
@@ -76,13 +76,13 @@ Component.extend(component => {
 					component.clickState = true
 					component.popover?.show()
 					component.popover?.focus()
-					component.popover?.style.removeProperties("left", "top")
+					component.popover?.style.removeProperties('left', 'top')
 					await Task.yield()
 					component.popover?.anchor.apply()
 				})
 
 				component.receiveAncestorInsertEvents()
-				component.event.subscribe(["insert", "ancestorInsert"], updatePopoverParent)
+				component.event.subscribe(['insert', 'ancestorInsert'], updatePopoverParent)
 			}
 
 			popover.popoverHasFocus.subscribe(component, hasFocused => {
@@ -126,7 +126,7 @@ Component.extend(component => {
 						&& isShown
 						&& (false
 							|| (component.popover.isMouseWithin(true) && !shouldClearPopover())
-							|| InputBus.isDown("F4"))
+							|| InputBus.isDown('F4'))
 					)
 					|| !!component.clickState
 
@@ -140,15 +140,15 @@ Component.extend(component => {
 					Mouse.offMove(updatePopoverState)
 
 				if (!shouldShow)
-					FOCUS_TRAP.style.setProperty("display", "none")
+					FOCUS_TRAP.style.setProperty('display', 'none')
 
 				isShown = shouldShow
 				component.popover.toggle(shouldShow)
 				if (!shouldShow)
 					return
 
-				FOCUS_TRAP.style.setProperty("display", "inline")
-				component.popover.style.removeProperties("left", "top")
+				FOCUS_TRAP.style.setProperty('display', 'inline')
+				component.popover.style.removeProperties('left', 'top')
 				await Task.yield()
 				component.popover.anchor.apply()
 			}
@@ -161,7 +161,7 @@ Component.extend(component => {
 				if (component.element.contains(hovered) || component.popover.element.contains(hovered))
 					return false
 
-				const clearsPopover = hovered?.closest("[data-clear-popover]")
+				const clearsPopover = hovered?.closest('[data-clear-popover]')
 				if (!clearsPopover)
 					return false
 
@@ -175,7 +175,7 @@ Component.extend(component => {
 	}))
 })
 
-declare module "ui/Component" {
+declare module 'ui/Component' {
 	interface ComponentExtensions extends PopoverComponentExtensions { }
 }
 
@@ -211,9 +211,9 @@ const Popover = Component.Builder((component): Popover => {
 	let shouldCloseOnInput = true
 	let normalStacking = false
 	const popover = component
-		.style("popover")
-		.tabIndex("programmatic")
-		.attributes.set("popover", "manual")
+		.style('popover')
+		.tabIndex('programmatic')
+		.attributes.set('popover', 'manual')
 		.extend<PopoverExtensions>(popover => ({
 			visible,
 			popoverChildren: State([]),
@@ -230,8 +230,8 @@ const Popover = Component.Builder((component): Popover => {
 				return popover
 			},
 			setNormalStacking () {
-				popover.style("popover--normal-stacking")
-				popover.attributes.remove("popover")
+				popover.style('popover--normal-stacking')
+				popover.attributes.remove('popover')
 				normalStacking = true
 				togglePopover(visible.value)
 				return popover
@@ -282,20 +282,20 @@ const Popover = Component.Builder((component): Popover => {
 			},
 		}))
 
-	popover.event.subscribe("toggle", event => {
-		popover.visible.value = event.newState === "open"
+	popover.event.subscribe('toggle', event => {
+		popover.visible.value = event.newState === 'open'
 	})
 
 	popover.onRooted(() => {
-		InputBus.subscribe("down", onInputDown)
-		component.event.subscribe("remove", () => InputBus.unsubscribe("down", onInputDown))
+		InputBus.subscribe('down', onInputDown)
+		component.event.subscribe('remove', () => InputBus.unsubscribe('down', onInputDown))
 	})
 
 	return popover
 
 	function togglePopover (shown?: boolean) {
 		if (normalStacking)
-			popover.style.toggle(!shown, "popover--normal-stacking--hidden")
+			popover.style.toggle(!shown, 'popover--normal-stacking--hidden')
 		else
 			popover.element.togglePopover(shown)
 	}
@@ -304,7 +304,7 @@ const Popover = Component.Builder((component): Popover => {
 		if (!popover.visible.value || !shouldCloseOnInput)
 			return
 
-		if (!event.key.startsWith("Mouse") || popover.containsPopoverDescendant(HoverListener.hovered()))
+		if (!event.key.startsWith('Mouse') || popover.containsPopoverDescendant(HoverListener.hovered()))
 			return
 
 		popover.element.togglePopover(false)

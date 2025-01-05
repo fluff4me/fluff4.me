@@ -1,6 +1,6 @@
-import Component from "ui/Component"
-import Button from "ui/component/core/Button"
-import type { PopoverComponentRegisteredExtensions, PopoverInitialiser } from "ui/component/core/Popover"
+import Component from 'ui/Component'
+import Button from 'ui/component/core/Button'
+import type { PopoverComponentRegisteredExtensions, PopoverInitialiser } from 'ui/component/core/Popover'
 
 export interface CanHasActionsMenuButtonExtensions {
 	readonly actionsMenuButton: Button & PopoverComponentRegisteredExtensions
@@ -9,8 +9,7 @@ export interface CanHasActionsMenuButtonExtensions {
 
 interface CanHasActionsMenuButton extends Component, CanHasActionsMenuButtonExtensions { }
 
-const CanHasActionsMenuButton = Component.Extension((component, inserter?: (button: Button) => any): CanHasActionsMenuButton => {
-
+const CanHasActionsMenuButton = Component.Extension((component, inserter?: (button: Button) => unknown): CanHasActionsMenuButton => {
 	let actionsMenuPopoverInitialiser: PopoverInitialiser<Button> = () => { }
 
 	return component
@@ -18,19 +17,19 @@ const CanHasActionsMenuButton = Component.Extension((component, inserter?: (butt
 			actionsMenuButton: undefined!,
 			setActionsMenu (initialiser) {
 				actionsMenuPopoverInitialiser = initialiser
-				component.actionsMenuButton.setPopover("click", (popover, button) => {
-					popover.anchor.add("off right", "aligned top")
-					popover.anchor.add("off right", "aligned bottom")
+				component.actionsMenuButton.setPopover('click', (popover, button) => {
+					popover.anchor.add('off right', 'aligned top')
+					popover.anchor.add('off right', 'aligned bottom')
 					initialiser(popover, button)
 				})
 				return component
 			},
 		}))
-		.extendJIT("actionsMenuButton", component => {
+		.extendJIT('actionsMenuButton', component => {
 			const button = Button()
-				.style("block-actions-menu-button")
-				.setIcon("ellipsis-vertical")
-				.setPopover("click", actionsMenuPopoverInitialiser)
+				.style('block-actions-menu-button')
+				.setIcon('ellipsis-vertical')
+				.setPopover('click', actionsMenuPopoverInitialiser)
 			if (inserter)
 				inserter(button)
 			else

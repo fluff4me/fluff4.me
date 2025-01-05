@@ -1,12 +1,12 @@
-import Component from "ui/Component"
-import ComponentInsertionTransaction from "ui/component/core/ext/ComponentInsertionTransaction"
-import type { AbortPromiseOr } from "utility/AbortPromise"
-import AbortPromise from "utility/AbortPromise"
-import type { UnsubscribeState } from "utility/State"
-import State from "utility/State"
+import Component from 'ui/Component'
+import ComponentInsertionTransaction from 'ui/component/core/ext/ComponentInsertionTransaction'
+import type { AbortPromiseOr } from 'utility/AbortPromise'
+import AbortPromise from 'utility/AbortPromise'
+import type { UnsubscribeState } from 'utility/State'
+import State from 'utility/State'
 
-export type SlotCleanup = () => any
-export type SlotInitialiserReturn = AbortPromiseOr<SlotCleanup | Component | undefined | null | false | 0 | "" | void>
+export type SlotCleanup = () => unknown
+export type SlotInitialiserReturn = AbortPromiseOr<SlotCleanup | Component | undefined | null | false | 0 | '' | void>
 
 interface SlotExtensions {
 	use<T> (state: T | State<T>, initialiser: (slot: ComponentInsertionTransaction, value: T) => SlotInitialiserReturn): this
@@ -17,12 +17,12 @@ interface Slot extends Component, SlotExtensions { }
 
 const Slot = Object.assign(
 	Component.Builder((slot): Slot => {
-		slot.style("slot")
+		slot.style('slot')
 
 		let unuse: UnsubscribeState | undefined
 		let cleanup: SlotCleanup | undefined
-		let abort: (() => any) | undefined
-		let abortTransaction: (() => any) | undefined
+		let abort: (() => unknown) | undefined
+		let abortTransaction: (() => unknown) | undefined
 		return slot
 			.extend<SlotExtensions>(slot => ({
 				use: (state, initialiser) => {
@@ -80,7 +80,7 @@ const Slot = Object.assign(
 					return slot
 				},
 			}))
-			.event.subscribe("remove", () => cleanup?.())
+			.event.subscribe('remove', () => cleanup?.())
 
 		function handleSlotInitialiserReturn (transaction: ComponentInsertionTransaction, result: SlotInitialiserReturn) {
 			if (!(result instanceof AbortPromise))
@@ -88,7 +88,7 @@ const Slot = Object.assign(
 
 			abort = result.abort
 			result.then(result => handleSlotInitialiserReturnNonPromise(transaction, result || undefined))
-				.catch(err => console.error("Slot initialiser promise rejection:", err))
+				.catch(err => console.error('Slot initialiser promise rejection:', err))
 		}
 
 		function handleSlotInitialiserReturnNonPromise (transaction: ComponentInsertionTransaction, result: Exclude<SlotInitialiserReturn, Promise<any> | void> | undefined) {

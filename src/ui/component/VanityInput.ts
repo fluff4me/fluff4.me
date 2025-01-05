@@ -1,9 +1,9 @@
-import Component from "ui/Component"
-import type { InputExtensions } from "ui/component/core/ext/Input"
-import Input from "ui/component/core/ext/Input"
-import type { PopoverInitialiser } from "ui/component/core/Popover"
-import type { TextInputExtensions } from "ui/component/core/TextInput"
-import TextInput, { FilterFunction } from "ui/component/core/TextInput"
+import Component from 'ui/Component'
+import type { InputExtensions } from 'ui/component/core/ext/Input'
+import Input from 'ui/component/core/ext/Input'
+import type { PopoverInitialiser } from 'ui/component/core/Popover'
+import type { TextInputExtensions } from 'ui/component/core/TextInput'
+import TextInput, { FilterFunction } from 'ui/component/core/TextInput'
 
 interface VanityInputExtensions {
 	readonly input: TextInput
@@ -13,15 +13,15 @@ interface VanityInput extends TextInput, VanityInputExtensions { }
 
 const VanityInput = Component.Builder((component): VanityInput => {
 	const input = TextInput()
-		.style("vanity-input-input")
+		.style('vanity-input-input')
 		.filter(FilterVanity)
 		.appendTo(component)
 
 	return component.and(Input)
-		.style("vanity-input")
+		.style('vanity-input')
 		.append(Component()
-			.style("vanity-input-prefix")
-			.text.set("@"))
+			.style('vanity-input-prefix')
+			.text.set('@'))
 		.extend<VanityInputExtensions & TextInputExtensions & InputExtensions>(component => ({
 			// vanity input
 			input,
@@ -62,7 +62,7 @@ const VanityInput = Component.Builder((component): VanityInput => {
 				return component
 			},
 		}))
-		.extendMagic("value", component => ({
+		.extendMagic('value', component => ({
 			get () { return input.value },
 			set (value: string) { input.value = value },
 		}))
@@ -76,18 +76,18 @@ export const FilterVanity = FilterFunction((before: string, selection: string, a
 	after = filterVanitySegment(after)
 
 	if (!before && !after)
-		selection = selection.replace(/^-|-$/g, "")
+		selection = selection.replace(/^-|-$/g, '')
 	else {
-		if (before.startsWith("-"))
+		if (before.startsWith('-'))
 			before = before.slice(1)
 
-		if (before.endsWith("-") && selection.startsWith("-"))
+		if (before.endsWith('-') && selection.startsWith('-'))
 			selection = selection.slice(1)
 
-		if (after.endsWith("-"))
+		if (after.endsWith('-'))
 			after = after.slice(0, -1)
 
-		if (selection.endsWith("-") && after.startsWith("-"))
+		if (selection.endsWith('-') && after.startsWith('-'))
 			after = after.slice(1)
 	}
 
@@ -95,5 +95,5 @@ export const FilterVanity = FilterFunction((before: string, selection: string, a
 })
 
 function filterVanitySegment (segment: string) {
-	return segment.replace(/[\W_-]+/g, "-")
+	return segment.replace(/[\W_-]+/g, '-')
 }

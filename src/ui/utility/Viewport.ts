@@ -1,4 +1,4 @@
-import State from "utility/State"
+import State from 'utility/State'
 
 namespace Viewport {
 
@@ -9,7 +9,7 @@ namespace Viewport {
 	export const size = State.JIT<Size>(() => ({ w: window.innerWidth, h: window.innerHeight }))
 
 	export function listen () {
-		window.addEventListener("resize", size.markDirty)
+		window.addEventListener('resize', size.markDirty)
 	}
 }
 
