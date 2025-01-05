@@ -1,3 +1,3 @@
-import Endpoint from "endpoint/Endpoint"
+import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint("/author/{vanity}/get", "get")
+export default Endpoint('/author/{vanity}/get', 'get')

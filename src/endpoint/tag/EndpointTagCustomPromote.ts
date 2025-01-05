@@ -1,7 +1,7 @@
-import Endpoint from "endpoint/Endpoint"
+import Endpoint from 'endpoint/Endpoint'
 
 export interface TagParams {
 	vanity: string
 }
 
-export default Endpoint("/tag/promote/{vanity}", "post")
+export default Endpoint('/tag/promote/{vanity}', 'post')

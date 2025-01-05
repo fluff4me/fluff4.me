@@ -1,9 +1,9 @@
-import type App from "App"
-import type { RoutePath } from "navigation/Routes"
-import Routes from "navigation/Routes"
-import ErrorView from "ui/view/ErrorView"
-import type ViewContainer from "ui/view/shared/component/ViewContainer"
-import Env from "utility/Env"
+import type App from 'App'
+import type { RoutePath } from 'navigation/Routes'
+import Routes from 'navigation/Routes'
+import ErrorView from 'ui/view/ErrorView'
+import type ViewContainer from 'ui/view/shared/component/ViewContainer'
+import Env from 'utility/Env'
 
 declare global {
 	export const navigate: Navigator
@@ -14,7 +14,7 @@ interface Navigator {
 	toURL (route: RoutePath): Promise<void>
 	setURL (route: RoutePath): void
 	toRawURL (url: string): boolean
-	ephemeral: ViewContainer["showEphemeral"]
+	ephemeral: ViewContainer['showEphemeral']
 }
 
 function Navigator (app: App): Navigator {
@@ -52,7 +52,7 @@ function Navigator (app: App): Navigator {
 				const element = document.getElementById(id)
 				if (!element) {
 					console.error(`No element by ID: "${id}"`)
-					location.hash = ""
+					location.hash = ''
 					return
 				}
 
@@ -66,20 +66,20 @@ function Navigator (app: App): Navigator {
 		},
 		setURL: (url: string) => {
 			if (url !== location.pathname)
-				history.pushState({}, "", `${Env.URL_ORIGIN}${url.slice(1)}`)
+				history.pushState({}, '', `${Env.URL_ORIGIN}${url.slice(1)}`)
 		},
 		toRawURL: (url: string) => {
-			if (url.startsWith("http")) {
+			if (url.startsWith('http')) {
 				location.href = url
 				return true
 			}
 
-			if (url.startsWith("/")) {
+			if (url.startsWith('/')) {
 				void navigate.toURL(url)
 				return true
 			}
 
-			if (url.startsWith("#")) {
+			if (url.startsWith('#')) {
 				const id = url.slice(1)
 				const element = document.getElementById(id)
 				if (!element) {
@@ -94,12 +94,12 @@ function Navigator (app: App): Navigator {
 			console.error(`Unsupported raw URL to navigate to: "${url}"`)
 			return false
 		},
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		ephemeral: (...args: any[]) => (app.view.showEphemeral as any)(...args),
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
+		ephemeral: (...args: unknown[]) => (app.view.showEphemeral as any)(...args),
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises
-	window.addEventListener("popstate", navigate.fromURL)
+	window.addEventListener('popstate', navigate.fromURL)
 
 	Object.assign(window, { navigate })
 	return navigate

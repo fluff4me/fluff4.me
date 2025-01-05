@@ -1,6 +1,6 @@
-import type { ErrorResponse, ManifestGlobalTags, Response, Tag, TagCategory } from "api.fluff4.me"
-import EndpointTagManifest from "endpoint/tag/EndpointTagManifest"
-import Manifest from "model/Manifest"
+import type { ErrorResponse, ManifestGlobalTags, Response, Tag, TagCategory } from 'api.fluff4.me'
+import EndpointTagManifest from 'endpoint/tag/EndpointTagManifest'
+import Manifest from 'model/Manifest'
 
 export type TagId = `${string}: ${string}`
 
@@ -32,15 +32,15 @@ const Tags = Object.assign(
 			for (const rawCategory of Object.values(rawManifest.categories)) {
 				const category = rawCategory as TagsManifestCategory
 				category.nameLowercase = category.name.toLowerCase()
-				category.wordsLowercase = category.nameLowercase.split(" ")
+				category.wordsLowercase = category.nameLowercase.split(' ')
 			}
 
 			for (const rawTag of Object.values(rawManifest.tags)) {
 				const tag = rawTag as TagsManifestTag
 				tag.nameLowercase = tag.name.toLowerCase()
-				tag.wordsLowercase = tag.nameLowercase.split(" ")
+				tag.wordsLowercase = tag.nameLowercase.split(' ')
 				tag.categoryLowercase = tag.category.toLowerCase()
-				tag.categoryWordsLowercase = tag.categoryLowercase.split(" ")
+				tag.categoryWordsLowercase = tag.categoryLowercase.split(' ')
 			}
 
 			return response as Response<TagsManifest>
@@ -65,7 +65,6 @@ export async function resolve (tags?: string[] | null | string, name?: string) {
 	const [result] = await resolveInternal([tag])
 	return result as Tag | undefined
 }
-
 
 async function resolveInternal (tags: string[]) {
 	const result: Tag[] = []

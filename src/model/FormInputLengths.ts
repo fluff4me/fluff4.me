@@ -1,6 +1,6 @@
-import type { ManifestFormInputLengths } from "api.fluff4.me"
-import EndpointFormInputLengths from "endpoint/manifest/EndpointFormInputLengths"
-import Manifest from "model/Manifest"
+import type { ManifestFormInputLengths } from 'api.fluff4.me'
+import EndpointFormInputLengths from 'endpoint/manifest/EndpointFormInputLengths'
+import Manifest from 'model/Manifest'
 
 export default Manifest<ManifestFormInputLengths>({
 	get () {

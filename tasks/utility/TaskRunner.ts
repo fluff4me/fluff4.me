@@ -1,15 +1,16 @@
-import ansi from "ansicolor"
-import { spawn } from "child_process"
-import dotenv from "dotenv"
-import * as tsconfigpaths from "tsconfig-paths"
-import Log from "./Log"
-import type { TaskFunction, TaskFunctionDef } from "./Task"
-import Task from "./Task"
-import { stopwatch } from "./Time"
+import ansi from 'ansicolor'
+import { spawn } from 'child_process'
+import dotenv from 'dotenv'
+import * as tsconfigpaths from 'tsconfig-paths'
+import Log from './Log'
+import type { TaskFunction, TaskFunctionDef } from './Task'
+import Task from './Task'
+import { stopwatch } from './Time'
 
 try {
 	dotenv.config()
-} catch { }
+}
+catch { }
 
 tsconfigpaths.register()
 
@@ -39,14 +40,14 @@ const taskApi: ITaskApi = {
 			const shouldError = !api.noErrors
 			delete api.noErrors
 			for (const task of tasks)
-				await api[shouldError ? "run" : "try"](task)
+				await api[shouldError ? 'run' : 'try'](task)
 		})
 	},
 	parallel (...tasks): TaskFunction<Promise<void>> {
 		return Task(null, async api => {
 			const shouldError = !api.noErrors
 			delete api.noErrors
-			await Promise.all(tasks.map(task => Promise.resolve(api[shouldError ? "run" : "try"](task))))
+			await Promise.all(tasks.map(task => Promise.resolve(api[shouldError ? 'run' : 'try'](task))))
 		})
 	},
 	try (task, ...args) {
@@ -59,7 +60,7 @@ const taskApi: ITaskApi = {
 		delete this.noErrors
 
 		let result: any
-		const taskName = ansi.cyan(task.name || "<anonymous>")
+		const taskName = ansi.cyan(task.name || '<anonymous>')
 
 		if (task.name)
 			Log.info(`Starting ${taskName}...`)
@@ -69,7 +70,8 @@ const taskApi: ITaskApi = {
 		try {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			result = await (task as TaskFunctionDef<any, any[]>)(shouldError ? this : { ...this, noErrors: true }, ...args)
-		} catch (caught: any) {
+		}
+		catch (caught: any) {
 			err = caught
 			if (shouldError)
 				this.lastError = caught
@@ -82,7 +84,8 @@ const taskApi: ITaskApi = {
 					loggedErrors.add(err)
 					Log.error(`Task ${taskName} errored after ${time}:`, err)
 				}
-			} else if (task.name)
+			}
+			else if (task.name)
 				Log.info(`Finished ${taskName} in ${time}`)
 		}
 
@@ -120,9 +123,10 @@ const taskApi: ITaskApi = {
 			debouncedTask.count++
 			debouncedTask.promise = debouncedTask.promise.then(async () => {
 				try {
-					await this[shouldError ? "run" : "try"](task as TaskFunctionDef<any, any[]>, ...args)
-				} catch { }
-				debouncedTask!.count--
+					await this[shouldError ? 'run' : 'try'](task as TaskFunctionDef<any, any[]>, ...args)
+				}
+				catch { }
+				debouncedTask.count--
 			})
 		}
 	},
@@ -136,22 +140,22 @@ function onError (err: Error) {
 	Log.error(err.stack ?? err)
 }
 
-process.on("uncaughtException", onError)
-process.on("unhandledRejection", onError)
+process.on('uncaughtException', onError)
+process.on('unhandledRejection', onError)
 
 const [, , ...tasks] = process.argv
 void (async () => {
 	let errors: number | undefined
 	let remainingInMain = false
 	for (const task of tasks) {
-		if (task === "--") {
+		if (task === '--') {
 			remainingInMain = true
 			continue
 		}
 
 		try {
 			if (tasks.length === 1 || remainingInMain) {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-var-requires
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-require-imports
 				const taskFunction = require(`../${task}.ts`)?.default
 				if (!taskFunction)
 					throw new Error(`No task function found by name "${task}"`)
@@ -162,9 +166,9 @@ void (async () => {
 			}
 
 			await new Promise<void>((resolve, reject) => {
-				const p = spawn("npx", ["ts-node", __filename, task], { shell: true, stdio: "inherit" })
-				p.on("error", reject)
-				p.on("close", code => {
+				const p = spawn('npx', ['ts-node', __filename, task], { shell: true, stdio: 'inherit' })
+				p.on('error', reject)
+				p.on('close', code => {
 					if (code) errors = code
 					resolve()
 				})
@@ -172,8 +176,8 @@ void (async () => {
 
 			if (errors)
 				break
-
-		} catch (err) {
+		}
+		catch (err) {
 			if (!loggedErrors.has(err as Error))
 				Log.error(err)
 			errors = 1

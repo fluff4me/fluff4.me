@@ -1,3 +1,3 @@
-import Endpoint from "endpoint/Endpoint"
+import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint("/manifest/tags", "get")
+export default Endpoint('/manifest/tags', 'get')

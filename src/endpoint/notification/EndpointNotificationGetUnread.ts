@@ -1,3 +1,3 @@
-import Endpoint from "endpoint/Endpoint"
+import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint("/notifications/get/unread", "get")
+export default Endpoint('/notifications/get/unread', 'get')

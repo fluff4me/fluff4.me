@@ -1,3 +1,3 @@
-import Endpoint from "endpoint/Endpoint"
+import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint("/patreon/campaign/tiers/get", "get")
+export default Endpoint('/patreon/campaign/tiers/get', 'get')
