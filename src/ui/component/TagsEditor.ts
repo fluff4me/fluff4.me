@@ -34,7 +34,6 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 	const tagsContainer = Slot()
 		.style("tags-editor-current")
 		.use(tagsState, AbortPromise.asyncFunction(async (signal, slot, tags) => {
-			slot.style.remove("tags-editor-current")
 			const globalTags = await Tags.resolve(tags.global_tags)
 			if (signal.aborted)
 				return
@@ -61,8 +60,8 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 					))
 					.appendTo(slot)
 
-			if (globalTags.length || tags.custom_tags.length)
-				slot.style("tags-editor-current")
+			const hasTags = !!globalTags.length || !!tags.custom_tags.length
+			tagsContainer.style.toggle(hasTags, "tags-editor-current")
 		}))
 
 	//#endregion
@@ -166,7 +165,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 						))
 						.appendTo(slot)
 
-				if (slot.element.children.length)
+				if (slot.size)
 					Component()
 						.style("tags-editor-suggestions-label")
 						.text.use("shared/form/tags/suggestion/label")

@@ -1213,7 +1213,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			},
 		}))
 
-	const documentSlot = Slot()
+	const documentSlot = Slot(); documentSlot
 		.style.bind(isFullscreen, "text-editor-document-slot--fullscreen")
 		.use(isMarkdown, (slot, isMarkdown) => {
 			if (isMarkdown) {
@@ -1221,7 +1221,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 				return
 			}
 
-			return createDefaultView(slot)
+			return createDefaultView(documentSlot)
 		})
 		.appendTo(actualEditor)
 

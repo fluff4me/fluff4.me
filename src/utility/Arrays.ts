@@ -213,7 +213,7 @@ namespace Arrays {
 		return value !== null && value !== undefined
 	}
 
-	export function filterFalsy<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined | 0 | ""> {
+	export function filterFalsy<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined | 0 | 0n | false | ""> {
 		return !!value
 	}
 
