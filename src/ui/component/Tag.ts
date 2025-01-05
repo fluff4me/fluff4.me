@@ -1,13 +1,16 @@
 import type { Tag as TagData } from "api.fluff4.me"
 import type { TagsManifestCategory } from "model/Tags"
+import type { ComponentEvents } from "ui/Component"
 import Component from "ui/Component"
 import Button from "ui/component/core/Button"
 import Link from "ui/component/core/Link"
+import type { EventHandler } from "ui/utility/EventManipulator"
 
 export { TagData }
 
 interface TagExtensions {
 	tag: TagData | string
+	addDeleteButton (handler: EventHandler<Button, ComponentEvents, "click">): this
 }
 
 interface Tag extends Component, TagExtensions { }
@@ -36,7 +39,16 @@ const Tag = Object.assign(
 			.text.set(typeof tag === "string" ? tag : tag.name)
 			.appendTo(component)
 
-		return component.extend<TagExtensions>(component => ({ tag })) as Tag & Link
+		return component.extend<TagExtensions>(component => ({
+			tag,
+			addDeleteButton (handler) {
+				Button()
+					.style("tag-delete-button")
+					.event.subscribe("click", handler)
+					.appendTo(component)
+				return component
+			},
+		})) as Tag & Link
 	}),
 	{
 		Category: Component
