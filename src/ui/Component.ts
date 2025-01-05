@@ -55,7 +55,7 @@ Define.magic(Element.prototype, "component", {
 	},
 })
 
-interface ComponentEvents extends NativeEvents {
+export interface ComponentEvents extends NativeEvents {
 	remove (): any
 	insert (): any
 	ancestorInsert (): any

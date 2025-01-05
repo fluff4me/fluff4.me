@@ -46,6 +46,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 						.setNavigationDisabled(true)
 						.event.subscribe("auxclick", event => event.preventDefault())
 						.event.subscribe("mouseup", event => Mouse.handleMiddle(event) && removeTag(tag))
+						.addDeleteButton(() => removeTag(tag))
 					))
 					.appendTo(slot)
 
@@ -56,6 +57,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 						.setNavigationDisabled(true)
 						.event.subscribe("auxclick", event => event.preventDefault())
 						.event.subscribe("mouseup", event => Mouse.handleMiddle(event) && removeTag(tag))
+						.addDeleteButton(() => removeTag(tag))
 					))
 					.appendTo(slot)
 
