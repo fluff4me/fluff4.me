@@ -9,7 +9,7 @@ interface ComponentInsertionTransaction extends ComponentInsertionDestination {
 	close (): void
 }
 
-function ComponentInsertionTransaction (component?: Component, onEnd?: () => any): ComponentInsertionTransaction {
+function ComponentInsertionTransaction (component?: Component, onEnd?: (transaction: ComponentInsertionTransaction) => any): ComponentInsertionTransaction {
 	component?.event.subscribe("remove", onComponentRemove)
 
 	let removed = false
@@ -50,11 +50,10 @@ function ComponentInsertionTransaction (component?: Component, onEnd?: () => any
 			if (result.closed)
 				return
 
-			close()
-			if (removed)
-				return
+			if (!removed)
+				onEnd?.(result)
 
-			onEnd?.()
+			close()
 		},
 	}
 
