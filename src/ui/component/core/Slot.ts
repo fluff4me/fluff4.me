@@ -1,4 +1,5 @@
 import Component from "ui/Component"
+import ComponentInsertionTransaction from "ui/component/core/ext/ComponentInsertionTransaction"
 import type { AbortPromiseOr } from "utility/AbortPromise"
 import AbortPromise from "utility/AbortPromise"
 import type { UnsubscribeState } from "utility/State"
@@ -8,8 +9,8 @@ export type SlotCleanup = () => any
 export type SlotInitialiserReturn = AbortPromiseOr<SlotCleanup | Component | undefined | null | false | 0 | "" | void>
 
 interface SlotExtensions {
-	use<T> (state: T | State<T>, initialiser: (slot: Slot, value: T) => SlotInitialiserReturn): this
-	if (state: State<boolean>, initialiser: (slot: Slot) => SlotInitialiserReturn): this
+	use<T> (state: T | State<T>, initialiser: (slot: ComponentInsertionTransaction, value: T) => SlotInitialiserReturn): this
+	if (state: State<boolean>, initialiser: (slot: ComponentInsertionTransaction) => SlotInitialiserReturn): this
 }
 
 interface Slot extends Component, SlotExtensions { }
@@ -21,6 +22,7 @@ const Slot = Object.assign(
 		let unuse: UnsubscribeState | undefined
 		let cleanup: SlotCleanup | undefined
 		let abort: (() => any) | undefined
+		let abortTransaction: (() => any) | undefined
 		return slot
 			.extend<SlotExtensions>(slot => ({
 				use: (state, initialiser) => {
@@ -28,14 +30,24 @@ const Slot = Object.assign(
 
 					unuse?.(); unuse = undefined
 					abort?.(); abort = undefined
+					abortTransaction?.(); abortTransaction = undefined
 
 					unuse = state.use(slot, value => {
 						abort?.(); abort = undefined
 						cleanup?.(); cleanup = undefined
+						abortTransaction?.(); abortTransaction = undefined
 
-						slot.removeContents()
+						const component = Component()
+						const transaction = ComponentInsertionTransaction(component, () => {
+							if (!transaction.size)
+								return
 
-						handleSlotInitialiserReturn(initialiser(slot, value))
+							slot.removeContents()
+							slot.append(...component.element.children)
+						})
+						abortTransaction = transaction.abort
+
+						handleSlotInitialiserReturn(transaction, initialiser(transaction, value))
 					})
 
 					return slot
@@ -43,17 +55,26 @@ const Slot = Object.assign(
 				if: (state, initialiser) => {
 					unuse?.(); unuse = undefined
 					abort?.(); abort = undefined
+					abortTransaction?.(); abortTransaction = undefined
 
 					state.use(slot, value => {
 						abort?.(); abort = undefined
 						cleanup?.(); cleanup = undefined
+						abortTransaction?.(); abortTransaction = undefined
 
-						slot.removeContents()
-
-						if (!value)
+						if (!value) {
+							slot.removeContents()
 							return
+						}
 
-						handleSlotInitialiserReturn(initialiser(slot))
+						const component = Component()
+						const transaction = ComponentInsertionTransaction(component, () => {
+							slot.removeContents()
+							slot.append(...component.element.children)
+						})
+						abortTransaction = transaction.abort
+
+						handleSlotInitialiserReturn(transaction, initialiser(transaction))
 					})
 
 					return slot
@@ -61,20 +82,23 @@ const Slot = Object.assign(
 			}))
 			.event.subscribe("remove", () => cleanup?.())
 
-		function handleSlotInitialiserReturn (result: SlotInitialiserReturn) {
+		function handleSlotInitialiserReturn (transaction: ComponentInsertionTransaction, result: SlotInitialiserReturn) {
 			if (!(result instanceof AbortPromise))
-				return handleSlotInitialiserReturnNonPromise(result || undefined)
+				return handleSlotInitialiserReturnNonPromise(transaction, result || undefined)
 
 			abort = result.abort
-			result.then(result => handleSlotInitialiserReturnNonPromise(result || undefined))
+			result.then(result => handleSlotInitialiserReturnNonPromise(transaction, result || undefined))
 				.catch(err => console.error("Slot initialiser promise rejection:", err))
 		}
 
-		function handleSlotInitialiserReturnNonPromise (result: Exclude<SlotInitialiserReturn, Promise<any> | void> | undefined) {
+		function handleSlotInitialiserReturnNonPromise (transaction: ComponentInsertionTransaction, result: Exclude<SlotInitialiserReturn, Promise<any> | void> | undefined) {
 			result ||= undefined
 
 			if (result === slot)
 				result = undefined
+
+			transaction.close()
+			abortTransaction = undefined
 
 			if (Component.is(result)) {
 				result.appendTo(slot)
@@ -86,7 +110,7 @@ const Slot = Object.assign(
 		}
 	}),
 	{
-		using: <T> (value: T | State<T>, initialiser: (slot: Slot, value: T) => SlotInitialiserReturn) =>
+		using: <T> (value: T | State<T>, initialiser: (transaction: ComponentInsertionTransaction, value: T) => SlotInitialiserReturn) =>
 			Slot().use(State.get(value), initialiser),
 	}
 )

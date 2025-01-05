@@ -17,15 +17,16 @@ export default Component.Builder((component, author: AuthorFull) => {
 		.append(Component()
 			.style("author-vanity")
 			.text.set(`@${author.vanity}`))
-		.append(Slot.using(author.pronouns, (slot, pronouns) => pronouns && slot
+		.append(author.pronouns && Slot()
 			.text.append(" · ")
 			.append(Component()
 				.style("author-pronouns")
-				.text.set(pronouns))))
+				.text.set(author.pronouns)))
 
 	Component()
 		.style("author-description")
-		.append(Slot.using(author.description.body, (slot, body) => {
+		.append(Slot().tweak(slot => {
+			const body = author.description.body
 			if (body)
 				slot.setMarkdownContent(body)
 			else

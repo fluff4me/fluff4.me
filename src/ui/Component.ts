@@ -9,13 +9,14 @@ import StringApplicator from "ui/utility/StringApplicator"
 import StyleManipulator from "ui/utility/StyleManipulator"
 import TextManipulator from "ui/utility/TextManipulator"
 import Viewport from "ui/utility/Viewport"
+import Arrays from "utility/Arrays"
 import Define from "utility/Define"
 import Env from "utility/Env"
 import Errors from "utility/Errors"
 import type { UnsubscribeState } from "utility/State"
 import State from "utility/State"
 import Strings from "utility/string/Strings"
-import type { AnyFunction, Mutable } from "utility/Type"
+import type { AnyFunction, Falsy, Mutable } from "utility/Type"
 
 const SYMBOL_COMPONENT_BRAND = Symbol("COMPONENT_BRAND")
 export interface ComponentBrand<TYPE extends string> {
@@ -55,6 +56,19 @@ Define.magic(Element.prototype, "component", {
 	},
 })
 
+export interface ComponentInsertionDestination {
+	readonly isInsertionDestination: true
+	append (...contents: (Component | Node | Falsy)[]): this
+	prepend (...contents: (Component | Node | Falsy)[]): this
+	insert (direction: "before" | "after", sibling: Component | Element | undefined, ...contents: (Component | Node | Falsy)[]): this
+}
+
+export namespace ComponentInsertionDestination {
+	export function is (value: unknown): value is ComponentInsertionDestination {
+		return typeof value === "object" && !!(value as ComponentInsertionDestination)?.isInsertionDestination
+	}
+}
+
 export interface ComponentEvents extends NativeEvents {
 	remove (): any
 	insert (): any
@@ -68,7 +82,7 @@ export interface ComponentEvents extends NativeEvents {
 
 export interface ComponentExtensions<ELEMENT extends HTMLElement = HTMLElement> { }
 
-interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
+interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends ComponentInsertionDestination {
 	readonly isComponent: true
 	readonly supers: any[]
 
@@ -122,12 +136,9 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> {
 
 	tweak<PARAMS extends any[]> (tweaker?: (component: this, ...params: PARAMS) => any, ...params: PARAMS): this
 
-	appendTo (destination: Component | Element): this
-	prependTo (destination: Component | Element): this
-	insertTo (destination: Component | Element, direction: "before" | "after", sibling?: Component | Element): this
-	append (...contents: (Component | Node)[]): this
-	prepend (...contents: (Component | Node)[]): this
-	insert (direction: "before" | "after", sibling: Component | Element | undefined, ...contents: (Component | Node)[]): this
+	appendTo (destination: ComponentInsertionDestination | Element): this
+	prependTo (destination: ComponentInsertionDestination | Element): this
+	insertTo (destination: ComponentInsertionDestination | Element, direction: "before" | "after", sibling?: Component | Element): this
 
 	closest<BUILDER extends Component.Builder<any[], Component> | Component.Extension<any[], Component>> (builder: BUILDER): (BUILDER extends Component.Builder<any[], infer COMPONENT> ? COMPONENT : BUILDER extends Component.Extension<any[], infer COMPONENT> ? COMPONENT : never) | undefined
 	closest<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): COMPONENT | undefined
@@ -188,6 +199,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 	let component = ({
 		supers: [],
 		isComponent: true,
+		isInsertionDestination: true,
 		element: document.createElement(type),
 		removed: State(false),
 		rooted: State(false),
@@ -263,7 +275,8 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 
-		tweak: (tweaker, ...params) => {
+		tweak: (tweaker: (component: Component, ...params: any[]) => any, ...params: any[]) => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			tweaker?.(component, ...params)
 			return component
 		},
@@ -399,28 +412,33 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			owner?.event.unsubscribe("remove", component.remove)
 		},
 		appendTo (destination) {
-			Component.element(destination).append(component.element)
+			destination.append(component.element)
 			component.emitInsert()
 			return component
 		},
 		prependTo (destination) {
-			Component.element(destination).prepend(component.element)
+			destination.prepend(component.element)
 			component.emitInsert()
 			return component
 		},
 		insertTo (destination, direction, sibling) {
-			const element = Component.element(destination)
+			if (ComponentInsertionDestination.is(destination)) {
+				destination.insert(direction, sibling, component)
+				component.emitInsert()
+				return component
+			}
+
 			const siblingElement = sibling ? Component.element(sibling) : null
 			if (direction === "before")
-				element.insertBefore(component.element, siblingElement)
+				destination.insertBefore(component.element, siblingElement)
 			else
-				element.insertBefore(component.element, siblingElement?.nextSibling ?? null)
+				destination.insertBefore(component.element, siblingElement?.nextSibling ?? null)
 
 			component.emitInsert()
 			return component
 		},
 		append (...contents) {
-			const elements = contents.map(Component.element)
+			const elements = contents.filter(Arrays.filterFalsy).map(Component.element)
 			component.element.append(...elements)
 
 			for (const element of elements)
@@ -429,7 +447,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 			return component
 		},
 		prepend (...contents) {
-			const elements = contents.map(Component.element)
+			const elements = contents.filter(Arrays.filterFalsy).map(Component.element)
 			component.element.prepend(...elements)
 
 			for (const element of elements)
@@ -439,7 +457,7 @@ function Component (type: keyof HTMLElementTagNameMap = "span"): Component {
 		},
 		insert (direction, sibling, ...contents) {
 			const siblingElement = sibling ? Component.element(sibling) : null
-			const elements = contents.map(Component.element)
+			const elements = contents.filter(Arrays.filterFalsy).map(Component.element)
 
 			if (direction === "before")
 				for (let i = elements.length - 1; i >= 0; i--)

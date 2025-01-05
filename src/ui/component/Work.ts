@@ -64,7 +64,8 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 				Component()
 					.style("work-synopsis")
 					.style.toggle(!work.synopsis?.body && !work.description, "placeholder")
-					.append(Slot.using(work.synopsis ?? work.description, (slot, synopsis) => {
+					.append(Slot().tweak(slot => {
+						const synopsis = work.synopsis ?? work.description
 						if (typeof synopsis === "string")
 							slot.text.set(synopsis)
 						else if (!synopsis.body)
