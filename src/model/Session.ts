@@ -1,18 +1,18 @@
-import type { AuthorAuthorised, AuthorFull, Paths } from "api.fluff4.me"
-import { type Authorisation, type AuthService, type Session } from "api.fluff4.me"
-import EndpointAuthRemove from "endpoint/auth/EndpointAuthRemove"
-import EndpointSessionGet from "endpoint/session/EndpointSessionGet"
-import EndpointSessionReset from "endpoint/session/EndpointSessionReset"
-import type Component from "ui/Component"
-import Env from "utility/Env"
-import popup from "utility/Popup"
-import State from "utility/State"
-import type { ILocalStorage } from "utility/Store"
-import Store from "utility/Store"
+import type { AuthorAuthorised, AuthorFull, Paths } from 'api.fluff4.me'
+import { type Authorisation, type AuthService, type Session } from 'api.fluff4.me'
+import EndpointAuthRemove from 'endpoint/auth/EndpointAuthRemove'
+import EndpointSessionGet from 'endpoint/session/EndpointSessionGet'
+import EndpointSessionReset from 'endpoint/session/EndpointSessionReset'
+import type Component from 'ui/Component'
+import Env from 'utility/Env'
+import popup from 'utility/Popup'
+import State from 'utility/State'
+import type { ILocalStorage } from 'utility/Store'
+import Store from 'utility/Store'
 
 export type DangerTokenType = keyof { [KEY in keyof Paths as KEY extends `/danger-token/request/${infer TOKEN}/{service}/begin` ? TOKEN : never]: true }
 
-declare module "utility/Store" {
+declare module 'utility/Store' {
 	interface ILocalStorage {
 		stateToken: string
 		session: Session
@@ -28,7 +28,7 @@ namespace Session {
 
 	export async function refresh () {
 		const session = await EndpointSessionGet.query()
-		const stateToken = session.headers.get("State-Token")
+		const stateToken = session.headers.get('State-Token')
 		if (stateToken)
 			Store.items.stateToken = stateToken
 
@@ -63,7 +63,7 @@ namespace Session {
 	}
 
 	function updateState () {
-		Auth.state.value = Store.items.session?.author ? "logged-in" : Store.items.session?.authorisations?.length ? "has-authorisations" : "none"
+		Auth.state.value = Store.items.session?.author ? 'logged-in' : Store.items.session?.authorisations?.length ? 'has-authorisations' : 'none'
 		Auth.authorisations.value = Store.items.session?.authorisations ?? []
 		Auth.author.value = Store.items.session?.author ?? undefined
 	}
@@ -74,12 +74,12 @@ namespace Session {
 
 	export namespace Auth {
 		export type State =
-			| "none"
-			| "has-authorisations"
-			| "logged-in"
+			| 'none'
+			| 'has-authorisations'
+			| 'logged-in'
 
-		export const state = State<State>("none")
-		export const loggedIn = State.Generator(() => state.value === "logged-in").observeManual(state)
+		export const state = State<State>('none')
+		export const loggedIn = State.Generator(() => state.value === 'logged-in').observeManual(state)
 		export const authorisations = State<Authorisation[]>([])
 		export const author = State<AuthorFull | undefined>(undefined, (a, b) => a?.vanity === b?.vanity)
 
@@ -96,7 +96,7 @@ namespace Session {
 		}
 
 		export async function unauth (authOrId: Authorisation | string) {
-			const id = typeof authOrId === "string" ? authOrId : authOrId.id
+			const id = typeof authOrId === 'string' ? authOrId : authOrId.id
 			await EndpointAuthRemove.query({ body: { id } })
 
 			const session = Store.items.session
@@ -137,13 +137,13 @@ namespace Session {
 		}
 
 		export async function await (owner: Component) {
-			if (state.value === "logged-in")
+			if (state.value === 'logged-in')
 				return true
 
 			return new Promise<void>(resolve => {
 				state.subscribe(owner, handleStateChange)
 				function handleStateChange (value: State) {
-					if (value !== "logged-in")
+					if (value !== 'logged-in')
 						return
 
 					resolve()

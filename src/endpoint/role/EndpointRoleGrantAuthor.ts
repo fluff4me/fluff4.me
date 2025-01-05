@@ -1,8 +1,8 @@
-import Endpoint from "endpoint/Endpoint"
+import Endpoint from 'endpoint/Endpoint'
 
 export interface RoleParams {
 	role: string
 	author: string
 }
 
-export default Endpoint("/role/grant/{role}/{author}", "post")
+export default Endpoint('/role/grant/{role}/{author}', 'post')

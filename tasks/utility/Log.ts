@@ -1,91 +1,93 @@
-import ansi from "ansicolor";
-import { timestamp } from "./Time";
+import ansi from 'ansicolor'
+import { timestamp } from './Time'
 
-type LogFunction = (...what: any[]) => void;
+type LogFunction = (...what: any[]) => void
 
 interface ILog {
-	info: LogFunction;
-	warn: LogFunction;
-	error: LogFunction;
-	setSources (...sources: string[]): ILog;
+	info: LogFunction
+	warn: LogFunction
+	error: LogFunction
+	setSources (...sources: string[]): ILog
 }
 
 namespace ILog {
 	export function is (value: unknown): value is ILog {
-		return typeof value === "object"
+		return typeof value === 'object'
 			&& value !== null
-			&& typeof (value as ILog).info === "function"
-			&& typeof (value as ILog).warn === "function"
-			&& typeof (value as ILog).error === "function"
-			&& typeof (value as ILog).setSources === "function";
+			&& typeof (value as ILog).info === 'function'
+			&& typeof (value as ILog).warn === 'function'
+			&& typeof (value as ILog).error === 'function'
+			&& typeof (value as ILog).setSources === 'function'
 	}
 }
 
 export interface ILogSource {
-	log: ILog;
+	log: ILog
 }
 
 export namespace ILogSource {
 	export function is (value: unknown): value is ILogSource {
-		return typeof value === "object"
+		return typeof value === 'object'
 			&& value !== null
-			&& ILog.is((value as ILogSource).log);
+			&& ILog.is((value as ILogSource).log)
 	}
 }
 
 // eslint-disable-next-line prefer-const
-let Log: LogImplementation;
+let Log: LogImplementation
 class LogImplementation implements ILog {
-	private source: string | undefined;
 
-	public info (...what: any[]) {
+	private source: string | undefined
+
+	public info (...what: unknown[]) {
 		if (this.source !== undefined)
-			console.log(timestamp(), this.source, ...what);
+			console.log(timestamp(), this.source, ...what)
 		else
-			console.log(timestamp(), ...what);
+			console.log(timestamp(), ...what)
 	}
 
-	public warn (...what: any[]) {
+	public warn (...what: unknown[]) {
 		if (this.source !== undefined)
-			console.log(timestamp("yellow"), this.source, ...what);
+			console.log(timestamp('yellow'), this.source, ...what)
 		else
-			console.warn(timestamp("yellow"), ...what);
+			console.warn(timestamp('yellow'), ...what)
 	}
 
-	public error (...what: any[]) {
+	public error (...what: unknown[]) {
 		if (this.source !== undefined)
-			console.log(timestamp("red"), this.source, ...what);
+			console.log(timestamp('red'), this.source, ...what)
 		else
-			console.error(timestamp("red"), ...what);
+			console.error(timestamp('red'), ...what)
 	}
 
 	public setSources (...sources: string[]) {
-		this.source = ansi.darkGray("- ") + sources.join(ansi.darkGray(" / ")) + ansi.darkGray(" -");
-		return this;
+		this.source = ansi.darkGray('- ') + sources.join(ansi.darkGray(' / ')) + ansi.darkGray(' -')
+		return this
 	}
 
-	public get (source: unknown): ILog;
-	public get (...sources: string[]): ILog;
+	public get (source: unknown): ILog
+	public get (...sources: string[]): ILog
 	public get (source: unknown, ...sources: string[]) {
-		if (typeof source !== "string") {
+		if (typeof source !== 'string') {
 			if (ILog.is(source))
-				return source;
+				return source
 
 			if (ILogSource.is(source))
-				return source.log;
+				return source.log
 
-			return Log;
+			return Log
 		}
 
-		return this.new(source, ...sources);
+		return this.new(source, ...sources)
 	}
 
 	public new (...sources: string[]): ILog {
 		return new LogImplementation()
-			.setSources(...sources);
+			.setSources(...sources)
 	}
+
 }
 
-Log = new LogImplementation();
+Log = new LogImplementation()
 
-export default Log;
+export default Log

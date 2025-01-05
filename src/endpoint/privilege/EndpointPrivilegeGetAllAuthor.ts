@@ -1,7 +1,7 @@
-import Endpoint from "endpoint/Endpoint"
+import Endpoint from 'endpoint/Endpoint'
 
 export interface PrivilegeParams {
 	vanity: string
 }
 
-export default Endpoint("/privilege/get/{vanity}", "get")
+export default Endpoint('/privilege/get/{vanity}', 'get')

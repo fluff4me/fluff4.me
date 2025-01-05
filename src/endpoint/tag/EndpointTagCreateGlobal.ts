@@ -1,3 +1,3 @@
-import Endpoint from "endpoint/Endpoint"
+import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint("/tag/create/global", "post")
+export default Endpoint('/tag/create/global', 'post')

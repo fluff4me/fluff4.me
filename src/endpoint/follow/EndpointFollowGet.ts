@@ -1,3 +1,3 @@
-import Endpoint from "endpoint/Endpoint"
+import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint("/follows/{type}/{vanity}", "get")
+export default Endpoint('/follows/{type}/{vanity}', 'get')

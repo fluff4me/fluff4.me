@@ -1,5 +1,5 @@
-import type { ErrorResponse, Response } from "api.fluff4.me"
-import Time from "utility/Time"
+import type { ErrorResponse, Response } from 'api.fluff4.me'
+import Time from 'utility/Time'
 
 interface ManifestDefinition<T> {
 	get (): Promise<Response<T> | ErrorResponse<Response<T>>>
@@ -32,8 +32,8 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 					if (response instanceof Error)
 						throw response
 					result.manifest = response.data
-
-				} catch (err) {
+				}
+				catch (err) {
 					if (definition.orElse)
 						result.manifest = definition.orElse()
 					else
