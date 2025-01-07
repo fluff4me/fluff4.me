@@ -22,8 +22,7 @@ export default Task('ci:dev', async () => {
 	////////////////////////////////////
 	//#region Uninstall custom stuff
 
-	const uninstallModules = ['lint', ...linkModules.map(([name]) => name)]
-	await Task.cli('NPM:PATH:npm', 'uninstall', ...uninstallModules, '--save', '--no-audit', '--no-fund')
+	await Task.cli('NPM:PATH:npm', 'uninstall', 'lint', '--save', '--no-audit', '--no-fund')
 
 	//#endregion
 	////////////////////////////////////
