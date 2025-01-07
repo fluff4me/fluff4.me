@@ -1,7 +1,7 @@
 import Task from './utility/Task'
 
 export default Task('weave', () =>
-	Task.cli('weaving', './lang', '--out', './docs', '--outTypes', './src'))
+	Task.cli('NPM:weaving', './lang', '--out', './docs', '--outTypes', './src'))
 
 export const weavewatch = Task('weavewatch', () =>
 	Task.cli(
@@ -9,4 +9,4 @@ export const weavewatch = Task('weavewatch', () =>
 			env: {
 			},
 		},
-		'weaving', './lang', '--watch', '--out', './docs', '--outTypes', './src', '--outWhitespace'))
+		'NPM:weaving', './lang', '--watch', '--out', './docs', '--outTypes', './src', '--outWhitespace'))

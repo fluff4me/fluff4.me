@@ -64,10 +64,10 @@ class Reformatter {
 }
 
 export default Task('ts', task => task.series(
-	() => Task.cli({ cwd: 'src', stdout: new Reformatter().out }, 'tsc', '--pretty',
+	() => Task.cli({ cwd: 'src', stdout: new Reformatter().out }, 'NPM:tsc', '--pretty',
 		...options),
 	() => fs.unlink('docs/index.tsbuildinfo')))
 
 export const tsWatch = Task('ts (watch)', () =>
-	Task.cli({ cwd: 'src', stdout: new Reformatter().out }, 'tsc', '--watch', '--preserveWatchOutput', '--pretty',
+	Task.cli({ cwd: 'src', stdout: new Reformatter().out }, 'NPM:tsc', '--watch', '--preserveWatchOutput', '--pretty',
 		...options))
