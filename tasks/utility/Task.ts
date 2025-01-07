@@ -31,8 +31,6 @@ namespace Task {
 	export function cli (options: ITaskCLIOptions, command: string, ...args: string[]): Promise<void>
 	export function cli (options: ITaskCLIOptions | string, command?: string, ...args: string[]) {
 		return new Promise<void>((resolve, reject) => {
-			const ext = process.platform === 'win32' ? '.cmd' : ''
-
 			if (typeof options === 'string') {
 				args.unshift(command!)
 				command = options
@@ -40,8 +38,15 @@ namespace Task {
 			}
 
 			command = command!
-			command = command.startsWith('PATH:') ? command.slice(5) : path.resolve(`node_modules/.bin/${command}`)
-			const childProcess = spawn(command + ext, [...args],
+
+			if (command.startsWith('NPM:'))
+				command = `${command.slice(4)}${process.platform === 'win32' ? '.cmd' : ''}`
+
+			command = command.startsWith('PATH:')
+				? command.slice(5)
+				: path.resolve(`node_modules/.bin/${command}`)
+
+			const childProcess = spawn(command, [...args],
 				{ stdio: [process.stdin, options.stdout ? 'pipe' : process.stdout, process.stderr], cwd: options.cwd, env: options.env })
 
 			if (options.stdout)
