@@ -3,6 +3,7 @@ import Tags from 'model/Tags'
 import Component from 'ui/Component'
 import type { InputExtensions } from 'ui/component/core/ext/Input'
 import Input from 'ui/component/core/ext/Input'
+import Sortable, { SortableDefinition } from 'ui/component/core/ext/Sortable'
 import Slot from 'ui/component/core/Slot'
 import TextInput, { FilterFunction } from 'ui/component/core/TextInput'
 import type { TagData } from 'ui/component/Tag'
@@ -40,6 +41,12 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 
 			if (globalTags.length)
 				Component()
+					.and(Sortable, SortableDefinition<TagId>({
+						getID: component => getTagID(component.as(Tag)?.tag) as TagId | undefined,
+						onOrderChange: order => {
+							tagsState.value.global_tags = order
+						},
+					}))
 					.style('tags-editor-current-type', 'tags-editor-current-global')
 					.append(...globalTags.map(tag => Tag(tag)
 						.setNavigationDisabled(true)
@@ -51,6 +58,12 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 
 			if (tags.custom_tags.length)
 				Component()
+					.and(Sortable, SortableDefinition<string>({
+						getID: component => getTagID(component.as(Tag)?.tag),
+						onOrderChange: order => {
+							tagsState.value.custom_tags = order
+						},
+					}))
 					.style('tags-editor-current-type', 'tags-editor-current-custom')
 					.append(...tags.custom_tags.map(tag => Tag(tag)
 						.setNavigationDisabled(true)
@@ -63,6 +76,10 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 			const hasTags = !!globalTags.length || !!tags.custom_tags.length
 			tagsContainer.style.toggle(hasTags, 'tags-editor-current')
 		}))
+
+	function getTagID (tag?: string | TagData) {
+		return !tag ? '' : typeof tag === 'string' ? tag : `${tag.category}: ${tag.name}`
+	}
 
 	//#endregion
 	////////////////////////////////////

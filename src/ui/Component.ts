@@ -38,7 +38,7 @@ type AriaRole =
 const ELEMENT_TO_COMPONENT_MAP = new WeakMap<Element, Component>()
 
 declare global {
-	interface Element {
+	interface Node {
 		component?: Component
 	}
 }
@@ -76,6 +76,7 @@ export interface ComponentEvents extends NativeEvents {
 	ancestorInsert (): any
 	ancestorScroll (): any
 	descendantInsert (): any
+	childrenInsert (nodes: Node[]): any
 	ancestorRectDirty (): any
 	root (): any
 	unroot (): any
@@ -85,7 +86,7 @@ export interface ComponentExtensions<ELEMENT extends HTMLElement = HTMLElement> 
 
 interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends ComponentInsertionDestination {
 	readonly isComponent: true
-	readonly supers: any[]
+	readonly supers: State<any[]>
 
 	readonly classes: ClassManipulator<this>
 	readonly attributes: AttributeManipulator<this>
@@ -137,6 +138,8 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 
 	tweak<PARAMS extends any[]> (tweaker?: (component: this, ...params: PARAMS) => unknown, ...params: PARAMS): this
 
+	disableInsertion (): Omit<this, keyof ComponentInsertionDestination>
+
 	appendTo (destination: ComponentInsertionDestination | Element): this
 	prependTo (destination: ComponentInsertionDestination | Element): this
 	insertTo (destination: ComponentInsertionDestination | Element, direction: 'before' | 'after', sibling?: Component | Element): this
@@ -149,6 +152,14 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	getAncestorComponents (): Generator<Component>
 	get previousSibling (): Component | undefined
 	get nextSibling (): Component | undefined
+	/** Iterates through all children that have an associated component */
+	getChildren (): Generator<Component>
+	/** Iterates through all siblings that have an associated component */
+	getSiblings (): Generator<Component>
+	/** Iterates through all siblings before this component that have an associated component (in actual order) */
+	getPreviousSiblings (): Generator<Component>
+	/** Iterates through all siblings after this component that have an associated component */
+	getNextSiblings (): Generator<Component>
 
 	remove (): void
 	removeContents (): void
@@ -160,6 +171,8 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	monitorScrollEvents (): this
 
 	onRooted (callback: (component: this) => unknown): this
+	onRemove (owner: Component, callback: (component: this) => unknown): this
+	onRemoveManual (callback: (component: this) => unknown): this
 
 	ariaRole (role?: AriaRole): this
 	ariaLabel: StringApplicator.Optional<this>
@@ -179,7 +192,7 @@ enum Classes {
 	ReceiveAncestorInsertEvents = '_receieve-ancestor-insert-events',
 	ReceiveDescendantInsertEvents = '_receieve-descendant-insert-events',
 	ReceiveAncestorRectDirtyEvents = '_receieve-ancestor-rect-dirty-events',
-	ReceiveScrollEvents = '_receieve-scroll-events'
+	ReceiveScrollEvents = '_receieve-scroll-events',
 }
 
 const componentExtensionsRegistry: ((component: Mutable<Component>) => unknown)[] = []
@@ -197,7 +210,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 
 	let owner: Component | undefined
 	let component = ({
-		supers: [],
+		supers: State([]),
 		isComponent: true,
 		isInsertionDestination: true,
 		element: document.createElement(type),
@@ -236,22 +249,27 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 
 			return component
 		},
-		is: (builder): this is any => component.supers.includes(builder),
-		as: (builder): any => component.supers.includes(builder) ? component : undefined,
+		is: (builder): this is any => component.supers.value.includes(builder),
+		as: (builder): any => component.supers.value.includes(builder) ? component : undefined,
 		cast: (): any => component,
-		and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Extension<PARAMS, COMPONENT> | Component.ExtensionAsync<PARAMS, COMPONENT>, ...params: PARAMS) {
+		and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT> | Component.BuilderAsync<PARAMS, COMPONENT> | Component.Extension<PARAMS, COMPONENT> | Component.ExtensionAsync<PARAMS, COMPONENT>, ...params: PARAMS) {
+			if (component.is(builder as never))
+				return component
+
 			const result = builder.from(component, ...params)
 			if (result instanceof Promise)
 				return result.then(result => {
 					component = result
-					component.supers.push(builder)
+					component.supers.value.push(builder)
+					component.supers.emit()
 					if (builder.name)
 						component.attributes.prepend(`:${builder.name.kebabcase}`)
 					return component
 				})
 
 			component = result
-			component.supers.push(builder)
+			component.supers.value.push(builder)
+			component.supers.emit()
 			if (builder.name)
 				component.attributes.prepend(`:${builder.name.kebabcase}`)
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -395,6 +413,10 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			}
 		},
 
+		disableInsertion () {
+			return component
+		},
+
 		remove (internal = false) {
 			component.removed.value = true
 			component.rooted.value = false
@@ -447,6 +469,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			for (const element of elements)
 				(element as Element).component?.emitInsert()
 
+			component.event.emit('childrenInsert', elements)
 			return component
 		},
 		prepend (...contents) {
@@ -456,6 +479,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			for (const element of elements)
 				(element as Element).component?.emitInsert()
 
+			component.event.emit('childrenInsert', elements)
 			return component
 		},
 		insert (direction, sibling, ...contents) {
@@ -472,6 +496,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			for (const element of elements)
 				(element as Element).component?.emitInsert()
 
+			component.event.emit('childrenInsert', elements)
 			return component
 		},
 		removeContents () {
@@ -509,6 +534,41 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 					yield component
 			}
 		},
+		*getChildren () {
+			for (const child of component.element.children) {
+				const component = child.component
+				if (component)
+					yield component
+			}
+		},
+		*getSiblings () {
+			const parent = component.element.parentElement
+			for (const child of parent?.children ?? [])
+				if (child !== component.element) {
+					const component = child.component
+					if (component)
+						yield component
+				}
+		},
+		*getPreviousSiblings () {
+			const parent = component.element.parentElement
+			for (const child of parent?.children ?? []) {
+				if (child === component.element)
+					break
+
+				const childComponent = child.component
+				if (childComponent)
+					yield childComponent
+			}
+		},
+		*getNextSiblings () {
+			let cursor: Element | null = component.element
+			while ((cursor = cursor.nextElementSibling)) {
+				const component = cursor.component
+				if (component)
+					yield component
+			}
+		},
 
 		receiveAncestorInsertEvents: () => {
 			component.element.classList.add(Classes.ReceiveAncestorInsertEvents)
@@ -537,6 +597,14 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 		onRooted (callback) {
 			component.rooted.awaitManual(true, () => callback(component))
+			return component
+		},
+		onRemove (owner, callback) {
+			component.removed.await(owner, true, () => callback(component))
+			return component
+		},
+		onRemoveManual (callback) {
+			component.removed.awaitManual(true, () => callback(component))
 			return component
 		},
 
@@ -648,12 +716,18 @@ namespace Component {
 		return is(from) ? from.element as Node as NODE : from
 	}
 
-	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component> extends Extension<PARAMS, BUILD_COMPONENT> {
+	const SYMBOL_COMPONENT_TYPE_BRAND = Symbol('COMPONENT_TYPE_BRAND')
+
+	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component> extends Omit<Extension<PARAMS, BUILD_COMPONENT>, 'builderType'> {
+		builderType: 'builder'
+		[SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
 		(...params: PARAMS): BUILD_COMPONENT
 		setName (name: string): this
 	}
 
-	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component> extends ExtensionAsync<PARAMS, BUILD_COMPONENT> {
+	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component> extends Omit<ExtensionAsync<PARAMS, BUILD_COMPONENT>, 'builderType'> {
+		builderType: 'builder'
+		[SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
 		(...params: PARAMS): Promise<BUILD_COMPONENT>
 		setName (name: string): this
 	}
@@ -705,17 +779,22 @@ namespace Component {
 				}
 			}
 
-			component.supers.push(simpleBuilder)
+			component.supers.value.push(simpleBuilder)
+			component.supers.emit()
 			return component
 		}
 	}
 
 	export interface Extension<PARAMS extends any[], EXT_COMPONENT extends Component> {
+		builderType: 'extension'
+		[SYMBOL_COMPONENT_TYPE_BRAND]: EXT_COMPONENT
 		name: BuilderName
 		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): COMPONENT & EXT_COMPONENT
 	}
 
 	export interface ExtensionAsync<PARAMS extends any[], EXT_COMPONENT extends Component> {
+		builderType: 'extension'
+		[SYMBOL_COMPONENT_TYPE_BRAND]: EXT_COMPONENT
 		name: BuilderName
 		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): Promise<COMPONENT & EXT_COMPONENT>
 	}

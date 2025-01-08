@@ -15,6 +15,7 @@ interface ReadableState<T, E = T> {
 
 	/** Subscribe to state change events. Receive the initial state as an event. */
 	use (owner: Component, subscriber: (value: E, initial?: true) => unknown): UnsubscribeState
+	useManual (subscriber: (value: E, initial?: true) => unknown): UnsubscribeState
 	/** Subscribe to state change events. The initial state is not sent as an event. */
 	subscribe (owner: Component, subscriber: (value: E) => unknown): UnsubscribeState
 	subscribeManual (subscriber: (value: E) => unknown): UnsubscribeState
@@ -71,6 +72,11 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 		},
 		use: (owner, subscriber) => {
 			result.subscribe(owner, subscriber)
+			subscriber(result[SYMBOL_VALUE], true)
+			return () => result.unsubscribe(subscriber)
+		},
+		useManual: subscriber => {
+			result.subscribeManual(subscriber)
 			subscriber(result[SYMBOL_VALUE], true)
 			return () => result.unsubscribe(subscriber)
 		},
@@ -293,7 +299,7 @@ namespace State {
 			.observe(owner, ...inputs.filter(Arrays.filterNullish))
 	}
 
-	export function MapManual<const INPUT extends (ReadableState<unknown> | undefined)[], OUTPUT> (inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: INPUT[I] extends ReadableState<infer INPUT> ? INPUT : undefined }>) => OUTPUT): Generator<OUTPUT> {
+	export function MapManual<const INPUT extends (ReadableState<unknown> | undefined)[], OUTPUT> (inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: Exclude<INPUT[I], undefined> extends ReadableState<infer INPUT> ? INPUT : undefined }>) => OUTPUT): Generator<OUTPUT> {
 		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never))
 			.observeManual(...inputs.filter(Arrays.filterNullish))
 	}

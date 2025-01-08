@@ -3,6 +3,7 @@ import type { TagsManifestCategory } from 'model/Tags'
 import type { ComponentEvents } from 'ui/Component'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
+import Draggable from 'ui/component/core/ext/Draggable'
 import Link from 'ui/component/core/Link'
 import type { EventHandler } from 'ui/utility/EventManipulator'
 
@@ -38,6 +39,14 @@ const Tag = Object.assign(
 			.style('tag-name')
 			.text.set(typeof tag === 'string' ? tag : tag.name)
 			.appendTo(component)
+
+		const unuseSupers = component.supers.useManual(() => {
+			if (!component.is(Draggable))
+				return
+
+			unuseSupers()
+			component.style.bind(component.dragging, 'tag--dragging')
+		})
 
 		return component.extend<TagExtensions>(component => ({
 			tag,

@@ -16,6 +16,10 @@
 		%colour-0
 		$button-background: $colour-pink
 
+	&--dragging:
+		%colour-0
+		$button-background: $colour-pink
+
 	&-category:
 		%font-0
 		%uppercase

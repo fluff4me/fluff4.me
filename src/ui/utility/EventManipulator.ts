@@ -14,6 +14,7 @@ interface EventManipulator<HOST, EVENTS> {
 	emit<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean }
 	bubble<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean }
 	subscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
+	subscribePassive<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 	unsubscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 }
 
@@ -57,25 +58,10 @@ function EventManipulator (component: Component): EventManipulator<Component, Na
 			return Object.assign(detail.result, { defaultPrevented: eventObject.defaultPrevented }) as any
 		},
 		subscribe (events, handler) {
-			if ((handler as EventHandlerRegistered)[SYMBOL_REGISTERED_FUNCTION]) {
-				console.error(`Can't register handler for event(s) ${Arrays.resolve(events).join(', ')}, already used for other events`, handler)
-				return component
-			}
-
-			const realHandler = (event: Event) => {
-				const customEvent = event instanceof CustomEvent ? event : undefined
-				const eventDetail = customEvent?.detail as EventDetail | undefined
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-				const result = (handler as any)(Object.assign(event, { component }), ...eventDetail?.params ?? [])
-				eventDetail?.result.push(result)
-			}
-
-			Object.assign(handler, { [SYMBOL_REGISTERED_FUNCTION]: realHandler })
-
-			for (const event of Arrays.resolve(events))
-				component.element.addEventListener(event, realHandler)
-
-			return component
+			return subscribe(handler, events)
+		},
+		subscribePassive (events, handler) {
+			return subscribe(handler, events, { passive: true })
 		},
 		unsubscribe (events, handler) {
 			const realHandler = (handler as EventHandlerRegistered)[SYMBOL_REGISTERED_FUNCTION]
@@ -89,6 +75,28 @@ function EventManipulator (component: Component): EventManipulator<Component, Na
 
 			return component
 		},
+	}
+
+	function subscribe (handler: EventHandlerRegistered, events: Arrays.Or<keyof NativeEvents>, options?: AddEventListenerOptions) {
+		if (handler[SYMBOL_REGISTERED_FUNCTION]) {
+			console.error(`Can't register handler for event(s) ${Arrays.resolve(events).join(', ')}, already used for other events`, handler)
+			return component
+		}
+
+		const realHandler = (event: Event) => {
+			const customEvent = event instanceof CustomEvent ? event : undefined
+			const eventDetail = customEvent?.detail as EventDetail | undefined
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+			const result = (handler as any)(Object.assign(event, { component }), ...eventDetail?.params ?? [])
+			eventDetail?.result.push(result)
+		}
+
+		Object.assign(handler, { [SYMBOL_REGISTERED_FUNCTION]: realHandler })
+
+		for (const event of Arrays.resolve(events))
+			component.element.addEventListener(event, realHandler, options)
+
+		return component
 	}
 }
 

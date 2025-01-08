@@ -1,10 +1,12 @@
 import Define from 'utility/Define'
-import type Vector2 from 'utility/maths/Vector2'
+import Vector2 from 'utility/maths/Vector2'
 
 declare global {
 	interface DOMRect {
-		centreX: number
-		centreY: number
+		readonly position: Vector2
+		readonly centre: Vector2
+		readonly centreX: number
+		readonly centreY: number
 		expand (amount: number): DOMRect
 		contract (amount: number): DOMRect
 		intersects (pos: Vector2): boolean
@@ -22,6 +24,21 @@ export default function () {
 	Define.magic(DOMRect.prototype, 'centreY', {
 		get () {
 			return this.top + this.height / 2
+		},
+	})
+
+	Define.magic(DOMRect.prototype, 'centre', {
+		get () {
+			return Vector2(
+				this.left + this.width / 2,
+				this.top + this.height / 2,
+			)
+		},
+	})
+
+	Define.magic(DOMRect.prototype, 'position', {
+		get () {
+			return Vector2(this.left, this.top)
 		},
 	})
 

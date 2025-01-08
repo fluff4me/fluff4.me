@@ -1,9 +1,10 @@
 import type Vector2 from 'utility/maths/Vector2'
 import State from 'utility/State'
+import type { Mutable } from 'utility/Type'
 
 namespace Mouse {
 
-	const pos: Vector2 = { x: 0, y: 0 }
+	const pos: Mutable<Vector2> = { x: 0, y: 0 }
 	export const state: State<Vector2> = State(pos)
 
 	export type MouseMoveHandler = (mouse: Vector2) => unknown

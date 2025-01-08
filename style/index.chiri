@@ -48,6 +48,8 @@
 	component/core/form
 	component/core/paginator
 	component/core/toast
+	component/core/draggable
+	component/core/sortable
 	component/vanity-input
 	component/flag
 	component/masthead
