@@ -98,7 +98,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 	////////////////////////////////////
 	//#region Suggestions
 
-	Slot()
+	const suggestions = Slot()
 		.style('tags-editor-suggestions')
 		.use(State.UseManual(
 			{
@@ -211,8 +211,9 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 		}))
 
 	input.event.subscribe('keydown', event => {
-		if (event.key === 'Enter' && input.value.trim()) {
+		if (event.key === 'Enter') {
 			event.preventDefault()
+			suggestions.getFirstDescendant(Tag)?.element.click()
 		}
 	})
 
