@@ -2,7 +2,7 @@ import Component from 'ui/Component'
 import { EventManager } from 'utility/EventManager'
 
 enum Classes {
-	ReceiveFocusedClickEvents = '_receieve-focused-click-events'
+	ReceiveFocusedClickEvents = '_receieve-focused-click-events',
 }
 
 interface InputBusComponentExtensions {

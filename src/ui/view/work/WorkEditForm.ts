@@ -84,6 +84,7 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 							vanity: vanityInput.value,
 							description: descriptionInput.value,
 							synopsis: synopsisInput.useMarkdown(),
+							...tagsEditor.state.value,
 						},
 					})
 
@@ -105,6 +106,7 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 							vanity: vanityInput.value,
 							description: descriptionInput.value,
 							synopsis: synopsisInput.useMarkdown(),
+							...tagsEditor.state.value,
 						},
 					})
 				}
