@@ -39,9 +39,6 @@ const Slot = Object.assign(
 
 						const component = Component()
 						const transaction = ComponentInsertionTransaction(component, () => {
-							if (!transaction.size)
-								return
-
 							slot.removeContents()
 							slot.append(...component.element.children)
 						})
