@@ -117,10 +117,10 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	setId (id?: string | State<string | undefined>): this
 	setName (name?: string | State<string | undefined>): this
 
-	is<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): this is COMPONENT
-	is<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): this is COMPONENT
-	as<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): COMPONENT | undefined
-	as<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): COMPONENT | undefined
+	is<COMPONENT extends Component> (builder: Component.BuilderLike<any[], COMPONENT>): this is COMPONENT
+	is<COMPONENT extends Component> (builder?: Component.BuilderLike<any[], COMPONENT>): boolean
+	as<COMPONENT extends Component> (builder: Component.BuilderLike<any[], COMPONENT>): COMPONENT | undefined
+	as<COMPONENT extends Component> (builder?: Component.BuilderLike<any[], COMPONENT>): COMPONENT | this | undefined
 	cast<COMPONENT extends Component> (): this & Partial<COMPONENT>
 
 	/**
@@ -149,17 +149,40 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	closest<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): COMPONENT | undefined
 
 	get parent (): Component | undefined
+	/** Gets all ancestors of this component that have an associated component */
 	getAncestorComponents (): Generator<Component>
+	/** Gets all ancestors of this component that have an associated component of the given type */
+	getAncestorComponents<COMPONENT extends Component> (filterBuilder: Component.BuilderLike<any[], COMPONENT>): Generator<COMPONENT>
 	get previousSibling (): Component | undefined
+	/** Gets the previous sibling component of the given type */
+	getPreviousSibling<COMPONENT extends Component> (filterBuilder: Component.BuilderLike<any[], COMPONENT>): COMPONENT | undefined
 	get nextSibling (): Component | undefined
+	/** Gets the next sibling component of the given type */
+	getNextSibling<COMPONENT extends Component> (filterBuilder: Component.BuilderLike<any[], COMPONENT>): COMPONENT | undefined
 	/** Iterates through all children that have an associated component */
 	getChildren (): Generator<Component>
+	/** Iterates through all children that have an associated component of the given type */
+	getChildren<COMPONENT extends Component> (filterBuilder: Component.BuilderLike<any[], COMPONENT>): Generator<COMPONENT>
 	/** Iterates through all siblings that have an associated component */
 	getSiblings (): Generator<Component>
+	/** Iterates through all children that have an associated component of the given type */
+	getSiblings<COMPONENT extends Component> (filterBuilder: Component.BuilderLike<any[], COMPONENT>): Generator<COMPONENT>
 	/** Iterates through all siblings before this component that have an associated component (in actual order) */
 	getPreviousSiblings (): Generator<Component>
+	/** Iterates through all children that have an associated component of the given type */
+	getPreviousSiblings<COMPONENT extends Component> (filterBuilder: Component.BuilderLike<any[], COMPONENT>): Generator<COMPONENT>
 	/** Iterates through all siblings after this component that have an associated component */
 	getNextSiblings (): Generator<Component>
+	/** Iterates through all children that have an associated component of the given type */
+	getNextSiblings<COMPONENT extends Component> (filterBuilder: Component.BuilderLike<any[], COMPONENT>): Generator<COMPONENT>
+	/** Iterates through all descendants that have an associated component */
+	getDescendants (): Generator<Component>
+	/** Iterates through all descendants that have an associated component of the given type */
+	getDescendants<COMPONENT extends Component> (filterBuilder: Component.BuilderLike<any[], COMPONENT>): Generator<COMPONENT>
+	/** Iterates through all descendants that have an associated component */
+	getFirstDescendant (): Component | undefined
+	/** Iterates through all descendants that have an associated component of the given type */
+	getFirstDescendant<COMPONENT extends Component> (filterBuilder: Component.BuilderLike<any[], COMPONENT>): COMPONENT | undefined
 
 	remove (): void
 	removeContents (): void
@@ -249,8 +272,8 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 
 			return component
 		},
-		is: (builder): this is any => component.supers.value.includes(builder),
-		as: (builder): any => component.supers.value.includes(builder) ? component : undefined,
+		is: (builder): this is any => !builder || component.supers.value.includes(builder),
+		as: (builder): any => !builder || component.supers.value.includes(builder) ? component : undefined,
 		cast: (): any => component,
 		and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT> | Component.BuilderAsync<PARAMS, COMPONENT> | Component.Extension<PARAMS, COMPONENT> | Component.ExtensionAsync<PARAMS, COMPONENT>, ...params: PARAMS) {
 			if (component.is(builder as never))
@@ -522,52 +545,73 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		get previousSibling () {
 			return component.element.previousElementSibling?.component
 		},
+		getPreviousSibling (builder) {
+			const [sibling] = component.getPreviousSiblings(builder)
+			return sibling
+		},
 		get nextSibling () {
 			return component.element.nextElementSibling?.component
 		},
-		*getAncestorComponents () {
+		getNextSibling (builder) {
+			const [sibling] = component.getNextSiblings(builder)
+			return sibling
+		},
+		*getAncestorComponents (builder?: Component.BuilderLike) {
 			let cursor: HTMLElement | null = component.element
 			while (cursor) {
 				cursor = cursor.parentElement
 				const component = cursor?.component
-				if (component)
+				if (component?.is(builder))
 					yield component
 			}
 		},
-		*getChildren () {
+		*getChildren (builder?: Component.BuilderLike) {
 			for (const child of component.element.children) {
 				const component = child.component
-				if (component)
+				if (component?.is(builder))
 					yield component
 			}
 		},
-		*getSiblings () {
+		*getSiblings (builder?: Component.BuilderLike) {
 			const parent = component.element.parentElement
 			for (const child of parent?.children ?? [])
 				if (child !== component.element) {
 					const component = child.component
-					if (component)
+					if (component?.is(builder))
 						yield component
 				}
 		},
-		*getPreviousSiblings () {
+		*getPreviousSiblings (builder?: Component.BuilderLike) {
 			const parent = component.element.parentElement
 			for (const child of parent?.children ?? []) {
 				if (child === component.element)
 					break
 
 				const childComponent = child.component
-				if (childComponent)
+				if (childComponent?.is(builder))
 					yield childComponent
 			}
 		},
-		*getNextSiblings () {
+		*getNextSiblings (builder?: Component.BuilderLike) {
 			let cursor: Element | null = component.element
 			while ((cursor = cursor.nextElementSibling)) {
 				const component = cursor.component
-				if (component)
+				if (component?.is(builder))
 					yield component
 			}
+		},
+		*getDescendants (builder?: Component.BuilderLike) {
+			const walker = document.createTreeWalker(component.element, NodeFilter.SHOW_ELEMENT)
+			let node: Node | null
+			while ((node = walker.nextNode())) {
+				const component = node.component
+				if (component?.is(builder))
+					yield component
+			}
+		},
+		getFirstDescendant (builder?: Component.BuilderLike) {
+			const [first] = component.getDescendants(builder!)
+			return first
 		},
 
 		receiveAncestorInsertEvents: () => {
@@ -717,6 +761,8 @@ namespace Component {
 	}
 
 	const SYMBOL_COMPONENT_TYPE_BRAND = Symbol('COMPONENT_TYPE_BRAND')
+
+	export type BuilderLike<PARAMS extends any[] = any[], COMPONENT extends Component = Component> = Builder<PARAMS, COMPONENT> | Extension<PARAMS, COMPONENT>
 
 	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component> extends Omit<Extension<PARAMS, BUILD_COMPONENT>, 'builderType'> {
 		builderType: 'builder'
