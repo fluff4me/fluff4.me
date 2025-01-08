@@ -1222,7 +1222,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 				return
 			}
 
-			return createDefaultView(documentSlot)
+			return createDefaultView(Slot().appendTo(slot))
 		})
 		.appendTo(actualEditor)
 
