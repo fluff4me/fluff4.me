@@ -26,6 +26,13 @@ $$button-background-highlight!colour
 		#{transition("box-shadow")}
 	#transition: $button-transition
 
+	&-type-icon:
+		#after: .button
+		%background-none
+		%box-shadow-none
+		::hover, ::focus:
+			%box-shadow-none
+
 	&-type-flush:
 		:not ::hover ::focus ::active:
 			#after: .button
@@ -75,10 +82,19 @@ $$button-background-highlight!colour
 			%translate-y-0
 			%box-shadow-none
 
-	&-icon-plus:
-		#after: .button
-		#icon name="plus
+	#list!string icons = [
+		"plus
+		"ellipsis-vertical
+		"xmark
+		"bars
+		"circle-user
+		"bell
+		"angles-left
+		"angles-right
+		"angle-left
+		"angle-right
 
-	&-icon-ellipsis-vertical:
-		#after: .button
-		#icon name="ellipsis-vertical
+	#each in icons as var icon:
+		&-icon-#{icon}:
+			#after: .button
+			#icon name="#{icon}

@@ -80,6 +80,9 @@ const Button = Component.Builder('button', (button): Button => {
 				icon = newIcon
 				if (icon)
 					button.style(`button-icon-${icon}`)
+						.type('icon')
+				else
+					button.type.remove('icon')
 
 				return button
 			},

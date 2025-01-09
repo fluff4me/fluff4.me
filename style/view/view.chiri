@@ -28,7 +28,6 @@
 				%absolute
 				%right-0
 				%top-0
-				#icon name="xmark
 
 			@view-transition!old:
 				#animate .3s ease-out both:

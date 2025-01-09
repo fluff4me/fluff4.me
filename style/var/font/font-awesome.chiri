@@ -2502,15 +2502,11 @@
 	#return icons[name]
 
 #macro icon-container:
-	%background-none
-	%box-shadow-none
 	%padding-2-3
 	%font-4
 	%font-font-awesome
 	%content-box
 	%size-em
-	::hover, ::focus:
-		%box-shadow-none
 
 #macro icon:
 	#string name
