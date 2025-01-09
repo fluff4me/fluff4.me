@@ -154,7 +154,7 @@ const ViewContainer = (): ViewContainer => {
 			.then(v => view = v)
 			.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({ code: error.code ?? 500, error }))
 		if (shownView) {
-			shownView.appendTo(container.ephemeralDialog)
+			shownView.prependTo(container.ephemeralDialog)
 			container.ephemeral = shownView
 			container.ephemeralDialog.open()
 			container.attributes.append('inert')
