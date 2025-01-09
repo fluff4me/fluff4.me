@@ -33,8 +33,8 @@ const VanityInput = Component.Builder((component): VanityInput => {
 			getPopover () {
 				return input.getPopover()
 			},
-			setCustomPopoverVisibilityHandling () {
-				input.setCustomPopoverVisibilityHandling()
+			disableDefaultHintPopoverVisibilityHandling () {
+				input.disableDefaultHintPopoverVisibilityHandling()
 				return component
 			},
 			setMaxLength (maxLength?: number) {
