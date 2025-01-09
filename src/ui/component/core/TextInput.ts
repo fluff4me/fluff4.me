@@ -1,8 +1,8 @@
-import Component from "ui/Component"
-import type { InputExtensions } from "ui/component/core/ext/Input"
-import Input from "ui/component/core/ext/Input"
-import StringApplicator from "ui/utility/StringApplicator"
-import State from "utility/State"
+import Component from 'ui/Component'
+import type { InputExtensions } from 'ui/component/core/ext/Input'
+import Input from 'ui/component/core/ext/Input'
+import StringApplicator from 'ui/utility/StringApplicator'
+import State from 'utility/State'
 
 export type FilterFunction = (before: string, selected: string, after: string) => readonly [string, string, string]
 export interface FilterFunctionFull {
@@ -12,7 +12,7 @@ export interface FilterFunctionFull {
 export function FilterFunction (fn: FilterFunction): FilterFunctionFull {
 	return (
 		(before, selected, after) => selected === undefined
-			? fn("", before, "").join("")
+			? fn('', before, '').join('')
 			: fn(before, selected, after)
 	) as FilterFunctionFull
 }
@@ -35,27 +35,26 @@ export interface TextInputExtensions {
 
 interface TextInput extends Component, TextInputExtensions, InputExtensions { }
 
-const TextInput = Component.Builder("input", (component): TextInput => {
-
+const TextInput = Component.Builder('input', (component): TextInput => {
 	let shouldIgnoreInputEvent = false
 	let filterFunction: FilterFunction | undefined
 
 	const input: TextInput = component
 		.and(Input)
-		.style("text-input")
-		.attributes.set("type", "text")
+		.style('text-input')
+		.attributes.set('type', 'text')
 		.extend<TextInputExtensions>(input => ({
-			value: "",
-			state: State(""),
+			value: '',
+			state: State(''),
 			default: StringApplicator(input, value => {
-				if (input.value === "") {
-					input.value = value ?? ""
-					input.state.value = value ?? ""
+				if (input.value === '') {
+					input.value = value ?? ''
+					input.state.value = value ?? ''
 					input.length.value = value?.length ?? 0
 				}
 			}),
 			placeholder: StringApplicator(input, value => {
-				input.attributes.set("placeholder", value)
+				input.attributes.set('placeholder', value)
 			}),
 			ignoreInputEvent: (ignore = true) => {
 				shouldIgnoreInputEvent = ignore
@@ -66,12 +65,12 @@ const TextInput = Component.Builder("input", (component): TextInput => {
 				return input
 			},
 		}))
-		.extendMagic("value", input => ({
-			get: () => (input.element as HTMLInputElement).value || "",
+		.extendMagic('value', input => ({
+			get: () => (input.element as HTMLInputElement).value || '',
 			set: (value: string) => {
 				const element = input.element as HTMLInputElement
 				element.value = value
-				applyFilter("change")
+				applyFilter('change')
 				input.state.value = element.value
 				input.length.value = element.value.length
 			},
@@ -79,8 +78,8 @@ const TextInput = Component.Builder("input", (component): TextInput => {
 
 	input.length.value = 0
 
-	input.event.subscribe(["input", "change"], event => {
-		applyFilter(event.type as "input" | "change")
+	input.event.subscribe(['input', 'change'], event => {
+		applyFilter(event.type as 'input' | 'change')
 
 		if (shouldIgnoreInputEvent) return
 		input.state.value = input.value
@@ -89,20 +88,21 @@ const TextInput = Component.Builder("input", (component): TextInput => {
 
 	return input
 
-	function applyFilter (type: "input" | "change") {
-		const element = input.element.asType("input")
+	function applyFilter (type: 'input' | 'change') {
+		const element = input.element.asType('input')
 		if (filterFunction && element) {
-			if (type === "change") {
-				element.value = filterFunction("", input.value, "").join("")
-			} else {
+			if (type === 'change') {
+				element.value = filterFunction('', input.value, '').join('')
+			}
+			else {
 				let { selectionStart, selectionEnd, value } = element
 				const hasSelection = selectionStart !== null || selectionEnd !== null
 
 				selectionStart ??= value.length
 				selectionEnd ??= value.length
 
-				const [beforeSelection, selection, afterSelection] =
-					filterFunction(value.slice(0, selectionStart), value.slice(selectionStart, selectionEnd), value.slice(selectionEnd))
+				const [beforeSelection, selection, afterSelection]
+					= filterFunction(value.slice(0, selectionStart), value.slice(selectionStart, selectionEnd), value.slice(selectionEnd))
 
 				element.value = beforeSelection + selection + afterSelection
 
