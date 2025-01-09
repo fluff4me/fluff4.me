@@ -30,6 +30,7 @@
 	component/core/link
 	component/core/button
 	component/core/popover
+	component/core/progress-wheel
 	component/core/input
 	component/core/text-input
 	component/core/text-input-block

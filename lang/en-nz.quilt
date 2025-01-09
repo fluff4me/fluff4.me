@@ -38,6 +38,11 @@ tags/label: Tags
 tags/placeholder: Type to filter tag suggestions...
 tags/suggestion/add-as-custom: Add custom tag:
 tags/suggestion/label: Suggestions
+tags/hint/main: fluff4.me has two kinds of tags.
+tags/hint/global: {#B:Global tags} are chosen from a predefined list, meant for primary categorisation.\nThe first eight will always be displayed with your work. Any others will display only on the full work page.
+tags/hint/custom: {#B:Custom tags} are custom text — whatever you want. Useful as stand-ins for missing global tags, or to better describe specifics.\nThese {#I:only} display on the full work page.
+progress-wheel/remaining/label: {0}
+progress-wheel/progress/label: {0}%
 
 # component
 popover/button: open {0??details}{ 1??}

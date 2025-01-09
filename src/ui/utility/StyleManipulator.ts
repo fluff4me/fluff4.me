@@ -1,7 +1,7 @@
 import style from 'style'
 import type Component from 'ui/Component'
-import type State from 'utility/State'
-import type { UnsubscribeState } from 'utility/State'
+import type { StateOr, UnsubscribeState } from 'utility/State'
+import State from 'utility/State'
 
 export type ComponentName = keyof typeof style
 export type ComponentNameType<PREFIX extends string> = keyof { [KEY in ComponentName as KEY extends `${PREFIX}-${infer TYPE}--${string}` ? TYPE
@@ -13,7 +13,7 @@ interface StyleManipulatorFunctions<HOST> {
 	remove (...names: ComponentName[]): HOST
 	toggle (...names: ComponentName[]): HOST
 	toggle (enabled: boolean, ...names: ComponentName[]): HOST
-	bind (state: State<boolean>, ...names: ComponentName[]): HOST
+	bind (state: StateOr<boolean>, ...names: ComponentName[]): HOST
 	unbind (state?: State<boolean>): HOST
 	refresh (): HOST
 
@@ -21,8 +21,8 @@ interface StyleManipulatorFunctions<HOST> {
 	setProperty (property: string, value?: string | number | null): HOST
 	toggleProperty (enabled: boolean | undefined, property: string, value?: string | number | null): HOST
 	setVariable (variable: string, value?: string | number | null): HOST
-	bindProperty (property: string, state: State<string | number | undefined | null>): HOST
-	bindVariable (variable: string, state: State<string | number | undefined | null>): HOST
+	bindProperty (property: string, state: StateOr<string | number | undefined | null>): HOST
+	bindVariable (variable: string, state: StateOr<string | number | undefined | null>): HOST
 	removeProperties (...properties: string[]): HOST
 	removeVariables (...variables: string[]): HOST
 }
@@ -68,6 +68,9 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 				return component
 			},
 			bind (state, ...names) {
+				if (!State.is(state))
+					return result.toggle(state, ...names)
+
 				result.unbind(state)
 
 				const unsubscribe = state.use(component, active => {
@@ -80,6 +83,7 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 
 					updateClasses(!active ? names : undefined)
 				})
+
 				stateUnsubscribers.set(state, [unsubscribe, names])
 				return component
 			},
@@ -116,7 +120,14 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 			},
 			bindProperty (property, state) {
 				unbindPropertyState[property]?.()
-				unbindPropertyState[property] = state.use(component, value => setProperty(property, value))
+
+				if (State.is(state))
+					unbindPropertyState[property] = state.use(component, value => setProperty(property, value))
+				else {
+					setProperty(property, state)
+					unbindPropertyState[property] = undefined
+				}
+
 				return component
 			},
 			bindVariable (variable, state) {

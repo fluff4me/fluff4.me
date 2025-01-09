@@ -1,7 +1,6 @@
 import Component from 'ui/Component'
 import type { InputExtensions } from 'ui/component/core/ext/Input'
 import Input from 'ui/component/core/ext/Input'
-import type { PopoverInitialiser } from 'ui/component/core/Popover'
 import type { TextInputExtensions } from 'ui/component/core/TextInput'
 import TextInput, { FilterFunction } from 'ui/component/core/TextInput'
 
@@ -31,6 +30,13 @@ const VanityInput = Component.Builder((component): VanityInput => {
 			hint: input.hint.rehost(component),
 			maxLength: input.maxLength,
 			length: input.length,
+			getPopover () {
+				return input.getPopover()
+			},
+			setCustomPopoverVisibilityHandling () {
+				input.setCustomPopoverVisibilityHandling()
+				return component
+			},
 			setMaxLength (maxLength?: number) {
 				input.setMaxLength(maxLength)
 				return component
@@ -43,8 +49,12 @@ const VanityInput = Component.Builder((component): VanityInput => {
 				input.setLabel(label)
 				return component
 			},
-			tweakPopover (initialiser: PopoverInitialiser<typeof component>) {
+			tweakPopover (initialiser) {
 				input.tweakPopover(initialiser as never)
+				return component
+			},
+			setCustomHintPopover (initialiser) {
+				input.setCustomHintPopover(initialiser as never)
 				return component
 			},
 

@@ -67,6 +67,8 @@ export default Component.Builder((component, state: State<WorkFull | undefined>)
 
 	const tagsEditor = TagsEditor()
 		.default.bind(state as State<TagsState>)
+		.setMaxLengthGlobal(FormInputLengths.manifest?.work_tags.global)
+		.setMaxLengthCustom(FormInputLengths.manifest?.work_tags.custom)
 	table.label(label => label.text.use('view/work-edit/shared/form/tags/label'))
 		.content((content, label) => content.append(tagsEditor.setLabel(label)))
 

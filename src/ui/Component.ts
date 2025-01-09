@@ -5,7 +5,7 @@ import ClassManipulator from 'ui/utility/ClassManipulator'
 import type { NativeEvents } from 'ui/utility/EventManipulator'
 import EventManipulator from 'ui/utility/EventManipulator'
 import FocusListener from 'ui/utility/FocusListener'
-import StringApplicator from 'ui/utility/StringApplicator'
+import StringApplicator, { QuiltHelper } from 'ui/utility/StringApplicator'
 import StyleManipulator from 'ui/utility/StyleManipulator'
 import TextManipulator from 'ui/utility/TextManipulator'
 import Viewport from 'ui/utility/Viewport'
@@ -893,6 +893,6 @@ namespace Component {
 
 }
 
-TextManipulator.setComponent(Component)
+QuiltHelper.setComponent(Component)
 
 export default Component

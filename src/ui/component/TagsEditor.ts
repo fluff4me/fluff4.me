@@ -1,9 +1,11 @@
+import quilt from 'lang/en-nz'
 import type { TagId } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
 import type { InputExtensions } from 'ui/component/core/ext/Input'
 import Input from 'ui/component/core/ext/Input'
 import Sortable, { SortableDefinition } from 'ui/component/core/ext/Sortable'
+import ProgressWheel from 'ui/component/core/ProgressWheel'
 import Slot from 'ui/component/core/Slot'
 import TextInput, { FilterFunction } from 'ui/component/core/TextInput'
 import type { TagData } from 'ui/component/Tag'
@@ -22,6 +24,12 @@ export interface TagsState {
 interface TagsEditorExtensions {
 	readonly state: State<TagsState>
 	readonly default: Applicator.Optional<this, Partial<TagsState>>
+	readonly maxLengthGlobal: State<number | undefined>
+	readonly maxLengthCustom: State<number | undefined>
+	readonly lengthGlobal: State.Generator<number>
+	readonly lengthCustom: State.Generator<number>
+	setMaxLengthGlobal (maxLength?: number): this
+	setMaxLengthCustom (maxLength?: number): this
 }
 
 interface TagsEditor extends Component, TagsEditorExtensions, InputExtensions { }
@@ -98,13 +106,15 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 	////////////////////////////////////
 	//#region Suggestions
 
+	const hasOrHadFocus = State.Some(component, component.hasFocused, component.hadFocusedLast)
+
 	const suggestions = Slot()
 		.style('tags-editor-suggestions')
 		.use(State.UseManual(
 			{
 				tags: tagsState,
 				filter: input.state,
-				focus: State.Some(component, component.hasFocused, component.hadFocusedLast),
+				focus: hasOrHadFocus,
 			}),
 			AbortPromise.asyncFunction(async (signal, slot, { tags, filter, focus }) => {
 				if (!filter && !focus)
@@ -187,6 +197,8 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 						.style('tags-editor-suggestions-label')
 						.text.use('shared/form/tags/suggestion/label')
 						.prependTo(slot)
+
+				editor.rect.markDirty()
 			})
 		)
 		.appendTo(inputWrapper)
@@ -208,7 +220,30 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 				global_tags: value?.global_tags?.slice() ?? [],
 				custom_tags: value?.custom_tags?.slice() ?? [],
 			}),
+
+			maxLengthGlobal: State<number | undefined>(undefined),
+			maxLengthCustom: State<number | undefined>(undefined),
+			lengthGlobal: tagsState.mapManual(tags => tags.global_tags.length),
+			lengthCustom: tagsState.mapManual(tags => tags.custom_tags.length),
+			setMaxLengthGlobal (maxLength) {
+				editor.maxLengthGlobal.value = maxLength
+				return editor
+			},
+			setMaxLengthCustom (maxLength) {
+				editor.maxLengthCustom.value = maxLength
+				return editor
+			},
 		}))
+
+	editor.setCustomPopoverVisibilityHandling()
+	hasOrHadFocus.subscribeManual(focus => editor.getPopover()?.toggle(focus).anchor.apply())
+	editor.setCustomHintPopover(popover => popover.append(
+		Input.createHintText(quilt['shared/form/tags/hint/main']()),
+		Input.createHintText(quilt['shared/form/tags/hint/global']()),
+		ProgressWheel.Length(editor.lengthGlobal, editor.maxLengthGlobal),
+		Input.createHintText(quilt['shared/form/tags/hint/custom']()),
+		ProgressWheel.Length(editor.lengthCustom, editor.maxLengthCustom),
+	))
 
 	input.event.subscribe('keydown', event => {
 		if (event.key === 'Enter') {
@@ -217,7 +252,6 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 		}
 	})
 
-	editor.length.value = 0
 	return editor
 
 	function removeTag (tag: TagData | string) {

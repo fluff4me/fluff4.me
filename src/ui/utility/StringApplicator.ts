@@ -11,6 +11,14 @@ export namespace Quilt {
 }
 
 export namespace QuiltHelper {
+
+	let Break!: Component.Builder<[], Component>
+	export function setComponent (ComponentFunction: typeof Component) {
+		Break = ComponentFunction
+			.Builder('br', component => component.style('break'))
+			.setName('Break')
+	}
+
 	export function renderWeave (weave: Weave): Node[] {
 		return weave.content.map(renderWeft)
 	}
@@ -32,6 +40,7 @@ export namespace QuiltHelper {
 	function isPlaintextWeft (weft: Weft): weft is Weft & { content: string } {
 		return true
 			&& typeof weft.content === 'string'
+			&& !weft.content.includes('\n')
 	}
 
 	function renderWeft (weft: Weft): Node {
@@ -50,6 +59,13 @@ export namespace QuiltHelper {
 					navigate.toRawURL(href)
 				})
 			}
+
+			switch (tag) {
+				case 'b': element = document.createElement('strong'); break
+				case 'i': element = document.createElement('em'); break
+				case 'u': element = document.createElement('u'); break
+				case 's': element = document.createElement('s'); break
+			}
 		}
 
 		element ??= document.createElement('span')
@@ -58,8 +74,16 @@ export namespace QuiltHelper {
 			element.append(...weft.content.map(renderWeft))
 		else if (typeof weft.content === 'object' && weft.content)
 			element.append(...renderWeave(weft.content))
-		else
-			element.textContent = `${weft.content ?? ''}`
+		else {
+			const value = `${weft.content ?? ''}`
+			const texts = value.split('\n')
+			for (let i = 0; i < texts.length; i++) {
+				if (i > 0)
+					element.append(Break().element)
+
+				element.append(document.createTextNode(texts[i]))
+			}
+		}
 
 		return element
 	}
@@ -67,23 +91,23 @@ export namespace QuiltHelper {
 
 interface StringApplicator<HOST> {
 	readonly state: State<string>
-	set (value: string): HOST
+	set (value: string | Weave): HOST
 	use (translation: Quilt.SimpleKey | Quilt.Handler): HOST
-	bind (state: State<string>): HOST
+	bind (state: State<string | Weave>): HOST
 	unbind (): HOST
 	refresh (): void
 	rehost<NEW_HOST> (newHost: NEW_HOST): StringApplicator<NEW_HOST>
 }
 
-function StringApplicator<HOST> (host: HOST, apply: (value?: string) => unknown): StringApplicator.Optional<HOST>
-function StringApplicator<HOST> (host: HOST, defaultValue: string, apply: (value: string) => unknown): StringApplicator<HOST>
-function StringApplicator<HOST> (host: HOST, defaultValueOrApply: string | undefined | ((value?: string) => unknown), apply?: (value: string) => unknown): StringApplicator.Optional<HOST> {
-	const defaultValue = !apply ? undefined : defaultValueOrApply as string
-	apply ??= defaultValueOrApply as (value?: string) => unknown
-
+function BaseStringApplicator<HOST> (
+	host: HOST,
+	defaultValue: string | undefined,
+	set: (result: StringApplicator.Optional<HOST>, value?: string | Weave | null) => void,
+): StringApplicator.Optional<HOST> {
 	let translationHandler: Quilt.Handler | undefined
 	let unbind: UnsubscribeState | undefined
 	const result = makeApplicator(host)
+	const setInternal = set.bind(null, result)
 	return result
 
 	function makeApplicator<HOST> (host: HOST): StringApplicator.Optional<HOST> {
@@ -109,10 +133,19 @@ function StringApplicator<HOST> (host: HOST, defaultValueOrApply: string | undef
 			},
 			bind: state => {
 				translationHandler = undefined
-				unbind?.()
-				unbind = state?.use(host as Component, setInternal)
-				if (!state)
+				unbind?.(); unbind = undefined
+
+				if (state === undefined || state === null) {
 					setInternal(defaultValue)
+					return host
+				}
+
+				if (!State.is(state)) {
+					setInternal(state)
+					return host
+				}
+
+				unbind = state?.use(host as Component, setInternal)
 				return host
 			},
 			unbind: () => {
@@ -129,25 +162,55 @@ function StringApplicator<HOST> (host: HOST, defaultValueOrApply: string | undef
 			rehost: makeApplicator,
 		}
 	}
+}
 
-	function setInternal (value?: string | Weave | null) {
+function StringApplicator<HOST> (host: HOST, apply: (value?: string) => unknown): StringApplicator.Optional<HOST>
+function StringApplicator<HOST> (host: HOST, defaultValue: string, apply: (value: string) => unknown): StringApplicator<HOST>
+function StringApplicator<HOST> (host: HOST, defaultValueOrApply: string | undefined | ((value?: string) => unknown), maybeApply?: (value: string) => unknown): StringApplicator.Optional<HOST> {
+	const defaultValue = !maybeApply ? undefined : defaultValueOrApply as string
+	const apply = (maybeApply ?? defaultValueOrApply) as (value?: string) => unknown
+
+	return BaseStringApplicator(host, defaultValue, (result, value) => {
 		if (typeof value === 'object' && value !== null)
 			value = value.toString()
 
 		if (result.state.value !== value) {
 			result.state.value = value
-			apply!(value!)
+			apply(value ?? undefined)
 		}
-	}
+	})
 }
 
 namespace StringApplicator {
 
 	export interface Optional<HOST> extends Omit<StringApplicator<HOST>, 'state' | 'set' | 'bind' | 'rehost'> {
 		state: State<string | undefined | null>
-		set (value?: string | null): HOST
-		bind (state?: State<string | Weave | undefined | null>): HOST
+		set (value?: string | Weave | null): HOST
+		bind (state?: StateOr<string | Weave | undefined | null>): HOST
 		rehost<NEW_HOST> (newHost: NEW_HOST): StringApplicator.Optional<NEW_HOST>
+	}
+
+	export function render (content?: string | Weave | null): Node[] {
+		if (typeof content === 'string')
+			content = { content: [{ content }] }
+
+		return !content ? [] : QuiltHelper.renderWeave(content)
+	}
+
+	export function Nodes<HOST> (host: HOST, apply: (nodes: Node[]) => unknown): StringApplicator.Optional<HOST>
+	export function Nodes<HOST> (host: HOST, defaultValue: string, apply: (nodes: Node[]) => unknown): StringApplicator<HOST>
+	export function Nodes<HOST> (host: HOST, defaultValueOrApply: string | undefined | ((nodes: Node[]) => unknown), maybeApply?: (nodes: Node[]) => unknown): StringApplicator.Optional<HOST> {
+		const defaultValue = !maybeApply ? undefined : defaultValueOrApply as string
+		const apply = (maybeApply ?? defaultValueOrApply) as (nodes: Node[]) => unknown
+
+		return BaseStringApplicator(host, defaultValue, (result, value) => {
+			const valueString = typeof value === 'object' && value !== null ? value.toString() : value
+			if (result.state.value === valueString)
+				return
+
+			result.state.value = valueString
+			apply(render(value))
+		})
 	}
 
 }
