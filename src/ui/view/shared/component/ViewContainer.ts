@@ -119,6 +119,7 @@ const ViewContainer = (): ViewContainer => {
 				.setOwner(container)
 				.setNotModal()
 				.append(Button()
+					.setIcon('xmark')
 					.style('view-container-ephemeral-close')
 					.event.subscribe('click', () => {
 						if (cancelLogin)

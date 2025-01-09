@@ -77,19 +77,6 @@
 	&-button--hidden:
 		%hidden
 
-	&-button-first:
-		#after: .button
-		#icon name="angles-left
-	&-button-prev:
-		#after: .button
-		#icon name="angle-left
-	&-button-next:
-		#after: .button
-		#icon name="angle-right
-	&-button-last:
-		#after: .button
-		#icon name="angles-right
-
 	&-content:
 		%unmargin-4
 		%padding-top-4

@@ -33,9 +33,6 @@
 		grid-area: left
 
 		&-hamburger:
-			#after: .button
-			#icon name="bars
-
 			&-sidebar:
 				#tablet:
 					%hidden
@@ -77,11 +74,3 @@
 		%margin-right-2
 		%justify-content-end
 		grid-area: right
-
-		&-notifications:
-			#after: .button
-			#icon name="bell
-
-		&-profile:
-			#after: .button
-			#icon name="circle-user
