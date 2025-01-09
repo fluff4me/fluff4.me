@@ -25,7 +25,9 @@
 				%flex
 
 			&-close:
-				%align-self-end
+				%absolute
+				%right-0
+				%top-0
 				#icon name="xmark
 
 			@view-transition!old:
