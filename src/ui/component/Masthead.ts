@@ -94,24 +94,24 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 				.append(Slot()
 					.use(Session.Auth.author, (slot, author) => {
 						if (!author) {
-							Button()
+							Link('/account')
+								.and(Button)
 								.type('flush')
 								.text.use('masthead/user/profile/popover/login')
-								.event.subscribe('click', () => navigate.toURL('/account'))
 								.appendTo(slot)
 							return
 						}
 
-						Button()
+						Link(`/author/${author.vanity}`)
+							.and(Button)
 							.type('flush')
 							.text.use('masthead/user/profile/popover/profile')
-							.event.subscribe('click', () => navigate.toURL(`/author/${author.vanity}`))
 							.appendTo(slot)
 
-						Button()
+						Link('/account')
+							.and(Button)
 							.type('flush')
 							.text.use('masthead/user/profile/popover/account')
-							.event.subscribe('click', () => navigate.toURL('/account'))
 							.appendTo(slot)
 					}))))
 		.appendTo(masthead)
