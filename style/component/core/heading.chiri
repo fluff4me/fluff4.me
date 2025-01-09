@@ -9,6 +9,11 @@
 	margin-left: -0.05em
 	min-width: 3em
 
+	::focus:
+		%outline-none
+		%box-shadow-border-outline
+		%border-radius-1
+
 .heading:
 	#after: .button
 
