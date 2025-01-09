@@ -235,7 +235,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 			},
 		}))
 
-	editor.setCustomPopoverVisibilityHandling()
+	editor.disableDefaultHintPopoverVisibilityHandling()
 	hasOrHadFocus.subscribeManual(focus => editor.getPopover()?.toggle(focus).anchor.apply())
 	editor.setCustomHintPopover(popover => popover.append(
 		Input.createHintText(quilt['shared/form/tags/hint/main']()),

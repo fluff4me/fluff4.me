@@ -17,8 +17,15 @@ export interface InputExtensions {
 	readonly maxLength: State<number | undefined>
 	readonly length: State<number | undefined>
 	getPopover (): Popover | undefined
-	/** Disable the default popover visibility handling — visible on input focus — in favour of custom handling */
-	setCustomPopoverVisibilityHandling (): this
+	/** 
+	 * By default the hint popover is visible on input focus. This allows disabling that in favour of custom handling. 
+	 *
+	 * ### Default handling: 
+	 * ```ts
+	 * input.hasFocused.subscribe(owner, focus => input.getPopover()?.toggle(focus).anchor.apply())
+	 * ```
+	 */
+	disableDefaultHintPopoverVisibilityHandling (): this
 	setMaxLength (maxLength?: number): this
 	setRequired (required?: boolean): this
 	/**
@@ -105,7 +112,7 @@ const Input = Object.assign(
 			hint: StringApplicator(component, value => hintText.value = value),
 			maxLength,
 			length,
-			setCustomPopoverVisibilityHandling () {
+			disableDefaultHintPopoverVisibilityHandling () {
 				customPopoverVisibilityHandling = true
 				return component
 			},
