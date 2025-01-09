@@ -1,5 +1,6 @@
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
+import Link from 'ui/component/core/Link'
 import Env from 'utility/Env'
 import Store from 'utility/Store'
 
@@ -20,9 +21,9 @@ const Sidebar = Component.Builder('nav', (sidebar): Sidebar => {
 		.ariaLabel.use('masthead/primary-nav/alt')
 
 	if (Env.ENVIRONMENT === 'dev')
-		Button()
+		Link('/debug')
+			.and(Button)
 			.text.set('Debug')
-			.event.subscribe('click', () => navigate.toURL('/debug'))
 			.appendTo(sidebar)
 
 	updateSidebarVisibility()

@@ -2,6 +2,7 @@ $$button-background!colour
 $$button-background-highlight!colour
 
 .button:
+	#after: .link
 	%borderless
 	%inline-block
 	%padding-2-3
@@ -12,6 +13,7 @@ $$button-background-highlight!colour
 	%font-family-inherit
 	%font-4
 	%box-shadow-1
+	%decoration-none
 	colour: $button-colour
 	$button-background: $background-interact-4
 	$button-background-highlight: hsl(from $button-background h s calc(l + 6))
