@@ -136,6 +136,7 @@ export const AllowXOffscreen: AnchorLocationPreferenceOptions = { allowXOffscree
 
 interface AnchorManipulator<HOST> {
 	isMouse (): boolean
+	/** Reset the location preference for this anchor */
 	reset (): HOST
 	from (component: Component): HOST
 	/**

@@ -2,6 +2,7 @@ import quilt from 'lang/en-nz'
 import type { TagId } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
+import { BlockClasses } from 'ui/component/core/Block'
 import type { InputExtensions, InvalidMessageText } from 'ui/component/core/ext/Input'
 import Input from 'ui/component/core/ext/Input'
 import Sortable, { SortableDefinition } from 'ui/component/core/ext/Sortable'
@@ -10,6 +11,7 @@ import Slot from 'ui/component/core/Slot'
 import TextInput, { FilterFunction } from 'ui/component/core/TextInput'
 import type { TagData } from 'ui/component/Tag'
 import Tag from 'ui/component/Tag'
+import { AllowYOffscreen } from 'ui/utility/AnchorManipulator'
 import Applicator from 'ui/utility/Applicator'
 import AbortPromise from 'utility/AbortPromise'
 import Mouse from 'utility/Mouse'
@@ -245,13 +247,18 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 
 	editor.disableDefaultHintPopoverVisibilityHandling()
 	hasOrHadFocus.subscribeManual(focus => editor.getPopover()?.toggle(focus).anchor.apply())
-	editor.setCustomHintPopover(popover => popover.append(
-		Input.createHintText(quilt['shared/form/tags/hint/main']()),
-		Input.createHintText(quilt['shared/form/tags/hint/global']()),
-		ProgressWheel.Length(editor.lengthGlobal, editor.maxLengthGlobal),
-		Input.createHintText(quilt['shared/form/tags/hint/custom']()),
-		ProgressWheel.Length(editor.lengthCustom, editor.maxLengthCustom),
-	))
+	editor.setCustomHintPopover(popover => popover
+		.append(
+			Input.createHintText(quilt['shared/form/tags/hint/main']()),
+			Input.createHintText(quilt['shared/form/tags/hint/global']()),
+			ProgressWheel.Length(editor.lengthGlobal, editor.maxLengthGlobal),
+			Input.createHintText(quilt['shared/form/tags/hint/custom']()),
+			ProgressWheel.Length(editor.lengthCustom, editor.maxLengthCustom),
+		)
+		.anchor.reset()
+		.anchor.from(input)
+		.anchor.add('off right', `.\\${BlockClasses.Main}`, 'centre', AllowYOffscreen)
+	)
 
 	tagsState.use(editor, tags => {
 		let invalid: InvalidMessageText
