@@ -1027,7 +1027,6 @@ const TextEditor = Component.Builder((component): TextEditor => {
 					.style.bind(isFullscreen, 'text-editor-toolbar-unfullscreen')
 					.ariaLabel.bind(isFullscreen.map(component, fullscreen => quilt[`component/text-editor/toolbar/button/${fullscreen ? 'unfullscreen' : 'fullscreen'}`]().toString())))
 			))
-		.appendTo(component)
 
 	//#endregion
 	vars(toolbar)
@@ -1066,7 +1065,8 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.append(hiddenInput)
 		.append(toolbar)
 
-	editor = Slot()
+	editor = component
+		.and(Slot)
 		.and(Input)
 		.append(actualEditor)
 		.pipeValidity(hiddenInput)
