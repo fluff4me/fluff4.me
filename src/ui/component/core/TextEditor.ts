@@ -1038,11 +1038,11 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 	let label: Label | undefined
 	let unsubscribeLabelFor: UnsubscribeState | undefined
+	let unuseLabelRemoved: UnsubscribeState | undefined
 	const stopUsingLabel = () => {
-		label?.event.unsubscribe('remove', stopUsingLabel)
 		label = undefined
-		unsubscribeLabelFor?.()
-		unsubscribeLabelFor = undefined
+		unuseLabelRemoved?.(); unuseLabelRemoved = undefined
+		unsubscribeLabelFor?.(); unsubscribeLabelFor = undefined
 	}
 
 	const hiddenInput = Component('input')
@@ -1080,10 +1080,12 @@ const TextEditor = Component.Builder((component): TextEditor => {
 				return editor
 			},
 			setLabel (newLabel) {
+				stopUsingLabel()
+
 				label = newLabel
-				label?.event.subscribe('remove', stopUsingLabel)
 				refresh()
 
+				unuseLabelRemoved = label?.removed.use(editor, removed => removed && stopUsingLabel())
 				// the moment a name is assigned to the editor, attempt to replace the doc with a local draft (if it exists)
 				unsubscribeLabelFor = label?.for.use(editor, loadLocal)
 

@@ -18,7 +18,7 @@ const Timestamp = Component.Builder((component, time?: number | string | Date) =
 		.onRooted(component => {
 			update()
 			const interval = setInterval(update, Time.seconds(1))
-			component.event.subscribe('remove', () => clearInterval(interval))
+			component.removed.awaitManual(true, () => clearInterval(interval))
 		})
 
 	function update () {

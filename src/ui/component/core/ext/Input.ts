@@ -80,6 +80,9 @@ const Input = Object.assign(
 				return
 			}
 
+			if (component.removed.value)
+				return
+
 			popover = Popover()
 				.anchor.from(component)
 				.anchor.add('off right', `.\\${BlockClasses.Main}`, 'aligned top', {

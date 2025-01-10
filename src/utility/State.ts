@@ -194,11 +194,12 @@ namespace State {
 		result.observe = (owner, ...states) => {
 			for (const state of states)
 				state?.subscribeManual(result.refresh)
-			owner.event.subscribe('remove', onRemove)
+			let unuseOwnerRemove: UnsubscribeState | undefined = owner.removed.useManual(removed => removed && onRemove())
 			return result
 
 			function onRemove () {
-				owner.event.unsubscribe('remove', onRemove)
+				unuseOwnerRemove?.()
+				unuseOwnerRemove = undefined
 				for (const state of states)
 					state?.unsubscribe(result.refresh)
 			}

@@ -71,7 +71,6 @@ export namespace ComponentInsertionDestination {
 }
 
 export interface ComponentEvents extends NativeEvents {
-	remove (): any
 	insert (): any
 	ancestorInsert (): any
 	ancestorScroll (): any
@@ -228,10 +227,10 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 	let unuseNameState: UnsubscribeState | undefined
 	let unuseAriaLabelledByIdState: UnsubscribeState | undefined
 	let unuseAriaControlsIdState: UnsubscribeState | undefined
+	let unuseOwnerRemove: UnsubscribeState | undefined
 
 	let descendantsListeningForScroll: HTMLCollection | undefined
 
-	let owner: Component | undefined
 	let component = ({
 		supers: State([]),
 		isComponent: true,
@@ -245,9 +244,8 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 
 		setOwner: newOwner => {
-			owner?.event.unsubscribe('remove', component.remove)
-			owner = newOwner
-			owner.event.subscribe('remove', component.remove)
+			unuseOwnerRemove?.()
+			unuseOwnerRemove = newOwner.removed.use(component, removed => removed && component.remove())
 			return component
 		},
 
@@ -257,6 +255,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 
 			const oldElement = component.element
 
+			Component.removeContents(newElement)
 			newElement.replaceChildren(...component.element.childNodes)
 			if (component.element.parentNode)
 				component.element.replaceWith(newElement)
@@ -440,24 +439,17 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return component
 		},
 
-		remove (internal = false) {
+		remove () {
+			component.removeContents()
+
 			component.removed.value = true
 			component.rooted.value = false
-
-			interface HTMLElementRemovable extends HTMLElement {
-				component?: Component & { remove (internal: boolean): void }
-			}
-
-			if (internal !== true)
-				for (const descendant of component.element.querySelectorAll<HTMLElementRemovable>('*'))
-					descendant.component?.remove(true)
 
 			component.element.component = undefined
 			component.element.remove()
 
 			component.event.emit('unroot')
-			component.event.emit('remove')
-			owner?.event.unsubscribe('remove', component.remove)
+			unuseOwnerRemove?.()
 		},
 		appendTo (destination) {
 			destination.append(component.element)
@@ -523,7 +515,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return component
 		},
 		removeContents () {
-			component.element.replaceChildren()
+			Component.removeContents(component.element)
 			return component
 		},
 
@@ -889,6 +881,17 @@ namespace Component {
 			return undefined
 
 		return addKebabCase(name)
+	}
+
+	export function removeContents (element: Node) {
+		for (const child of [...element.childNodes]) {
+			if (child.component)
+				child.component.remove()
+			else {
+				removeContents(child)
+				child.remove()
+			}
+		}
 	}
 
 }
