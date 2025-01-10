@@ -11,11 +11,14 @@ import StringApplicator from 'ui/utility/StringApplicator'
 import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 
+export type InvalidMessageText = string | Weave | undefined
+
 export interface InputExtensions {
 	readonly required: State<boolean>
 	readonly hint: StringApplicator.Optional<this>
 	readonly maxLength: State<number | undefined>
 	readonly length: State<number | undefined>
+	readonly invalid: State<string>
 	getPopover (): Popover | undefined
 	/** 
 	 * By default the hint popover is visible on input focus. This allows disabling that in favour of custom handling. 
@@ -45,6 +48,12 @@ export interface InputExtensions {
 	 * Controls the same initialiser as `tweakPopover`.
 	 */
 	setCustomHintPopover (initialiser: PopoverInitialiser<this>): this
+	/** Pipes the validity of this input to a component wrapping an `HTMLInputElement` */
+	pipeValidity (component: Component<HTMLInputElement>): this
+	/** Sets or clears the custom invalid message for this component. This will be shown over whatever the native invalid message would be */
+	setCustomInvalidMessage (message: InvalidMessageText): this
+	/** Refreshes the validity message for this input */
+	refreshValidity (): this
 }
 
 interface Input extends Component, InputExtensions { }
@@ -60,6 +69,7 @@ const Input = Object.assign(
 		const hintText = State<string | undefined>(undefined)
 		const maxLength = State<number | undefined>(undefined)
 		const length = State<number | undefined>(undefined)
+		const invalid = State<string>('')
 		const popoverOverride = State(false)
 		const hasPopover = State.MapManual([hintText, maxLength, popoverOverride], (hintText, maxLength, override) => override || !!hintText || !!maxLength)
 		let popover: Popover | undefined
@@ -106,12 +116,23 @@ const Input = Object.assign(
 			popover?.toggle(hasFocused).anchor.apply()
 		})
 
+		const customInvalidMessage = State<InvalidMessageText>(undefined)
+		let validityPipeComponent: Component<HTMLInputElement> | undefined
+		customInvalidMessage.subscribe(component, invalidMessage => {
+			const validity = typeof invalidMessage === 'object' ? invalidMessage.toString() : invalidMessage
+			const input = validityPipeComponent?.element ?? component.element as HTMLInputElement
+			input.setCustomValidity?.(validity ?? '')
+		})
+
+		component.event.subscribe(['input', 'change'], refreshValidity)
+
 		let popoverInitialiser: PopoverInitialiser<Component> | undefined
-		return component.extend<InputExtensions>(component => ({
+		const input = component.extend<InputExtensions>(component => ({
 			required: State(false),
 			hint: StringApplicator(component, value => hintText.value = value),
 			maxLength,
 			length,
+			invalid,
 			disableDefaultHintPopoverVisibilityHandling () {
 				customPopoverVisibilityHandling = true
 				return component
@@ -141,7 +162,27 @@ const Input = Object.assign(
 				popoverOverride.value = true
 				return component
 			},
+			pipeValidity (to) {
+				validityPipeComponent = to
+				return component
+			},
+			setCustomInvalidMessage (message) {
+				customInvalidMessage.value = message
+				refreshValidity()
+				return component
+			},
+			refreshValidity,
 		}))
+
+		return input
+
+		function refreshValidity () {
+			invalid.value = _
+				?? customInvalidMessage.value?.toString()
+				?? (component.element as HTMLInputElement).validationMessage
+				?? ''
+			return input
+		}
 	}),
 	{
 		createHintText,

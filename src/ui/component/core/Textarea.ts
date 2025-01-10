@@ -1,8 +1,9 @@
-import Component from "ui/Component"
-import type { InputExtensions } from "ui/component/core/ext/Input"
-import Input from "ui/component/core/ext/Input"
-import StringApplicator from "ui/utility/StringApplicator"
-import State from "utility/State"
+import quilt from 'lang/en-nz'
+import Component from 'ui/Component'
+import type { InputExtensions, InvalidMessageText } from 'ui/component/core/ext/Input'
+import Input from 'ui/component/core/ext/Input'
+import StringApplicator from 'ui/utility/StringApplicator'
+import State from 'utility/State'
 
 interface TextareaExtensions {
 	readonly state: State<string>
@@ -19,44 +20,54 @@ interface TextareaExtensions {
 interface Textarea extends Component, TextareaExtensions, InputExtensions { }
 
 const Textarea = Component.Builder((component): Textarea => {
-
 	let shouldIgnoreInputEvent = false
+
+	const contenteditable = Component()
+		.style('text-input', 'text-area')
+		.attributes.set('contenteditable', 'plaintext-only')
+		.ariaRole('textbox')
+		.attributes.set('aria-multiline', 'true')
+
+	const hiddenInput = Component('input')
+		.style('text-area-validity-pipe-input')
+		.tabIndex('programmatic')
+		.attributes.set('type', 'text')
+		.setName(`text-area-validity-pipe-input-${Math.random().toString(36).slice(2)}`)
 
 	const input: Textarea = component
 		.and(Input)
-		.style("text-input", "text-area")
-		.attributes.set("contenteditable", "plaintext-only")
-		.ariaRole("textbox")
-		.attributes.set("aria-multiline", "true")
+		.style('text-area-wrapper')
+		.pipeValidity(hiddenInput)
+		.append(contenteditable, hiddenInput)
 		.extend<TextareaExtensions & Partial<InputExtensions>>(input => ({
-			value: "",
-			state: State(""),
+			value: '',
+			state: State(''),
 			default: StringApplicator(input, value => {
-				if (input.value === "") {
-					input.value = value ?? ""
-					input.state.value = value ?? ""
+				if (input.value === '') {
+					input.value = value ?? ''
+					input.state.value = value ?? ''
 					input.length.value = value?.length ?? 0
 				}
 			}),
 			placeholder: StringApplicator(input, value => {
-				input.attributes.set("placeholder", value)
+				contenteditable.attributes.set('placeholder', value)
 			}),
 			ignoreInputEvent: (ignore = true) => {
 				shouldIgnoreInputEvent = ignore
 				return input
 			},
 			setLabel (label) {
-				component.setName(label?.for)
-				component.setId(label?.for)
+				contenteditable.setName(label?.for)
+				contenteditable.setId(label?.for)
 				label?.setInput(input)
-				component.ariaLabelledBy(label)
+				contenteditable.ariaLabelledBy(label)
 				return input
 			},
 		}))
-		.extendMagic("value", input => ({
-			get: () => input.element.textContent || "",
+		.extendMagic('value', input => ({
+			get: () => contenteditable.element.textContent || '',
 			set: (value: string) => {
-				input.element.textContent = value
+				contenteditable.element.textContent = value
 				input.state.value = value
 				input.length.value = value.length
 			},
@@ -65,10 +76,16 @@ const Textarea = Component.Builder((component): Textarea => {
 	input.length.value = 0
 
 	input.onRooted(input => {
-		input.event.subscribe(["input", "change"], event => {
+		contenteditable.event.subscribe(['input', 'change'], event => {
 			if (shouldIgnoreInputEvent) return
 			input.state.value = input.value
 			input.length.value = input.value.length
+
+			let invalid: InvalidMessageText
+			if (input.length.value > (input.maxLength.value ?? Infinity))
+				invalid = quilt['shared/form/invalid/too-long']()
+
+			input.setCustomInvalidMessage(invalid)
 		})
 	})
 

@@ -1,3 +1,13 @@
 .text-area:
+	%stack-self
 	%wrap-anywhere
 	%white-space-pre-wrap
+
+	&-wrapper:
+		%grid
+		%stack
+
+	&-validity-pipe-input:
+		%stack-self
+		%transparent
+		%pointer-events-none

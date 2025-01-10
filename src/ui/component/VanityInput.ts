@@ -30,6 +30,7 @@ const VanityInput = Component.Builder((component): VanityInput => {
 			hint: input.hint.rehost(component),
 			maxLength: input.maxLength,
 			length: input.length,
+			invalid: input.invalid,
 			getPopover () {
 				return input.getPopover()
 			},
@@ -55,6 +56,18 @@ const VanityInput = Component.Builder((component): VanityInput => {
 			},
 			setCustomHintPopover (initialiser) {
 				input.setCustomHintPopover(initialiser as never)
+				return component
+			},
+			pipeValidity (to) {
+				input.pipeValidity(to)
+				return component
+			},
+			setCustomInvalidMessage (message) {
+				input.setCustomInvalidMessage(message)
+				return component
+			},
+			refreshValidity () {
+				input.refreshValidity()
 				return component
 			},
 
