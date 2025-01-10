@@ -1,5 +1,3 @@
-import MarkdownIt from 'markdown-it'
-import MarkdownItHTML from 'utility/string/MarkdownItHTML'
 
 namespace Strings {
 	export type Replace<STRING extends string, MATCH extends string, REPLACE extends string> =
@@ -263,10 +261,6 @@ namespace Strings {
 			.map(word => word[0].toUpperCase() + word.slice(1))
 			.join('')
 	}
-
-	export const markdown = new MarkdownIt('commonmark', { html: true, breaks: true })
-	MarkdownItHTML.use(markdown, MarkdownItHTML.Options()
-		.disallowTags('img', 'figure', 'figcaption', 'map', 'area'))
 }
 
 export default Strings
