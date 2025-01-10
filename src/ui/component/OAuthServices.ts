@@ -8,7 +8,7 @@ import AccountViewOAuthService from 'ui/component/OAuthService'
 import type EventManipulator from 'ui/utility/EventManipulator'
 import type { Events } from 'ui/utility/EventManipulator'
 import Objects from 'utility/Objects'
-import type State from 'utility/State'
+import State from 'utility/State'
 
 interface OAuthServicesExtensions {
 }
@@ -48,6 +48,13 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 	for (const service of Objects.values(services.data))
 		if (!reauthDangerToken || Session.Auth.isAuthed(service))
 			AccountViewOAuthService(service, reauthDangerToken)
+				.bindDisabled(State
+					.Use(component, { authorisations: Session.Auth.authorisations, author: Session.Auth.author })
+					.map(component, ({ authorisations, author }) => true
+						&& !!author
+						&& authorisations.length === 1
+						&& authorisations[0].service === service.name
+					), 'singly-authed-service')
 				// .event.subscribe("dangerTokenGranted", event => block.event.emit("dangerTokenGranted"))
 				.appendTo(list)
 

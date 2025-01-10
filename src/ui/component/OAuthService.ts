@@ -42,11 +42,16 @@ const OAuthService = Component.Builder((component, service: AuthService, reauthD
 			.text.set(service.name))
 		.extend<OAuthServiceExtensions>(button => ({})) as OAuthService
 
+	button.style.bind(button.disabled, 'button--disabled', 'oauth-service--disabled')
+
 	if (!reauthDangerToken)
 		Component()
 			.style('oauth-service-state')
 			.style.bind(isAuthed, 'oauth-service-state--authenticated')
-			.style.bind(button.hoveredOrFocused, 'oauth-service-state--focus')
+			.style.bind(
+				State.Map(button, [button.hoveredOrFocused, button.disabled], (focus, disabled) => focus && !disabled),
+				'oauth-service-state--focus'
+			)
 			.appendTo(Component()
 				.style('oauth-service-state-wrapper')
 				.style.bind(button.hoveredOrFocused, 'oauth-service-state-wrapper--focus')
@@ -65,6 +70,9 @@ const OAuthService = Component.Builder((component, service: AuthService, reauthD
 
 	button.onRooted(() => {
 		button.event.subscribe('click', async event => {
+			if (button.disabled.value)
+				return
+
 			event.preventDefault()
 
 			if (reauthDangerToken) {
