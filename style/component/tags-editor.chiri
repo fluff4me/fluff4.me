@@ -1,4 +1,5 @@
 .tags-editor:
+	%relative
 	%flex
 	%flex-column
 	%gap-3
@@ -57,3 +58,9 @@
 		&-custom:
 		&-category:
 		&-global:
+
+	&-validity-pipe-input:
+		%absolute
+		%inset-0
+		%transparent
+		%pointer-events-none
