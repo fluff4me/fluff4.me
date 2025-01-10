@@ -111,9 +111,28 @@ namespace Maths {
 		return (1 - t) * from + t * to
 	}
 
+	export function unlerp (from: number, to: number, value: number): number {
+		const reverse = from > to
+		if (reverse) {
+			const temp = to
+			to = from
+			from = temp
+		}
+
+		const result = value <= from ? 0
+			: value >= to ? 1
+				: (value - from) / (to - from)
+
+		return reverse ? 1 - result : result
+	}
+
 	export function parseIntOrUndefined (value: string): number | undefined {
 		const result = parseFloat(value)
 		return isNaN(result) || !Number.isInteger(result) ? undefined : result
+	}
+
+	export function clamp1 (value: number): number {
+		return value < 0 ? 0 : value > 1 ? 1 : value
 	}
 }
 

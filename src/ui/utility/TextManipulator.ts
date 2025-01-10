@@ -7,20 +7,20 @@ interface TextManipulator<HOST> extends StringApplicator.Optional<HOST> {
 	append (text: string): HOST
 }
 
-function TextManipulator (component: Component): TextManipulator<Component> {
+function TextManipulator (component: Component, target = component): TextManipulator<Component> {
 	return Object.assign(
 		StringApplicator.Nodes(component, nodes => {
-			component.removeContents()
-			component.append(...nodes)
+			target.removeContents()
+			target.append(...nodes)
 			return nodes
 		}),
 		{
 			prepend (text?: string | Weave | null) {
-				component.prepend(...StringApplicator.render(text))
+				target.prepend(...StringApplicator.render(text))
 				return component
 			},
 			append (text?: string | Weave | null) {
-				component.append(...StringApplicator.render(text))
+				target.append(...StringApplicator.render(text))
 				return component
 			},
 		}
