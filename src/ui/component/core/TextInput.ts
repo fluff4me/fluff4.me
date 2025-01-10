@@ -1,5 +1,6 @@
+import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
-import type { InputExtensions } from 'ui/component/core/ext/Input'
+import type { InputExtensions, InvalidMessageText } from 'ui/component/core/ext/Input'
 import Input from 'ui/component/core/ext/Input'
 import StringApplicator from 'ui/utility/StringApplicator'
 import State from 'utility/State'
@@ -84,6 +85,12 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 		if (shouldIgnoreInputEvent) return
 		input.state.value = input.value
 		input.length.value = input.value.length
+
+		let invalid: InvalidMessageText
+		if (input.length.value > (input.maxLength.value ?? Infinity))
+			invalid = quilt['shared/form/invalid/too-long']()
+
+		input.setCustomInvalidMessage(invalid)
 	})
 
 	return input

@@ -19,6 +19,7 @@ const Label = Component.Builder('label', (label): Label => {
 	label.style('label')
 
 	let requiredState: State<boolean> | undefined
+	let unuseInput: UnsubscribeState | undefined
 	return label
 		.extend<LabelExtensions>(label => ({
 			for: State(undefined),
@@ -37,10 +38,12 @@ const Label = Component.Builder('label', (label): Label => {
 				return label
 			},
 			setInput: input => {
+				unuseInput?.()
 				if (!label.is(AutoLabel))
 					label.setFor(input?.name.value)
 
 				label.setRequired(input?.required)
+				unuseInput = input?.invalid.use(label, invalid => label.style.toggle(!!invalid, 'label--invalid'))
 				return label
 			},
 		}))
