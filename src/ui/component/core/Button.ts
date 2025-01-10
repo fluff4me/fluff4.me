@@ -65,7 +65,7 @@ const Button = Component.Builder('button', (button): Button => {
 			},
 			bindDisabled (state, reason) {
 				unuseDisabledStateMap.get(state)?.()
-				unuseDisabledStateMap.set(state, state.subscribe(button, newState => button.setDisabled(newState, reason)))
+				unuseDisabledStateMap.set(state, state.use(button, newState => button.setDisabled(newState, reason)))
 				return button
 			},
 			unbindDisabled (state, reason) {

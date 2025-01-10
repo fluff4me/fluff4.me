@@ -15,6 +15,14 @@
 	::active:
 		$button-background: hsl(from $colour h calc(s - 40) calc(l - 15))
 
+	&--disabled:
+		#after: .button, .button--disabled
+		%opaque
+		%pointer-events-all
+
+		::active:
+			$button-background: hsl(from $colour h s calc(l + 5))
+
 	&-container:
 		%block
 
