@@ -101,7 +101,10 @@ const ViewContainer = (): ViewContainer => {
 							view = replacementDefinition === definition ? v as VIEW : undefined
 							return v
 						})
-						.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({ code: error.code ?? 500, error }))
+						.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({
+							code: (error.code! < 200 ? undefined : error.code) ?? 500,
+							error,
+						}))
 					if (shownView) {
 						shownView.appendTo(container)
 						container.view = shownView
