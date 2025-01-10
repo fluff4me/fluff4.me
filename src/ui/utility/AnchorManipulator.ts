@@ -171,21 +171,26 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 	let currentAlignment: AnchorLocationAlignment | undefined
 
 	let from: Component | undefined
-	function onFromRemove () {
-		from = undefined
-	}
 
 	let lastRender = 0
 	let rerenderTimeout: number | undefined
 	const subscribed: UnsubscribeState[] = []
 	const addSubscription = (use?: UnsubscribeState) => use && subscribed.push(use)
 
+	let unuseFrom: UnsubscribeState | undefined
+
 	const result: AnchorManipulator<HOST> = {
 		isMouse: () => !locationPreference?.length,
 		from: component => {
-			from?.event.unsubscribe('remove', onFromRemove)
+			unuseFrom?.()
 			from = component
-			component.event.subscribe('remove', onFromRemove)
+			unuseFrom = from?.removed.useManual(removed => {
+				if (removed) {
+					from = undefined
+					unuseFrom?.()
+					unuseFrom = undefined
+				}
+			})
 			return host
 		},
 		reset: () => {

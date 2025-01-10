@@ -77,7 +77,7 @@ const Slot = Object.assign(
 					return slot
 				},
 			}))
-			.event.subscribe('remove', () => cleanup?.())
+			.tweak(slot => slot.removed.awaitManual(true, () => cleanup?.()))
 
 		function handleSlotInitialiserReturn (transaction: ComponentInsertionTransaction, result: SlotInitialiserReturn) {
 			if (!(result instanceof AbortPromise))

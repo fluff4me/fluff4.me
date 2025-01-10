@@ -288,7 +288,7 @@ const Popover = Component.Builder((component): Popover => {
 
 	popover.onRooted(() => {
 		InputBus.subscribe('down', onInputDown)
-		component.event.subscribe('remove', () => InputBus.unsubscribe('down', onInputDown))
+		popover.removed.awaitManual(true, () => InputBus.unsubscribe('down', onInputDown))
 	})
 
 	return popover

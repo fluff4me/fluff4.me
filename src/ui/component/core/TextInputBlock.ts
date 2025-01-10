@@ -19,14 +19,14 @@ const TextInputBlock = Component.Builder((component): TextInputBlock => {
 				const input: TextInput = TextInput()
 					.style('text-input-block-input')
 					.tweak(initialiser)
-					.event.subscribe('remove', () => {
+					.tweak(input => input.removed.awaitManual(true, () => {
 						inputs.filterInPlace(i => i !== input)
 						const firstInput = inputs.at(0)
 						firstInput?.style('text-input-block-input--first')
 						firstInput?.previousSibling?.remove() // remove previous divider if it exists
 						inputs.at(-1)?.style('text-input-block-input--last')
 						inputs.at(-1)?.parent?.style('text-input-block-input-wrapper--last')
-					})
+					}))
 					.appendTo(Component()
 						.style('text-input-block-input-wrapper')
 						.appendTo(block))

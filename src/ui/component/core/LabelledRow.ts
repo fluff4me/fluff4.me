@@ -25,6 +25,7 @@ const LabelledRow = Component.Builder((row): LabelledRow => {
 				if (label === newLabel)
 					return
 
+				Component.removeContents(label.element)
 				label.element.replaceWith(newLabel.element)
 				label = newLabel
 			},
@@ -35,6 +36,7 @@ const LabelledRow = Component.Builder((row): LabelledRow => {
 				if (content === newContent)
 					return
 
+				Component.removeContents(content.element)
 				content.element.replaceWith(newContent.element)
 				content = newContent
 			},

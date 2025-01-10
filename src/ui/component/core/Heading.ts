@@ -240,6 +240,8 @@ MarkdownContent.handle(element => {
 		const level = getHeadingLevel(element)
 
 		const heading = Heading().setAestheticStyle('markdown-heading')
+
+		Component.removeContents(heading.element)
 		heading.element.replaceChildren(...element.childNodes)
 		element.replaceWith(heading.element)
 		heading.emitInsert()
