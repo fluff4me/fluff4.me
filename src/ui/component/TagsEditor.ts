@@ -2,7 +2,7 @@ import quilt from 'lang/en-nz'
 import type { TagId } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
-import type { InputExtensions } from 'ui/component/core/ext/Input'
+import type { InputExtensions, InvalidMessageText } from 'ui/component/core/ext/Input'
 import Input from 'ui/component/core/ext/Input'
 import Sortable, { SortableDefinition } from 'ui/component/core/ext/Sortable'
 import ProgressWheel from 'ui/component/core/ProgressWheel'
@@ -206,11 +206,19 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 	//#endregion
 	////////////////////////////////////
 
+	const hiddenInput = Component('input')
+		.style('tags-editor-validity-pipe-input')
+		.tabIndex('programmatic')
+		.attributes.set('type', 'text')
+		.setName(`tags-editor-validity-pipe-input-${Math.random().toString(36).slice(2)}`)
+
 	const editor: TagsEditor = component
 		.and(Input)
 		.style('tags-editor')
 		.append(tagsContainer)
 		.append(inputWrapper)
+		.append(hiddenInput)
+		.pipeValidity(hiddenInput)
 		.extend<TagsEditorExtensions>(editor => ({
 			state: tagsState,
 			get tags () {
@@ -244,6 +252,16 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 		Input.createHintText(quilt['shared/form/tags/hint/custom']()),
 		ProgressWheel.Length(editor.lengthCustom, editor.maxLengthCustom),
 	))
+
+	tagsState.use(editor, tags => {
+		let invalid: InvalidMessageText
+		if (tags.global_tags.length > (editor.maxLengthGlobal.value ?? Infinity))
+			invalid = quilt['shared/form/invalid/tags/too-many-global']()
+		else if (tags.custom_tags.length > (editor.maxLengthCustom.value ?? Infinity))
+			invalid = quilt['shared/form/invalid/tags/too-many-custom']()
+
+		editor.setCustomInvalidMessage(invalid)
+	})
 
 	input.event.subscribe('keydown', event => {
 		if (event.key === 'Enter') {

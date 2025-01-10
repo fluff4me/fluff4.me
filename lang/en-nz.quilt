@@ -45,6 +45,8 @@ progress-wheel/remaining/label: {0}
 progress-wheel/progress/label: {0}%
 
 invalid/too-long: This text is too long.
+invalid/tags/too-many-global: Too many global tags.
+invalid/tags/too-many-custom: Too many custom tags.
 
 # component
 popover/button: open {0??details}{ 1??}
