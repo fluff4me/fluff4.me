@@ -1,4 +1,5 @@
 .text-editor:
+	%relative
 	%grid
 	%width-100
 	%border-1
@@ -12,6 +13,12 @@
 	::focus, ::active:
 		outline: -webkit-focus-ring-color auto 1px
 		outline-offset: 1px
+
+	&-validity-pipe-input:
+		%absolute
+		%inset-0
+		%transparent
+		%pointer-events-none
 
 	&-toolbar:
 		%font-3
