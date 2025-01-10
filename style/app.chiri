@@ -34,6 +34,10 @@
 			#tablet:
 				%hidden
 
+		@after:
+			%block
+			height: 12rem
+
 .masthead:
 	grid-area: masthead
 	grid-template-columns: subgrid
