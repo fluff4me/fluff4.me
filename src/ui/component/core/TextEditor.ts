@@ -23,7 +23,7 @@ import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Checkbutton from 'ui/component/core/Checkbutton'
 import Dialog from 'ui/component/core/Dialog'
-import type { InputExtensions } from 'ui/component/core/ext/Input'
+import type { InputExtensions, InvalidMessageText } from 'ui/component/core/ext/Input'
 import Input from 'ui/component/core/ext/Input'
 import type Label from 'ui/component/core/Label'
 import Popover from 'ui/component/core/Popover'
@@ -1172,6 +1172,12 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		unsubscribeLabelFor = undefined
 	}
 
+	const hiddenInput = Component('input')
+		.style('text-editor-validity-pipe-input')
+		.tabIndex('programmatic')
+		.attributes.set('type', 'text')
+		.setName(`text-editor-validity-pipe-input-${Math.random().toString(36).slice(2)}`)
+
 	const viewTransitionName = 'text-editor'
 	const actualEditor = Component()
 		.subviewTransition(viewTransitionName)
@@ -1184,11 +1190,13 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 			editor.document?.focus()
 		})
+		.append(hiddenInput)
 		.append(toolbar)
 
 	editor = Slot()
 		.and(Input)
 		.append(actualEditor)
+		.pipeValidity(hiddenInput)
 		.extend<TextEditorExtensions & Partial<InputExtensions>>(editor => ({
 			default: StringApplicator(editor, value => loadFromMarkdown(value)),
 			toolbar,
@@ -1254,6 +1262,16 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.setOwner(editor)
 		.bind(isFullscreen)
 		.appendTo(document.body)
+
+	editor.length.use(editor, (length = 0) => {
+		let invalid: InvalidMessageText
+		if (length > (editor.maxLength.value ?? Infinity))
+			invalid = quilt['shared/form/invalid/too-long']()
+
+		editor.setCustomInvalidMessage(invalid)
+		editor.document?.setCustomInvalidMessage(invalid)
+		hiddenInput.event.bubble('change')
+	})
 
 	//#endregion
 	vars(editor, actualEditor, documentSlot, scrollbarProxy, fullscreenDialog)
