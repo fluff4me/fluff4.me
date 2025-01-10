@@ -7,6 +7,7 @@ import Component from 'ui/Component'
 import ToastList from 'ui/component/core/toast/ToastList'
 import Masthead from 'ui/component/Masthead'
 import InputBus from 'ui/InputBus'
+import ActiveListener from 'ui/utility/ActiveListener'
 import FocusListener from 'ui/utility/FocusListener'
 import HoverListener from 'ui/utility/HoverListener'
 import Mouse from 'ui/utility/Mouse'
@@ -71,6 +72,7 @@ async function App (): Promise<App> {
 	])
 
 	HoverListener.listen()
+	ActiveListener.listen()
 	FocusListener.listen()
 	Mouse.listen()
 	Viewport.listen()
