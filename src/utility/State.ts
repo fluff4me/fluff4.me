@@ -1,6 +1,7 @@
 import type Component from 'ui/Component'
 import Arrays from 'utility/Arrays'
 import Define from 'utility/Define'
+import Functions from 'utility/Functions'
 import type { Mutable } from 'utility/Type'
 
 export type StateOr<T> = State<T> | T
@@ -66,7 +67,7 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 		},
 		equals: value => result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value) || false,
 		emit: () => {
-			for (const subscriber of result[SYMBOL_SUBSCRIBERS])
+			for (const subscriber of result[SYMBOL_SUBSCRIBERS].slice())
 				subscriber(result[SYMBOL_VALUE])
 			return result
 		},
@@ -81,28 +82,28 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 			return () => result.unsubscribe(subscriber)
 		},
 		subscribe: (owner, subscriber) => {
-			function onRemoved () {
-				owner.removed.unsubscribe(onRemoved)
+			if (owner.removed.value)
+				return Functions.NO_OP
+
+			function cleanup () {
+				owner.removed.unsubscribe(cleanup)
 				result.unsubscribe(subscriber)
-				fn[SYMBOL_UNSUBSCRIBE]?.delete(onRemoved)
+				fn[SYMBOL_UNSUBSCRIBE]?.delete(cleanup)
 			}
 
 			const fn = subscriber as SubscriberFunction<T>
 			fn[SYMBOL_UNSUBSCRIBE] ??= new Set()
-			fn[SYMBOL_UNSUBSCRIBE].add(onRemoved)
-			owner.removed.subscribeManual(onRemoved)
+			fn[SYMBOL_UNSUBSCRIBE].add(cleanup)
+			owner.removed.subscribeManual(cleanup)
 			result.subscribeManual(subscriber)
-			return () => {
-				result.unsubscribe(subscriber)
-				owner.removed.unsubscribe(onRemoved)
-			}
+			return cleanup
 		},
 		subscribeManual: subscriber => {
 			result[SYMBOL_SUBSCRIBERS].push(subscriber as never)
 			return () => result.unsubscribe(subscriber)
 		},
 		unsubscribe: subscriber => {
-			result[SYMBOL_SUBSCRIBERS] = result[SYMBOL_SUBSCRIBERS].filter(s => s !== subscriber)
+			result[SYMBOL_SUBSCRIBERS].filterInPlace(s => s !== subscriber)
 			return result
 		},
 		await (owner, values, then) {
@@ -192,9 +193,13 @@ namespace State {
 		}
 
 		result.observe = (owner, ...states) => {
+			if (owner.removed.value)
+				return result
+
 			for (const state of states)
 				state?.subscribeManual(result.refresh)
-			let unuseOwnerRemove: UnsubscribeState | undefined = owner.removed.useManual(removed => removed && onRemove())
+
+			let unuseOwnerRemove: UnsubscribeState | undefined = owner.removed.subscribeManual(removed => removed && onRemove())
 			return result
 
 			function onRemove () {
@@ -243,7 +248,7 @@ namespace State {
 		})
 
 		result.emit = () => {
-			for (const subscriber of result[SYMBOL_SUBSCRIBERS])
+			for (const subscriber of result[SYMBOL_SUBSCRIBERS].slice())
 				subscriber(undefined)
 			return result
 		}
