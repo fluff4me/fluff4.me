@@ -1,5 +1,5 @@
 import Component from 'ui/Component'
-import Strings from 'utility/string/Strings'
+import Markdown from 'utility/string/Markdown'
 
 interface MarkdownContentExtensions {
 	setMarkdownContent (markdown: string): this
@@ -16,7 +16,7 @@ const handlers: MarkdownContentHandler[] = []
 Component.extend(component => component.extend<MarkdownContentExtensions>(component => ({
 	setMarkdownContent (markdown) {
 		component.classes.add('markdown')
-		component.element.innerHTML = Strings.markdown.render(markdown)
+		component.element.innerHTML = Markdown.render(markdown)
 		for (const node of [...component.element.querySelectorAll('*')])
 			for (const handler of handlers)
 				handler(node as HTMLElement)
