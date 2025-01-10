@@ -124,5 +124,15 @@
 			%opaque
 
 	&-error:
+		%grid
+		%justify-items-centre
+		%gap-3
+		min-height: 12rem
+		grid-template-rows: 1fr auto auto 1fr
+
 		&-text:
+			%row-2
 		&-retry-button:
+			%width-fit
+			%height-fit
+			%row-3

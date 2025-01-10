@@ -216,6 +216,7 @@ const Paginator = Component.Builder((component): Paginator => {
 				.text.use('component/paginator/error'))
 			.append(Button()
 				.type('primary')
+				.style('paginator-error-retry-button')
 				.text.use('component/paginator/error/retry')
 				.event.subscribe('click', () => retry()))
 	}
