@@ -20,6 +20,11 @@
 	%font-kanit
 	; #outline colour=$background-2
 
+	&-text:
+		%block
+		%padding-bottom-1
+		line-height: 1.2em
+
 	#dec slant = 0.05
 	@before, @after:
 		%absolute

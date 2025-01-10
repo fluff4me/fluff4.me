@@ -1,6 +1,10 @@
 import Component from 'ui/Component'
 import MarkdownContent from 'ui/utility/MarkdownContent'
 import type { ComponentName } from 'ui/utility/StyleManipulator'
+import TextManipulator from 'ui/utility/TextManipulator'
+import Define from 'utility/Define'
+import Maths from 'utility/maths/Maths'
+import State from 'utility/State'
 
 interface ComponentHeadingExtensions {
 	containsHeading (): boolean
@@ -12,7 +16,7 @@ declare module 'ui/Component' {
 }
 
 export enum HeadingClasses {
-	_ContainsHeading = '_contains-heading'
+	_ContainsHeading = '_contains-heading',
 }
 
 Component.extend(component => component.extend<ComponentHeadingExtensions>(component => ({
@@ -38,6 +42,8 @@ interface HeadingExtensions {
 	setAestheticLevel (level?: HeadingLevel): this
 	/** Rather than using the default `heading-#` style, instead use a custom heading style */
 	setAestheticStyle (style?: HeadingStylePrefix): this
+	setResizeRange (idealLength?: number, maxLength?: number): this
+	clearResizeRange (): this
 }
 
 interface Heading extends Component, HeadingExtensions { }
@@ -45,17 +51,39 @@ interface Heading extends Component, HeadingExtensions { }
 const Heading = Component.Builder('h1', (component): Heading => {
 	component.style('heading')
 
-	component.text.state.use(component, text => component.setId(text?.toString().toLowerCase().replace(/\W+/g, '-')))
+	const textWrapper = Component()
+		.style('heading-text')
+		.appendTo(component)
+
+	Define.set(component, 'text', TextManipulator(component, textWrapper))
+
+	let initial = true
+	let aestheticLevel: HeadingLevel | undefined
+	let aestheticStyle: HeadingStylePrefix | undefined
+	interface ResizeRange {
+		minLength: number
+		maxLength: number
+	}
+	const resizeRange = State<ResizeRange | undefined>(undefined)
+
+	State.Map(component, [component.text.state, resizeRange], (...args) => args)
+		.use(component, ([text, resizeRange]) => {
+			component.setId(text?.toString().toLowerCase().replace(/\W+/g, '-'))
+
+			if (!resizeRange)
+				return
+
+			const length = text?.length ?? 0
+			const t = 1 - Maths.clamp1(Maths.unlerp(resizeRange.minLength, resizeRange.maxLength, length))
+			const size = Maths.lerp(0.5, 1, t)
+			textWrapper.style.setProperty('font-size', `${size}em`)
+		})
 
 	component.tabIndex('programmatic')
 
 	component.receiveAncestorInsertEvents()
 	component.event.subscribe(['insert', 'ancestorInsert'], updateHeadingLevel)
 	component.rooted.subscribeManual(updateHeadingLevel)
-
-	let initial = true
-	let aestheticLevel: HeadingLevel | undefined
-	let aestheticStyle: HeadingStylePrefix | undefined
 
 	return component.extend<HeadingExtensions>(heading => ({
 		setAestheticLevel (level) {
@@ -87,6 +115,14 @@ const Heading = Component.Builder('h1', (component): Heading => {
 		},
 		updateLevel: () => {
 			updateHeadingLevel()
+			return heading
+		},
+		setResizeRange (minLength, maxLength) {
+			resizeRange.value = minLength === undefined || maxLength === undefined ? undefined : { minLength, maxLength }
+			return heading
+		},
+		clearResizeRange () {
+			resizeRange.value = undefined
 			return heading
 		},
 	}))

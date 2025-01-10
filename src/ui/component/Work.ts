@@ -1,4 +1,5 @@
 import type { Author, Work as WorkData, WorkFull } from 'api.fluff4.me'
+import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
@@ -32,6 +33,7 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 	block.title
 		.style('work-name')
 		.text.set(work.name)
+		.setResizeRange(32, FormInputLengths.manifest?.work.name)
 
 	if (author)
 		block.description
