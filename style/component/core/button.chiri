@@ -77,10 +77,21 @@ $$button-background-highlight!colour
 		%box-shadow-none
 		%opacity-30
 		%cursor-default
+		%pointer-events-none
 
 		::hover, ::focus, ::active:
 			%translate-y-0
 			%box-shadow-none
+
+		&--hover:
+			#after: .button, .button--disabled
+			$button-background: $background-interact-5
+			$transition-duration: $transition-focus
+
+		&--active:
+			#after: .button, .button--disabled, .button--disabled--hover
+			%box-shadow-inset-1
+			$transition-duration: $transition-action
 
 	#list!string icons = [
 		"plus
