@@ -42,20 +42,24 @@ interface CommentMetadata {
 	isRootComment?: true
 	noSiblings?: true
 	hasParent?: true
+	hasGrandparent?: true
 }
 
 const Comment = Component.Builder((component, source: CommentDataSource, commentData: CommentData | CommentEditor, meta?: CommentMetadata): Comment => {
 	const comment = component.and(Slot)
 		.style('comment')
-		.style.toggle(!meta?.noSiblings, 'comment--has-siblings')
 		.extend<CommentExtensions>(comment => ({}))
 
 	const comments = source.comments.map(comment, comments =>
 		comments.filter(comment => comment === commentData || comment.parent_id === commentData.comment_id))
 
 	comment.use(comments, (slot, commentsData) => {
-		const hasSiblings = !meta?.noSiblings && !!meta?.hasParent
-		comment.style.toggle(hasSiblings, 'comment--has-siblings')
+		const isThread = false
+			// has siblings & is not a top level comment
+			|| (!meta?.noSiblings && !!meta?.hasParent)
+			// has a parent that is a top level comment
+			|| !!(meta?.hasParent && !meta.hasGrandparent)
+		comment.style.toggle(isThread, 'comment--is-thread')
 
 		const content = Component()
 			.style('comment-content')
@@ -258,7 +262,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 				continue
 
 			const noSiblings = commentsData.length <= 2 ? true : undefined
-			Comment(source, comment, { noSiblings, hasParent: !meta?.isRootComment ? true : undefined, depth: (meta?.depth ?? 0) + 1 })
+			Comment(source, comment, { noSiblings, hasParent: !meta?.isRootComment ? true : undefined, hasGrandparent: meta?.hasParent, depth: (meta?.depth ?? 0) + 1 })
 				.appendTo(childrenWrapper)
 		}
 	})

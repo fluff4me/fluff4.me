@@ -79,7 +79,7 @@
 			#after: .comment-children
 			%margin-bottom-0
 
-	&--has-siblings:
+	&--is-thread:
 		%padding-left-3
 		%margin-left-1
 		%border-left-2
