@@ -39,7 +39,7 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 			type CommentQueryFunction = EndpointReturn<'/comments/{under}'>
 
 			const query = State<CommentQueryFunction | undefined>(undefined)
-			query.value = EndpointCommentGetAllUnder.prep({ params: { under } }).setPageSize(1).query
+			query.value = EndpointCommentGetAllUnder.prep({ params: { under } }).query
 
 			Comment({ comments, authors }, comment, isRootComment)
 				.appendTo(component)
