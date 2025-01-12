@@ -8,7 +8,6 @@ import Comment from 'ui/component/Comment'
 import Button from 'ui/component/core/Button'
 import Slot from 'ui/component/core/Slot'
 import AbortPromise from 'utility/AbortPromise'
-import Arrays from 'utility/Arrays'
 import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
 
@@ -26,11 +25,16 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 	Slot()
 		.use(Session.Auth.author, AbortPromise.asyncFunction(async (signal, slot, author) => {
 			const comment: CommentData = { comment_id: under }
-			const comments = State<(CommentData | CommentEditor)[]>([
-				comment,
-				author && { edit: true, parent_id: under, author: author.vanity } as CommentEditor,
-			].filter(Arrays.filterNullish))
+			const comments = State<(CommentData | CommentEditor)[]>([comment])
 			const authors = State<Author[]>(!author ? [] : [author])
+
+			if (author)
+				comments.use(component, commentsData => {
+					if (!commentsData[0].edit) {
+						commentsData.unshift({ edit: true, parent_id: under, author: author.vanity } as CommentEditor)
+						comments.emit()
+					}
+				})
 
 			type CommentQueryFunction = EndpointReturn<'/comments/{under}'>
 
