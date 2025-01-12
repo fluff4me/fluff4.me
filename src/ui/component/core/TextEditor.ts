@@ -1303,11 +1303,12 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	}
 
 	function saveLocal (name = editor.document?.name.value, doc?: Node) {
+		const body = !doc ? '' : markdownSerializer.serialize(doc)
+		content.value = body
+
 		if (!name)
 			return
 
-		const body = !doc ? '' : markdownSerializer.serialize(doc)
-		content.value = body
 		editor.length.value = body.length
 		if (body === editor.default.state.value)
 			return clearLocal()
