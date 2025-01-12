@@ -8,7 +8,7 @@
 	%block-border-shadow
 	%scheme-light-dark
 	%border-box
-	max-width: #{content-width}
+	%width-clamp-content
 	#block
 
 	:container root (width <= #{content-width}):

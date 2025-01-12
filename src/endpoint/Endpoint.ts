@@ -201,8 +201,13 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 				Object.assign(json, {
 					next: () => query({
 						...data,
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-						query: { ...data?.query, page: (data?.query?.page ?? 0) + 1 },
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+						query: {
+							...data?.query,
+							...[...params].toObject(),
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+							page: +(params.get('page') ?? data?.query?.page ?? json.page ?? 0) + 1,
+						},
 					}),
 					getPage: (page: number) => query({
 						...data,
@@ -224,6 +229,7 @@ export default Endpoint
 
 export type EndpointResponse<ENDPOINT extends Endpoint<any, any>> = Exclude<Awaited<ReturnType<ENDPOINT['query']>>, ErrorResponse<any> | void>
 export type ResponseData<RESPONSE> = RESPONSE extends Response<infer DATA> ? DATA : never
+export type EndpointReturn<PATH extends keyof Paths> = () => ReturnType<Endpoint<PATH>['query']>
 
 export type PaginatedEndpointRoutes = keyof {
 	[PATH in keyof Paths as (

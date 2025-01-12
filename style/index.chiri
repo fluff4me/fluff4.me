@@ -10,9 +10,7 @@
 	macro/block
 
 #import:
-	mixin/block
-
-#import:
+	mixins
 	root
 	misc
 
@@ -61,6 +59,7 @@
 	component/chapter
 	component/oauth-service
 	component/tags-editor
+	component/comment
 
 #import:
 	view/view

@@ -1,6 +1,14 @@
 #font-face family="Font Awesome":
-	style: normal
-	weight: 900
+	font-style: normal
+	font-weight: 400
+	display: inline-block
+	src:
+		url('../font/fa-regular-400.woff2') format('woff2'),
+		url('../font/fa-regular-400.ttf') format('truetype')
+
+#font-face family="Font Awesome":
+	font-style: normal
+	font-weight: 900
 	display: inline-block
 	src:
 		url('../font/fa-solid-900.woff2') format('woff2'),
@@ -9,6 +17,7 @@
 #font-family
 	name="Font Awesome
 	scale-factor=0.8
+	weight-bolder=900
 
 ; https://fontawesome.com/search?o=r&m=free&s=solid&f=classic
 #function get-icon returns string:
@@ -2505,6 +2514,7 @@
 	%padding-2-3
 	%font-4
 	%font-font-awesome
+	%weight-bolder
 	%content-box
 	%size-em
 

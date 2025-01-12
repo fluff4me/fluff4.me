@@ -1,3 +1,4 @@
+export type UUID = `${string}-${string}-${string}-${string}-${string}`
 
 namespace Strings {
 	export type Replace<STRING extends string, MATCH extends string, REPLACE extends string> =
