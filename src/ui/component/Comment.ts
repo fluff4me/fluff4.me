@@ -95,6 +95,20 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 					.style('comment-footer', 'comment-footer--editing')
 					.appendTo(content)
 
+				if (commentData.comment_id)
+					Button()
+						.style('comment-footer-action')
+						.text.use('comment/action/delete')
+						.event.subscribe('click', async () => {
+							const response = await EndpointCommentRemove.query({ params: { id: commentData.comment_id! } })
+							if (response instanceof Error)
+								return
+
+							source.comments.value.filterInPlace(comment => comment !== commentData)
+							source.comments.emit()
+						})
+						.appendTo(footer.right)
+
 				Button()
 					.style('comment-footer-action')
 					.text.use('comment/action/cancel')
