@@ -1,5 +1,6 @@
 import type { Author, CommentResolved as CommentDataRaw } from 'api.fluff4.me'
 import EndpointCommentAdd from 'endpoint/comment/EndpointCommentAdd'
+import EndpointCommentRemove from 'endpoint/comment/EndpointCommentRemove'
 import EndpointCommentUpdate from 'endpoint/comment/EndpointCommentUpdate'
 import EndpointReactComment from 'endpoint/reaction/EndpointReactComment'
 import EndpointUnreactComment from 'endpoint/reaction/EndpointUnreactComment'
@@ -36,20 +37,36 @@ interface CommentDataSource {
 	authors: State<Author[]>
 }
 
-const Comment = Component.Builder((component, source: CommentDataSource, commentData: CommentData | CommentEditor, isRootComment?: true, noSiblings?: true): Comment => {
+interface CommentMetadata {
+	depth?: number
+	isRootComment?: true
+	noSiblings?: true
+	hasParent?: true
+}
+
+const Comment = Component.Builder((component, source: CommentDataSource, commentData: CommentData | CommentEditor, meta?: CommentMetadata): Comment => {
 	const comment = component.and(Slot)
 		.style('comment')
+		.style.toggle(!meta?.noSiblings, 'comment--has-siblings')
 		.extend<CommentExtensions>(comment => ({}))
 
 	const comments = source.comments.map(comment, comments =>
 		comments.filter(comment => comment === commentData || comment.parent_id === commentData.comment_id))
 
 	comment.use(comments, (slot, commentsData) => {
-		if (commentData && !isRootComment) {
+		const hasSiblings = !meta?.noSiblings && !!meta?.hasParent
+		comment.style.toggle(hasSiblings, 'comment--has-siblings')
+
+		const content = Component()
+			.style('comment-content')
+			.style.setProperty('z-index', `${100 - (meta?.depth ?? 0)}`)
+			.appendTo(slot)
+
+		if (commentData && !meta?.isRootComment) {
 			const header = Component('header')
 				.style('comment-header')
 				.style.toggle(!!commentData.edit, 'comment-header--editing')
-				.appendTo(slot)
+				.appendTo(content)
 
 			const author = source.authors.value.find(author => author.vanity === commentData.author)
 			Link(!author?.vanity ? undefined : `/author/${author.vanity}`)
@@ -70,15 +87,16 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 				const textEditor = TextEditor()
 					.default.set(commentData.body?.body ?? '')
-					.appendTo(slot)
+					.appendTo(content)
 
 				textEditor.content.use(header, markdown => commentData.body = { body: markdown })
 
 				const footer = Component('footer').and(ActionRow)
 					.style('comment-footer', 'comment-footer--editing')
-					.appendTo(slot)
+					.appendTo(content)
 
 				Button()
+					.style('comment-footer-action')
 					.text.use('comment/action/cancel')
 					.event.subscribe('click', () => {
 						if (commentData.created_time)
@@ -90,6 +108,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 					.appendTo(footer.right)
 
 				Button()
+					.style('comment-footer-action')
 					.type('primary')
 					.text.use('comment/action/save')
 					.event.subscribe('click', async () => {
@@ -126,7 +145,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 				Component()
 					.style('comment-body')
 					.setMarkdownContent(commentData.body?.body ?? quilt['comment/deleted/body']().toString())
-					.appendTo(slot)
+					.appendTo(content)
 
 				Slot()
 					.use(Session.Auth.author, (slot, author) => {
@@ -135,7 +154,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 						const footer = Component('footer')
 							.style('comment-footer')
-							.appendTo(slot)
+							.appendTo(content)
 
 						Component()
 							.style('comment-footer-reaction')
@@ -205,9 +224,18 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 		if (!commentData.comment_id || commentsData.length <= 1)
 			return
 
+		const hasChildren = commentsData.length > 2
+
+		const shouldBeFlush = false
+			|| !!meta?.isRootComment
+			// this is part of a thread, so flatten it
+			|| (meta?.noSiblings && !hasChildren)
+			// border is handled by child comments rather than being on the wrapper
+			|| (commentsData.length > 3)
+
 		const childrenWrapper = Component()
 			.style('comment-children')
-			.style.toggle(!!isRootComment || (commentsData.length <= 2 && !!noSiblings), 'comment-children--flush')
+			.style.toggle(shouldBeFlush, 'comment-children--flush')
 			.appendTo(slot)
 
 		const timeValue = (c: CommentData | CommentEditor) => !c.created_time ? Infinity : new Date(c.created_time).getTime()
@@ -215,8 +243,8 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 			if (comment === commentData)
 				continue
 
-			const hasSiblings = commentsData.length <= 2 ? true : undefined
-			Comment(source, comment, undefined, hasSiblings)
+			const noSiblings = commentsData.length <= 2 ? true : undefined
+			Comment(source, comment, { noSiblings, hasParent: !meta?.isRootComment ? true : undefined, depth: (meta?.depth ?? 0) + 1 })
 				.appendTo(childrenWrapper)
 		}
 	})

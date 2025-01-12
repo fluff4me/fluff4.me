@@ -41,7 +41,7 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 			const query = State<CommentQueryFunction | undefined>(undefined)
 			query.value = EndpointCommentGetAllUnder.prep({ params: { under } }).query
 
-			Comment({ comments, authors }, comment, isRootComment)
+			Comment({ comments, authors }, comment, { isRootComment: true, noSiblings: true })
 				.appendTo(component)
 
 			await loadMore()
