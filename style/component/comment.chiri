@@ -1,10 +1,20 @@
 .comment:
 	#after: .slot
 	%block
+	%relative
 
 	&-list:
 		%width-100
 		%width-clamp-content
+		; %padding-3-4
+		; %border-radius-2
+		; %background-2
+
+	&-content:
+		; %block
+		; %sticky
+		; %background-2
+		; %top-0
 
 	&-header:
 		%unmargin-bottom-2
@@ -56,20 +66,26 @@
 			%font-2
 
 		&--editing:
-			%margin-top-3
+			#after: .comment-footer
+			%margin-top-2
+			%margin-bottom-0
 
 	&-children:
-		%padding-left-3
-		%border-left-2
 		%flex
 		%flex-column
 		%gap-2
-		%margin-bottom-3
-		$border-colour: $colour-11
 
 		&--flush:
 			#after: .comment-children
-			%padding-0
 			%margin-bottom-0
-			%borderless
 
+	&--has-siblings:
+		%padding-left-3
+		%margin-left-1
+		%border-left-2
+		%border-bottom-left-radius-2
+		$border-colour: $colour-11
+		%margin-bottom-2
+
+		:last:
+			%margin-bottom-3
