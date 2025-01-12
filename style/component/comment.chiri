@@ -3,6 +3,7 @@
 	%block
 
 	&-list:
+		%width-100
 		%width-clamp-content
 
 	&-header:
