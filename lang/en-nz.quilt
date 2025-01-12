@@ -137,6 +137,7 @@ action/reply: Reply
 action/edit=shared/action/edit
 action/cancel=shared/action/cancel
 action/save=shared/action/save
+action/delete=shared/action/delete
 
 # view
 container/alt: main content
