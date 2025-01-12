@@ -1,0 +1,74 @@
+.comment:
+	#after: .slot
+	%block
+
+	&-list:
+		%width-clamp-content
+
+	&-header:
+		%unmargin-bottom-2
+
+		&-author:
+
+		&-timestamp:
+			%font-2
+			%margin-left-3
+			%style-normal
+
+		&--editing:
+			#after: .comment-header
+			%margin-bottom-2
+
+	&-body:
+		#after: .markdown
+		%wrap-words
+		@after:
+			%hidden
+
+	&-footer:
+		%flex
+		%gap-3
+		%align-items-centre
+		%unmargin-top-3
+		%margin-bottom-2
+
+		&-reaction:
+			%flex
+			%gap-2
+
+			&-button:
+				#after: .button
+				%padding-0
+				%font-3
+				%weight-normal
+
+				&--reacted:
+					#after: .comment-footer-reaction-button
+					%weight-bolder
+
+			&-count:
+				%font-2
+
+		&-action:
+			#after: .button
+			%padding-1-2
+			%font-2
+
+		&--editing:
+			%margin-top-3
+
+	&-children:
+		%padding-left-3
+		%border-left-2
+		%flex
+		%flex-column
+		%gap-2
+		%margin-bottom-3
+		$border-colour: $colour-11
+
+		&--flush:
+			#after: .comment-children
+			%padding-0
+			%margin-bottom-0
+			%borderless
+

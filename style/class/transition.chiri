@@ -9,13 +9,13 @@ $$view-transition-delay!*: placeholder-delay-class
 	$backdrop-filter-override: none
 
 	@view-transition-class!old:
-		#animate #{.3 * duration-multiplier}s ease-out both:
+		#animate #{.15 * duration-multiplier}s ease-out both:
 			to:
 				translate: 0 $space-5
 				opacity: 0
 
 	@view-transition-class!new:
-		#animate #{.5 * duration-multiplier}s ease-out backwards:
+		#animate #{.3 * duration-multiplier}s ease-out backwards:
 			from:
 				translate: 0 $space-4
 				opacity: 0

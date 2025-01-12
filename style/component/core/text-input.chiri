@@ -10,6 +10,6 @@
 	%border-box
 	%border-1
 	%border-radius-1
-	$border-colour: $block-border-colour
+	$border-colour: $colour-border-input
 	background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
 	%background-unclip

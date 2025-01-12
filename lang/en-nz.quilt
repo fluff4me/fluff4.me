@@ -20,7 +20,7 @@ edit: Edit
 follow: Follow
 ignore: Ignore
 delete: Delete{ 0??}
-save: Save Changes
+save: Save
 create: Create!
 cancel: Cancel
 confirm: Confirm
@@ -128,6 +128,15 @@ description/empty: This work has no description.
 
 # author
 description/empty: This author prefers to remain elusive and mysterious...
+
+# comment
+timestamp/edited: Edited {0}
+deleted/body: *This comment has been deleted...*
+deleted/author: unknown
+action/reply: Reply
+action/edit=shared/action/edit
+action/cancel=shared/action/cancel
+action/save=shared/action/save
 
 # view
 container/alt: main content

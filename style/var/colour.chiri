@@ -20,3 +20,5 @@
 	#for var o = 1, o < 100, set o++:
 		%background-light-#{i}-a#{o}: background: color-mix(in lch, $light-#{i}, transparent #{100 - o}%)
 		%background-dark-#{i}-a#{o}: background: color-mix(in lch, $dark-#{i}, transparent #{100 - o}%)
+
+$colour-border-input: $colour-11

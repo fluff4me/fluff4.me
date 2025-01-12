@@ -642,10 +642,11 @@ const BLOCK_TYPES = [
 type BlockType = (typeof BLOCK_TYPES)[number]
 
 interface TextEditorExtensions {
-	toolbar: Component
+	readonly toolbar: Component
+	readonly default: StringApplicator.Optional<this>
+	readonly content: State<string>
 	document?: Input
 	mirror?: EditorView
-	default: StringApplicator.Optional<this>
 	useMarkdown (): string
 }
 
@@ -1071,6 +1072,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.append(actualEditor)
 		.pipeValidity(hiddenInput)
 		.extend<TextEditorExtensions & Partial<InputExtensions>>(editor => ({
+			content,
 			default: StringApplicator(editor, value => loadFromMarkdown(value)),
 			toolbar,
 			setRequired (required = true) {
@@ -1305,6 +1307,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			return
 
 		const body = !doc ? '' : markdownSerializer.serialize(doc)
+		content.value = body
 		editor.length.value = body.length
 		if (body === editor.default.state.value)
 			return clearLocal()

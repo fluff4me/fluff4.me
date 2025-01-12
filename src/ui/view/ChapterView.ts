@@ -4,12 +4,15 @@ import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import quilt from 'lang/en-nz'
+import Comments from 'ui/component/Comments'
 import Link from 'ui/component/core/Link'
+import Slot from 'ui/component/core/Slot'
 import Work from 'ui/component/Work'
 import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import Maths from 'utility/maths/Maths'
 import State from 'utility/State'
+import type { UUID } from 'utility/string/Strings'
 
 export default ViewDefinition({
 	create: async (params: ChapterParams) => {
@@ -58,6 +61,15 @@ export default ViewDefinition({
 		paginator.footer.style('view-type-chapter-block-paginator-actions')
 
 		paginator.data.use(paginator, chapter => chapterState.value = chapter)
+
+		Slot()
+			.use(paginator.data, (slot, chapter) => {
+				if (!chapter.root_comment)
+					return
+
+				return Comments(chapter.root_comment as UUID, true)
+			})
+			.appendTo(view)
 
 		return view
 	},
