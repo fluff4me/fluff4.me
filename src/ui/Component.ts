@@ -10,6 +10,7 @@ import StyleManipulator from 'ui/utility/StyleManipulator'
 import TextManipulator from 'ui/utility/TextManipulator'
 import Viewport from 'ui/utility/Viewport'
 import Arrays from 'utility/Arrays'
+import Async from 'utility/Async'
 import Define from 'utility/Define'
 import Env from 'utility/Env'
 import Errors from 'utility/Errors'
@@ -782,8 +783,18 @@ namespace Component {
 		const initialBuilder: (type?: keyof HTMLElementTagNameMap) => Component = !builder || typeof initialOrBuilder === 'string' ? defaultBuilder : initialOrBuilder
 		builder ??= initialOrBuilder as AnyFunction
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-		const realBuilder = (component = initialBuilder(type), ...params: any[]) => builder(component, ...params)
+		const realBuilder = (component = initialBuilder(type), ...params: any[]) => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			const result = builder(component, ...params)
+			if (result instanceof Promise)
+				return result.then(result => {
+					void ensureOriginalComponentNotSubscriptionOwner(component)
+					return result
+				})
+
+			void ensureOriginalComponentNotSubscriptionOwner(component)
+			return result
+		}
 		const simpleBuilder = (...params: any[]) => {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			const component = realBuilder(undefined, ...params)
@@ -820,6 +831,21 @@ namespace Component {
 			component.supers.value.push(simpleBuilder)
 			component.supers.emit()
 			return component
+		}
+
+		async function ensureOriginalComponentNotSubscriptionOwner (original?: Component) {
+			if (!original || !State.OwnerMetadata.hasSubscriptions(original))
+				return
+
+			const originalRef = new WeakRef(original)
+			original = undefined
+			await Async.sleep(1000)
+
+			original = originalRef.deref()
+			if (!original || original.rooted.value || original.removed.value)
+				return
+
+			console.error(`${String(name ?? 'Component')} builder returned a replacement component, but the original component was used as a subscription owner and is not in the tree!`)
 		}
 	}
 
