@@ -133,6 +133,7 @@ description/empty: This author prefers to remain elusive and mysterious...
 timestamp/edited: Edited {0}
 deleted/body: *This comment has been deleted...*
 deleted/author: unknown
+hint: Make sure to be nice! Nobody wants pure critique.
 action/reply: Reply
 action/edit=shared/action/edit
 action/cancel=shared/action/cancel
