@@ -15,3 +15,23 @@ declare global {
 	}
 	type OrientationLockType = 'any' | 'landscape' | 'landscape-primary' | 'landscape-secondary' | 'natural' | 'portrait' | 'portrait-primary' | 'portrait-secondary'
 }
+
+namespace Type {
+
+	interface TypeMap {
+		string: string
+		number: number
+		boolean: boolean
+		object: object
+		function: AnyFunction
+		bigint: bigint
+		undefined: undefined
+		symbol: symbol
+	}
+
+	export function as<T extends keyof TypeMap> (type: T, value: unknown): TypeMap[T] | undefined {
+		return typeof value === type ? value as TypeMap[T] : undefined
+	}
+}
+
+export default Type
