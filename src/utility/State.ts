@@ -92,6 +92,7 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 				fn[SYMBOL_UNSUBSCRIBE]?.delete(cleanup)
 			}
 
+			State.OwnerMetadata.setHasSubscriptions(owner)
 			const fn = subscriber as SubscriberFunction<T>
 			fn[SYMBOL_UNSUBSCRIBE] ??= new Set()
 			fn[SYMBOL_UNSUBSCRIBE].add(cleanup)
@@ -169,6 +170,20 @@ namespace State {
 		return is<T>(value) ? value : State(value)
 	}
 
+	const SYMBOL_HAS_SUBSCRIPTIONS = Symbol('HAS_SUBSCRIPTIONS')
+	export interface OwnerMetadata {
+		[SYMBOL_HAS_SUBSCRIPTIONS]?: boolean
+	}
+	export namespace OwnerMetadata {
+		export function setHasSubscriptions (owner: Component) {
+			(owner as any as OwnerMetadata)[SYMBOL_HAS_SUBSCRIPTIONS] = true
+		}
+
+		export function hasSubscriptions (owner: Component) {
+			return (owner as any as OwnerMetadata)[SYMBOL_HAS_SUBSCRIPTIONS] === true
+		}
+	}
+
 	export interface Generator<T> extends ReadableState<T> {
 		refresh (): this
 		observe (owner: Component, ...states: (ReadableState<any> | undefined)[]): this
@@ -197,6 +212,8 @@ namespace State {
 		result.observe = (owner, ...states) => {
 			if (owner.removed.value)
 				return result
+
+			OwnerMetadata.setHasSubscriptions(owner)
 
 			for (const state of states)
 				state?.subscribeManual(result.refresh)
