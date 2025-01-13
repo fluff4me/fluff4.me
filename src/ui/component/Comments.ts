@@ -5,6 +5,7 @@ import Session from 'model/Session'
 import Component from 'ui/Component'
 import type { CommentData, CommentEditor } from 'ui/component/Comment'
 import Comment from 'ui/component/Comment'
+import { BlockClasses } from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import Slot from 'ui/component/core/Slot'
 import AbortPromise from 'utility/AbortPromise'
@@ -19,6 +20,7 @@ interface Comments extends Component, CommentsExtensions { }
 
 const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: true): Comments => {
 	const component = rawComponent
+		.classes.add(BlockClasses.Main)
 		.style('comment-list')
 		.extend<CommentsExtensions>(component => ({}))
 

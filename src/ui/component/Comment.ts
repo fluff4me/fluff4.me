@@ -5,6 +5,7 @@ import EndpointCommentUpdate from 'endpoint/comment/EndpointCommentUpdate'
 import EndpointReactComment from 'endpoint/reaction/EndpointReactComment'
 import EndpointUnreactComment from 'endpoint/reaction/EndpointUnreactComment'
 import quilt from 'lang/en-nz'
+import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
@@ -91,6 +92,8 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 				const textEditor = TextEditor()
 					.default.set(commentData.body?.body ?? '')
+					.setMaxLength(FormInputLengths.manifest?.comment.body)
+					.hint.use('comment/hint')
 					.appendTo(content)
 
 				textEditor.content.use(header, markdown => commentData.body = { body: markdown })
@@ -129,6 +132,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 					.style('comment-footer-action')
 					.type('primary')
 					.text.use('comment/action/save')
+					.bindDisabled(textEditor.invalid)
 					.event.subscribe('click', async () => {
 						if (!commentData.parent_id)
 							return
