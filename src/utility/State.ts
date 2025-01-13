@@ -15,13 +15,13 @@ interface ReadableState<T, E = T> {
 	readonly equals: <V extends T>(value: V) => boolean
 
 	/** Subscribe to state change events. Receive the initial state as an event. */
-	use (owner: Component, subscriber: (value: E, initial?: true) => unknown): UnsubscribeState
-	useManual (subscriber: (value: E, initial?: true) => unknown): UnsubscribeState
+	use (owner: Component, subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
+	useManual (subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
 	/** Subscribe to state change events. The initial state is not sent as an event. */
-	subscribe (owner: Component, subscriber: (value: E) => unknown): UnsubscribeState
-	subscribeManual (subscriber: (value: E) => unknown): UnsubscribeState
-	unsubscribe (subscriber: (value: E) => unknown): void
-	emit (): void
+	subscribe (owner: Component, subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
+	subscribeManual (subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
+	unsubscribe (subscriber: (value: E, oldValue?: E) => unknown): void
+	emit (oldValue?: E): void
 	await<R extends Arrays.Or<T>> (owner: Component, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): State<T>
 	awaitManual<R extends Arrays.Or<T>> (value: Arrays.Or<T>, then: (value: R extends (infer R)[] ? R : R) => unknown): State<T>
 
@@ -39,7 +39,7 @@ interface State<T> extends ReadableState<T> {
 
 const SYMBOL_UNSUBSCRIBE = Symbol('UNSUBSCRIBE')
 interface SubscriberFunction<T> {
-	(value: T): unknown
+	(value: T, oldValue: T): unknown
 	[SYMBOL_UNSUBSCRIBE]?: Set<() => void>
 }
 
@@ -47,7 +47,7 @@ const SYMBOL_VALUE = Symbol('VALUE')
 const SYMBOL_SUBSCRIBERS = Symbol('SUBSCRIBERS')
 interface InternalState<T> {
 	[SYMBOL_VALUE]: T
-	[SYMBOL_SUBSCRIBERS]: ((value: unknown) => unknown)[]
+	[SYMBOL_SUBSCRIBERS]: ((value: unknown, oldValue: unknown) => unknown)[]
 }
 
 function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> {
@@ -62,23 +62,24 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 			if (result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value))
 				return
 
+			const oldValue = result[SYMBOL_VALUE]
 			result[SYMBOL_VALUE] = value
-			result.emit()
+			result.emit(oldValue)
 		},
 		equals: value => result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value) || false,
-		emit: () => {
+		emit: oldValue => {
 			for (const subscriber of result[SYMBOL_SUBSCRIBERS].slice())
-				subscriber(result[SYMBOL_VALUE])
+				subscriber(result[SYMBOL_VALUE], oldValue)
 			return result
 		},
 		use: (owner, subscriber) => {
 			result.subscribe(owner, subscriber)
-			subscriber(result[SYMBOL_VALUE], true)
+			subscriber(result[SYMBOL_VALUE], undefined)
 			return () => result.unsubscribe(subscriber)
 		},
 		useManual: subscriber => {
 			result.subscribeManual(subscriber)
-			subscriber(result[SYMBOL_VALUE], true)
+			subscriber(result[SYMBOL_VALUE], undefined)
 			return () => result.unsubscribe(subscriber)
 		},
 		subscribe: (owner, subscriber) => {
@@ -187,8 +188,9 @@ namespace State {
 			if (result.equals(value))
 				return result
 
+			const oldValue = result[SYMBOL_VALUE]
 			result[SYMBOL_VALUE] = value
-			result.emit()
+			result.emit(oldValue)
 			return result
 		}
 
@@ -249,14 +251,15 @@ namespace State {
 
 		result.emit = () => {
 			for (const subscriber of result[SYMBOL_SUBSCRIBERS].slice())
-				subscriber(undefined)
+				subscriber(undefined, cached)
 			return result
 		}
 
 		result.markDirty = () => {
+			const oldValue = cached
 			isCached = false
 			cached = undefined
-			result.emit()
+			result.emit(oldValue as undefined)
 			return result
 		}
 
