@@ -2,7 +2,7 @@
 
 	&-list:
 		#after: .paginator-page
-		%grid
+		$paginator-page-display: grid
 		grid-template-columns: auto 1fr auto auto
 
 	#after: .link
