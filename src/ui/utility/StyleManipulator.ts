@@ -5,10 +5,19 @@ import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
 Env.onLoad('dev', () => {
-	for (const component in style) {
-		const classes = style[component as keyof typeof style]
-		if (classes.length)
-			document.documentElement.setAttribute(`chiridata:${component}`, JSON.stringify(classes))
+	Object.assign(window, { writeChiridata })
+	writeChiridata()
+
+	function writeChiridata () {
+		for (const attribute of [...document.documentElement.attributes])
+			if (attribute.name.startsWith('chiridata:'))
+				document.documentElement.removeAttribute(attribute.name)
+
+		for (const component in style) {
+			const classes = style[component as keyof typeof style]
+			if (classes.length)
+				document.documentElement.setAttribute(`chiridata:${component}`, JSON.stringify(classes))
+		}
 	}
 })
 
