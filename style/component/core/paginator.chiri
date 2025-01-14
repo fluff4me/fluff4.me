@@ -91,7 +91,6 @@
 
 	&-page:
 		display: ${paginator-page-display: flex}
-		%flex
 		%flex-column
 		#transition: #{transition("opacity")}, #{transition("translate")}, #{transition("display")}
 		%transition-discrete
