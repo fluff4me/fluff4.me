@@ -1,7 +1,16 @@
 import style from 'style'
 import type Component from 'ui/Component'
+import Env from 'utility/Env'
 import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
+
+Env.onLoad('dev', () => {
+	for (const component in style) {
+		const classes = style[component as keyof typeof style]
+		if (classes.length)
+			document.documentElement.setAttribute(`chiridata:${component}`, JSON.stringify(classes))
+	}
+})
 
 export type ComponentName = keyof typeof style
 export type ComponentNameType<PREFIX extends string> = keyof { [KEY in ComponentName as KEY extends `${PREFIX}-${infer TYPE}--${string}` ? TYPE
@@ -149,7 +158,14 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 	return result
 
 	function updateClasses (deletedStyles?: ComponentName[]) {
-		const toAdd = [...styles].flatMap(component => style[component])
+		const stylesArray = [...styles]
+
+		if (!component.attributes.has('component'))
+			component.attributes.insertBefore('class', 'component')
+
+		component.attributes.set('component', stylesArray.join(' '))
+
+		const toAdd = stylesArray.flatMap(component => style[component])
 		const toRemove = deletedStyles?.flatMap(component => style[component]).filter(cls => !toAdd.includes(cls))
 
 		if (toRemove)
