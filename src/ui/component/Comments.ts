@@ -65,8 +65,8 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 				if (result instanceof Error)
 					throw result
 
-				comments.value.push(...result.data.comments as CommentData[]); comments.emit()
 				authors.value.push(...result.data.authors); authors.emit()
+				comments.value.push(...result.data.comments as CommentData[]); comments.emit()
 
 				query.value = result.next
 			}
