@@ -1,0 +1,16 @@
+.reaction:
+	%flex
+	%gap-2
+
+	&-button:
+		#after: .button
+		%padding-0
+		%font-3
+		%weight-normal
+
+		&--reacted:
+			#after: .reaction-button
+			%weight-bolder
+
+	&-count:
+		%font-2

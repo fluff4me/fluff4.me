@@ -1,6 +1,6 @@
 import type { AuthorAuthorised, AuthorFull, Paths } from 'api.fluff4.me'
 import { type Authorisation, type AuthService, type Session } from 'api.fluff4.me'
-import EndpointAuthRemove from 'endpoint/auth/EndpointAuthRemove'
+import EndpointAuthRemove from 'endpoint/auth/EndpointAuthDelete'
 import EndpointSessionGet from 'endpoint/session/EndpointSessionGet'
 import EndpointSessionReset from 'endpoint/session/EndpointSessionReset'
 import type Component from 'ui/Component'

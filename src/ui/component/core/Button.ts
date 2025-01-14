@@ -4,8 +4,8 @@ import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Type from 'utility/Type'
 
-type ButtonType = ComponentNameType<'button-type'>
-type ButtonIcon = ComponentNameType<'button-icon'>
+export type ButtonType = ComponentNameType<'button-type'>
+export type ButtonIcon = ComponentNameType<'button-icon'>
 
 interface ButtonTypeManipulator<HOST> {
 	(...buttonTypes: ButtonType[]): HOST

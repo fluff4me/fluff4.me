@@ -1,6 +1,6 @@
 import type { Author, CommentResolved as CommentDataRaw } from 'api.fluff4.me'
 import EndpointCommentAdd from 'endpoint/comment/EndpointCommentAdd'
-import EndpointCommentRemove from 'endpoint/comment/EndpointCommentRemove'
+import EndpointCommentDelete from 'endpoint/comment/EndpointCommentDelete'
 import EndpointCommentUpdate from 'endpoint/comment/EndpointCommentUpdate'
 import EndpointReactComment from 'endpoint/reaction/EndpointReactComment'
 import EndpointUnreactComment from 'endpoint/reaction/EndpointUnreactComment'
@@ -14,6 +14,7 @@ import Link from 'ui/component/core/Link'
 import Slot from 'ui/component/core/Slot'
 import TextEditor from 'ui/component/core/TextEditor'
 import Timestamp from 'ui/component/core/Timestamp'
+import Reaction from 'ui/component/Reaction'
 import type State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
 
@@ -107,7 +108,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 						.style('comment-footer-action')
 						.text.use('comment/action/delete')
 						.event.subscribe('click', async () => {
-							const response = await EndpointCommentRemove.query({ params: { id: commentData.comment_id! } })
+							const response = await EndpointCommentDelete.query({ params: { id: commentData.comment_id! } })
 							if (response instanceof Error)
 								return
 
@@ -178,41 +179,31 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 							.style('comment-footer')
 							.appendTo(content)
 
-						Component()
-							.style('comment-footer-reaction')
-							.append(
-								Button()
-									.style('comment-footer-reaction-button')
-									.style.toggle(!!commentData.reacted, 'comment-footer-reaction-button--reacted')
-									.setIcon('heart')
-									.event.subscribe('click', async () => {
-										if (commentData.reacted) {
-											const response = await EndpointUnreactComment.query({ params: { comment_id: commentData.comment_id } })
-											if (response instanceof Error)
-												return
+						Reaction('love', commentData.reactions ?? 0, !!commentData.reacted)
+							.event.subscribe('click', async () => {
+								if (commentData.reacted) {
+									const response = await EndpointUnreactComment.query({ params: { comment_id: commentData.comment_id } })
+									if (response instanceof Error)
+										return
 
-											delete commentData.reacted
-											commentData.reactions ??= 0
-											commentData.reactions--
-											if (commentData.reactions < 0)
-												delete commentData.reactions
-										}
-										else {
-											const response = await EndpointReactComment.query({ params: { comment_id: commentData.comment_id, type: 'love' } })
-											if (response instanceof Error)
-												return
+									delete commentData.reacted
+									commentData.reactions ??= 0
+									commentData.reactions--
+									if (commentData.reactions < 0)
+										delete commentData.reactions
+								}
+								else {
+									const response = await EndpointReactComment.query({ params: { comment_id: commentData.comment_id, type: 'love' } })
+									if (response instanceof Error)
+										return
 
-											commentData.reacted = true
-											commentData.reactions ??= 0
-											commentData.reactions++
-										}
+									commentData.reacted = true
+									commentData.reactions ??= 0
+									commentData.reactions++
+								}
 
-										comments.emit()
-									}),
-								commentData.reactions && Component()
-									.style('comment-footer-reaction-count')
-									.text.set(`${commentData.reactions}`),
-							)
+								comments.emit()
+							})
 							.appendTo(footer)
 
 						Button()
