@@ -6,6 +6,7 @@ import type State from 'utility/State'
 import type { UnsubscribeState } from 'utility/State'
 
 interface AttributeManipulator<HOST> {
+	has (attribute: string): boolean
 	get (attribute: string): string | undefined
 	/** Adds the given attributes with no values */
 	append (...attributes: string[]): HOST
@@ -14,6 +15,16 @@ interface AttributeManipulator<HOST> {
 	 * Note that prepending attributes requires removing all previous attributes, then re-appending them after.
 	 */
 	prepend (...attributes: string[]): HOST
+	/**
+	 * Inserts the given attributes before the reference attribute with no values.
+	 * Note that inserting attributes requires removing all previous attributes, then re-appending them after.
+	 */
+	insertBefore (referenceAttribute: string, ...attributes: string[]): HOST
+	/**
+	 * Inserts the given attributes after the reference attribute with no values.
+	 * Note that inserting attributes requires removing all previous attributes, then re-appending them after.
+	 */
+	insertAfter (referenceAttribute: string, ...attributes: string[]): HOST
 	/** Sets the attribute to `value`, or removes the attribute if `value` is `undefined` */
 	set (attribute: string, value?: string): HOST
 	bind (state: State<boolean>, attribute: string, value?: string): HOST
@@ -35,6 +46,9 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 	let translationHandlers: Record<string, Quilt.SimpleKey | Quilt.Handler> | undefined
 	const unuseAttributeMap = new Map<string, UnsubscribeState>()
 	const result: AttributeManipulator<Component> = {
+		has (attribute) {
+			return component.element.hasAttribute(attribute)
+		},
 		get (attribute) {
 			return component.element.getAttribute(attribute) ?? undefined
 		},
@@ -57,6 +71,44 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 
 			for (const name of Object.keys(oldAttributes))
 				component.element.setAttribute(name, oldAttributes[name])
+
+			return component
+		},
+		insertBefore (referenceAttribute, ...attributes) {
+			const oldAttributes: Record<string, string> = {}
+			for (const attribute of [...component.element.attributes]) {
+				oldAttributes[attribute.name] = attribute.value
+				component.element.removeAttribute(attribute.name)
+			}
+
+			for (const attribute of Object.keys(oldAttributes)) {
+				if (attribute === referenceAttribute)
+					for (const attribute of attributes)
+						component.element.setAttribute(attribute, oldAttributes[attribute] ?? '')
+
+				component.element.setAttribute(attribute, oldAttributes[attribute])
+			}
+
+			return component
+		},
+		insertAfter (referenceAttribute, ...attributes) {
+			const oldAttributes: Record<string, string> = {}
+			for (const attribute of [...component.element.attributes]) {
+				oldAttributes[attribute.name] = attribute.value
+				component.element.removeAttribute(attribute.name)
+			}
+
+			if (!(referenceAttribute in oldAttributes))
+				for (const attribute of attributes)
+					component.element.setAttribute(attribute, oldAttributes[attribute] ?? '')
+
+			for (const attribute of Object.keys(oldAttributes)) {
+				component.element.setAttribute(attribute, oldAttributes[attribute])
+
+				if (attribute === referenceAttribute)
+					for (const attribute of attributes)
+						component.element.setAttribute(attribute, oldAttributes[attribute] ?? '')
+			}
 
 			return component
 		},

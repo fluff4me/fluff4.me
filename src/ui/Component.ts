@@ -903,7 +903,7 @@ namespace Component {
 	function getBuilderName (): BuilderName | undefined {
 		const stack = Strings.shiftLine((new Error().stack ?? ''), 3)
 		const name = stack.match(STACK_FILE_NAME_REGEX)?.[1]
-		if (!name)
+		if (!name || name === 'Component')
 			return undefined
 
 		return addKebabCase(name)
