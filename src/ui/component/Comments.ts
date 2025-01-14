@@ -22,6 +22,7 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 	const component = rawComponent
 		.classes.add(BlockClasses.Main)
 		.style('comment-list')
+		.viewTransition('comments')
 		.extend<CommentsExtensions>(component => ({}))
 
 	Slot()
@@ -43,7 +44,7 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 			const query = State<CommentQueryFunction | undefined>(undefined)
 			query.value = EndpointCommentGetAllUnder.prep({ params: { under } }).query
 
-			Comment({ comments, authors }, comment, { isRootComment: true, noSiblings: true })
+			Comment({ comments, authors }, comment, { isRootComment, noSiblings: true })
 				.appendTo(component)
 
 			await loadMore()
