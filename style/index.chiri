@@ -60,6 +60,7 @@
 	component/oauth-service
 	component/tags-editor
 	component/comment
+	component/reaction
 
 #import:
 	view/view

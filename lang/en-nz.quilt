@@ -140,6 +140,9 @@ action/cancel=shared/action/cancel
 action/save=shared/action/save
 action/delete=shared/action/delete
 
+# chapter
+action/index: Index
+
 # view
 container/alt: main content
 

@@ -2,11 +2,15 @@ import type { Work as WorkData, WorkFull } from 'api.fluff4.me'
 import type { ChapterParams } from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
+import EndpointReactChapter from 'endpoint/reaction/EndpointReactChapter'
+import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import quilt from 'lang/en-nz'
 import Comments from 'ui/component/Comments'
+import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
 import Slot from 'ui/component/core/Slot'
+import Reaction from 'ui/component/Reaction'
 import Work from 'ui/component/Work'
 import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
@@ -59,6 +63,43 @@ export default ViewDefinition({
 
 		paginator.header.style('view-type-chapter-block-header')
 		paginator.footer.style('view-type-chapter-block-paginator-actions')
+
+		Link(`/work/${params.author}/${params.vanity}`)
+			.and(Button)
+			.type('flush')
+			.text.use('chapter/action/index')
+			.appendTo(paginator.footer.middle)
+
+		const reactions = chapterState.mapManual(chapter => chapter.reactions ?? 0)
+		const reacted = chapterState.mapManual(chapter => !!chapter.reacted)
+		Reaction('love', reactions, reacted)
+			.event.subscribe('click', async () => {
+				if (!author?.vanity)
+					return
+
+				const params = { author: author?.vanity, vanity: workData.vanity, url: chapterState.value.url, type: 'love' } as const
+				if (reacted.value) {
+					const response = await EndpointUnreactChapter.query({ params })
+					if (response instanceof Error)
+						return
+
+					delete chapterState.value.reacted
+					if (chapterState.value.reactions)
+						chapterState.value.reactions--
+					chapterState.emit()
+				}
+				else {
+					const response = await EndpointReactChapter.query({ params })
+					if (response instanceof Error)
+						return
+
+					chapterState.value.reacted = true
+					chapterState.value.reactions ??= 0
+					chapterState.value.reactions++
+					chapterState.emit()
+				}
+			})
+			.appendTo(paginator.footer.middle)
 
 		paginator.data.use(paginator, chapter => chapterState.value = chapter)
 
