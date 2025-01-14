@@ -115,9 +115,9 @@ export default ViewDefinition({
 				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 3.1', 'aaaaaaaaaaaaaaaaaaa', 'Public', false)
 				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 3.2', 'aaaaaaaaaaaaaaaaaaa', 'Private', false)
 				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 3.3', 'aaaaaaaaaaaaaaaaaaa', 'Public')
-				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 4', 'aaaaaaaaaaaaaaaaaaa', 'Public')
-				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 5', 'aaaaaaaaaaaaaaaaaaa', 'Public')
-				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 6', 'aaaaaaaaaaaaaaaaaaa', 'Public')
+				for (let i = 4; i < 50; i++) {
+					await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', `big story ${i}`, 'aaaaaaaaaaaaaaaaaaa', 'Public')
+				}
 				await BUTTON_REGISTRY.updateChapter.execute('justonestory', 'bigstory', 4, undefined, undefined, undefined, false)
 				await BUTTON_REGISTRY.viewChapter.execute('', 'justonestory', 'bigstory', 1)
 				await BUTTON_REGISTRY.viewWork.execute('big story five chapters', 'justonestory', 'bigstory')
