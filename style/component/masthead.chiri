@@ -74,3 +74,6 @@
 		%margin-right-2
 		%justify-content-end
 		grid-area: right
+
+	&-popover-link-button:
+		%text-align-left

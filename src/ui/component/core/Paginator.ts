@@ -23,7 +23,7 @@ interface PaginatorExtensions<DATA = any> {
 	readonly page: State<number>
 	readonly data: State<DATA>
 	useEndpoint<ROUTE extends PaginatedEndpointRoute, DATA extends ResponseData<EndpointResponse<Endpoint<ROUTE>>>> (endpoint: PreparedQueryOf<Endpoint<ROUTE>>, contentInitialiser: (slot: Slot, response: DATA, paginator: this) => unknown): Promise<this>
-	useInitial<DATA> (data: DATA, page: number, pageCount: number | true): PaginatorUseInitialFactory<DATA, this>
+	useInitial<DATA> (data: DATA | undefined, page: number, pageCount: number | true): PaginatorUseInitialFactory<DATA, this>
 	orElse (contentInitialiser: (slot: Slot) => unknown): this
 }
 
@@ -173,6 +173,9 @@ const Paginator = Component.Builder((component): Paginator => {
 		if (pageCount !== true)
 			while (pages.length < pageCount)
 				pages.push(Page())
+
+		else if (!pages.length)
+			pages.push(MainPage())
 
 		const pageComponent = pages[page]
 			.style('paginator-page--initial-load')

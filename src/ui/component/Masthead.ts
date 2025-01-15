@@ -1,3 +1,5 @@
+import EndpointNotificationGetUnread from 'endpoint/notification/EndpointNotificationGetUnread'
+import Notifications from 'model/Notifications'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
@@ -5,10 +7,12 @@ import Link from 'ui/component/core/Link'
 import type Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
 import Flag from 'ui/component/masthead/Flag'
+import NotificationList from 'ui/component/NotificationList'
 import PrimaryNav from 'ui/component/PrimaryNav'
 import Sidebar from 'ui/component/Sidebar'
 import Viewport from 'ui/utility/Viewport'
 import type ViewContainer from 'ui/view/shared/component/ViewContainer'
+import AbortPromise from 'utility/AbortPromise'
 import Env from 'utility/Env'
 import Task from 'utility/Task'
 
@@ -82,10 +86,20 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 
 	Component()
 		.style('masthead-user')
-		.append(Button()
+		.append(Slot().if(Session.Auth.loggedIn, () => Button()
 			.setIcon('bell')
 			.clearPopover()
-			.ariaLabel.use('masthead/user/notifications/alt'))
+			.ariaLabel.use('masthead/user/notifications/alt')
+			.setPopover('hover', popover => popover
+				.anchor.add('aligned right', 'off bottom')
+				.append(Slot().use(Notifications.recentUnreads, AbortPromise.asyncFunction(async (signal, slot, notifications) => {
+					const query = EndpointNotificationGetUnread.prep()
+					const list = await NotificationList(query, notifications)
+					if (signal.aborted)
+						return
+
+					list.appendTo(slot)
+				}))))))
 		.append(Button()
 			.setIcon('circle-user')
 			.clearPopover()
@@ -99,6 +113,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 							Link('/account')
 								.and(Button)
 								.type('flush')
+								.style('masthead-popover-link-button')
 								.text.use('masthead/user/profile/popover/login')
 								.appendTo(slot)
 							return
@@ -107,13 +122,22 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 						Link(`/author/${author.vanity}`)
 							.and(Button)
 							.type('flush')
+							.style('masthead-popover-link-button')
 							.text.use('masthead/user/profile/popover/profile')
 							.appendTo(slot)
 
 						Link('/account')
 							.and(Button)
 							.type('flush')
+							.style('masthead-popover-link-button')
 							.text.use('masthead/user/profile/popover/account')
+							.appendTo(slot)
+
+						Button()
+							.type('flush')
+							.style('masthead-popover-link-button')
+							.text.use('view/account/action/logout')
+							.event.subscribe('click', () => Session.reset())
 							.appendTo(slot)
 					}))))
 		.appendTo(masthead)
