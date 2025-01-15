@@ -72,8 +72,6 @@ interface PreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends Endpoin
 	query (...overrides: any[]): ReturnType<QUERY>
 }
 
-export type PreparedQueryOf<ENDPOINT extends Endpoint<any, any>> = ENDPOINT extends Endpoint<infer ROUTE, infer QUERY> ? PreparedEndpointQuery<ROUTE, QUERY> : never
-
 function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]['method'], headers?: Record<string, string>) {
 	let pageSize: number | undefined
 	const endpoint: ConfigurablePreparedEndpointQuery<ROUTE, any> = {
@@ -242,3 +240,14 @@ export type PaginatedEndpointRoutes = keyof {
 }
 
 export type PaginatedEndpoint = { [ROUTE in PaginatedEndpointRoutes]: Endpoint<ROUTE> } extends infer ENDPOINTS ? ENDPOINTS[keyof ENDPOINTS] : never
+
+export type PreparedQueryOf<ENDPOINT extends Endpoint<any, any>> = ENDPOINT extends Endpoint<infer ROUTE, infer QUERY> ? PreparedEndpointQuery<ROUTE, QUERY> : never
+export type PreparedPaginatedQueryReturning<R> = PreparedQueryOf<Endpoint<keyof {
+	[PATH in keyof Paths as (
+		EndpointResponse<Endpoint<PATH>> extends infer RESPONSE ?
+		RESPONSE extends PaginatedResponse<R> ?
+		PATH
+		: never
+		: never
+	)]: Endpoint<PATH>
+}>>

@@ -12,6 +12,7 @@
 	%translate-down-3
 	%margin-inline-0
 	%margin-block-2
+	%overflow-hidden
 	#block
 		background-light = alpha(0.7, $light-2)
 	#transition:

@@ -112,9 +112,12 @@ formatting/link: link
 
 # masthead
 skip-navigation: Skip Navigation
-user/notifications/alt: notifications
 
 primary-nav/alt: primary
+
+## user/notifications
+alt: notifications
+title: Notifications
 
 ## user/profile
 alt: profile

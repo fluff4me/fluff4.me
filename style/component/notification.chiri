@@ -1,0 +1,20 @@
+.notification:
+
+	&-list:
+		#after: .block-type-flush
+		%padding-0
+		min-width: calc($space-5 * 5)
+		max-width: 100vw
+
+		&-header:
+			#after: .paginator-header--flush
+			%background-none
+			%box-shadow-none
+			%borderless
+			@before:
+				%background-none
+				%backdrop-filter-none
+
+		&-title:
+			#after: .block-title, .heading-1
+			%font-4
