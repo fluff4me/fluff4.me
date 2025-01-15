@@ -109,7 +109,6 @@ const ToastList = Component.Builder((component): ToastList => {
 			Async.sleep(Time.seconds(1)),
 		])
 
-		return
 		wrapper.remove()
 	}
 })
