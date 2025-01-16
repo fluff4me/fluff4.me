@@ -90,7 +90,7 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 		.appendTo(block.content)
 
 	Slot()
-		.use(work.custom_tags, (slot, customTags) => customTags && Component()
+		.use(work.custom_tags, (slot, customTags) => customTags?.length && Component()
 			.style('work-tags', 'work-tags-custom')
 			.style.bind(isFlush, 'work-tags--flush')
 			.append(...customTags.map(tag => Tag(tag))))
