@@ -34,7 +34,7 @@ const NotificationList = Component.Builder(async (component, query: PreparedPagi
 	function initialiseNotificationsPage (slot: Slot, notifications: NotificationData[]) {
 		for (const notification of notifications) {
 			Notification(notification)
-				.appendTo(slot)
+				?.appendTo(slot)
 		}
 	}
 })

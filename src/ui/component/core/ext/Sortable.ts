@@ -1,7 +1,7 @@
 import Component from 'ui/Component'
 import type { DraggableDefinition } from 'ui/component/core/ext/Draggable'
 import Draggable from 'ui/component/core/ext/Draggable'
-import Arrays from 'utility/Arrays'
+import { NonNullish } from 'utility/Arrays'
 import Vector2 from 'utility/maths/Vector2'
 import State from 'utility/State'
 
@@ -80,13 +80,13 @@ export default Object.assign(
 		function getDraggables () {
 			return [...component.getChildren()]
 				.map(child => child.as(Draggable))
-				.filter(Arrays.filterNullish)
+				.filter(NonNullish)
 		}
 
 		function updateOrder () {
 			order.value = getDraggables()
 				.map(definition.getID)
-				.filter(Arrays.filterNullish)
+				.filter(NonNullish)
 		}
 
 		function reset (shouldCommit = true) {

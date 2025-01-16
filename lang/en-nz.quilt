@@ -146,6 +146,12 @@ action/delete=shared/action/delete
 # chapter
 action/index: Index
 
+# notification
+comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}
+comment-reply: {TRIGGERED_BY} has replied to your comment on {CHAPTER} of {WORK}
+
+
+
 # view
 container/alt: main content
 

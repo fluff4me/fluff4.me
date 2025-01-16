@@ -1,5 +1,5 @@
 import Component from 'ui/Component'
-import Arrays from 'utility/Arrays'
+import { NonNullish } from 'utility/Arrays'
 
 declare module 'ui/Component' {
 	interface ComponentExtensions extends ViewTransitionComponentExtensions { }
@@ -119,7 +119,7 @@ namespace ViewTransition {
 	function getComponents (type: 'view' | 'subview', name?: string) {
 		return [...document.querySelectorAll(`[${type === 'view' ? DATA_VIEW_TRANSITION_NAME : DATA_SUBVIEW_TRANSITION_NAME}${name ? `="${name}"` : ''}]`)]
 			.map(e => e.component)
-			.filter(Arrays.filterNullish)
+			.filter(NonNullish)
 	}
 }
 

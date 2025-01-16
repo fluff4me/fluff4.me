@@ -1,5 +1,6 @@
 import type Component from 'ui/Component'
-import Arrays from 'utility/Arrays'
+import type Arrays from 'utility/Arrays'
+import { NonNullish as FilterNonNullish } from 'utility/Arrays'
 import Define from 'utility/Define'
 import Functions from 'utility/Functions'
 import type { Mutable } from 'utility/Type'
@@ -322,22 +323,22 @@ namespace State {
 
 	export function Map<const INPUT extends (ReadableState<unknown> | undefined)[], OUTPUT> (owner: Component, inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: INPUT[I] extends ReadableState<infer INPUT> ? INPUT : undefined }>) => OUTPUT): Generator<OUTPUT> {
 		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never))
-			.observe(owner, ...inputs.filter(Arrays.filterNullish))
+			.observe(owner, ...inputs.filter(FilterNonNullish))
 	}
 
 	export function MapManual<const INPUT extends (ReadableState<unknown> | undefined)[], OUTPUT> (inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: Exclude<INPUT[I], undefined> extends ReadableState<infer INPUT> ? INPUT : undefined }>) => OUTPUT): Generator<OUTPUT> {
 		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never))
-			.observeManual(...inputs.filter(Arrays.filterNullish))
+			.observeManual(...inputs.filter(FilterNonNullish))
 	}
 
 	export function Use<const INPUT extends Record<string, (ReadableState<unknown> | undefined)>> (owner: Component, input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends ReadableState<infer INPUT> ? INPUT : undefined }> {
 		return Generator(() => Object.entries(input).toObject(([key, state]) => [key, state?.value]) as never)
-			.observe(owner, ...Object.values(input).filter(Arrays.filterNullish))
+			.observe(owner, ...Object.values(input).filter(FilterNonNullish))
 	}
 
 	export function UseManual<const INPUT extends Record<string, (ReadableState<unknown> | undefined)>> (input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends ReadableState<infer INPUT> ? INPUT : undefined }> {
 		return Generator(() => Object.entries(input).toObject(([key, state]) => [key, state?.value]) as never)
-			.observeManual(...Object.values(input).filter(Arrays.filterNullish))
+			.observeManual(...Object.values(input).filter(FilterNonNullish))
 	}
 }
 

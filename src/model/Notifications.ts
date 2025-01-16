@@ -24,10 +24,27 @@ namespace Notifications {
 	export const recentUnreads = State<Notification[]>([])
 	export const unreadCount = State(0)
 
+	export function clear () {
+		if (Store.items.notifications)
+			Store.items.notifications = { ...Store.items.notifications, lastCheck: 0, lastUpdate: 0 }
+	}
+
+	export function check () {
+		if (Store.items.notifications)
+			Store.items.notifications = { ...Store.items.notifications, lastCheck: 0 }
+
+		return checkNotifications()
+	}
+
+	let activeCheck = false
+
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises
 	setInterval(checkNotifications, Time.seconds(5))
 
 	async function checkNotifications () {
+		if (activeCheck)
+			return
+
 		if (!Session.Auth.author.value)
 			return
 
@@ -37,10 +54,14 @@ namespace Notifications {
 		if (now - (notifications?.lastCheck ?? 0) < Time.minutes(1))
 			return
 
+		activeCheck = true
+
 		const response = await EndpointNotificationGetCount.query()
 		notifications ??= {}
 		notifications.lastCheck = Date.now()
 		Store.items.notifications = notifications
+
+		activeCheck = false
 
 		if (response instanceof Error)
 			// TODO 
@@ -62,5 +83,7 @@ namespace Notifications {
 		Store.items.notifications = notifications
 	}
 }
+
+Object.assign(window, { Notifications })
 
 export default Notifications

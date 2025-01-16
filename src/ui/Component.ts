@@ -1,3 +1,4 @@
+import { WeavingArg, type WeavingRenderable } from 'lang/en-nz'
 import type Label from 'ui/component/core/Label'
 import AnchorManipulator from 'ui/utility/AnchorManipulator'
 import AttributeManipulator from 'ui/utility/AttributeManipulator'
@@ -9,7 +10,7 @@ import StringApplicator, { QuiltHelper } from 'ui/utility/StringApplicator'
 import StyleManipulator from 'ui/utility/StyleManipulator'
 import TextManipulator from 'ui/utility/TextManipulator'
 import Viewport from 'ui/utility/Viewport'
-import Arrays from 'utility/Arrays'
+import { Truthy } from 'utility/Arrays'
 import Async from 'utility/Async'
 import Define from 'utility/Define'
 import Env from 'utility/Env'
@@ -133,8 +134,8 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT>, ...params: NoInfer<PARAMS>): this & COMPONENT
 	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Extension<PARAMS, COMPONENT>, ...params: NoInfer<PARAMS>): this & COMPONENT
 	extend<T> (extensionProvider: (component: this & T) => Omit<T, typeof SYMBOL_COMPONENT_BRAND>): this & T
-	extendMagic<K extends keyof this, O extends this = this> (property: K, magic: (component: this) => { get (): O[K], set?(value: O[K]): void }): this
-	extendJIT<K extends keyof this, O extends this = this> (property: K, supplier: (component: this) => O[K]): this
+	extendMagic<K extends Exclude<keyof this, symbol>, O extends this = this> (property: K, magic: (component: this) => { get (): O[K], set?(value: O[K]): void }): this
+	extendJIT<K extends Exclude<keyof this, symbol>, O extends this = this> (property: K, supplier: (component: this) => O[K]): this
 
 	tweak<PARAMS extends any[]> (tweaker?: (component: this, ...params: PARAMS) => unknown, ...params: PARAMS): this
 
@@ -209,7 +210,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	blur (): this
 }
 
-interface Component<ELEMENT extends HTMLElement = HTMLElement> extends BaseComponent<ELEMENT>, ComponentExtensions<ELEMENT> { }
+interface Component<ELEMENT extends HTMLElement = HTMLElement> extends BaseComponent<ELEMENT>, ComponentExtensions<ELEMENT>, WeavingRenderable { }
 
 enum Classes {
 	ReceiveAncestorInsertEvents = '_receieve-ancestor-insert-events',
@@ -479,7 +480,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return component
 		},
 		append (...contents) {
-			const elements = contents.filter(Arrays.filterFalsy).map(Component.element)
+			const elements = contents.filter(Truthy).map(Component.element)
 			component.element.append(...elements)
 
 			for (const element of elements)
@@ -489,7 +490,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return component
 		},
 		prepend (...contents) {
-			const elements = contents.filter(Arrays.filterFalsy).map(Component.element)
+			const elements = contents.filter(Truthy).map(Component.element)
 			component.element.prepend(...elements)
 
 			for (const element of elements)
@@ -500,7 +501,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 		insert (direction, sibling, ...contents) {
 			const siblingElement = sibling ? Component.element(sibling) : null
-			const elements = contents.filter(Arrays.filterFalsy).map(Component.element)
+			const elements = contents.filter(Truthy).map(Component.element)
 
 			if (direction === 'before')
 				for (let i = elements.length - 1; i >= 0; i--)
@@ -699,6 +700,8 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 	} satisfies Pick<Component, keyof BaseComponent>) as any as Mutable<Component>
 
+	WeavingArg.setRenderable(component)
+
 	for (const extension of componentExtensionsRegistry)
 		extension(component)
 
@@ -757,14 +760,14 @@ namespace Component {
 
 	export type BuilderLike<PARAMS extends any[] = any[], COMPONENT extends Component = Component> = Builder<PARAMS, COMPONENT> | Extension<PARAMS, COMPONENT>
 
-	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component> extends Omit<Extension<PARAMS, BUILD_COMPONENT>, 'builderType'> {
+	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<Extension<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'builderType' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
 		builderType: 'builder'
 		[SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
 		(...params: PARAMS): BUILD_COMPONENT
 		setName (name: string): this
 	}
 
-	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component> extends Omit<ExtensionAsync<PARAMS, BUILD_COMPONENT>, 'builderType'> {
+	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<ExtensionAsync<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'builderType' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
 		builderType: 'builder'
 		[SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
 		(...params: PARAMS): Promise<BUILD_COMPONENT>
@@ -776,6 +779,10 @@ namespace Component {
 	export function Builder<PARAMS extends any[], COMPONENT extends Component> (builder: (component: Component, ...params: PARAMS) => Promise<COMPONENT>): BuilderAsync<PARAMS, COMPONENT>
 	export function Builder<PARAMS extends any[], COMPONENT extends Component> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => COMPONENT): Builder<PARAMS, COMPONENT>
 	export function Builder<PARAMS extends any[], COMPONENT extends Component> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => Promise<COMPONENT>): BuilderAsync<PARAMS, COMPONENT>
+	export function Builder<PARAMS extends any[], COMPONENT extends Component | undefined> (builder: (component: Component, ...params: PARAMS) => COMPONENT): Builder<PARAMS, COMPONENT>
+	export function Builder<PARAMS extends any[], COMPONENT extends Component | undefined> (builder: (component: Component, ...params: PARAMS) => Promise<COMPONENT>): BuilderAsync<PARAMS, COMPONENT>
+	export function Builder<PARAMS extends any[], COMPONENT extends Component | undefined> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => COMPONENT): Builder<PARAMS, COMPONENT>
+	export function Builder<PARAMS extends any[], COMPONENT extends Component | undefined> (initial: keyof HTMLElementTagNameMap | (() => Component), builder: (component: Component, ...params: PARAMS) => Promise<COMPONENT>): BuilderAsync<PARAMS, COMPONENT>
 	export function Builder (initialOrBuilder: keyof HTMLElementTagNameMap | AnyFunction, builder?: (component: Component, ...params: any[]) => Component | Promise<Component>): (component?: Component, ...params: any[]) => Component | Promise<Component> {
 		let name = getBuilderName()
 
@@ -817,6 +824,9 @@ namespace Component {
 		return resultBuilder
 
 		function completeComponent (component: Component) {
+			if (!component)
+				return component
+
 			if (name && Env.isDev) {
 				(component as Component & { [Symbol.toStringTag]?: string })[Symbol.toStringTag] ??= name.toString()
 				const tagName = `:${name.kebabcase}`
