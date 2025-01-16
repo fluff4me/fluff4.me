@@ -14,6 +14,7 @@ import Mouse from 'ui/utility/Mouse'
 import Viewport from 'ui/utility/Viewport'
 import ViewContainer from 'ui/view/shared/component/ViewContainer'
 import Async from 'utility/Async'
+import DevServer from 'utility/DevServer'
 import Store from 'utility/Store'
 import Time from 'utility/Time'
 
@@ -76,6 +77,7 @@ async function App (): Promise<App> {
 	FocusListener.listen()
 	Mouse.listen()
 	Viewport.listen()
+	DevServer.connect()
 
 	document.title = quilt['fluff4me/title']().toString()
 

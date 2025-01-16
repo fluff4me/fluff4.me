@@ -53,6 +53,8 @@
 				throw new Error("Cannot define module without a name")
 
 			name = src.startsWith("./") ? src.slice(2) : src.startsWith("/") ? src.slice(1) : src
+			const qIndex = name.indexOf("?")
+			name = qIndex === -1 ? name : name.slice(0, qIndex)
 			name = baseURL && name.startsWith(baseURL) ? name.slice(baseURL.length) : name
 			name = name.endsWith(".js") ? name.slice(0, -3) : name
 			name = name.endsWith("/index") ? name.slice(0, -6) : name
@@ -60,7 +62,8 @@
 
 		reqs ??= []
 
-		if (moduleMap.has(name))
+		const existingDefinition = moduleMap.get(name)
+		if (existingDefinition && !existingDefinition._allowRedefine)
 			throw new Error(`Module "${name}" cannot be redefined`)
 
 		if (typeof reqs === "function") {
@@ -110,6 +113,17 @@
 	}
 
 	define.amd = true
+
+	/**
+	 * @param {string} name 
+	 */
+	function allowRedefine (name) {
+		const module = moduleMap.get(name)
+		if (!module)
+			return
+
+		module._allowRedefine = true
+	}
 
 	/**
 	 * @param {string} name
@@ -221,6 +235,7 @@
 	moddableWindow.define = define
 	moddableWindow.getModule = getModule
 	moddableWindow.initializeModule = initializeModuleByName
+	moddableWindow.allowRedefine = allowRedefine
 
 
 	////////////////////////////////////
