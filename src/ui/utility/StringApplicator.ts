@@ -1,8 +1,10 @@
-import type { Quilt as QuiltBase, Weave, WeavingArg, Weft } from 'lang/en-nz'
-import quilt from 'lang/en-nz'
+import type { Quilt as QuiltBase, Weave, Weft } from 'lang/en-nz'
+import quilt, { WeavingArg } from 'lang/en-nz'
 import type Component from 'ui/Component'
 import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
+
+Object.assign(window, { quilt })
 
 export type Quilt = QuiltBase
 export namespace Quilt {
@@ -12,8 +14,10 @@ export namespace Quilt {
 
 export namespace QuiltHelper {
 
+	let isComponent!: (value: unknown) => value is Component
 	let Break!: Component.Builder<[], Component>
 	export function setComponent (ComponentFunction: typeof Component) {
+		isComponent = ComponentFunction.is
 		Break = ComponentFunction
 			.Builder('br', component => component.style('break'))
 			.setName('Break')
@@ -72,8 +76,16 @@ export namespace QuiltHelper {
 
 		if (Array.isArray(weft.content))
 			element.append(...weft.content.map(renderWeft))
-		else if (typeof weft.content === 'object' && weft.content)
-			element.append(...renderWeave(weft.content))
+		else if (typeof weft.content === 'object' && weft.content) {
+			if (!WeavingArg.isRenderable(weft.content))
+				element.append(...renderWeave(weft.content))
+			else if (isComponent(weft.content))
+				element.append(weft.content.element)
+			else if (weft.content instanceof Node)
+				element.append(weft.content)
+			else
+				console.warn('Unrenderable weave content:', weft.content)
+		}
 		else {
 			const value = `${weft.content ?? ''}`
 			const texts = value.split('\n')

@@ -72,6 +72,14 @@ declare global {
 	}
 }
 
+export function NonNullish<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined> {
+	return value !== null && value !== undefined
+}
+
+export function Truthy<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined | 0 | 0n | false | ''> {
+	return !!value
+}
+
 namespace Arrays {
 
 	export type Or<T> = T | T[]
@@ -206,14 +214,6 @@ namespace Arrays {
 			result.push(i)
 
 		return result
-	}
-
-	export function filterNullish<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined> {
-		return value !== null && value !== undefined
-	}
-
-	export function filterFalsy<VALUE> (value: VALUE): value is Exclude<VALUE, null | undefined | 0 | 0n | false | ''> {
-		return !!value
 	}
 
 	export function mergeSorted<T> (...arrays: T[][]): T[] {
