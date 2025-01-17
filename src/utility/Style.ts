@@ -8,7 +8,7 @@ namespace Style {
 			style.onload = () => resolve()
 			style.onerror = reject
 			document.head.appendChild(style)
-		}).finally(oldStyle?.remove)
+		}).finally(() => oldStyle?.remove())
 	}
 }
 
