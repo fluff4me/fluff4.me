@@ -1,20 +1,52 @@
-.notification:
+.notification-list:
+	#after: .block-type-flush
+	$block-padding: $space-0
 
-	&-list:
-		#after: .block-type-flush
-		%padding-0
-		min-width: calc($space-5 * 5)
-		max-width: 100vw
-
-		&-header:
-			#after: .paginator-header--flush
+	&-header:
+		#after: .paginator-header--flush
+		%background-none
+		%box-shadow-none
+		%borderless
+		%margin-bottom-0
+		@before:
 			%background-none
-			%box-shadow-none
-			%borderless
-			@before:
-				%background-none
-				%backdrop-filter-none
+			%backdrop-filter-none
 
-		&-title:
-			#after: .block-title, .heading-1
-			%font-4
+	&-title:
+		#after: .block-title, .heading-1
+		%unmargin-top-1
+		%font-4
+
+	&-content:
+		#after: .paginator-content
+		%padding-top-2
+
+	&-footer:
+		#after: .paginator-footer
+		margin-inline: calc(-1 * $popover-padding)
+		width: calc(100% + $block-padding * 2 + $popover-padding * 2)
+		%padding-inline-0
+		%padding-bottom-0
+		%unmargin-bottom-2
+
+.notification:
+	%relative
+	%font-1
+	%white-space-pre-wrap
+
+	&-label:
+	&-timestamp:
+		%nowrap
+
+	@after:
+		%absolute
+		%left-0
+		%unbottom-3
+		%height-1
+		%width-100
+		%border-top-1
+		$border-colour: $background-4
+
+	:last:
+		@after:
+			%hidden

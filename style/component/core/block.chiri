@@ -1,7 +1,6 @@
 .block:
 	#after: .dialog
 	%block
-	%padding-4
 	%border-radius-2
 	%inset-border-1
 	%width-100
@@ -9,6 +8,8 @@
 	%scheme-light-dark
 	%border-box
 	%width-clamp-content
+	$block-padding: $space-4
+	padding: $block-padding
 	#block
 
 	:container root (width <= #{content-width}):
@@ -18,10 +19,10 @@
 			#{box-shadow-1}
 
 	&-header:
+		margin: calc(-1 * $block-padding)
+		padding-inline: $block-padding
 		%grid
 		%border-bottom-1
-		%unmargin-4
-		%padding-inline-4
 		%padding-block-2
 		%margin-bottom-4
 		%border-top-radius-2
@@ -50,14 +51,14 @@
 	&-content:
 
 	&-footer:
-		%unmargin-4
-		%padding-inline-4
+		margin: calc(-1 * $block-padding)
+		padding-inline: $block-padding
 		%padding-block-3
 		%margin-top-4
 		%border-top-1
 		%border-bottom-radius-2
 		%border-box
-		width: calc(100% + $space-4 * 2)
+		width: calc(100% + $block-padding * 2)
 		$border-colour: $block-border-colour
 		background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
 		%background-unclip
@@ -66,9 +67,9 @@
 		#after: .block
 		%background-none
 		%box-shadow-none
-		%padding-block-3
 		%border-bottom-1
 		%border-radius-0
+		$block-padding: $space-3
 		$block-flush-intensity: 10%
 
 		:last:
@@ -85,8 +86,8 @@
 
 		&-footer:
 			#after: .block-footer
+			margin-bottom: calc(-1 * $block-padding)
 			%margin-top-2
-			%unmargin-bottom-3
 			%padding-block-2
 			%border-radius-0
 			%box-shadow-bottom-inset-2

@@ -88,9 +88,15 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 		.style('masthead-user')
 		.append(Slot().if(Session.Auth.loggedIn, () => Button()
 			.setIcon('bell')
+			.style('masthead-user-notifications')
 			.clearPopover()
 			.ariaLabel.use('masthead/user/notifications/alt')
+			.append(Slot().use(Notifications.unreadCount, (slot, count) => !count ? undefined
+				: Component()
+					.style('masthead-user-notifications-badge')
+					.text.set(`${count}`)))
 			.setPopover('hover', popover => popover
+				.style('masthead-user-notifications-popover')
 				.anchor.add('aligned right', 'off bottom')
 				.append(Slot().use(Notifications.recentUnreads, AbortPromise.asyncFunction(async (signal, slot, notifications) => {
 					const query = EndpointNotificationGetUnread.prep()
