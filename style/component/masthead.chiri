@@ -85,7 +85,7 @@
 				%font-0
 				%padding-1
 				%border-radius-1
-				background: $colour-unread-badge
+				background: $colour-pink
 
 			&-popover:
 				width: calc($space-5 * 5)
