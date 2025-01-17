@@ -795,11 +795,13 @@ namespace Component {
 			const result = builder(component, ...params)
 			if (result instanceof Promise)
 				return result.then(result => {
-					void ensureOriginalComponentNotSubscriptionOwner(component)
+					if (result !== component)
+						void ensureOriginalComponentNotSubscriptionOwner(component)
 					return result
 				})
 
-			void ensureOriginalComponentNotSubscriptionOwner(component)
+			if (result !== component)
+				void ensureOriginalComponentNotSubscriptionOwner(component)
 			return result
 		}
 		const simpleBuilder = (...params: any[]) => {
