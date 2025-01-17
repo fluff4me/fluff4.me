@@ -3,6 +3,7 @@ import type { Weave, WeavingArg } from 'lang/en-nz'
 import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
 import Link from 'ui/component/core/Link'
+import Timestamp from 'ui/component/core/Timestamp'
 
 type NotificationType = keyof ManifestNotificationTypes
 
@@ -50,7 +51,14 @@ const Notification = Component.Builder((component, data: NotificationData): Noti
 	const CHAPTER = !data.author || !data.work || !data.chapter ? undefined : Link(`/work/${data.author.vanity}/${data.work.vanity}/${data.chapter.url}`).text.set(data.chapter.name)
 
 	Component()
+		.style('notification-label')
 		.text.set(translationFunction?.({ TRIGGERED_BY, AUTHOR, WORK, CHAPTER }))
+		.appendTo(notification)
+
+	notification.text.append('   ')
+
+	Timestamp(data.created_time)
+		.style('notification-timestamp')
 		.appendTo(notification)
 
 	return notification

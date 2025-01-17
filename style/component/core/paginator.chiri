@@ -78,7 +78,7 @@
 		%hidden
 
 	&-content:
-		%unmargin-4
+		margin: calc(-1 * $block-padding)
 		%padding-top-4
 		%margin-bottom-0
 		%grid

@@ -1,5 +1,4 @@
 .popover:
-	%padding-3
 	%border-radius-2
 	%inset-border-1
 	%borderless
@@ -13,6 +12,8 @@
 	%margin-inline-0
 	%margin-block-2
 	%overflow-hidden
+	$popover-padding: $space-3
+	padding: $popover-padding
 	#block
 		background-light = alpha(0.7, $light-2)
 	#transition:

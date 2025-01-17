@@ -21,8 +21,8 @@ declare module 'utility/Store' {
 
 namespace Notifications {
 
-	export const recentUnreads = State<Notification[]>([])
-	export const unreadCount = State(0)
+	export const recentUnreads = State<Notification[]>(Store.items.notifications?.recentUnreads ?? [])
+	export const unreadCount = State(Store.items.notifications?.unreadCount ?? 0)
 
 	export function clear () {
 		if (Store.items.notifications)

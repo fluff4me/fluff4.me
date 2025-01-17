@@ -22,3 +22,5 @@
 		%background-dark-#{i}-a#{o}: background: color-mix(in lch, $dark-#{i}, transparent #{100 - o}%)
 
 $colour-border-input: $colour-11
+
+$colour-unread-badge: light-dark(#a00, #f00)

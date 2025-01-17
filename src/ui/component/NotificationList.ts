@@ -23,6 +23,8 @@ const NotificationList = Component.Builder(async (component, query: PreparedPagi
 	list.header.style('notification-list-header')
 	list.title.style('notification-list-title')
 		.text.use('masthead/user/notifications/title')
+	list.content.style('notification-list-content')
+	list.footer.style('notification-list-footer')
 
 	if (initialNotifications)
 		await list.useInitial(initialNotifications, 0, true).thenUse(query).withContent(initialiseNotificationsPage)
