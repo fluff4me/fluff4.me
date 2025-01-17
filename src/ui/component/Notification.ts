@@ -61,6 +61,14 @@ const Notification = Component.Builder((component, data: NotificationData): Noti
 		.style('notification-timestamp')
 		.appendTo(notification)
 
+	if (data.comment)
+		Component()
+			.style('markdown')
+			.append(Component('blockquote')
+				.style('notification-comment')
+				.setMarkdownContent(data.comment.body?.body ?? '', 64))
+			.appendTo(notification)
+
 	return notification
 })
 

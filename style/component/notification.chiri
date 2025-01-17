@@ -38,6 +38,13 @@
 	&-timestamp:
 		%nowrap
 
+	&-comment:
+		%block
+		%font-2
+		%margin-0
+		%margin-top-2
+		%white-space-normal
+
 	@after:
 		%absolute
 		%left-0

@@ -17,8 +17,8 @@ $markdown-paragraph-padding-top: round(up, 0.5rem, 1px)
 	&& code:
 		%border-radius-1
 		padding-inline: ${code-padding: $space-1}
-		margin-inline: ${code-padding: $space-1}
-		background: ${code-background: light-dark(#{alpha(0.15, $dark-0)}, #{alpha(0.3, $dark-0)})}
+		; margin-inline: ${code-padding: $space-1}
+		background: ${code-background: $background-2}
 
 	&& pre:
 		%padding-2-3
