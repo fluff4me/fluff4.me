@@ -21,6 +21,10 @@ const Link = Component.Builder('a', (component, route: RoutePath | undefined) =>
 		component.event.subscribe('click', event => {
 			event.preventDefault()
 
+			// const closestButtonOrLink = (event.target as Partial<HTMLElement>).component?.closest([Button, Link])
+			// if (closestButtonOrLink !== component)
+			// 	return
+
 			if (!canNavigate.value)
 				return
 

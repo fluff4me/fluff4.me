@@ -94,6 +94,7 @@
 			&-list:
 				#after: .block-type-flush
 				$block-padding: $space-0
+				$notification-read-button-padding: $space-1
 
 				&-header:
 					#after: .paginator-header--flush

@@ -105,6 +105,8 @@ $$button-background-highlight!colour
 		"angle-left
 		"angle-right
 		"heart
+		"check
+		"check-double
 
 	#each in icons as var icon:
 		&-icon-#{icon}:
