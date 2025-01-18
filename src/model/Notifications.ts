@@ -23,6 +23,7 @@ namespace Notifications {
 
 	export const recentUnreads = State<Notification[]>(Store.items.notifications?.recentUnreads ?? [])
 	export const unreadCount = State(Store.items.notifications?.unreadCount ?? 0)
+	export const lastUpdate = State(Store.items.notifications?.lastUpdate ?? 0)
 
 	export function clear () {
 		if (Store.items.notifications)
@@ -79,7 +80,7 @@ namespace Notifications {
 		const count = response.data.unread_notification_count
 		notifications.unreadCount = unreadCount.value = count
 		notifications.recentUnreads = recentUnreads.value = firstPage.data
-		notifications.lastUpdate = time
+		notifications.lastUpdate = lastUpdate.value = time
 		Store.items.notifications = notifications
 	}
 }

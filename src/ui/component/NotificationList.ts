@@ -9,12 +9,11 @@ interface NotificationListExtensions {
 
 }
 
-interface NotificationList extends Component, NotificationListExtensions { }
+interface NotificationList extends Paginator, NotificationListExtensions { }
 
 const NotificationList = Component.Builder(async (component, query: PreparedPaginatedQueryReturning<NotificationData[]>, initialNotifications?: NotificationData[]): Promise<NotificationList> => {
 	const list = component
 		.and(Paginator)
-		.type('flush')
 		.style('notification-list')
 		.extend<NotificationListExtensions>(list => ({
 
@@ -34,6 +33,7 @@ const NotificationList = Component.Builder(async (component, query: PreparedPagi
 	return list
 
 	function initialiseNotificationsPage (slot: Slot, notifications: NotificationData[]) {
+		slot.style('notification-list-page')
 		for (const notification of notifications) {
 			Notification(notification)
 				?.appendTo(slot)

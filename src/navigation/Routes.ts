@@ -7,6 +7,7 @@ import ChapterView from 'ui/view/ChapterView'
 import DebugView from 'ui/view/DebugView'
 import FeedView from 'ui/view/FeedView'
 import HomeView from 'ui/view/HomeView'
+import NotificationsView from 'ui/view/NotificationsView'
 import TagView from 'ui/view/TagView'
 import WorkEditView from 'ui/view/WorkEditView'
 import WorkView from 'ui/view/WorkView'
@@ -19,6 +20,7 @@ const Routes = [
 
 	Route('/account', AccountView.navigate),
 	Route('/author/$vanity', AuthorView.navigate),
+	Route('/notifications', NotificationsView.navigate),
 
 	Route('/work/new', WorkEditView.navigate),
 	Route('/work/$author/$vanity', WorkView.navigate),

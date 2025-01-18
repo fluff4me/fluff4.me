@@ -91,5 +91,38 @@
 				width: calc($space-5 * 5)
 				max-width: 100vw
 
+			&-list:
+				#after: .block-type-flush
+				$block-padding: $space-0
+
+				&-header:
+					#after: .paginator-header--flush
+					%background-none
+					%box-shadow-none
+					%borderless
+					%margin-bottom-0
+					@before:
+						%background-none
+						%backdrop-filter-none
+
+				&-title:
+					#after: .block-title, .heading-1
+					%unmargin-top-1
+					%font-4
+
+				&-content:
+					#after: .paginator-content
+					%padding-top-0
+					%unmargin-top-1
+
+				&-footer:
+					#after: .paginator-footer
+					margin-inline: calc(-1 * $popover-padding)
+					width: calc(100% + $block-padding * 2 + $popover-padding * 2)
+					%padding-inline-0
+					%padding-bottom-0
+					%unmargin-bottom-2
+					%unmargin-top-2
+
 	&-popover-link-button:
 		%text-align-left
