@@ -175,7 +175,7 @@ const Paginator = Component.Builder((component): Paginator => {
 				pages.push(Page())
 
 		else if (!pages.length)
-			pages.push(MainPage())
+			MainPage() // already gets pushed
 
 		const pageComponent = pages[page]
 			.style('paginator-page--initial-load')
