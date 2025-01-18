@@ -118,6 +118,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	setId (id?: string | State<string | undefined>): this
 	setName (name?: string | State<string | undefined>): this
 
+	is<BUILDERS extends Component.BuilderLike[]> (builder: BUILDERS): this is { [INDEX in keyof BUILDERS]: BUILDERS[INDEX] extends infer BUILDER ? (BUILDER extends Component.BuilderLike<any[], infer COMPONENT> ? COMPONENT : never) | undefined : never }[number]
 	is<COMPONENT extends Component> (builder: Component.BuilderLike<any[], COMPONENT>): this is COMPONENT
 	is<COMPONENT extends Component> (builder?: Component.BuilderLike<any[], COMPONENT>): boolean
 	as<COMPONENT extends Component> (builder: Component.BuilderLike<any[], COMPONENT>): COMPONENT | undefined
@@ -145,7 +146,8 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	prependTo (destination: ComponentInsertionDestination | Element): this
 	insertTo (destination: ComponentInsertionDestination | Element, direction: 'before' | 'after', sibling?: Component | Element): this
 
-	closest<BUILDER extends Component.Builder<any[], Component> | Component.Extension<any[], Component>> (builder: BUILDER): (BUILDER extends Component.Builder<any[], infer COMPONENT> ? COMPONENT : BUILDER extends Component.Extension<any[], infer COMPONENT> ? COMPONENT : never) | undefined
+	closest<BUILDERS extends Component.BuilderLike[]> (builder: BUILDERS): { [INDEX in keyof BUILDERS]: BUILDERS[INDEX] extends infer BUILDER ? (BUILDER extends Component.BuilderLike<any[], infer COMPONENT> ? COMPONENT : never) | undefined : never }[number]
+	closest<BUILDER extends Component.BuilderLike> (builder: BUILDER): (BUILDER extends Component.BuilderLike<any[], infer COMPONENT> ? COMPONENT : never) | undefined
 	closest<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): COMPONENT | undefined
 	closest<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): COMPONENT | undefined
 
@@ -273,7 +275,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 
 			return component
 		},
-		is: (builder): this is any => !builder || component.supers.value.includes(builder),
+		is: (builder?: Component.BuilderLike | Component.BuilderLike[]): this is any => !builder || (Array.isArray(builder) ? builder : [builder]).some(builder => component.supers.value.includes(builder)),
 		as: (builder): any => !builder || component.supers.value.includes(builder) ? component : undefined,
 		cast: (): any => component,
 		and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.Builder<PARAMS, COMPONENT> | Component.BuilderAsync<PARAMS, COMPONENT> | Component.Extension<PARAMS, COMPONENT> | Component.ExtensionAsync<PARAMS, COMPONENT>, ...params: PARAMS) {
@@ -527,7 +529,6 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 				cursor = cursor.parentElement
 				const component = cursor?.component
 
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 				if (component?.is(builder))
 					return component
 			}

@@ -16,7 +16,47 @@
 	%decoration-none
 	%colour-inherit
 	%weight-inherit
-	padding-inline: ${block-padding: 0px}
+	padding-left: calc(${block-padding: 0px} + $space-5 - ($space-3 - ${notification-read-button-padding: $space-3}) * 2)
+	padding-right: ${block-padding: 0px}
+	#transition: #{transition("opacity")}
+
+	&--read:
+		%opacity-60
+
+	&-read-button:
+		#after: .button
+		%z-index-fg
+		%absolute
+		%inset-block-0
+		%size-auto
+		%grid
+		%stack
+		%align-items-centre
+		%colour-transparent
+		padding-inline: ${notification-read-button-padding: $space-3}
+		left: ${block-padding: 0px}
+
+		::hover, ::focus:
+			%colour-3
+
+		@before, @after:
+			%stack-self
+
+		@after:
+			%block
+			%z-index-bg
+			%background-1-a30
+			%border-radius-1
+			%margin-top-1
+			size: .8em
+
+		&--just-marked-unread:
+			#after: .notification-read-button
+			%colour-transparent
+
+		&--read:
+			#after: .notification-read-button
+			%colour-6
 
 	&-label:
 	&-timestamp:
