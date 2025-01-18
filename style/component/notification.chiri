@@ -33,6 +33,9 @@
 	%relative
 	%font-1
 	%white-space-pre-wrap
+	%decoration-none
+	%colour-inherit
+	%weight-inherit
 
 	&-label:
 	&-timestamp:
@@ -57,3 +60,16 @@
 	:last:
 		@after:
 			%hidden
+
+	@before:
+		%block
+		%absolute
+		%top-0
+		%unbottom-1
+		inset-inline: calc(-1 * $popover-padding)
+		#transition: #{transition("background")}
+
+	::hover, ::focus:
+		@before:
+			%background-6-a30
+			$transition-duration: $transition-focus
