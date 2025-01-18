@@ -34,7 +34,7 @@ interface NotificationExtensions {
 
 interface Notification extends Component, NotificationExtensions { }
 
-const Notification = Component.Builder((component, data: NotificationData): Notification | undefined => {
+const Notification = Component.Builder('a', (component, data: NotificationData): Notification | undefined => {
 	const translationFunction = notificationQuilt[`notification/${data.type as NotificationType}`]
 	if (!translationFunction)
 		return undefined
@@ -48,7 +48,7 @@ const Notification = Component.Builder((component, data: NotificationData): Noti
 	const TRIGGERED_BY = !data.triggered_by ? undefined : Link(`/author/${data.triggered_by.vanity}`).text.set(data.triggered_by.name)
 	const AUTHOR = !data.author ? undefined : Link(`/author/${data.author.vanity}`).text.set(data.author.name)
 	const WORK = !data.author || !data.work ? undefined : Link(`/work/${data.author.vanity}/${data.work.vanity}`).text.set(data.work.name)
-	const CHAPTER = !data.author || !data.work || !data.chapter ? undefined : Link(`/work/${data.author.vanity}/${data.work.vanity}/${data.chapter.url}`).text.set(data.chapter.name)
+	const CHAPTER = !data.author || !data.work || !data.chapter ? undefined : Link(`/work/${data.author.vanity}/${data.work.vanity}/chapter/${data.chapter.url}`).text.set(data.chapter.name)
 
 	Component()
 		.style('notification-label')
@@ -61,13 +61,17 @@ const Notification = Component.Builder((component, data: NotificationData): Noti
 		.style('notification-timestamp')
 		.appendTo(notification)
 
-	if (data.comment)
+	if (data.comment) {
 		Component()
 			.style('markdown')
 			.append(Component('blockquote')
 				.style('notification-comment')
 				.setMarkdownContent(data.comment.body?.body ?? '', 64))
 			.appendTo(notification)
+
+		if (data.author && data.work && data.chapter)
+			notification.and(Link, `/work/${data.author.vanity}/${data.work.vanity}/chapter/${data.chapter.url}`)
+	}
 
 	return notification
 })
