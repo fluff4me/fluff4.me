@@ -1,33 +1,13 @@
 .notification-list:
-	#after: .block-type-flush
-	$block-padding: $space-0
 
 	&-header:
-		#after: .paginator-header--flush
-		%background-none
-		%box-shadow-none
-		%borderless
-		%margin-bottom-0
-		@before:
-			%background-none
-			%backdrop-filter-none
-
 	&-title:
-		#after: .block-title, .heading-1
-		%unmargin-top-1
-		%font-4
-
 	&-content:
-		#after: .paginator-content
-		%padding-top-2
-
 	&-footer:
-		#after: .paginator-footer
-		margin-inline: calc(-1 * $popover-padding)
-		width: calc(100% + $block-padding * 2 + $popover-padding * 2)
-		%padding-inline-0
-		%padding-bottom-0
-		%unmargin-bottom-2
+
+	&-page:
+		%gap-3
+		%padding-block-2
 
 .notification:
 	%relative
@@ -36,6 +16,7 @@
 	%decoration-none
 	%colour-inherit
 	%weight-inherit
+	padding-inline: ${block-padding: 0px}
 
 	&-label:
 	&-timestamp:
@@ -66,10 +47,11 @@
 		%absolute
 		%top-0
 		%unbottom-1
-		inset-inline: calc(-1 * $popover-padding)
+		inset-inline: calc(-1 * ${popover-padding: 0px})
 		#transition: #{transition("background")}
 
 	::hover, ::focus:
+		%colour-0
 		@before:
 			%background-6-a30
 			$transition-duration: $transition-focus

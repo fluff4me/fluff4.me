@@ -118,6 +118,7 @@ primary-nav/alt: primary
 ## user/notifications
 alt: notifications
 title: Notifications
+link/label: View All
 
 ## user/profile
 alt: profile

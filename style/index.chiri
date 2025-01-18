@@ -77,5 +77,6 @@
 	view/type/chapter
 	view/type/chapter-edit
 	view/type/feed
+	view/type/notifications
 
 #import: app
