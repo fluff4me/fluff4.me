@@ -180,10 +180,10 @@ declare module 'ui/Component' {
 }
 
 interface PopoverExtensions {
-	readonly visible: State.Readonly<boolean>
-	readonly popoverChildren: State.Readonly<readonly Popover[]>
-	readonly popoverParent: State.Readonly<Popover | undefined>
-	readonly popoverHasFocus: State.Readonly<boolean>
+	readonly visible: State<boolean>
+	readonly popoverChildren: State<readonly Popover[]>
+	readonly popoverParent: State<Popover | undefined>
+	readonly popoverHasFocus: State<boolean>
 
 	/** Sets the distance the mouse can be from the popover before it hides, if it's shown due to hover */
 	setMousePadding (padding?: number): this

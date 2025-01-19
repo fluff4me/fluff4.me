@@ -2,7 +2,7 @@ import type { Weave } from 'lang/en-nz'
 import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
 import Slot from 'ui/component/core/Slot'
-import type { ReadonlyStateOr } from 'utility/State'
+import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 
 interface ProgressWheelExtensions {
@@ -12,8 +12,8 @@ interface ProgressWheelExtensions {
 interface ProgressWheel extends Component, ProgressWheelExtensions { }
 
 export interface ProgressWheelDefinition {
-	readonly progress: ReadonlyStateOr<number | undefined>
-	readonly label: ReadonlyStateOr<string | Weave | undefined>
+	readonly progress: StateOr<number | undefined>
+	readonly label: StateOr<string | Weave | undefined>
 	initialiseIcon?(icon: Component): any
 	initialiseLabel?(label: Component): any
 }
@@ -46,7 +46,7 @@ const ProgressWheelBuilder = Component.Builder((component): ProgressWheel => {
 const ProgressWheel = Object.assign(
 	ProgressWheelBuilder,
 	{
-		Length (length: State.Readonly<number | undefined>, maxLength: State.Readonly<number | undefined>) {
+		Length (length: State<number | undefined>, maxLength: State<number | undefined>) {
 			const unusedPercent = State.MapManual([length, maxLength], (length, maxLength) => length === undefined || !maxLength ? undefined : 1 - length / maxLength)
 			const unusedChars = State.MapManual([length, maxLength], (length, maxLength) => length === undefined || !maxLength ? undefined : maxLength - length)
 			return Slot.using(State.UseManual({ unusedPercent, unusedChars }), (slot, { unusedPercent, unusedChars }) => unusedPercent === undefined || unusedChars === undefined ? undefined
@@ -58,7 +58,7 @@ const ProgressWheel = Object.assign(
 							.style.bind(unusedPercent < 0, 'progress-wheel-icon--overflowing'),
 					}))
 		},
-		Progress (progress: State.Readonly<number | undefined>) {
+		Progress (progress: State<number | undefined>) {
 			return ProgressWheelBuilder()
 				.set({
 					progress,

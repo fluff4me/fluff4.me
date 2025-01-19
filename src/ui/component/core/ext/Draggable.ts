@@ -10,8 +10,8 @@ enum DragState {
 }
 
 interface DraggableExtensions {
-	readonly state: State.Readonly<DragState>
-	readonly dragging: State.Readonly<boolean>
+	readonly state: State<DragState>
+	readonly dragging: State<boolean>
 	setStickyDistance (stickyDistance?: number): this
 	setDelay (delay?: number): this
 	stopDragging (): this
@@ -20,8 +20,8 @@ interface DraggableExtensions {
 interface Draggable extends Component, DraggableExtensions { }
 
 export interface DraggableDefinition {
-	stickyDistance?: State<number | undefined>
-	delay?: State<number | undefined>
+	readonly stickyDistance?: State<number | undefined>
+	readonly delay?: State<number | undefined>
 	onMoveStart?(draggable: Draggable, position: Vector2): false | void
 	onMove?(draggable: Draggable, offset: Vector2, position: Vector2): false | void
 	onMoveEnd?(draggable: Draggable, offset: Vector2, position: Vector2): void

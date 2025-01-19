@@ -10,7 +10,7 @@ export interface ILocalStorage {
 
 let storage: Partial<ILocalStorage> | undefined
 
-type States = { [KEY in keyof ILocalStorage]: State<ILocalStorage[KEY] | undefined> }
+type States = { [KEY in keyof ILocalStorage]: State.Mutable<ILocalStorage[KEY] | undefined> }
 let statesProxy: States | undefined
 let states: Partial<States> | undefined
 

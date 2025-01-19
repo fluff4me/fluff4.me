@@ -7,10 +7,10 @@ import State from 'utility/State'
 
 interface CheckbuttonExtensions {
 	readonly input: Component
-	readonly checked: State.Readonly<boolean>
+	readonly checked: State<boolean>
 	isChecked (): boolean
 	setChecked (checked: boolean): this
-	use (state: State.Readonly<boolean>): this
+	use (state: State<boolean>): this
 	unuse (): this
 }
 
@@ -75,7 +75,7 @@ const Checkbutton = Component.Builder('label', (component): Checkbutton => {
 	input.event.subscribe('change', () => {
 		if (unuse) {
 			const checked = inputElement.checked
-			inputElement.checked = !checked // undo because it's managed by a State<boolean>
+			inputElement.checked = !checked // undo because it's managed by a State.Mutable<boolean>
 			checkbutton.event.emit('trySetChecked', checked)
 			return
 		}

@@ -17,7 +17,7 @@ import TagsEditor from 'ui/component/TagsEditor'
 import { FilterVanity } from 'ui/component/VanityInput'
 import type State from 'utility/State'
 
-export default Component.Builder((component, state: State<WorkFull | undefined>) => {
+export default Component.Builder((component, state: State.Mutable<WorkFull | undefined>) => {
 	const block = component.and(Block)
 	const form = block.and(Form, block.title)
 	form.viewTransition('work-edit-form')

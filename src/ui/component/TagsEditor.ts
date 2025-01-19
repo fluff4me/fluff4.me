@@ -24,7 +24,7 @@ export interface TagsState {
 }
 
 interface TagsEditorExtensions {
-	readonly state: State<TagsState>
+	readonly state: State.Mutable<TagsState>
 	readonly default: Applicator.Optional<this, Partial<TagsState>>
 	readonly maxLengthGlobal: State<number | undefined>
 	readonly maxLengthCustom: State<number | undefined>
@@ -214,6 +214,9 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 		.attributes.set('type', 'text')
 		.setName(`tags-editor-validity-pipe-input-${Math.random().toString(36).slice(2)}`)
 
+	const maxLengthGlobal = State<number | undefined>(undefined)
+	const maxLengthCustom = State<number | undefined>(undefined)
+
 	const editor: TagsEditor = component
 		.and(Input)
 		.style('tags-editor')
@@ -231,16 +234,15 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 				custom_tags: value?.custom_tags?.slice() ?? [],
 			}),
 
-			maxLengthGlobal: State<number | undefined>(undefined),
-			maxLengthCustom: State<number | undefined>(undefined),
+			maxLengthGlobal, maxLengthCustom,
 			lengthGlobal: tagsState.mapManual(tags => tags.global_tags.length),
 			lengthCustom: tagsState.mapManual(tags => tags.custom_tags.length),
 			setMaxLengthGlobal (maxLength) {
-				editor.maxLengthGlobal.value = maxLength
+				maxLengthGlobal.value = maxLength
 				return editor
 			},
 			setMaxLengthCustom (maxLength) {
-				editor.maxLengthCustom.value = maxLength
+				maxLengthCustom.value = maxLength
 				return editor
 			},
 		}))

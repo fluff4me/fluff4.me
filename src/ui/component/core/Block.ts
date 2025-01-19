@@ -28,7 +28,7 @@ export interface BlockExtensions {
 }
 
 export enum BlockClasses {
-	Main = '$block'
+	Main = '$block',
 }
 
 interface Block extends Component, BlockExtensions, CanHasActionsMenuButton { }

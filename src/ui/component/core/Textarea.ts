@@ -34,6 +34,8 @@ const Textarea = Component.Builder((component): Textarea => {
 		.attributes.set('type', 'text')
 		.setName(`text-area-validity-pipe-input-${Math.random().toString(36).slice(2)}`)
 
+	const state = State('')
+
 	const input: Textarea = component
 		.and(Input)
 		.style('text-area-wrapper')
@@ -41,12 +43,12 @@ const Textarea = Component.Builder((component): Textarea => {
 		.append(contenteditable, hiddenInput)
 		.extend<TextareaExtensions & Partial<InputExtensions>>(input => ({
 			value: '',
-			state: State(''),
+			state,
 			default: StringApplicator(input, value => {
 				if (input.value === '') {
 					input.value = value ?? ''
-					input.state.value = value ?? ''
-					input.length.value = value?.length ?? 0
+					state.value = value ?? ''
+					input.length.asMutable?.setValue(value?.length ?? 0)
 				}
 			}),
 			placeholder: StringApplicator(input, value => {
@@ -68,21 +70,21 @@ const Textarea = Component.Builder((component): Textarea => {
 			get: () => contenteditable.element.textContent || '',
 			set: (value: string) => {
 				contenteditable.element.textContent = value
-				input.state.value = value
-				input.length.value = value.length
+				state.value = value
+				input.length.asMutable?.setValue(value.length)
 			},
 		}))
 
-	input.length.value = 0
+	input.length.asMutable?.setValue(0)
 
 	input.onRooted(input => {
 		contenteditable.event.subscribe(['input', 'change'], event => {
 			if (shouldIgnoreInputEvent) return
-			input.state.value = input.value
-			input.length.value = input.value.length
+			state.value = input.value
+			input.length.asMutable?.setValue(input.value.length)
 
 			let invalid: InvalidMessageText
-			if (input.length.value > (input.maxLength.value ?? Infinity))
+			if ((input.length.value ?? 0) > (input.maxLength.value ?? Infinity))
 				invalid = quilt['shared/form/invalid/too-long']()
 
 			input.setCustomInvalidMessage(invalid)

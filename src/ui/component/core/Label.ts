@@ -7,7 +7,7 @@ import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
 interface LabelExtensions {
-	for: State<string | undefined>
+	readonly for: State<string | undefined>
 	setFor (inputName?: string): this
 	setRequired (required?: boolean | State<boolean>): this
 	setInput (input?: Input): this
@@ -25,7 +25,7 @@ const Label = Component.Builder('label', (label): Label => {
 			for: State(undefined),
 			setFor: inputName => {
 				label.attributes.set('for', inputName)
-				label.for.value = inputName
+				label.for.asMutable?.setValue(inputName)
 				return label
 			},
 			setRequired: (required = true) => {
