@@ -263,7 +263,7 @@ const Paginator = Component.Builder((component): Paginator => {
 		while (true) {
 			page.removeContents()
 			showingPage = number
-			const result = await using?.endpoint.query({ query: { page: number } })
+			const result = await using?.endpoint.query(undefined, { page: number })
 			if (showingPage !== number)
 				return
 
