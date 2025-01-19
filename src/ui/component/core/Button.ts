@@ -17,10 +17,10 @@ interface ButtonExtensions {
 	readonly type: ButtonTypeManipulator<this>
 	readonly disabled: State.Generator<boolean>
 	setDisabled (disabled: boolean, reason: string): this
-	bindDisabled (state: State<string>): this
-	bindDisabled (state: State<boolean>, reason: string): this
-	unbindDisabled (state: State<string>): this
-	unbindDisabled (state: State<boolean>, reason: string): this
+	bindDisabled (state: State.Readonly<string>): this
+	bindDisabled (state: State.Readonly<boolean>, reason: string): this
+	unbindDisabled (state: State.Readonly<string>): this
+	unbindDisabled (state: State.Readonly<boolean>, reason: string): this
 	setIcon (icon?: ButtonIcon): this
 }
 
@@ -31,7 +31,7 @@ const Button = Component.Builder('button', (button): Button => {
 	const disabled = State.Generator(() => !!disabledReasons.size)
 
 	let icon: ButtonIcon | undefined
-	const unuseDisabledStateMap = new WeakMap<State<boolean | string>, UnsubscribeState>()
+	const unuseDisabledStateMap = new WeakMap<State.Readonly<boolean | string>, UnsubscribeState>()
 	return button
 		.attributes.set('type', 'button')
 		.style('button')

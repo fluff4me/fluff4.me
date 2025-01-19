@@ -108,12 +108,12 @@ Component.extend(component => {
 					return
 
 				const oldParent = component.popover.popoverParent.value
-				component.popover.popoverParent.value = component.closest(Popover)
+				component.popover.popoverParent.asMutable?.setValue(component.closest(Popover))
 				if (oldParent && oldParent !== component.popover.popoverParent.value)
-					oldParent.popoverChildren.value = oldParent.popoverChildren.value.filter(c => c !== component.popover)
+					oldParent.popoverChildren.asMutable?.setValue(oldParent.popoverChildren.value.filter(c => c !== component.popover))
 
 				if (component.popover.popoverParent.value && component.popover.popoverParent.value !== oldParent)
-					component.popover.popoverParent.value.popoverChildren.value = [...component.popover.popoverParent.value.popoverChildren.value, component.popover]
+					component.popover.popoverParent.value.popoverChildren.asMutable?.setValue([...component.popover.popoverParent.value.popoverChildren.value, component.popover])
 			}
 
 			async function updatePopoverState () {
@@ -180,10 +180,10 @@ declare module 'ui/Component' {
 }
 
 interface PopoverExtensions {
-	visible: State<boolean>
-	popoverChildren: State<readonly Popover[]>
-	popoverParent: State<Popover | undefined>
-	popoverHasFocus: State<boolean>
+	readonly visible: State.Readonly<boolean>
+	readonly popoverChildren: State.Readonly<readonly Popover[]>
+	readonly popoverParent: State.Readonly<Popover | undefined>
+	readonly popoverHasFocus: State.Readonly<boolean>
 
 	/** Sets the distance the mouse can be from the popover before it hides, if it's shown due to hover */
 	setMousePadding (padding?: number): this
@@ -253,26 +253,26 @@ const Popover = Component.Builder((component): Popover => {
 			show: () => {
 				unbind?.()
 				togglePopover(true)
-				popover.visible.value = true
+				popover.visible.asMutable?.setValue(true)
 				return popover
 			},
 			hide: () => {
 				unbind?.()
 				togglePopover(false)
-				popover.visible.value = false
+				popover.visible.asMutable?.setValue(false)
 				return popover
 			},
 			toggle: shown => {
 				unbind?.()
 				togglePopover(shown)
-				popover.visible.value = shown ?? !popover.visible.value
+				popover.visible.asMutable?.setValue(shown ?? !popover.visible.value)
 				return popover
 			},
 			bind: state => {
 				unbind?.()
 				unbind = state.use(popover, shown => {
 					togglePopover(shown)
-					popover.visible.value = shown
+					popover.visible.asMutable?.setValue(shown)
 				})
 				return popover
 			},
@@ -283,7 +283,7 @@ const Popover = Component.Builder((component): Popover => {
 		}))
 
 	popover.event.subscribe('toggle', event => {
-		popover.visible.value = event.newState === 'open'
+		popover.visible.asMutable?.setValue(event.newState === 'open')
 	})
 
 	popover.onRooted(() => {
@@ -308,7 +308,7 @@ const Popover = Component.Builder((component): Popover => {
 			return
 
 		popover.element.togglePopover(false)
-		popover.visible.value = false
+		popover.visible.asMutable?.setValue(false)
 	}
 
 	function containsPopoverDescendant (descendant?: Node | Component) {

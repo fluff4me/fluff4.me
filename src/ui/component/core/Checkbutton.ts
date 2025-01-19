@@ -7,10 +7,10 @@ import State from 'utility/State'
 
 interface CheckbuttonExtensions {
 	readonly input: Component
-	readonly checked: State<boolean>
+	readonly checked: State.Readonly<boolean>
 	isChecked (): boolean
 	setChecked (checked: boolean): this
-	use (state: State<boolean>): this
+	use (state: State.Readonly<boolean>): this
 	unuse (): this
 }
 

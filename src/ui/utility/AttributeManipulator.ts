@@ -27,7 +27,7 @@ interface AttributeManipulator<HOST> {
 	insertAfter (referenceAttribute: string, ...attributes: string[]): HOST
 	/** Sets the attribute to `value`, or removes the attribute if `value` is `undefined` */
 	set (attribute: string, value?: string): HOST
-	bind (state: State<boolean>, attribute: string, value?: string): HOST
+	bind (state: State.Readonly<boolean>, attribute: string, value?: string): HOST
 	/**
 	 * If the attribute is already set, does nothing. 
 	 * Otherwise, calls the supplier, and sets the attribute to the result, or removes the attribute if it's `undefined` 

@@ -1,7 +1,7 @@
 import type { Quilt as QuiltBase, Weave, Weft } from 'lang/en-nz'
 import quilt, { WeavingArg } from 'lang/en-nz'
 import type Component from 'ui/Component'
-import type { StateOr, UnsubscribeState } from 'utility/State'
+import type { ReadonlyStateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
 Object.assign(window, { quilt })
@@ -28,7 +28,7 @@ export namespace QuiltHelper {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-	export function arg (arg: StateOr<WeavingArg | Quilt.SimpleKey | Quilt.Handler>) {
+	export function arg (arg: ReadonlyStateOr<WeavingArg | Quilt.SimpleKey | Quilt.Handler>) {
 		if (typeof arg === 'object' && arg && 'map' in arg)
 			arg = arg.value
 
@@ -198,7 +198,7 @@ namespace StringApplicator {
 	export interface Optional<HOST> extends Omit<StringApplicator<HOST>, 'state' | 'set' | 'bind' | 'rehost'> {
 		state: State<string | undefined | null>
 		set (value?: string | Weave | null): HOST
-		bind (state?: StateOr<string | Weave | undefined | null>): HOST
+		bind (state?: ReadonlyStateOr<string | Weave | undefined | null>): HOST
 		rehost<NEW_HOST> (newHost: NEW_HOST): StringApplicator.Optional<NEW_HOST>
 	}
 

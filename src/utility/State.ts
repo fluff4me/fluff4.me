@@ -5,6 +5,7 @@ import Define from 'utility/Define'
 import Functions from 'utility/Functions'
 import type { Mutable } from 'utility/Type'
 
+export type ReadonlyStateOr<T> = State.Readonly<T> | T
 export type StateOr<T> = State<T> | T
 
 export type UnsubscribeState = () => void
@@ -28,14 +29,18 @@ interface ReadableState<T, E = T> {
 
 	map<R> (owner: Component, mapper: (value: T) => R): State.Generator<R>
 	mapManual<R> (mapper: (value: T) => R): State.Generator<R>
-	nonNullish: State<boolean>
-	truthy: State<boolean>
-	falsy: State<boolean>
-	not: State<boolean>
+	nonNullish: State.Generator<boolean>
+	truthy: State.Generator<boolean>
+	falsy: State.Generator<boolean>
+	not: State.Generator<boolean>
+
+	asMutable?: State<T>
 }
 
 interface State<T> extends ReadableState<T> {
 	value: T
+	setValue (value: T): this
+	bind (owner: Component, state: State.Readonly<T>): UnsubscribeState
 }
 
 const SYMBOL_UNSUBSCRIBE = Symbol('UNSUBSCRIBE')
@@ -52,6 +57,7 @@ interface InternalState<T> {
 }
 
 function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> {
+	let unuseBoundState: UnsubscribeState | undefined
 	const result: Mutable<State<T>> & InternalState<T> = {
 		isState: true,
 		[SYMBOL_VALUE]: defaultValue,
@@ -60,18 +66,24 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 			return result[SYMBOL_VALUE]
 		},
 		set value (value: T) {
-			if (result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value))
-				return
-
-			const oldValue = result[SYMBOL_VALUE]
-			result[SYMBOL_VALUE] = value
-			result.emit(oldValue)
+			unuseBoundState?.()
+			setValue(value)
+		},
+		setValue (value) {
+			unuseBoundState?.()
+			setValue(value)
+			return result
 		},
 		equals: value => result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value) || false,
 		emit: oldValue => {
 			for (const subscriber of result[SYMBOL_SUBSCRIBERS].slice())
 				subscriber(result[SYMBOL_VALUE], oldValue)
 			return result
+		},
+		bind (owner, state) {
+			unuseBoundState?.()
+			unuseBoundState = state.use(owner, setValue)
+			return unuseBoundState
 		},
 		use: (owner, subscriber) => {
 			result.subscribe(owner, subscriber)
@@ -149,7 +161,17 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 			return getNot()
 		},
 	}
+	result.asMutable = result
 	return result
+
+	function setValue (value: T) {
+		if (result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value))
+			return
+
+		const oldValue = result[SYMBOL_VALUE]
+		result[SYMBOL_VALUE] = value
+		result.emit(oldValue)
+	}
 
 	function getNot () {
 		const not = State
@@ -163,11 +185,13 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 
 namespace State {
 
-	export function is<T> (value: unknown): value is ReadableState<T> {
-		return typeof value === 'object' && (value as ReadableState<T>)?.isState === true
+	export type Readonly<T> = ReadableState<T>
+
+	export function is<T> (value: unknown): value is State.Readonly<T> {
+		return typeof value === 'object' && (value as State.Readonly<T>)?.isState === true
 	}
 
-	export function get<T> (value: T | State<T>): ReadableState<T> {
+	export function get<T> (value: T | State.Readonly<T>): State.Readonly<T> {
 		return is<T>(value) ? value : State(value)
 	}
 
@@ -193,7 +217,8 @@ namespace State {
 	}
 
 	export function Generator<T> (generate: () => T): Generator<T> {
-		const result = State(generate()) as Mutable<Generator<T>> & InternalState<T>
+		const result = State(generate()) as ReadableState<T> as Mutable<Generator<T>> & InternalState<T>
+		delete result.asMutable
 
 		Define.magic(result, 'value', {
 			get: () => result[SYMBOL_VALUE],
@@ -252,7 +277,8 @@ namespace State {
 	}
 
 	export function JIT<T> (generate: () => T): JIT<T> {
-		const result = State(undefined) as Mutable<JIT<T>> & InternalState<T>
+		const result = State(undefined) as ReadableState<T | undefined> as Mutable<JIT<T>> & InternalState<T>
+		delete result.asMutable
 
 		let isCached = false
 		let cached: T | undefined

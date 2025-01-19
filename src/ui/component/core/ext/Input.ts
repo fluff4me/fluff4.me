@@ -8,7 +8,7 @@ import ProgressWheel from 'ui/component/core/ProgressWheel'
 import Slot from 'ui/component/core/Slot'
 import { AllowYOffscreen } from 'ui/utility/AnchorManipulator'
 import StringApplicator from 'ui/utility/StringApplicator'
-import type { StateOr } from 'utility/State'
+import type { ReadonlyStateOr } from 'utility/State'
 import State from 'utility/State'
 
 export type InvalidMessageText = string | Weave | undefined
@@ -58,7 +58,7 @@ export interface InputExtensions {
 
 interface Input extends Component, InputExtensions { }
 
-function createHintText (hint: StateOr<string | Weave>) {
+function createHintText (hint: ReadonlyStateOr<string | Weave>) {
 	return Component()
 		.style('input-popover-hint-text')
 		.text.bind(hint)

@@ -78,9 +78,9 @@ namespace FocusListener {
 		// updatingFocusState = true
 		const lastLastFocusedComponent = focusedLast.value?.component
 		if (lastLastFocusedComponent) {
-			lastLastFocusedComponent.hadFocusedLast.value = false
+			lastLastFocusedComponent.hadFocusedLast.asMutable?.setValue(false)
 			for (const ancestor of lastLastFocusedComponent.getAncestorComponents())
-				ancestor.hadFocusedLast.value = false
+				ancestor.hadFocusedLast.asMutable?.setValue(false)
 		}
 
 		const lastFocusedComponent = focused.value?.component
@@ -99,17 +99,17 @@ namespace FocusListener {
 				if (!focusedComponent)
 					// setting "had focused" must happen before clearing "has focused"
 					// just in case anything is listening for hasFocused || hadFocusedLast
-					lastFocusedComponent.hadFocusedLast.value = true
+					lastFocusedComponent.hadFocusedLast.asMutable?.setValue(true)
 
-				lastFocusedComponent.hasFocused.value = false
+				lastFocusedComponent.hasFocused.asMutable?.setValue(false)
 			}
 
-			lastFocusedComponent.focused.value = false
+			lastFocusedComponent.focused.asMutable?.setValue(false)
 		}
 
 		if (focusedComponent) {
-			focusedComponent.focused.value = true
-			focusedComponent.hasFocused.value = true
+			focusedComponent.focused.asMutable?.setValue(true)
+			focusedComponent.hasFocused.asMutable?.setValue(true)
 		}
 
 		if (oldAncestors)
@@ -119,15 +119,15 @@ namespace FocusListener {
 						if (!focusedComponent)
 							// setting "had focused" must happen before clearing "has focused"
 							// just in case anything is listening for hasFocused || hadFocusedLast
-							ancestor.hadFocusedLast.value = true
+							ancestor.hadFocusedLast.asMutable?.setValue(true)
 
-						ancestor.hasFocused.value = false
+						ancestor.hasFocused.asMutable?.setValue(false)
 					}
 
 		if (newAncestors)
 			for (const ancestor of newAncestors)
 				if (ancestor)
-					ancestor.hasFocused.value = true
+					ancestor.hasFocused.asMutable?.setValue(true)
 
 		// updatingFocusState = false
 		// if (exhaustingQueue)

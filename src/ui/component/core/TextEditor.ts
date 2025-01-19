@@ -749,7 +749,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			})
 	})
 
-	const ToolbarCheckbutton = Component.Builder((_, state: State<boolean>, toggler: (component: Component) => unknown) => {
+	const ToolbarCheckbutton = Component.Builder((_, state: State.Readonly<boolean>, toggler: (component: Component) => unknown) => {
 		return Checkbutton()
 			.style('text-editor-toolbar-button')
 			.style.bind(state, 'text-editor-toolbar-button--enabled')
@@ -762,7 +762,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			})
 	})
 
-	const ToolbarRadioButton = Component.Builder((_, name: string, state: State<boolean>, toggler: (component: Component) => unknown) => {
+	const ToolbarRadioButton = Component.Builder((_, name: string, state: State.Readonly<boolean>, toggler: (component: Component) => unknown) => {
 		return RadioButton()
 			.style('text-editor-toolbar-button')
 			.setName(name)
