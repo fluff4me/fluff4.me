@@ -1,5 +1,8 @@
+import type { ErrorResponse } from 'api.fluff4.me'
 import Component from 'ui/Component'
 import type Toast from 'ui/component/core/toast/Toast'
+import { TOAST_ERROR } from 'ui/component/core/toast/Toast'
+import type { Quilt } from 'ui/utility/StringApplicator'
 import type { ComponentNameType } from 'ui/utility/StyleManipulator'
 import Async from 'utility/Async'
 import Task from 'utility/Task'
@@ -64,7 +67,8 @@ const ToastComponent = Component.Builder((component): ToastComponent => {
 //#region Toast List
 
 interface ToastListExtensions extends Record<ToastType, <PARAMS extends any[]>(toast: Toast<PARAMS>, ...params: PARAMS) => ToastComponent> {
-
+	handleError<T> (response: T | Error | ErrorResponse<T>, translation?: Quilt.SimpleKey | Quilt.Handler): response is ErrorResponse<T> | Error
+	handleError<T> (response: T | ErrorResponse<T>, translation?: Quilt.SimpleKey | Quilt.Handler): response is ErrorResponse<T>
 }
 
 interface ToastList extends Component, ToastListExtensions { }
@@ -76,6 +80,14 @@ const ToastList = Component.Builder((component): ToastList => {
 			info: add.bind(null, 'info'),
 			success: add.bind(null, 'success'),
 			warning: add.bind(null, 'warning'),
+			handleError (response, translation = 'shared/toast/error-occurred'): response is ErrorResponse<any> {
+				if (response instanceof Error) {
+					toasts.warning(TOAST_ERROR, translation, response)
+					return true
+				}
+
+				return false
+			},
 		}))
 
 	Object.assign(window, { toast: toasts })

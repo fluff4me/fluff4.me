@@ -40,7 +40,7 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 		.appendTo(block)
 
 	const services = await EndpointAuthServices.query()
-	if (services instanceof Error) {
+	if (toast.handleError(services)) {
 		console.error(services)
 		return block
 	}

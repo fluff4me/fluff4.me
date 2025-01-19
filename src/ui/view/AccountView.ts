@@ -68,10 +68,8 @@ export default ViewDefinition({
 										return
 
 									const response = await EndpointAuthorDelete.query()
-									if (response instanceof Error) {
-										console.error(response)
+									if (toast.handleError(response))
 										return
-									}
 
 									return Session.reset()
 								})))

@@ -62,7 +62,7 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 					return
 
 				const result = await query.value?.()
-				if (result instanceof Error)
+				if (toast.handleError(result))
 					throw result
 
 				authors.value.push(...result.data.authors); authors.emit()

@@ -126,7 +126,7 @@ const Paginator = Component.Builder((component): Paginator => {
 				let response: EndpointResponse<PaginatedEndpoint>
 				while (true) {
 					const result = await endpoint.query()
-					if (result instanceof Error) {
+					if (toast.handleError(result)) {
 						mainPage.removeContents()
 						await new Promise<void>(resolve => mainPage.append(RetryDialog(resolve)))
 						continue
@@ -267,7 +267,7 @@ const Paginator = Component.Builder((component): Paginator => {
 			if (showingPage !== number)
 				return
 
-			const isError = result instanceof Error
+			const isError = toast.handleError(result)
 			if (!isError && !hasResults(result.data)) {
 				cursor.value = number
 				pages[oldNumber].style('paginator-page--bounce')
