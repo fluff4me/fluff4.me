@@ -34,11 +34,11 @@ namespace HoverListener {
 			const newHovered = [...allHovered]
 			for (const element of lastHovered)
 				if (element.component && !newHovered.includes(element))
-					element.component.hovered.value = false
+					element.component.hovered.asMutable?.setValue(false)
 
 			for (const element of newHovered)
 				if (element.component && !lastHovered.includes(element))
-					element.component.hovered.value = true
+					element.component.hovered.asMutable?.setValue(true)
 
 			lastHovered = newHovered
 		})

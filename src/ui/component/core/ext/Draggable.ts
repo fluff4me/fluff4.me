@@ -10,8 +10,8 @@ enum DragState {
 }
 
 interface DraggableExtensions {
-	readonly state: State<DragState>
-	readonly dragging: State<boolean>
+	readonly state: State.Readonly<DragState>
+	readonly dragging: State.Readonly<boolean>
 	setStickyDistance (stickyDistance?: number): this
 	setDelay (delay?: number): this
 	stopDragging (): this

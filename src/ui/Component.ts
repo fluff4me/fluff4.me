@@ -96,17 +96,17 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	readonly style: StyleManipulator<this>
 	readonly anchor: AnchorManipulator<this>
 
-	readonly hovered: State<boolean>
-	readonly focused: State<boolean>
-	readonly hasFocused: State<boolean>
-	readonly hadFocusedLast: State<boolean>
-	readonly hoveredOrFocused: State<boolean>
-	readonly hoveredOrHasFocused: State<boolean>
-	readonly active: State<boolean>
-	readonly rooted: State<boolean>
-	readonly removed: State<boolean>
-	readonly id: State<string | undefined>
-	readonly name: State<string | undefined>
+	readonly hovered: State.Readonly<boolean>
+	readonly focused: State.Readonly<boolean>
+	readonly hasFocused: State.Readonly<boolean>
+	readonly hadFocusedLast: State.Readonly<boolean>
+	readonly hoveredOrFocused: State.Readonly<boolean>
+	readonly hoveredOrHasFocused: State.Readonly<boolean>
+	readonly active: State.Readonly<boolean>
+	readonly rooted: State.Readonly<boolean>
+	readonly removed: State.Readonly<boolean>
+	readonly id: State.Readonly<string | undefined>
+	readonly name: State.Readonly<string | undefined>
 	readonly rect: State.JIT<DOMRect>
 	readonly tagName: Uppercase<keyof HTMLElementTagNameMap>
 
@@ -115,8 +115,8 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	/** Causes this element to be removed when its owner is removed */
 	setOwner (owner: Component): this
 
-	setId (id?: string | State<string | undefined>): this
-	setName (name?: string | State<string | undefined>): this
+	setId (id?: string | State.Readonly<string | undefined>): this
+	setName (name?: string | State.Readonly<string | undefined>): this
 
 	is<BUILDERS extends Component.BuilderLike[]> (builder: BUILDERS): this is { [INDEX in keyof BUILDERS]: BUILDERS[INDEX] extends infer BUILDER ? (BUILDER extends Component.BuilderLike<any[], infer COMPONENT> ? COMPONENT : never) | undefined : never }[number]
 	is<COMPONENT extends Component> (builder: Component.BuilderLike<any[], COMPONENT>): this is COMPONENT
@@ -345,35 +345,35 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return Define.set(component, 'anchor', AnchorManipulator(component))
 		},
 
-		get hovered (): State<boolean> {
+		get hovered (): State.Readonly<boolean> {
 			return Define.set(component, 'hovered', State(false))
 		},
-		get focused (): State<boolean> {
+		get focused (): State.Readonly<boolean> {
 			return Define.set(component, 'focused', State(false))
 		},
-		get hasFocused (): State<boolean> {
+		get hasFocused (): State.Readonly<boolean> {
 			return Define.set(component, 'hasFocused', State(false))
 		},
-		get hadFocusedLast (): State<boolean> {
+		get hadFocusedLast (): State.Readonly<boolean> {
 			return Define.set(component, 'hadFocusedLast', State(false))
 		},
-		get hoveredOrFocused (): State<boolean> {
+		get hoveredOrFocused (): State.Readonly<boolean> {
 			return Define.set(component, 'hoveredOrFocused',
 				State.Generator(() => component.hovered.value || component.focused.value)
 					.observe(component, component.hovered, component.focused))
 		},
-		get hoveredOrHasFocused (): State<boolean> {
+		get hoveredOrHasFocused (): State.Readonly<boolean> {
 			return Define.set(component, 'hoveredOrHasFocused',
 				State.Generator(() => component.hovered.value || component.hasFocused.value)
 					.observe(component, component.hovered, component.hasFocused))
 		},
-		get active (): State<boolean> {
+		get active (): State.Readonly<boolean> {
 			return Define.set(component, 'active', State(false))
 		},
-		get id (): State<string | undefined> {
+		get id (): State.Readonly<string | undefined> {
 			return Define.set(component, 'id', State(undefined))
 		},
-		get name (): State<string | undefined> {
+		get name (): State.Readonly<string | undefined> {
 			return Define.set(component, 'name', State(undefined))
 		},
 		get rect (): State.JIT<DOMRect> {
@@ -407,11 +407,11 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			function setId (id?: string) {
 				if (id) {
 					component.element.setAttribute('id', id)
-					component.id.value = id
+					component.id.asMutable?.setValue(id)
 				}
 				else {
 					component.element.removeAttribute('id')
-					component.id.value = undefined
+					component.id.asMutable?.setValue(undefined)
 				}
 			}
 		},
@@ -430,11 +430,11 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 				if (name) {
 					name = name.replace(/[^\w-]+/g, '-').toLowerCase()
 					component.element.setAttribute('name', name)
-					component.name.value = name
+					component.name.asMutable?.setValue(name)
 				}
 				else {
 					component.element.removeAttribute('name')
-					component.name.value = undefined
+					component.name.asMutable?.setValue(undefined)
 				}
 			}
 		},
@@ -446,8 +446,8 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		remove () {
 			component.removeContents()
 
-			component.removed.value = true
-			component.rooted.value = false
+			component.removed.asMutable?.setValue(true)
+			component.rooted.asMutable?.setValue(false)
 
 			component.element.component = undefined
 			component.element.remove()
@@ -735,13 +735,13 @@ function updateRooted (component: Component | undefined) {
 		if (component.rooted.value === rooted)
 			return
 
-		component.rooted.value = rooted
+		component.rooted.asMutable?.setValue(rooted)
 		component.event.emit(rooted ? 'root' : 'unroot')
 
 		for (const descendant of component.element.querySelectorAll<Element>('*')) {
 			const component = descendant.component
 			if (component) {
-				component.rooted.value = rooted
+				component.rooted.asMutable?.setValue(rooted)
 				component.event.emit(rooted ? 'root' : 'unroot')
 			}
 		}
