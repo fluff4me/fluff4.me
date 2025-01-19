@@ -20,8 +20,8 @@ interface PaginatorUseInitialFactory2<DATA, HOST> {
 }
 
 interface PaginatorExtensions<DATA = any> {
-	readonly page: State.Readonly<number>
-	readonly data: State.Readonly<DATA>
+	readonly page: State<number>
+	readonly data: State<DATA>
 	useEndpoint<ROUTE extends PaginatedEndpointRoute, DATA extends ResponseData<EndpointResponse<Endpoint<ROUTE>>>> (endpoint: PreparedQueryOf<Endpoint<ROUTE>>, contentInitialiser: (slot: Slot, response: DATA, paginator: this) => unknown): Promise<this>
 	useInitial<DATA> (data: DATA | undefined, page: number, pageCount: number | true): PaginatorUseInitialFactory<DATA, this>
 	orElse (contentInitialiser: (slot: Slot) => unknown): this

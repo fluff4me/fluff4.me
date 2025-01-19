@@ -3,7 +3,7 @@ import type Component from 'ui/Component'
 import DevServer from 'utility/DevServer'
 import Env from 'utility/Env'
 import Script from 'utility/Script'
-import type { ReadonlyStateOr, UnsubscribeState } from 'utility/State'
+import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Style from 'utility/Style'
 
@@ -44,16 +44,16 @@ interface StyleManipulatorFunctions<HOST> {
 	remove (...names: ComponentName[]): HOST
 	toggle (...names: ComponentName[]): HOST
 	toggle (enabled: boolean, ...names: ComponentName[]): HOST
-	bind (state: ReadonlyStateOr<boolean>, ...names: ComponentName[]): HOST
-	unbind (state?: State.Readonly<boolean>): HOST
+	bind (state: StateOr<boolean>, ...names: ComponentName[]): HOST
+	unbind (state?: State<boolean>): HOST
 	refresh (): HOST
 
 	hasProperty (property: string): boolean
 	setProperty (property: string, value?: string | number | null): HOST
 	toggleProperty (enabled: boolean | undefined, property: string, value?: string | number | null): HOST
 	setVariable (variable: string, value?: string | number | null): HOST
-	bindProperty (property: string, state: ReadonlyStateOr<string | number | undefined | null>): HOST
-	bindVariable (variable: string, state: ReadonlyStateOr<string | number | undefined | null>): HOST
+	bindProperty (property: string, state: StateOr<string | number | undefined | null>): HOST
+	bindVariable (variable: string, state: StateOr<string | number | undefined | null>): HOST
 	removeProperties (...properties: string[]): HOST
 	removeVariables (...variables: string[]): HOST
 }
@@ -68,7 +68,7 @@ interface StyleManipulator<HOST> extends StyleManipulatorFunction<HOST>, StyleMa
 function StyleManipulator (component: Component): StyleManipulator<Component> {
 	const styles = new Set<ComponentName>()
 	const currentClasses: string[] = []
-	const stateUnsubscribers = new WeakMap<State.Readonly<boolean>, [UnsubscribeState, ComponentName[]]>()
+	const stateUnsubscribers = new WeakMap<State<boolean>, [UnsubscribeState, ComponentName[]]>()
 	const unbindPropertyState: Record<string, UnsubscribeState | undefined> = {}
 
 	if (Env.isDev)

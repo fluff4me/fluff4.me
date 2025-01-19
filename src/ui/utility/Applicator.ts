@@ -55,7 +55,7 @@ function Applicator<HOST, T> (host: HOST, defaultValueOrApply: T | undefined | (
 namespace Applicator {
 
 	export interface Optional<HOST, T> extends Omit<Applicator<HOST, T>, 'state' | 'set' | 'bind' | 'rehost'> {
-		state: State<T | undefined | null>
+		state: State.Mutable<T | undefined | null>
 		set (value?: T | null): HOST
 		bind (state?: State<T | undefined | null>): HOST
 		rehost<NEW_HOST> (newHost: NEW_HOST): Applicator.Optional<NEW_HOST, T>

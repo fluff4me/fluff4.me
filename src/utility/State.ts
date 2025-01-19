@@ -3,14 +3,14 @@ import type Arrays from 'utility/Arrays'
 import { NonNullish as FilterNonNullish } from 'utility/Arrays'
 import Define from 'utility/Define'
 import Functions from 'utility/Functions'
-import type { Mutable } from 'utility/Type'
+import type { Mutable as MakeMutable } from 'utility/Type'
 
-export type ReadonlyStateOr<T> = State.Readonly<T> | T
 export type StateOr<T> = State<T> | T
+export type MutableStateOr<T> = MutableState<T> | T
 
 export type UnsubscribeState = () => void
 
-interface ReadableState<T, E = T> {
+interface State<T, E = T> {
 	readonly isState: true
 	readonly value: T
 
@@ -24,8 +24,8 @@ interface ReadableState<T, E = T> {
 	subscribeManual (subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
 	unsubscribe (subscriber: (value: E, oldValue?: E) => unknown): void
 	emit (oldValue?: E): void
-	await<R extends Arrays.Or<T>> (owner: Component, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): State<T>
-	awaitManual<R extends Arrays.Or<T>> (value: Arrays.Or<T>, then: (value: R extends (infer R)[] ? R : R) => unknown): State<T>
+	await<R extends Arrays.Or<T>> (owner: Component, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
+	awaitManual<R extends Arrays.Or<T>> (value: Arrays.Or<T>, then: (value: R extends (infer R)[] ? R : R) => unknown): this
 
 	map<R> (owner: Component, mapper: (value: T) => R): State.Generator<R>
 	mapManual<R> (mapper: (value: T) => R): State.Generator<R>
@@ -34,13 +34,13 @@ interface ReadableState<T, E = T> {
 	falsy: State.Generator<boolean>
 	not: State.Generator<boolean>
 
-	asMutable?: State<T>
+	asMutable?: MutableState<T>
 }
 
-interface State<T> extends ReadableState<T> {
+interface MutableState<T> extends State<T> {
 	value: T
 	setValue (value: T): this
-	bind (owner: Component, state: State.Readonly<T>): UnsubscribeState
+	bind (owner: Component, state: State<T>): UnsubscribeState
 }
 
 const SYMBOL_UNSUBSCRIBE = Symbol('UNSUBSCRIBE')
@@ -56,9 +56,9 @@ interface InternalState<T> {
 	[SYMBOL_SUBSCRIBERS]: ((value: unknown, oldValue: unknown) => unknown)[]
 }
 
-function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> {
+function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): MutableState<T> {
 	let unuseBoundState: UnsubscribeState | undefined
-	const result: Mutable<State<T>> & InternalState<T> = {
+	const result: MakeMutable<MutableState<T>> & InternalState<T> = {
 		isState: true,
 		[SYMBOL_VALUE]: defaultValue,
 		[SYMBOL_SUBSCRIBERS]: [],
@@ -185,13 +185,13 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): State<T> 
 
 namespace State {
 
-	export type Readonly<T> = ReadableState<T>
+	export type Mutable<T> = MutableState<T>
 
-	export function is<T> (value: unknown): value is State.Readonly<T> {
-		return typeof value === 'object' && (value as State.Readonly<T>)?.isState === true
+	export function is<T> (value: unknown): value is State<T> {
+		return typeof value === 'object' && (value as State<T>)?.isState === true
 	}
 
-	export function get<T> (value: T | State.Readonly<T>): State.Readonly<T> {
+	export function get<T> (value: T | State<T>): State<T> {
 		return is<T>(value) ? value : State(value)
 	}
 
@@ -209,15 +209,15 @@ namespace State {
 		}
 	}
 
-	export interface Generator<T> extends ReadableState<T> {
+	export interface Generator<T> extends State<T> {
 		refresh (): this
-		observe (owner: Component, ...states: (ReadableState<any> | undefined)[]): this
-		observeManual (...states: (ReadableState<any> | undefined)[]): this
-		unobserve (...states: (ReadableState<any> | undefined)[]): this
+		observe (owner: Component, ...states: (State<any> | undefined)[]): this
+		observeManual (...states: (State<any> | undefined)[]): this
+		unobserve (...states: (State<any> | undefined)[]): this
 	}
 
 	export function Generator<T> (generate: () => T): Generator<T> {
-		const result = State(generate()) as ReadableState<T> as Mutable<Generator<T>> & InternalState<T>
+		const result = State(generate()) as State<T> as MakeMutable<Generator<T>> & InternalState<T>
 		delete result.asMutable
 
 		Define.magic(result, 'value', {
@@ -270,14 +270,14 @@ namespace State {
 		return result
 	}
 
-	export interface JIT<T> extends ReadableState<T, undefined> {
+	export interface JIT<T> extends State<T, undefined> {
 		markDirty (): this
-		observe (...states: ReadableState<any>[]): this
-		unobserve (...states: ReadableState<any>[]): this
+		observe (...states: State<any>[]): this
+		unobserve (...states: State<any>[]): this
 	}
 
 	export function JIT<T> (generate: () => T): JIT<T> {
-		const result = State(undefined) as ReadableState<T | undefined> as Mutable<JIT<T>> & InternalState<T>
+		const result = State(undefined) as State<T | undefined> as MakeMutable<JIT<T>> & InternalState<T>
 		delete result.asMutable
 
 		let isCached = false
@@ -322,47 +322,47 @@ namespace State {
 		return result
 	}
 
-	export function Truthy (owner: Component, state: ReadableState<any>): Generator<boolean> {
+	export function Truthy (owner: Component, state: State<any>): Generator<boolean> {
 		return Generator(() => !!state.value)
 			.observe(owner, state)
 	}
 
-	export function NonNullish (owner: Component, state: ReadableState<any>): Generator<boolean> {
+	export function NonNullish (owner: Component, state: State<any>): Generator<boolean> {
 		return Generator(() => state.value !== undefined && state.value !== null)
 			.observe(owner, state)
 	}
 
-	export function Falsy (owner: Component, state: ReadableState<any>): Generator<boolean> {
+	export function Falsy (owner: Component, state: State<any>): Generator<boolean> {
 		return Generator(() => !!state.value)
 			.observe(owner, state)
 	}
 
-	export function Some (owner: Component, ...anyOfStates: ReadableState<unknown>[]): Generator<boolean> {
+	export function Some (owner: Component, ...anyOfStates: State<unknown>[]): Generator<boolean> {
 		return Generator(() => anyOfStates.some(state => state.value))
 			.observe(owner, ...anyOfStates)
 	}
 
-	export function Every (owner: Component, ...anyOfStates: ReadableState<unknown>[]): Generator<boolean> {
+	export function Every (owner: Component, ...anyOfStates: State<unknown>[]): Generator<boolean> {
 		return Generator(() => anyOfStates.every(state => state.value))
 			.observe(owner, ...anyOfStates)
 	}
 
-	export function Map<const INPUT extends (ReadableState<unknown> | undefined)[], OUTPUT> (owner: Component, inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: INPUT[I] extends ReadableState<infer INPUT> ? INPUT : undefined }>) => OUTPUT): Generator<OUTPUT> {
+	export function Map<const INPUT extends (State<unknown> | undefined)[], OUTPUT> (owner: Component, inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: INPUT[I] extends State<infer INPUT> ? INPUT : undefined }>) => OUTPUT): Generator<OUTPUT> {
 		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never))
 			.observe(owner, ...inputs.filter(FilterNonNullish))
 	}
 
-	export function MapManual<const INPUT extends (ReadableState<unknown> | undefined)[], OUTPUT> (inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: Exclude<INPUT[I], undefined> extends ReadableState<infer INPUT> ? INPUT : undefined }>) => OUTPUT): Generator<OUTPUT> {
+	export function MapManual<const INPUT extends (State<unknown> | undefined)[], OUTPUT> (inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: Exclude<INPUT[I], undefined> extends State<infer INPUT> ? INPUT : undefined }>) => OUTPUT): Generator<OUTPUT> {
 		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never))
 			.observeManual(...inputs.filter(FilterNonNullish))
 	}
 
-	export function Use<const INPUT extends Record<string, (ReadableState<unknown> | undefined)>> (owner: Component, input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends ReadableState<infer INPUT> ? INPUT : undefined }> {
+	export function Use<const INPUT extends Record<string, (State<unknown> | undefined)>> (owner: Component, input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends State<infer INPUT> ? INPUT : undefined }> {
 		return Generator(() => Object.entries(input).toObject(([key, state]) => [key, state?.value]) as never)
 			.observe(owner, ...Object.values(input).filter(FilterNonNullish))
 	}
 
-	export function UseManual<const INPUT extends Record<string, (ReadableState<unknown> | undefined)>> (input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends ReadableState<infer INPUT> ? INPUT : undefined }> {
+	export function UseManual<const INPUT extends Record<string, (State<unknown> | undefined)>> (input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends State<infer INPUT> ? INPUT : undefined }> {
 		return Generator(() => Object.entries(input).toObject(([key, state]) => [key, state?.value]) as never)
 			.observeManual(...Object.values(input).filter(FilterNonNullish))
 	}

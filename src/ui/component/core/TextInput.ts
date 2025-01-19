@@ -40,18 +40,20 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 	let shouldIgnoreInputEvent = false
 	let filterFunction: FilterFunction | undefined
 
+	const state = State('')
+
 	const input: TextInput = component
 		.and(Input)
 		.style('text-input')
 		.attributes.set('type', 'text')
 		.extend<TextInputExtensions>(input => ({
 			value: '',
-			state: State(''),
+			state,
 			default: StringApplicator(input, value => {
 				if (input.value === '') {
 					input.value = value ?? ''
-					input.state.value = value ?? ''
-					input.length.value = value?.length ?? 0
+					state.value = value ?? ''
+					input.length.asMutable?.setValue(value?.length ?? 0)
 				}
 			}),
 			placeholder: StringApplicator(input, value => {
@@ -72,22 +74,22 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 				const element = input.element as HTMLInputElement
 				element.value = value
 				applyFilter('change')
-				input.state.value = element.value
-				input.length.value = element.value.length
+				state.value = element.value
+				input.length.asMutable?.setValue(element.value.length)
 			},
 		}))
 
-	input.length.value = 0
+	input.length.asMutable?.setValue(0)
 
 	input.event.subscribe(['input', 'change'], event => {
 		applyFilter(event.type as 'input' | 'change')
 
 		if (shouldIgnoreInputEvent) return
-		input.state.value = input.value
-		input.length.value = input.value.length
+		state.value = input.value
+		input.length.asMutable?.setValue(input.value.length)
 
 		let invalid: InvalidMessageText
-		if (input.length.value > (input.maxLength.value ?? Infinity))
+		if ((input.length.value ?? 0) > (input.maxLength.value ?? Infinity))
 			invalid = quilt['shared/form/invalid/too-long']()
 
 		input.setCustomInvalidMessage(invalid)

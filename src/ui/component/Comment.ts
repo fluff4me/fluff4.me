@@ -35,8 +35,8 @@ interface CommentExtensions {
 interface Comment extends Component, CommentExtensions { }
 
 interface CommentDataSource {
-	comments: State<(CommentData | CommentEditor)[]>
-	authors: State<Author[]>
+	comments: State.Mutable<(CommentData | CommentEditor)[]>
+	authors: State.Mutable<Author[]>
 }
 
 interface CommentMetadata {

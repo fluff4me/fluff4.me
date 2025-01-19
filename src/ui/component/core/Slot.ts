@@ -9,8 +9,8 @@ export type SlotCleanup = () => unknown
 export type SlotInitialiserReturn = AbortPromiseOr<SlotCleanup | Component | undefined | null | false | 0 | '' | void>
 
 interface SlotExtensions {
-	use<T> (state: T | State.Readonly<T>, initialiser: (slot: ComponentInsertionTransaction, value: T) => SlotInitialiserReturn): this
-	if (state: State.Readonly<boolean>, initialiser: (slot: ComponentInsertionTransaction) => SlotInitialiserReturn): this
+	use<T> (state: T | State<T>, initialiser: (slot: ComponentInsertionTransaction, value: T) => SlotInitialiserReturn): this
+	if (state: State<boolean>, initialiser: (slot: ComponentInsertionTransaction) => SlotInitialiserReturn): this
 }
 
 interface Slot extends Component, SlotExtensions { }
@@ -107,7 +107,7 @@ const Slot = Object.assign(
 		}
 	}),
 	{
-		using: <T> (value: T | State.Readonly<T>, initialiser: (transaction: ComponentInsertionTransaction, value: T) => SlotInitialiserReturn) =>
+		using: <T> (value: T | State<T>, initialiser: (transaction: ComponentInsertionTransaction, value: T) => SlotInitialiserReturn) =>
 			Slot().use(State.get(value), initialiser),
 	}
 )

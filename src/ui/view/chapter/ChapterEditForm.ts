@@ -14,7 +14,7 @@ import TextInput from 'ui/component/core/TextInput'
 import { TOAST_ERROR, TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import type State from 'utility/State'
 
-export default Component.Builder((component, state: State<Chapter | undefined>, workParams: WorkParams) => {
+export default Component.Builder((component, state: State.Mutable<Chapter | undefined>, workParams: WorkParams) => {
 	const block = component.and(Block)
 	const form = block.and(Form, block.title)
 	form.viewTransition('chapter-edit-form')

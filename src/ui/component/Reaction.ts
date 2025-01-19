@@ -2,7 +2,7 @@ import type { ManifestReactionTypes } from 'api.fluff4.me'
 import Component from 'ui/Component'
 import type { ButtonIcon } from 'ui/component/core/Button'
 import Button from 'ui/component/core/Button'
-import type { ReadonlyStateOr } from 'utility/State'
+import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 
 export type ReactionType = keyof ManifestReactionTypes
@@ -12,8 +12,8 @@ const REACTION_MAP: Record<ReactionType, ButtonIcon> = {
 }
 
 interface ReactionExtensions {
-	readonly reactions: State.Readonly<number>
-	readonly reacted: State.Readonly<boolean>
+	readonly reactions: State<number>
+	readonly reacted: State<boolean>
 }
 
 interface Reaction extends Component, ReactionExtensions { }
@@ -21,8 +21,8 @@ interface Reaction extends Component, ReactionExtensions { }
 const Reaction = Component.Builder((
 	component,
 	type: ReactionType,
-	reactionsIn: ReadonlyStateOr<number> = State(0),
-	reactedIn: ReadonlyStateOr<boolean> = State(false),
+	reactionsIn: StateOr<number> = State(0),
+	reactedIn: StateOr<boolean> = State(false),
 ): Reaction => {
 	const reactions = State.get(reactionsIn)
 	const reacted = State.get(reactedIn)

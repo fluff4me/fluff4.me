@@ -96,17 +96,17 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	readonly style: StyleManipulator<this>
 	readonly anchor: AnchorManipulator<this>
 
-	readonly hovered: State.Readonly<boolean>
-	readonly focused: State.Readonly<boolean>
-	readonly hasFocused: State.Readonly<boolean>
-	readonly hadFocusedLast: State.Readonly<boolean>
-	readonly hoveredOrFocused: State.Readonly<boolean>
-	readonly hoveredOrHasFocused: State.Readonly<boolean>
-	readonly active: State.Readonly<boolean>
-	readonly rooted: State.Readonly<boolean>
-	readonly removed: State.Readonly<boolean>
-	readonly id: State.Readonly<string | undefined>
-	readonly name: State.Readonly<string | undefined>
+	readonly hovered: State<boolean>
+	readonly focused: State<boolean>
+	readonly hasFocused: State<boolean>
+	readonly hadFocusedLast: State<boolean>
+	readonly hoveredOrFocused: State<boolean>
+	readonly hoveredOrHasFocused: State<boolean>
+	readonly active: State<boolean>
+	readonly rooted: State<boolean>
+	readonly removed: State<boolean>
+	readonly id: State<string | undefined>
+	readonly name: State<string | undefined>
 	readonly rect: State.JIT<DOMRect>
 	readonly tagName: Uppercase<keyof HTMLElementTagNameMap>
 
@@ -115,8 +115,8 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	/** Causes this element to be removed when its owner is removed */
 	setOwner (owner: Component): this
 
-	setId (id?: string | State.Readonly<string | undefined>): this
-	setName (name?: string | State.Readonly<string | undefined>): this
+	setId (id?: string | State<string | undefined>): this
+	setName (name?: string | State<string | undefined>): this
 
 	is<BUILDERS extends Component.BuilderLike[]> (builder: BUILDERS): this is { [INDEX in keyof BUILDERS]: BUILDERS[INDEX] extends infer BUILDER ? (BUILDER extends Component.BuilderLike<any[], infer COMPONENT> ? COMPONENT : never) | undefined : never }[number]
 	is<COMPONENT extends Component> (builder: Component.BuilderLike<any[], COMPONENT>): this is COMPONENT
@@ -345,35 +345,35 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return Define.set(component, 'anchor', AnchorManipulator(component))
 		},
 
-		get hovered (): State.Readonly<boolean> {
+		get hovered (): State<boolean> {
 			return Define.set(component, 'hovered', State(false))
 		},
-		get focused (): State.Readonly<boolean> {
+		get focused (): State<boolean> {
 			return Define.set(component, 'focused', State(false))
 		},
-		get hasFocused (): State.Readonly<boolean> {
+		get hasFocused (): State<boolean> {
 			return Define.set(component, 'hasFocused', State(false))
 		},
-		get hadFocusedLast (): State.Readonly<boolean> {
+		get hadFocusedLast (): State<boolean> {
 			return Define.set(component, 'hadFocusedLast', State(false))
 		},
-		get hoveredOrFocused (): State.Readonly<boolean> {
+		get hoveredOrFocused (): State<boolean> {
 			return Define.set(component, 'hoveredOrFocused',
 				State.Generator(() => component.hovered.value || component.focused.value)
 					.observe(component, component.hovered, component.focused))
 		},
-		get hoveredOrHasFocused (): State.Readonly<boolean> {
+		get hoveredOrHasFocused (): State<boolean> {
 			return Define.set(component, 'hoveredOrHasFocused',
 				State.Generator(() => component.hovered.value || component.hasFocused.value)
 					.observe(component, component.hovered, component.hasFocused))
 		},
-		get active (): State.Readonly<boolean> {
+		get active (): State<boolean> {
 			return Define.set(component, 'active', State(false))
 		},
-		get id (): State.Readonly<string | undefined> {
+		get id (): State<string | undefined> {
 			return Define.set(component, 'id', State(undefined))
 		},
-		get name (): State.Readonly<string | undefined> {
+		get name (): State<string | undefined> {
 			return Define.set(component, 'name', State(undefined))
 		},
 		get rect (): State.JIT<DOMRect> {
