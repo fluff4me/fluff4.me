@@ -37,12 +37,17 @@ type EndpointQuery<ROUTE extends keyof Paths> =
 			: { params: PARAMS }
 			: never
 		)
+	) extends infer DATA ?
+
+	(
+		& (RESPONSE extends PaginatedResponse<any> ? { query: { page?: number, pageSize?: number } } : { query?: never })
 	) extends infer QUERY ?
 
-	[keyof QUERY] extends [never]
-	? { (): Promise<RESPONSE> }
-	: { (query: QUERY): Promise<RESPONSE> }
+	[keyof DATA] extends [never]
+	? { (data?: undefined, query?: QUERY): Promise<RESPONSE> }
+	: { (data: DATA, query?: QUERY): Promise<RESPONSE> }
 
+	: never
 	: never
 	: never
 	: never
@@ -65,11 +70,19 @@ interface Endpoint<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>
 
 interface ConfigurablePreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>> extends PreparedEndpointQuery<ROUTE, QUERY> {
 	getPageSize (): number | undefined
-	setPageSize (size: number): this
+	setPageSize (size?: number): this
 }
 
 interface PreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>> extends Omit<Endpoint<ROUTE, QUERY>, 'query'> {
-	query (...overrides: any[]): ReturnType<QUERY>
+	query (
+		data?: (
+			Parameters<QUERY>[0] extends infer P ? P extends { body?: infer BODY, params?: infer PARAMS } ? {
+				body?: Partial<BODY>
+				params?: Partial<PARAMS>
+			} : never : never
+		),
+		query?: Parameters<QUERY>[1] extends infer P ? P extends { query?: infer Q } ? Partial<Q> : never : never,
+	): ReturnType<QUERY>
 }
 
 function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]['method'], headers?: Record<string, string>) {
@@ -89,7 +102,7 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 			return endpoint
 		},
 		getPageSize: () => pageSize,
-		setPageSize: (size: number) => {
+		setPageSize: (size?: number) => {
 			pageSize = size
 			return endpoint
 		},
