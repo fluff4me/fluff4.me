@@ -66,7 +66,7 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 
 			const endpoint = read.value ? EndpointNotificationMarkUnread : EndpointNotificationMarkRead
 			const response = await endpoint.query({ body: { notification_ids: [data.id] } })
-			if (response instanceof Error)
+			if (toast.handleError(response))
 				return
 
 			read.value = !read.value

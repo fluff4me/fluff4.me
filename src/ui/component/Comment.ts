@@ -109,7 +109,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 						.text.use('comment/action/delete')
 						.event.subscribe('click', async () => {
 							const response = await EndpointCommentDelete.query({ params: { id: commentData.comment_id! } })
-							if (response instanceof Error)
+							if (toast.handleError(response))
 								return
 
 							source.comments.value.filterInPlace(comment => comment !== commentData)
@@ -147,7 +147,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 								params: { under: commentData.parent_id },
 								body: { body: textEditor.useMarkdown() },
 							})
-						if (response instanceof Error)
+						if (toast.handleError(response))
 							return
 
 						const newComment = response.data
@@ -183,7 +183,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 							.event.subscribe('click', async () => {
 								if (commentData.reacted) {
 									const response = await EndpointUnreactComment.query({ params: { comment_id: commentData.comment_id } })
-									if (response instanceof Error)
+									if (toast.handleError(response))
 										return
 
 									delete commentData.reacted
@@ -194,7 +194,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 								}
 								else {
 									const response = await EndpointReactComment.query({ params: { comment_id: commentData.comment_id, type: 'love' } })
-									if (response instanceof Error)
+									if (toast.handleError(response))
 										return
 
 									commentData.reacted = true

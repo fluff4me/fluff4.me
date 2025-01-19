@@ -28,6 +28,7 @@ confirm: Confirm
 ## toast
 failed-to-save: Failed to save {0}
 saved: Saved {0}
+error-occurred: An error has occurred!
 
 ## form
 name/label: Name

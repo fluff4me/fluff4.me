@@ -53,12 +53,6 @@ type EndpointQuery<ROUTE extends keyof Paths> =
 	: never
 	: never
 
-interface EndpointQueryData {
-	body?: any
-	params?: any
-	query?: any
-}
-
 interface Endpoint<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE> = EndpointQuery<ROUTE>> {
 	header (header: string, value: string): this
 	headers (headers: Record<string, string>): this
@@ -133,13 +127,23 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 
 	return endpoint as any as Endpoint<ROUTE>
 
-	async function query (data?: EndpointQueryData) {
+	interface EndpointQueryData {
+		body?: any
+		params?: any
+	}
+
+	interface EndpointQuerySearchParams {
+		page_size?: number
+		page?: number
+	}
+
+	async function query (data?: EndpointQueryData, search?: EndpointQuerySearchParams) {
 		const body = !data?.body ? undefined : JSON.stringify(data.body)
 		const url = route.slice(1)
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
 			.replaceAll(/\{([^}]+)\}/g, (match, paramName) => data?.params?.[paramName])
 
-		const params = new URLSearchParams(data?.query as Record<string, string>)
+		const params = new URLSearchParams(search as Record<string, string> | undefined)
 		if (pageSize)
 			params.set('page_size', `${pageSize}`)
 
@@ -210,21 +214,19 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 			const paginated = json as PaginatedResponse<any>
 			if (paginated.has_more) {
 				Object.assign(json, {
-					next: () => query({
-						...data,
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-						query: {
-							...data?.query,
+					next: () => query(
+						data,
+						{
+							...search,
 							...[...params].toObject(),
 							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-							page: +(params.get('page') ?? data?.query?.page ?? json.page ?? 0) + 1,
+							page: +(params.get('page') ?? search?.page ?? json.page ?? 0) + 1,
 						},
-					}),
-					getPage: (page: number) => query({
-						...data,
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-						query: { ...data?.query, page },
-					}),
+					),
+					getPage: (page: number) => query(
+						data,
+						{ ...search, page },
+					),
 				})
 			}
 

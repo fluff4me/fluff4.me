@@ -1,4 +1,5 @@
 import type { Chapter } from 'api.fluff4.me'
+import EndpointChapterDelete from 'endpoint/chapter/EndpointChapterDelete'
 import type { ChapterParams } from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import ActionRow from 'ui/component/core/ActionRow'
@@ -50,13 +51,14 @@ export default ViewDefinition({
 					.append(Button()
 						.text.use('view/chapter-edit/update/action/delete')
 						.event.subscribe('click', async () => {
-							// const response = await EndpointAuthorDelete.query()
-							// if (response instanceof Error) {
-							// 	console.error(response)
-							// 	return
-							// }
+							if (!params.url)
+								return
 
-							// return Session.reset()
+							const response = await EndpointChapterDelete.query({ params: { ...params, url: params.url } })
+							if (toast.handleError(response))
+								return
+
+							await navigate.toURL(`/work/${params.author}/${params.vanity}`)
 						})))
 		}
 	},

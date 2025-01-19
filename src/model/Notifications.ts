@@ -64,8 +64,7 @@ namespace Notifications {
 
 		activeCheck = false
 
-		if (response instanceof Error)
-			// TODO 
+		if (toast.handleError(response))
 			return
 
 		const time = new Date(response.data.notification_time_last_modified).getTime()
@@ -73,8 +72,7 @@ namespace Notifications {
 			return
 
 		const firstPage = await EndpointNotificationGetUnread.query()
-		if (firstPage instanceof Error)
-			// TODO 
+		if (toast.handleError(firstPage))
 			return
 
 		const count = response.data.unread_notification_count

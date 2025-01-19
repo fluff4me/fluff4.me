@@ -11,7 +11,7 @@ import LabelledTable from 'ui/component/core/LabelledTable'
 import Textarea from 'ui/component/core/Textarea'
 import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
-import { TOAST_ERROR, TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
+import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
 import { FilterVanity } from 'ui/component/VanityInput'
@@ -115,11 +115,8 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 			}
 		})()
 
-		if (response instanceof Error) {
-			toast.warning(TOAST_ERROR, quilt => quilt['view/work-edit/shared/toast/failed-to-save'](name), response)
-			console.error(response)
+		if (toast.handleError(response, quilt => quilt['view/work-edit/shared/toast/failed-to-save'](name)))
 			return
-		}
 
 		toast.success(TOAST_SUCCESS, quilt => quilt['view/work-edit/shared/toast/saved'](name))
 		state.value = response?.data

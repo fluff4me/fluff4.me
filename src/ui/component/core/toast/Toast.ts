@@ -28,6 +28,7 @@ function isErrorResponse (error: Error): error is ErrorResponse {
 export const TOAST_ERROR = Toast({
 	duration: 5000,
 	initialise (toast, translation: Quilt.SimpleKey | Quilt.Handler, error: Error) {
+		console.error(error)
 		toast.title.text.use(translation)
 		if (!isErrorResponse(error) || !error.detail)
 			toast.content.text.set(error.message)

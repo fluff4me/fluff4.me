@@ -26,7 +26,7 @@ const NotificationList = Component.Builder(async (component, query: PreparedPagi
 		.event.subscribe('click', async () => {
 			const notifs = list.data.value as NotificationData[]
 			const response = await EndpointNotificationMarkRead.query({ body: { notification_ids: notifs.map(n => n.id) } })
-			if (response instanceof Error)
+			if (toast.handleError(response))
 				return
 
 			// TODO figure out how to update render

@@ -80,7 +80,7 @@ export default ViewDefinition({
 				const params = { author: author?.vanity, vanity: workData.vanity, url: chapterState.value.url, type: 'love' } as const
 				if (reacted.value) {
 					const response = await EndpointUnreactChapter.query({ params })
-					if (response instanceof Error)
+					if (toast.handleError(response))
 						return
 
 					delete chapterState.value.reacted
@@ -90,7 +90,7 @@ export default ViewDefinition({
 				}
 				else {
 					const response = await EndpointReactChapter.query({ params })
-					if (response instanceof Error)
+					if (toast.handleError(response))
 						return
 
 					chapterState.value.reacted = true
