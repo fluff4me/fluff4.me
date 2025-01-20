@@ -1,10 +1,11 @@
 import type Component from 'ui/Component'
 import type { ComponentInsertionDestination } from 'ui/Component'
 import type { UnsubscribeState } from 'utility/State'
+import State from 'utility/State'
 import type { Mutable } from 'utility/Type'
 
 interface ComponentInsertionTransaction extends ComponentInsertionDestination {
-	readonly closed: boolean
+	readonly closed: State<boolean>
 	readonly size: number
 	abort (): void
 	close (): void
@@ -16,7 +17,7 @@ function ComponentInsertionTransaction (component?: Component, onEnd?: (transact
 	let removed = false
 	const result: Mutable<ComponentInsertionTransaction> = {
 		isInsertionDestination: true,
-		closed: false,
+		closed: State(false),
 		get size () {
 			return component?.element.children.length ?? 0
 		},
@@ -61,7 +62,7 @@ function ComponentInsertionTransaction (component?: Component, onEnd?: (transact
 	return result
 
 	function close () {
-		result.closed = true
+		result.closed.asMutable?.setValue(true)
 		unuseComponentRemove?.(); unuseComponentRemove = undefined
 		component = undefined
 	}
