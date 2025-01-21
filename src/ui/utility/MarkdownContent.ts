@@ -43,7 +43,6 @@ const ELEMENT_TYPES_TO_SIMPLIFY_BY_REMOVAL = new Set<TagNameUppercase>([
 
 Component.extend(component => component.extend<MarkdownContentExtensions>(component => ({
 	setMarkdownContent (markdown, maxLength) {
-		console.log(maxLength)
 		component.classes.add('markdown')
 		component.element.innerHTML = Markdown.render(markdown)
 
