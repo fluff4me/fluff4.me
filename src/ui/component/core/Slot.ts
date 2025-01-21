@@ -42,6 +42,7 @@ const Slot = Object.assign(
 							slot.removeContents()
 							slot.append(...component.element.children)
 						})
+						Object.assign(transaction, { closed: component.removed })
 						abortTransaction = transaction.abort
 
 						handleSlotInitialiserReturn(transaction, initialiser(transaction, value))
@@ -69,6 +70,7 @@ const Slot = Object.assign(
 							slot.removeContents()
 							slot.append(...component.element.children)
 						})
+						Object.assign(transaction, { closed: component.removed })
 						abortTransaction = transaction.abort
 
 						handleSlotInitialiserReturn(transaction, initialiser(transaction))
