@@ -22,34 +22,34 @@ function ComponentInsertionTransaction (component?: Component, onEnd?: (transact
 			return component?.element.children.length ?? 0
 		},
 		append (...contents) {
-			if (result.closed)
+			if (result.closed.value)
 				return result
 
 			component?.append(...contents)
 			return result
 		},
 		prepend (...contents) {
-			if (result.closed)
+			if (result.closed.value)
 				return result
 
 			component?.prepend(...contents)
 			return result
 		},
 		insert (direction, sibling, ...contents) {
-			if (result.closed)
+			if (result.closed.value)
 				return result
 
 			component?.insert(direction, sibling, ...contents)
 			return result
 		},
 		abort () {
-			if (result.closed)
+			if (result.closed.value)
 				return
 
 			close()
 		},
 		close () {
-			if (result.closed)
+			if (result.closed.value)
 				return
 
 			if (!removed)
