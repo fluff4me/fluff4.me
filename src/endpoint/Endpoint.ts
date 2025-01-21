@@ -204,7 +204,10 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 		if (responseType === 'application/json') {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const json = await response.json().catch(e => {
-				error ??= Object.assign(e instanceof Error ? e : new Error('Failed to parse JSON'), { code, retry: () => query(data) }) as ErrorResponse<any>
+				const e2 = e instanceof Error ? e : new Error('Failed to parse JSON')
+				Object.defineProperty(e2, 'code', { value: code, configurable: true, writable: true })
+				Object.defineProperty(e2, 'retry', { value: () => query(data), configurable: true })
+				error ??= e2 as ErrorResponse<any>
 				delete error.stack
 			})
 			if (error)
