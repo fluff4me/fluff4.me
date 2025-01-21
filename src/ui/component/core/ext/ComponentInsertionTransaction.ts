@@ -14,42 +14,43 @@ interface ComponentInsertionTransaction extends ComponentInsertionDestination {
 function ComponentInsertionTransaction (component?: Component, onEnd?: (transaction: ComponentInsertionTransaction) => unknown): ComponentInsertionTransaction {
 	let unuseComponentRemove: UnsubscribeState | undefined = component?.removed.useManual(removed => removed && onComponentRemove())
 
+	const closed = State(false)
 	let removed = false
 	const result: Mutable<ComponentInsertionTransaction> = {
 		isInsertionDestination: true,
-		closed: State(false),
+		closed,
 		get size () {
 			return component?.element.children.length ?? 0
 		},
 		append (...contents) {
-			if (result.closed.value)
+			if (closed.value)
 				return result
 
 			component?.append(...contents)
 			return result
 		},
 		prepend (...contents) {
-			if (result.closed.value)
+			if (closed.value)
 				return result
 
 			component?.prepend(...contents)
 			return result
 		},
 		insert (direction, sibling, ...contents) {
-			if (result.closed.value)
+			if (closed.value)
 				return result
 
 			component?.insert(direction, sibling, ...contents)
 			return result
 		},
 		abort () {
-			if (result.closed.value)
+			if (closed.value)
 				return
 
 			close()
 		},
 		close () {
-			if (result.closed.value)
+			if (closed.value)
 				return
 
 			if (!removed)
@@ -62,7 +63,7 @@ function ComponentInsertionTransaction (component?: Component, onEnd?: (transact
 	return result
 
 	function close () {
-		result.closed.asMutable?.setValue(true)
+		closed.value = true
 		unuseComponentRemove?.(); unuseComponentRemove = undefined
 		component = undefined
 	}
