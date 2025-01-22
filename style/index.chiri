@@ -62,6 +62,7 @@
 	component/comment
 	component/reaction
 	component/notification
+	component/mention
 
 #import:
 	view/view

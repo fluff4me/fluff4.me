@@ -1,0 +1,11 @@
+.mention:
+	%white-space-nowrap
+
+	&-punctuation:
+		; disallow the @ being on its own line
+		@after:
+			content: " "
+			font-size: .3rem
+
+	&-author-name:
+		%white-space-normal

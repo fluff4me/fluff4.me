@@ -1,4 +1,4 @@
-import type { Notification } from 'api.fluff4.me'
+import type { Author, Notification } from 'api.fluff4.me'
 import EndpointNotificationGetAll from 'endpoint/notification/EndpointNotificationGetAll'
 import EndpointNotificationGetCount from 'endpoint/notification/EndpointNotificationGetCount'
 import EndpointNotificationMarkRead from 'endpoint/notification/EndpointNotificationMarkRead'
@@ -12,6 +12,7 @@ interface NotificationsCache {
 	lastCheck?: number
 	lastUpdate?: number
 	cache?: Notification[]
+	authors?: Author[]
 	hasMore?: boolean
 	unreadCount?: number
 }

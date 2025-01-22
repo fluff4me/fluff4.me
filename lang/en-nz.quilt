@@ -4,6 +4,7 @@ home/label: home
 
 # shared
 preview: Preview
+mention/unresolved: unknown
 
 ## prompt
 confirm: Are you sure?
@@ -110,6 +111,7 @@ formatting/subscript: subscript
 formatting/superscript: superscript
 formatting/code: code
 formatting/link: link
+formatting/mention: mention
 
 # masthead
 skip-navigation: Skip Navigation

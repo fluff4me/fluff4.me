@@ -28,7 +28,7 @@ export default Component.Builder((component, author: AuthorFull) => {
 		.append(Slot().tweak(slot => {
 			const body = author.description.body
 			if (body)
-				slot.setMarkdownContent(body)
+				slot.setMarkdownContent(author.description)
 			else
 				slot.style('placeholder').text.use('author/description/empty')
 		}))

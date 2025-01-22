@@ -73,7 +73,7 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 						else if (!synopsis.body)
 							slot.text.use('work/description/empty')
 						else
-							slot.setMarkdownContent(synopsis.body)
+							slot.setMarkdownContent(synopsis)
 					}))
 					.appendTo(slot)
 		})
