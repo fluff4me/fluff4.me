@@ -40,7 +40,7 @@ type EndpointQuery<ROUTE extends keyof Paths> =
 	) extends infer DATA ?
 
 	(
-		& (RESPONSE extends PaginatedResponse<any> ? { query: { page?: number, pageSize?: number } } : { query?: never })
+		& (RESPONSE extends PaginatedResponse<any> ? { page?: number, page_size?: number } : { page?: never, page_size?: never })
 	) extends infer QUERY ?
 
 	[keyof DATA] extends [never]
@@ -75,7 +75,7 @@ interface PreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends Endpoin
 				params?: Partial<PARAMS>
 			} : never : never
 		),
-		query?: Parameters<QUERY>[1] extends infer P ? P extends { query?: infer Q } ? Partial<Q> : never : never,
+		query?: Parameters<QUERY>[1] extends infer Q ? Partial<Q> : never,
 	): ReturnType<QUERY>
 }
 

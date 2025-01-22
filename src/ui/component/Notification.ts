@@ -1,8 +1,7 @@
 import type { ManifestNotificationTypes, Notification as NotificationData } from 'api.fluff4.me'
-import EndpointNotificationMarkRead from 'endpoint/notification/EndpointNotificationMarkRead'
-import EndpointNotificationMarkUnread from 'endpoint/notification/EndpointNotificationMarkUnread'
 import type { Weave, WeavingArg } from 'lang/en-nz'
 import quilt from 'lang/en-nz'
+import Notifications from 'model/Notifications'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
@@ -64,9 +63,7 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 			event.preventDefault()
 			event.stopImmediatePropagation()
 
-			const endpoint = read.value ? EndpointNotificationMarkUnread : EndpointNotificationMarkRead
-			const response = await endpoint.query({ body: { notification_ids: [data.id] } })
-			if (toast.handleError(response))
+			if (!await Notifications.markRead(!read.value, data.id))
 				return
 
 			read.value = !read.value

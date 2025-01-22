@@ -21,12 +21,16 @@ export type StateOr<T> = State<T> | T
 export type MutableStateOr<T> = MutableState<T> | T
 
 export type UnsubscribeState = () => void
+export type EqualsFunction<T> = false | ((a: T, b: T) => boolean)
 
 interface State<T, E = T> {
 	readonly isState: true
 	readonly value: T
 
 	readonly equals: <V extends T>(value: V) => boolean
+
+	id?: string
+	setId (id: string): this
 
 	/** Subscribe to state change events. Receive the initial state as an event. */
 	use (owner: Owner, subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
@@ -53,6 +57,7 @@ interface MutableState<T> extends State<T> {
 	value: T
 	setValue (value: T): this
 	bind (owner: Owner, state: State<T>): UnsubscribeState
+	bindManual (state: State<T>): UnsubscribeState
 }
 
 const SYMBOL_UNSUBSCRIBE = Symbol('UNSUBSCRIBE')
@@ -68,10 +73,14 @@ interface InternalState<T> {
 	[SYMBOL_SUBSCRIBERS]: ((value: unknown, oldValue: unknown) => unknown)[]
 }
 
-function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): MutableState<T> {
+function State<T> (defaultValue: T, equals?: EqualsFunction<T>): MutableState<T> {
 	let unuseBoundState: UnsubscribeState | undefined
 	const result: MakeMutable<MutableState<T>> & InternalState<T> = {
 		isState: true,
+		setId (id) {
+			result.id = id
+			return result
+		},
 		[SYMBOL_VALUE]: defaultValue,
 		[SYMBOL_SUBSCRIBERS]: [],
 		get value () {
@@ -86,15 +95,29 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): MutableSt
 			setValue(value)
 			return result
 		},
-		equals: value => result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value) || false,
+		equals: value => equals === false ? false
+			: result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value) || false,
 		emit: oldValue => {
+			if (result.id !== undefined)
+				console.log('emit', result.id)
+
 			for (const subscriber of result[SYMBOL_SUBSCRIBERS].slice())
 				subscriber(result[SYMBOL_VALUE], oldValue)
+
 			return result
 		},
 		bind (owner, state) {
+			if (state.id)
+				console.log('bind', state.id)
 			unuseBoundState?.()
 			unuseBoundState = state.use(owner, setValue)
+			return unuseBoundState
+		},
+		bindManual (state) {
+			if (state.id)
+				console.log('bind', state.id)
+			unuseBoundState?.()
+			unuseBoundState = state.useManual(setValue)
 			return unuseBoundState
 		},
 		use: (owner, subscriber) => {
@@ -178,7 +201,7 @@ function State<T> (defaultValue: T, equals?: (a: T, b: T) => boolean): MutableSt
 	return result
 
 	function setValue (value: T) {
-		if (result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value))
+		if (equals !== false && (result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value)))
 			return
 
 		const oldValue = result[SYMBOL_VALUE]
@@ -204,6 +227,8 @@ namespace State {
 		return typeof value === 'object' && (value as State<T>)?.isState === true
 	}
 
+	export function get<T> (value: T | State.Mutable<T>): State.Mutable<T>
+	export function get<T> (value: T | State<T>): State<T>
 	export function get<T> (value: T | State<T>): State<T> {
 		return is<T>(value) ? value : State(value)
 	}
@@ -229,14 +254,15 @@ namespace State {
 		unobserve (...states: (State<any> | undefined)[]): this
 	}
 
-	export function Generator<T> (generate: () => StateOr<T>): Generator<T> {
-		const result = State(generate()) as State<T> as MakeMutable<Generator<T>> & InternalState<T>
+	export function Generator<T> (generate: () => StateOr<T>, equals?: EqualsFunction<T>): Generator<T> {
+		const result = State(undefined as T, equals) as State<T> as MakeMutable<Generator<T>> & InternalState<T>
 		delete result.asMutable
 
 		Define.magic(result, 'value', {
 			get: () => result[SYMBOL_VALUE],
 		})
 
+		let initial = true
 		let unuseInternalState: UnsubscribeState | undefined
 		result.refresh = () => {
 			unuseInternalState?.(); unuseInternalState = undefined
@@ -254,14 +280,17 @@ namespace State {
 				return result
 			}
 
-			if (result.equals(value))
+			if (result.equals(value) && !initial)
 				return result
 
+			initial = false
 			const oldValue = result[SYMBOL_VALUE]
 			result[SYMBOL_VALUE] = value
 			result.emit(oldValue)
 			return result
 		}
+
+		result.refresh()
 
 		result.observe = (owner, ...states) => {
 			const ownerClosedState = Owner.getOwnershipState(owner)
