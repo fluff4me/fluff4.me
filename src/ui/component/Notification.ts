@@ -86,9 +86,9 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 	if (data.comment) {
 		Component()
 			.style('markdown')
-			.append(Component('blockquote')
+			.append(data.comment.body && Component('blockquote')
 				.style('notification-comment')
-				.setMarkdownContent(data.comment.body?.body ?? '', 64))
+				.setMarkdownContent(data.comment.body, 64))
 			.appendTo(notification)
 
 		if (data.author && data.work && data.chapter)

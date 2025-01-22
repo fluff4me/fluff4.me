@@ -6,6 +6,7 @@ import style from 'style'
 import Component from 'ui/Component'
 import ToastList from 'ui/component/core/toast/ToastList'
 import Masthead from 'ui/component/Masthead'
+import { registerMarkdownMentionHandler } from 'ui/component/Mention'
 import InputBus from 'ui/InputBus'
 import ActiveListener from 'ui/utility/ActiveListener'
 import FocusListener from 'ui/utility/FocusListener'
@@ -17,6 +18,8 @@ import Async from 'utility/Async'
 import DevServer from 'utility/DevServer'
 import Store from 'utility/Store'
 import Time from 'utility/Time'
+
+registerMarkdownMentionHandler()
 
 interface AppExtensions {
 	navigate: Navigator

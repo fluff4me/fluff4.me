@@ -1,4 +1,5 @@
 import quilt from 'lang/en-nz'
+import type { Token } from 'markdown-it'
 import Session from 'model/Session'
 import { baseKeymap, lift, setBlockType, toggleMark, wrapIn } from 'prosemirror-commands'
 import { dropCursor } from 'prosemirror-dropcursor'
@@ -9,7 +10,7 @@ import { InputRule, inputRules } from 'prosemirror-inputrules'
 import { keymap } from 'prosemirror-keymap'
 import type { ParseSpec } from 'prosemirror-markdown'
 import { schema as baseSchema, defaultMarkdownParser, defaultMarkdownSerializer, MarkdownParser, MarkdownSerializer } from 'prosemirror-markdown'
-import type { Attrs, MarkSpec, MarkType, NodeSpec, NodeType } from 'prosemirror-model'
+import type { Attrs, Mark, MarkSpec, MarkType, NodeSpec, NodeType } from 'prosemirror-model'
 import { Fragment, Node, NodeRange, ResolvedPos, Schema } from 'prosemirror-model'
 import { wrapInList } from 'prosemirror-schema-list'
 import type { Command, PluginSpec, PluginView } from 'prosemirror-state'
@@ -33,6 +34,7 @@ import Viewport from 'ui/utility/Viewport'
 import ViewTransition from 'ui/view/shared/ext/ViewTransition'
 import Arrays from 'utility/Arrays'
 import Define from 'utility/Define'
+import Env from 'utility/Env'
 import Objects from 'utility/Objects'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
@@ -354,7 +356,8 @@ const schema = new Schema({
 			parseDOM: [
 				{ tag: 'center', getAttrs: () => ({ align: 'center' }) },
 				{
-					tag: '*', getAttrs: (element: HTMLElement) => {
+					tag: '*',
+					getAttrs: (element: HTMLElement) => {
 						const textAlign = element.style.getPropertyValue('text-align')
 						if (!textAlign)
 							return false
@@ -407,6 +410,27 @@ const schema = new Schema({
 			],
 			toDOM () { return ['sup'] },
 		},
+		mention: {
+			attrs: { vanity: { validate: value => typeof value === 'string' && value.length > 0 } },
+			parseDOM: [{
+				tag: 'a',
+				getAttrs: (element: HTMLElement) => {
+					const vanity = element.getAttribute('vanity')
+					if (!vanity)
+						return false
+
+					return { vanity }
+				},
+				priority: 51,
+			}],
+			toDOM (mark: Mark) {
+				const link = document.createElement('a')
+				link.setAttribute('vanity', mark.attrs.vanity)
+				link.href = `${Env.URL_ORIGIN}author/${mark.attrs.vanity}`
+				link.textContent = `@${mark.attrs.vanity}`
+				return link
+			},
+		},
 	},
 })
 
@@ -434,6 +458,7 @@ const REGEX_CSS_PROPERTY = /^[-a-zA-Z_][a-zA-Z0-9_-]*$/
 
 interface MarkdownHTMLTokenRemapSpec {
 	getAttrs: (token: MarkdownItHTML.Token) => Attrs | true | undefined
+	getChildren?: (token: MarkdownItHTML.Token) => Token[]
 }
 
 const markdownHTMLNodeRegistry: PartialRecord<Nodes, MarkdownHTMLTokenRemapSpec> = {
@@ -448,8 +473,28 @@ const markdownHTMLNodeRegistry: PartialRecord<Nodes, MarkdownHTMLTokenRemapSpec>
 	},
 }
 
-// const markdownHTMLMarkRegistry: PartialRecord<Marks, MarkdownHTMLTokenRemapSpec> = {
-// }
+const markdownHTMLMarkRegistry: PartialRecord<Marks, MarkdownHTMLTokenRemapSpec> = {
+	mention: {
+		getAttrs: token => {
+			const vanity = token.attrGet('vanity')
+			if (!vanity)
+				return undefined
+
+			return { vanity }
+		},
+		getChildren: token => {
+			const vanity = token.attrGet('vanity')
+			if (!vanity)
+				return []
+
+			const TokenClass = token.constructor as new () => Token
+			const textToken = new TokenClass()
+			textToken.content = `@${vanity}`
+			textToken.type = 'text'
+			return [textToken]
+		},
+	},
+}
 
 interface FluffToken extends MarkdownItHTML.Token {
 	nodeAttrs?: Attrs
@@ -459,44 +504,98 @@ const originalParse = markdown.parse
 markdown.parse = (src, env) => {
 	const rawTokens = originalParse.call(markdown, src, env) as FluffToken[]
 
-	const tokens: FluffToken[] = []
-	// the `level` of the parent `_open` token
-	let level = 0
 	for (const token of rawTokens) {
-		if (token.type !== 'html_block_open' && token.type !== 'html_block_close') {
-			tokens.push(token)
+		if (token.type === 'inline' && token.children) {
+			token.children = parseTokens(token.children)
+				.flatMap(child => {
+					const children = child.children
+					if (!children?.length)
+						return child
+
+					const TokenClass = child.constructor as new () => FluffToken
+					const endToken = new TokenClass()
+					endToken.type = `${child.type}_close`
+					child.type = `${child.type}_open`
+					child.children = null
+
+					return [
+						child,
+						...children,
+						endToken,
+					]
+				})
+
 			continue
 		}
+	}
 
-		if (token.nesting < 0) {
-			const opening = tokens.findLast(token => token.level === level)
-			if (!opening) {
-				console.warn('Invalid HTML in markdown:', token.raw)
+	return parseTokens(rawTokens)
+
+	function parseTokens (rawTokens: FluffToken[]) {
+		const tokens: FluffToken[] = []
+		// the `level` of the parent `_open` token
+		let level = 0
+
+		for (const token of rawTokens) {
+			const isVoidToken = token.type === 'html_inline'
+			if (!isVoidToken && token.type !== 'html_block_open' && token.type !== 'html_block_close' && token.type !== 'html_inline_open' && token.type !== 'html_inline_close') {
+				tokens.push(token)
 				continue
 			}
 
-			token.type = `${opening.type.slice(0, -5)}_close`
-			tokens.push(token)
-			level = token.level
-			continue
-		}
+			if (!isVoidToken && token.nesting < 0) {
+				const opening = tokens.findLast(token => token.level === level)
+				if (!opening) {
+					console.warn('Invalid HTML in markdown:', token.raw)
+					continue
+				}
 
-		for (const [nodeType, spec] of Object.entries(markdownHTMLNodeRegistry)) {
-			const attrs = spec.getAttrs(token)
-			if (attrs) {
-				token.type = nodeType
-				if (attrs !== true)
-					token.nodeAttrs = attrs
-				break
+				token.type = `${opening.type.slice(0, -5)}_close`
+				tokens.push(token)
+				level = token.level
+				continue
 			}
+
+			for (const [nodeType, spec] of Object.entries(markdownHTMLNodeRegistry)) {
+				const attrs = spec.getAttrs(token)
+				if (attrs) {
+					token.type = nodeType
+					if (attrs !== true)
+						token.nodeAttrs = attrs
+
+					const children = spec.getChildren?.(token)
+					if (children)
+						token.children = children
+
+					break
+				}
+			}
+
+			for (const [markType, spec] of Object.entries(markdownHTMLMarkRegistry)) {
+				const attrs = spec.getAttrs(token)
+				if (attrs) {
+					token.type = markType
+					if (attrs !== true)
+						token.nodeAttrs = attrs
+
+					const children = spec.getChildren?.(token)
+					if (children)
+						token.children = children
+
+					break
+				}
+			}
+
+			if (!isVoidToken) {
+				token.type = `${token.type}_open`
+				level = token.level
+			}
+
+			tokens.push(token)
 		}
 
-		token.type = `${token.type}_open`
-		level = token.level
-		tokens.push(token)
+		return tokens
 	}
-
-	return tokens
 }
 
 const markdownParser = new MarkdownParser(schema, markdown, Objects.filterNullish({
@@ -513,6 +612,11 @@ const markdownParser = new MarkdownParser(schema, markdown, Objects.filterNullis
 	...Object.entries(markdownHTMLNodeRegistry)
 		.toObject(([tokenType, spec]) => [tokenType, ({
 			block: tokenType,
+			getAttrs: token => (token as FluffToken).nodeAttrs ?? {},
+		} satisfies ParseSpec)]),
+	...Object.entries(markdownHTMLMarkRegistry)
+		.toObject(([tokenType, spec]) => [tokenType, ({
+			mark: tokenType,
 			getAttrs: token => (token as FluffToken).nodeAttrs ?? {},
 		} satisfies ParseSpec)]),
 } satisfies Record<string, ParseSpec | undefined>))
@@ -538,6 +642,21 @@ const markdownSerializer = new MarkdownSerializer(
 			open: '__',
 			close: '__',
 			expelEnclosingWhitespace: true,
+		},
+		mention: {
+			open: (state, mark, parent, index) => {
+				return `<mention vanity="${mark.attrs.vanity}">`
+			},
+			close: (state, mark, parent, index) => {
+				const realState = state as any as { out: string }
+				const openTag = `<mention vanity="${mark.attrs.vanity}">`
+				const indexOfOpen = realState.out.lastIndexOf(openTag)
+				if (indexOfOpen === -1)
+					return ''
+
+				realState.out = realState.out.slice(0, indexOfOpen + openTag.length)
+				return ''
+			},
 		},
 	},
 )
@@ -705,7 +824,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	////////////////////////////////////
 	//#region Types
 
-	const ToolbarButtonTypeMark = Component.Extension((component, type: Marks) => {
+	const ToolbarButtonTypeMark = Component.Extension((component, type: Exclude<Marks, 'mention'>) => {
 		const mark = schema.marks[type]
 		return component
 			.style(`text-editor-toolbar-${type}`)
@@ -803,7 +922,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	////////////////////////////////////
 	//#region Specifics
 
-	const ToolbarButtonMark = Component.Builder((_, type: Marks) => {
+	const ToolbarButtonMark = Component.Builder((_, type: Exclude<Marks, 'mention'>) => {
 		const mark = schema.marks[type]
 		const toggler = markToggler(mark)
 		const markActive = state.map(component, state => isMarkActive(mark))

@@ -236,7 +236,10 @@ function isStyledHeadingLevel (level: unknown): level is HeadingLevel {
 ////////////////////////////////////
 
 MarkdownContent.handle(element => {
-	if (isHeadingElement(element)) {
+	if (!isHeadingElement(element))
+		return undefined
+
+	return () => {
 		const level = getHeadingLevel(element)
 
 		const heading = Heading().setAestheticStyle('markdown-heading')

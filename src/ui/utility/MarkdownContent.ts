@@ -1,8 +1,9 @@
+import type { TextBody } from 'api.fluff4.me'
 import Component from 'ui/Component'
 import Markdown from 'utility/string/Markdown'
 
 interface MarkdownContentExtensions {
-	setMarkdownContent (markdown: string, maxLength?: number): this
+	setMarkdownContent (markdown: TextBody | string, maxLength?: number): this
 }
 
 declare module 'ui/Component' {
@@ -10,7 +11,7 @@ declare module 'ui/Component' {
 	interface ComponentExtensions extends MarkdownContentExtensions { }
 }
 
-type MarkdownContentHandler = (element: HTMLElement) => unknown
+type MarkdownContentHandler = (element: HTMLElement, context: MarkdownContext) => (() => unknown) | undefined
 const handlers: MarkdownContentHandler[] = []
 
 type TagNameUppercase = Uppercase<keyof HTMLElementTagNameMap>
@@ -41,18 +42,33 @@ const ELEMENT_TYPES_TO_SIMPLIFY_BY_REMOVAL = new Set<TagNameUppercase>([
 	'TABLE',
 ])
 
+type MarkdownContext = Omit<TextBody, 'body'>
+
+const MENTION_OPEN_TAG_REGEX = /(?<=<mention[^>]*>)/g
 Component.extend(component => component.extend<MarkdownContentExtensions>(component => ({
 	setMarkdownContent (markdown, maxLength) {
+		if (typeof markdown === 'string')
+			markdown = { body: markdown }
+
 		component.classes.add('markdown')
-		component.element.innerHTML = Markdown.render(markdown)
+		const rendered = Markdown.render(markdown.body)
+		component.element.innerHTML = rendered
+			.replace(MENTION_OPEN_TAG_REGEX, '</mention>')
 
 		if (maxLength)
 			simplifyTree(component.element, maxLength)
 
+		const queuedChanges: (() => unknown)[] = []
 		const walker = document.createTreeWalker(component.element, NodeFilter.SHOW_ELEMENT)
 		while (walker.nextNode())
-			for (const handler of handlers)
-				handler(walker.currentNode as HTMLElement)
+			for (const handler of handlers) {
+				const change = handler(walker.currentNode as HTMLElement, markdown)
+				if (change)
+					queuedChanges.push(change)
+			}
+
+		for (const change of queuedChanges)
+			change()
 
 		return component
 	},

@@ -51,6 +51,9 @@ const html = Object.assign(
 			state.inline = undefined
 			return result
 		})
+
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
+		md.renderer.rules.html_inline = (tokens, idx) => tokens[idx].content || (tokens[idx] as any).raw
 	}) as PluginWithOptions<MarkdownItHTML.Options.Factory>,
 	{
 
@@ -58,6 +61,10 @@ const html = Object.assign(
 
 		defaultOptions: {
 			voidElements: [
+				// custom
+				'mention',
+
+				// default
 				'area',
 				'base',
 				'br',
@@ -73,6 +80,9 @@ const html = Object.assign(
 				'wbr',
 			],
 			allowedTags: [
+				// custom
+				'mention',
+
 				// headings
 				'hgroup',
 				'h1',
@@ -151,6 +161,10 @@ const html = Object.assign(
 			],
 			allTagsAllowedAttributeValues: {},
 			perTagAllowedAttributes: {
+				// custom
+				mention: ['vanity'],
+
+				// default
 				a: ['href'],
 				img: ['src', 'alt', 'usemap', 'width', 'height'],
 				area: ['shape', 'coords'],
