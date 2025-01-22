@@ -24,6 +24,7 @@ interface PaginatorExtensions<DATA = any> {
 	readonly data: State<DATA>
 	useEndpoint<ROUTE extends PaginatedEndpointRoute, DATA extends ResponseData<EndpointResponse<Endpoint<ROUTE>>>> (endpoint: PreparedQueryOf<Endpoint<ROUTE>>, contentInitialiser: (slot: Slot, response: DATA, paginator: this) => unknown): Promise<this>
 	useInitial<DATA> (data: DATA | undefined, page: number, pageCount: number | true): PaginatorUseInitialFactory<DATA, this>
+	useInitial<DATA> (data: [data: DATA | undefined, page: number][], pageCount: number | true): PaginatorUseInitialFactory<DATA, this>
 	orElse (contentInitialiser: (slot: Slot) => unknown): this
 }
 
@@ -99,7 +100,17 @@ const Paginator = Component.Builder((component): Paginator => {
 		.extend<PaginatorExtensionsInternal>(component => ({
 			page: cursor,
 			data,
-			useInitial (initialData, page, pageCount) {
+			useInitial (initialData, page_?: number | true, pageCount_?: number | true) {
+				if (Array.isArray(initialData)) {
+					for (const [data, page] of initialData)
+						pageContent[page] = data as never
+
+					pageCount_ = page_ as number | true
+					[initialData, page_] = initialData[0]
+				}
+
+				const page = page_ as number
+				const pageCount = pageCount_ as number | true
 				resetPages()
 				pageContent[page] = initialData as never
 				cursor.value = page

@@ -1,58 +1,55 @@
 import type { Notification as NotificationData } from 'api.fluff4.me'
-import type { PreparedPaginatedQueryReturning } from 'endpoint/Endpoint'
 import EndpointNotificationMarkRead from 'endpoint/notification/EndpointNotificationMarkRead'
+import Notifications from 'model/Notifications'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
-import Paginator from 'ui/component/core/Paginator'
-import type Slot from 'ui/component/core/Slot'
+import Paginator2 from 'ui/component/core/Paginator2'
 import Notification from 'ui/component/Notification'
 
 interface NotificationListExtensions {
-
+	readonly paginator: Paginator2
 }
 
-interface NotificationList extends Paginator, NotificationListExtensions { }
+interface NotificationList extends Component, NotificationListExtensions { }
 
-const NotificationList = Component.Builder(async (component, query: PreparedPaginatedQueryReturning<NotificationData[]>, initialNotifications?: NotificationData[]): Promise<NotificationList> => {
-	const list = component
-		.and(Paginator)
+const NotificationList = Component.Builder(async (component, onlyUnread?: true, pageSize?: number): Promise<NotificationList> => {
+	const paginator = component.and(Paginator2)
 		.style('notification-list')
-		.extend<NotificationListExtensions>(list => ({
 
+	const list = component
+		.extend<NotificationListExtensions>(list => ({
+			paginator,
 		}))
 
 	Button()
 		.setIcon('check-double')
 		.event.subscribe('click', async () => {
-			const notifs = list.data.value as NotificationData[]
+			const notifs = paginator.data.value as NotificationData[]
 			const response = await EndpointNotificationMarkRead.query({ body: { notification_ids: notifs.map(n => n.id) } })
 			if (toast.handleError(response))
 				return
 
 			// TODO figure out how to update render
 		})
-		.appendTo(list.primaryActions)
+		.appendTo(paginator.primaryActions)
 
-	list.header.style('notification-list-header')
-	list.title.style('notification-list-title')
+	paginator.header.style('notification-list-header')
+	paginator.title.style('notification-list-title')
 		.text.use('masthead/user/notifications/title')
-	list.content.style('notification-list-content')
-	list.footer.style('notification-list-footer')
+	paginator.content.style('notification-list-content')
+	paginator.footer.style('notification-list-footer')
 
-	if (initialNotifications)
-		await list.useInitial(initialNotifications, 0, true).thenUse(query).withContent(initialiseNotificationsPage)
-	else
-		await list.useEndpoint(query, initialiseNotificationsPage)
-
-	return list
-
-	function initialiseNotificationsPage (slot: Slot, notifications: NotificationData[]) {
+	await Notifications.await()
+	const cache = pageSize === undefined ? Notifications.cache : Notifications.cache.resized(pageSize)
+	paginator.set(cache, (slot, notifications) => {
 		slot.style('notification-list-page')
 		for (const notification of notifications) {
 			Notification(notification)
 				?.appendTo(slot)
 		}
-	}
+	})
+
+	return list
 })
 
 export default NotificationList

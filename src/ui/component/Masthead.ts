@@ -1,4 +1,3 @@
-import EndpointNotificationGetUnread from 'endpoint/notification/EndpointNotificationGetUnread'
 import Notifications from 'model/Notifications'
 import Session from 'model/Session'
 import Component from 'ui/Component'
@@ -98,25 +97,24 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 			.setPopover('hover', popover => popover
 				.style('masthead-user-notifications-popover')
 				.anchor.add('aligned right', 'off bottom')
-				.append(Slot().use(Notifications.recentUnreads, AbortPromise.asyncFunction(async (signal, slot, notifications) => {
-					const query = EndpointNotificationGetUnread.prep().setPageSize(5)
-					const list = await NotificationList(query, notifications.slice(0, 5))
+				.append(Slot().use(Notifications.cache, AbortPromise.asyncFunction(async (signal, slot, notifications) => {
+					const list = await NotificationList(true, 5)
 					if (signal.aborted)
 						return
 
-					list.type('flush')
+					list.paginator.type('flush')
 						.style('masthead-user-notifications-list')
 
-					list.header.style('masthead-user-notifications-list-header')
-					list.title.style('masthead-user-notifications-list-title')
-					list.content.style('masthead-user-notifications-list-content')
-					list.footer.style('masthead-user-notifications-list-footer')
+					list.paginator.header.style('masthead-user-notifications-list-header')
+					list.paginator.title.style('masthead-user-notifications-list-title')
+					list.paginator.content.style('masthead-user-notifications-list-content')
+					list.paginator.footer.style('masthead-user-notifications-list-footer')
 
 					Link('/notifications')
 						.and(Button)
 						.type('flush')
 						.text.use('masthead/user/notifications/link/label')
-						.appendTo(list.footer.middle)
+						.appendTo(list.paginator.footer.middle)
 
 					list.appendTo(slot)
 				}))))))
