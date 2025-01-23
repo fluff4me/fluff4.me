@@ -1,4 +1,5 @@
 import type { ErrorResponse } from 'api.fluff4.me'
+import Session from 'model/Session'
 import Component from 'ui/Component'
 import type Toast from 'ui/component/core/toast/Toast'
 import { TOAST_ERROR } from 'ui/component/core/toast/Toast'
@@ -82,6 +83,12 @@ const ToastList = Component.Builder((component): ToastList => {
 			warning: add.bind(null, 'warning'),
 			handleError (response, translation = 'shared/toast/error-occurred'): response is ErrorResponse<any> {
 				if (response instanceof Error) {
+					const errorResponse = response as ErrorResponse<any>
+					if (errorResponse.code === 401 && (errorResponse.detail === 'Invalid session token' || errorResponse.detail === 'This endpoint requires a session')) {
+						void Session.refresh()
+						return true
+					}
+
 					toasts.warning(TOAST_ERROR, translation, response)
 					return true
 				}
