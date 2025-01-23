@@ -13,7 +13,7 @@ import { schema as baseSchema, defaultMarkdownParser, defaultMarkdownSerializer,
 import type { Attrs, Mark, MarkSpec, MarkType, NodeSpec, NodeType } from 'prosemirror-model'
 import { Fragment, Node, NodeRange, ResolvedPos, Schema } from 'prosemirror-model'
 import { wrapInList } from 'prosemirror-schema-list'
-import type { Command, PluginSpec, PluginView } from 'prosemirror-state'
+import type { Command, PluginSpec, PluginView, Transaction } from 'prosemirror-state'
 import { EditorState, Plugin } from 'prosemirror-state'
 import { findWrapping, liftTarget, Transform } from 'prosemirror-transform'
 import { EditorView } from 'prosemirror-view'
@@ -425,6 +425,7 @@ const schema = new Schema({
 			}],
 			toDOM (mark: Mark) {
 				const link = document.createElement('a')
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 				link.setAttribute('vanity', mark.attrs.vanity)
 				link.href = `${Env.URL_ORIGIN}author/${mark.attrs.vanity}`
 				link.textContent = `@${mark.attrs.vanity}`
@@ -504,40 +505,24 @@ const originalParse = markdown.parse
 markdown.parse = (src, env) => {
 	const rawTokens = originalParse.call(markdown, src, env) as FluffToken[]
 
-	for (const token of rawTokens) {
-		if (token.type === 'inline' && token.children) {
+	for (const token of rawTokens)
+		if (token.type === 'inline' && token.children)
 			token.children = parseTokens(token.children)
-				.flatMap(child => {
-					const children = child.children
-					if (!children?.length)
-						return child
-
-					const TokenClass = child.constructor as new () => FluffToken
-					const endToken = new TokenClass()
-					endToken.type = `${child.type}_close`
-					child.type = `${child.type}_open`
-					child.children = null
-
-					return [
-						child,
-						...children,
-						endToken,
-					]
-				})
-
-			continue
-		}
-	}
 
 	return parseTokens(rawTokens)
 
 	function parseTokens (rawTokens: FluffToken[]) {
+		if (!rawTokens.length)
+			return rawTokens
+
 		const tokens: FluffToken[] = []
 		// the `level` of the parent `_open` token
 		let level = 0
 
-		for (const token of rawTokens) {
-			const isVoidToken = token.type === 'html_inline'
+		const Token = rawTokens[0].constructor as new () => FluffToken
+
+		for (let token of rawTokens) {
+			const isVoidToken = token.type === 'html_inline' || token.type === 'html_block'
 			if (!isVoidToken && token.type !== 'html_block_open' && token.type !== 'html_block_close' && token.type !== 'html_inline_open' && token.type !== 'html_inline_close') {
 				tokens.push(token)
 				continue
@@ -574,13 +559,28 @@ markdown.parse = (src, env) => {
 			for (const [markType, spec] of Object.entries(markdownHTMLMarkRegistry)) {
 				const attrs = spec.getAttrs(token)
 				if (attrs) {
-					token.type = markType
-					if (attrs !== true)
-						token.nodeAttrs = attrs
+					const markToken = token
+					// marks in html_blocks can't be used directly, they must be wrapped in a paragraph block in an 'inline' token
+					if (token.type === 'html_block') {
+						token = new Token()
+						token.type = 'inline'
+						token.level = 1
+						token.nesting = 0
+						token.tag = ''
+						token.block = true
+						token.children = [markToken]
+					}
 
-					const children = spec.getChildren?.(token)
+					markToken.type = markType
+					if (attrs !== true)
+						markToken.nodeAttrs = attrs
+
+					const children = spec.getChildren?.(markToken)
 					if (children)
-						token.children = children
+						markToken.children = children
+
+					if (token.type === 'inline')
+						token.children = parseTokens(token.children!)
 
 					break
 				}
@@ -591,10 +591,42 @@ markdown.parse = (src, env) => {
 				level = token.level
 			}
 
+			if (token.type === 'inline') {
+				const paragraphOpen = new Token()
+				paragraphOpen.type = 'paragraph_open'
+				paragraphOpen.nesting = 1
+
+				const paragraphClose = new Token()
+				paragraphClose.type = 'paragraph_close'
+				paragraphClose.nesting = -1
+
+				tokens.push(
+					paragraphOpen,
+					token,
+					paragraphClose,
+				)
+				continue
+			}
+
 			tokens.push(token)
 		}
 
-		return tokens
+		return tokens.flatMap(child => {
+			const children = child.children
+			if (!children?.length || child.type === 'inline')
+				return child
+
+			const endToken = new Token()
+			endToken.type = `${child.type}_close`
+			child.type = `${child.type}_open`
+			child.children = null
+
+			return [
+				child,
+				...children,
+				endToken,
+			]
+		})
 	}
 }
 
@@ -1278,20 +1310,23 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	////////////////////////////////////
 	//#region ProseMirror Init
 
-	function markInputRule (
-		regexp: RegExp,
-		markType: MarkType,
-		getAttrs: Attrs | null | ((matches: RegExpMatchArray) => Attrs | null) = null,
-		getContent: string | Fragment | Node | readonly Node[] | ((matches: RegExpMatchArray) => string | Fragment | Node | readonly Node[]),
-	) {
-		return new InputRule(regexp, (state, match, start, end) => {
-			const attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs
-			const content = getContent instanceof Function ? getContent(match) : getContent
+	interface InputRuleSpec {
+		regex: RegExp
+		type: MarkType
+		getAttrs?: Attrs | null | ((matches: RegExpMatchArray) => Attrs | null)
+		getContent?: string | Fragment | Node | readonly Node[] | ((matches: RegExpMatchArray) => string | Fragment | Node | readonly Node[])
+	}
+
+	function markInputRule (spec: InputRuleSpec) {
+		return new InputRule(spec.regex, (state, match, start, end) => {
+			const attrs = spec.getAttrs instanceof Function ? spec.getAttrs(match) : spec.getAttrs
+			const content = spec.getContent instanceof Function ? spec.getContent(match) : spec.getContent ?? ''
 			const tr = state.tr
 			tr.replaceWith(start, end, typeof content === 'string' ? schema.text(content) : content)
-			const mark = markType.create(attrs)
+			const mark = spec.type.create(attrs)
 			tr.addMark(tr.mapping.map(start), tr.mapping.map(end), mark)
 			tr.removeStoredMark(mark)
+			spec.regex.lastIndex = 0
 			return tr
 		})
 	}
@@ -1304,13 +1339,43 @@ const TextEditor = Component.Builder((component): TextEditor => {
 					buildInputRules(schema),
 					inputRules({
 						rules: [
-							markInputRule(/\*\*([^*]+?)\*\*/, schema.marks.strong, undefined, match => match[1]),
-							markInputRule(/__([^_]+?)__/, schema.marks.underline, undefined, match => match[1]),
-							markInputRule(/\/\/([^/]+?)\/\//, schema.marks.em, undefined, match => match[1]),
-							markInputRule(/`([^`]+?)`/, schema.marks.code, undefined, match => match[1]),
-							markInputRule(/\[(.+?)\]\(([^ ]+?)(?:[  ](?:\((.+?)\)|["'“”‘’](.+?)["'“”‘’]))?\)/, schema.marks.link,
-								([match, text, href, title1, title2]) => ({ href, title: title1 || title2 || undefined }),
-								match => match[1]),
+							markInputRule({
+								regex: /\*\*((?:(?!\*\*).)+)\*\*$/g,
+								type: schema.marks.strong,
+								getContent: match => match[1],
+							}),
+							markInputRule({
+								regex: /__((?:(?!__).)+)__$/g,
+								type: schema.marks.underline,
+								getContent: match => match[1],
+							}),
+							markInputRule({
+								regex: /\/\/((?:(?!\/\/).)+)\/\/$/g,
+								type: schema.marks.em,
+								getContent: match => match[1],
+							}),
+							markInputRule({
+								regex: /~~((?:(?!~~).)+)~~$/g,
+								type: schema.marks.strikethrough,
+								getContent: match => match[1],
+							}),
+							markInputRule({
+								regex: /`([^`]+?)`$/g,
+								type: schema.marks.code,
+								getContent: match => match[1],
+							}),
+							markInputRule({
+								regex: /\[(.+?)\]\(([^ ]+?)(?:[  ](?:\((.+?)\)|["'“”‘’](.+?)["'“”‘’]))?\)$/g,
+								type: schema.marks.link,
+								getAttrs: ([match, text, href, title1, title2]) => ({ href, title: title1 || title2 || undefined }),
+								getContent: match => match[1],
+							}),
+							markInputRule({
+								regex: /@([a-zA-Z0-9-]+)$/g,
+								type: schema.marks.mention,
+								getAttrs: match => ({ vanity: match[1] }),
+								getContent: match => `@${match[1]}`,
+							}),
 						],
 					}),
 					keymap(buildKeymap(schema, {})),
@@ -1328,6 +1393,59 @@ const TextEditor = Component.Builder((component): TextEditor => {
 					gapCursor(),
 					history(),
 					new Plugin({
+						appendTransaction (transactions, oldState, newState): Transaction | null | undefined {
+							const mentionPositions: { start: number, end: number, vanity: string, textAfter: string }[] = []
+							let needsUpdate = false
+
+							newState.doc.descendants((node, pos) => {
+								const mark = node.marks.find(mark => mark.type === schema.marks.mention)
+								if (!mark)
+									return
+
+								let endPos = pos + node.nodeSize
+								let nextChild: Node | null
+								while ((nextChild = newState.doc.nodeAt(endPos))) {
+									if (!nextChild.marks.find(mark => mark.type === schema.marks.mention && mark.attrs.vanity === mark.attrs.vanity))
+										break
+
+									endPos += nextChild.nodeSize
+								}
+
+								let vanity = newState.doc.textBetween(pos, endPos)
+								if (!vanity.startsWith('@'))
+									return false
+
+								vanity = vanity.slice(1)
+								let textAfter: string;
+								[, vanity, textAfter] = vanity.match(/^([a-zA-Z0-9-]+)(.*)$/) ?? []
+								if (!vanity)
+									return false
+
+								endPos -= textAfter.length
+
+								if (mark.attrs.vanity !== vanity) {
+									mentionPositions.push({ start: pos, end: endPos, vanity, textAfter })
+									needsUpdate = true
+								}
+
+								return false
+							})
+
+							if (!needsUpdate)
+								return null
+
+							const tr = newState.tr
+							for (const { start, end, vanity, textAfter } of mentionPositions.reverse()) {
+								const mark = schema.marks.mention.create({ vanity })
+
+								tr.removeMark(start, end + textAfter.length, schema.marks.mention)
+								tr.insertText(textAfter, end)
+
+								tr.replaceWith(start, end + textAfter.length, schema.text(`@${vanity}`))
+								tr.addMark(tr.mapping.map(start), tr.mapping.map(end), mark)
+							}
+							return tr
+						},
 						view () {
 							return {
 								update (view, prevState) {
