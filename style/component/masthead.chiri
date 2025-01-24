@@ -79,12 +79,14 @@
 			%relative
 
 			&-badge:
+				%z-index-fg
 				%absolute
 				%bottom-1
 				%right-2
 				%font-0
 				%padding-1
 				%border-radius-1
+				%font-font-awesome
 				background: $colour-pink
 
 			&-popover:

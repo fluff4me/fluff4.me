@@ -28,7 +28,7 @@ export default ViewDefinition({
 		Work(workData, authorData)
 			.viewTransition('work-view-work')
 			.setContainsHeading()
-			.appendTo(view)
+			.appendTo(view.content)
 
 		const paginator = Paginator()
 			.viewTransition('work-view-chapters')
@@ -36,9 +36,10 @@ export default ViewDefinition({
 			.tweak(p => p.primaryActions.append(Slot()
 				.if(Session.Auth.loggedIn, () => Button()
 					.setIcon('plus')
+					.type('icon')
 					.ariaLabel.use('view/work/chapters/action/label/new')
 					.event.subscribe('click', () => navigate.toURL(`/work/${params.author}/${params.vanity}/chapter/new`)))))
-			.appendTo(view)
+			.appendTo(view.content)
 		const chaptersQuery = EndpointChapterGetAll.prep({
 			params: {
 				author: params.author,

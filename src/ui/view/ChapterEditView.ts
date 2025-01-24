@@ -25,16 +25,20 @@ export default ViewDefinition({
 		if (chapter instanceof Error)
 			throw chapter
 
+		if (params && chapter)
+			view.breadcrumbs.setBackButton(`/work/${params.author}/${params.vanity}/chapter/${params.url}`,
+				button => button.subText.set(chapter.data.name))
+
 		const state = State<Chapter | undefined>(chapter?.data)
 		const stateInternal = State<Chapter | undefined>(chapter?.data)
 
 		Slot()
 			.use(state, () => ChapterEditForm(stateInternal, params).subviewTransition(id))
-			.appendTo(view)
+			.appendTo(view.content)
 
 		Slot()
 			.use(state, () => createActionRow()?.subviewTransition(id))
-			.appendTo(view)
+			.appendTo(view.content)
 
 		stateInternal.subscribe(view, chapter =>
 			ViewTransition.perform('subview', id, () => state.value = chapter))

@@ -24,7 +24,6 @@
 	component/core/paragraph
 	component/core/placeholder
 	component/core/dialog
-	component/core/block
 	component/core/link
 	component/core/button
 	component/core/popover
@@ -43,12 +42,14 @@
 	component/core/labelled-text-input-block
 	component/core/action-row
 	component/core/action-heading
+	component/core/block
 	component/core/text-editor
 	component/core/form
 	component/core/paginator
 	component/core/toast
 	component/core/draggable
 	component/core/sortable
+	component/core/breadcrumbs
 	component/vanity-input
 	component/flag
 	component/masthead

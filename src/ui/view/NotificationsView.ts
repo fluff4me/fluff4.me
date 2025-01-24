@@ -7,7 +7,7 @@ export default ViewDefinition({
 		const view = View('notifications')
 
 		const list = await NotificationList()
-		list.appendTo(view)
+		list.appendTo(view.content)
 
 		return view
 	},

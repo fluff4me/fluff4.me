@@ -31,8 +31,12 @@ const Reaction = Component.Builder((
 		.style('reaction')
 		.append(Button()
 			.setIcon(REACTION_MAP[type])
+			.type('icon')
 			.style('reaction-button')
-			.style.bind(reacted, 'reaction-button--reacted'))
+			.style.bind(reacted, 'reaction-button--reacted')
+			.tweak(button => button.icon!
+				.style('reaction-button-icon')
+				.style.bind(reacted, 'reaction-button-icon--reacted')))
 		.append(Component()
 			.style('reaction-count')
 			.text.bind(reactions.map(component, reactions => reactions ? `${reactions}` : '')))

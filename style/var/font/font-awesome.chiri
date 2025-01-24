@@ -2510,22 +2510,14 @@
 
 	#return icons[name]
 
-#macro icon-container:
-	%padding-2-3
-	%font-4
-	%font-font-awesome
-	%weight-bolder
-	%content-box
-	%size-em
-
 #macro icon:
 	#string name
 	#string rotate?
 
-	#icon-container
 	@before:
 		content: "#{get-icon(name)}"
 		#if exists rotate:
+			%block
 			rotate: #{rotate}
 
 #macro dual-icon:
@@ -2533,8 +2525,8 @@
 	#string b
 	#string rotate?
 
-	#icon-container
 	@before:
 		content: "#{get-icon(a)} \00A0 #{get-icon(b)}"
 		#if exists rotate:
+			%block
 			rotate: #{rotate}

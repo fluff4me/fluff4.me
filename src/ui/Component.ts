@@ -188,7 +188,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	getFirstDescendant<COMPONENT extends Component> (filterBuilder: Component.BuilderLike<any[], COMPONENT>): COMPONENT | undefined
 
 	remove (): void
-	removeContents (): void
+	removeContents (): this
 
 	receiveAncestorInsertEvents (): this
 	receiveDescendantInsertEvents (): this

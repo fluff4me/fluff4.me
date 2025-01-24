@@ -1,0 +1,10 @@
+.breadcrumbs:
+
+	&-back-button:
+
+	&-path:
+
+		&-separator:
+
+		&--hidden:
+			%hidden

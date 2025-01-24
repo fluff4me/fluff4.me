@@ -42,7 +42,6 @@
 
 	&-delete-button:
 		#after: .button
-		#icon name="xmark
 		%column-2
 		%row-1-2
 		%padding-0

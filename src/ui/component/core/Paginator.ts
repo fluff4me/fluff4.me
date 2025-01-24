@@ -63,24 +63,28 @@ const Paginator = Component.Builder((component): Paginator => {
 
 	const buttonFirst = Button()
 		.setIcon('angles-left')
+		.type('icon')
 		.style('paginator-button')
 		.event.subscribe('click', () => showPage(0))
 		.appendTo(block.footer.left)
 
 	const buttonPrev = Button()
 		.setIcon('angle-left')
+		.type('icon')
 		.style('paginator-button')
 		.event.subscribe('click', () => showPage(Math.max(cursor.value - 1, 0)))
 		.appendTo(block.footer.left)
 
 	const buttonNext = Button()
 		.setIcon('angle-right')
+		.type('icon')
 		.style('paginator-button')
 		.event.subscribe('click', () => showPage(Math.min(cursor.value + 1, using?.pageCount === true ? Infinity : pages.length - 1)))
 		.appendTo(block.footer.right)
 
 	const buttonLast = Button()
 		.setIcon('angles-right')
+		.type('icon')
 		.style('paginator-button')
 		.event.subscribe('click', () => showPage(pages.length - 1))
 		.appendTo(block.footer.right)

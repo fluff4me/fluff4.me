@@ -1,5 +1,6 @@
 import Component from 'ui/Component'
 import type { ComponentNameType } from 'ui/utility/StyleManipulator'
+import type TextManipulator from 'ui/utility/TextManipulator'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Type from 'utility/Type'
@@ -14,31 +15,41 @@ interface ButtonTypeManipulator<HOST> {
 
 interface ButtonExtensions {
 	readonly textWrapper: Component
+	readonly subTextWrapper: Component
 	readonly type: ButtonTypeManipulator<this>
 	readonly disabled: State.Generator<boolean>
+	readonly subText: TextManipulator<this>
+	icon?: Component
 	setDisabled (disabled: boolean, reason: string): this
 	bindDisabled (state: State<string>): this
 	bindDisabled (state: State<boolean>, reason: string): this
 	unbindDisabled (state: State<string>): this
 	unbindDisabled (state: State<boolean>, reason: string): this
 	setIcon (icon?: ButtonIcon): this
+	bindIcon (state: State<ButtonIcon | undefined>): this
 }
 
 interface Button extends Component, ButtonExtensions { }
 
-const Button = Component.Builder('button', (button): Button => {
+const Button = Component.Builder('button', (component): Button => {
 	const disabledReasons = new Set<string>()
 	const disabled = State.Generator(() => !!disabledReasons.size)
 
+	const hasSubtext = State(false)
+
 	let icon: ButtonIcon | undefined
 	const unuseDisabledStateMap = new WeakMap<State<boolean | string>, UnsubscribeState>()
-	return button
+	let unuseIconState: UnsubscribeState | undefined
+	const button = component
 		.attributes.set('type', 'button')
 		.style('button')
 		.style.bind(disabled, 'button--disabled')
+		.style.bind(hasSubtext, 'button--has-subtext')
 		.attributes.bind(disabled, 'disabled')
 		.extend<ButtonExtensions>(button => ({
 			textWrapper: undefined!,
+			subTextWrapper: undefined!,
+			subText: undefined!,
 			disabled,
 			type: Object.assign(
 				(...types: ButtonType[]) => {
@@ -83,22 +94,43 @@ const Button = Component.Builder('button', (button): Button => {
 				return button
 			},
 			setIcon (newIcon) {
-				if (icon)
-					button.style.remove(`button-icon-${icon}`)
-
-				icon = newIcon
-				if (icon)
-					button.style(`button-icon-${icon}`)
-						.type('icon')
-				else
-					button.type.remove('icon')
-
+				unuseIconState?.()
+				setIcon(newIcon)
+				return button
+			},
+			bindIcon (state) {
+				unuseIconState?.()
+				unuseIconState = state.use(button, setIcon)
 				return button
 			},
 		}))
 		.extendJIT('textWrapper', button => Component()
 			.style('button-text')
 			.appendTo(button))
+		.extendJIT('text', button => button.textWrapper.text.rehost(button))
+		.extendJIT('subTextWrapper', button => {
+			hasSubtext.value = true
+			return Component()
+				.style('button-subtext')
+				.appendTo(button)
+		})
+		.extendJIT('subText', button => button.subTextWrapper.text.rehost(button))
+
+	return button
+
+	function setIcon (newIcon?: ButtonIcon) {
+		button.icon ??= Component()
+			.style('button-icon')
+			.style.bind(hasSubtext, 'button-icon--has-subtext')
+			.prependTo(button)
+
+		if (icon)
+			button.icon.style.remove(`button-icon-${icon}`)
+
+		icon = newIcon
+		if (icon)
+			button.icon.style(`button-icon-${icon}`)
+	}
 })
 
 export default Button

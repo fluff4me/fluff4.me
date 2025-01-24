@@ -108,6 +108,7 @@ interface StringApplicator<HOST> {
 	bind (state: State<string | Weave>): HOST
 	unbind (): HOST
 	refresh (): void
+	/** Create a new string applicator with the same target that returns a different host */
 	rehost<NEW_HOST> (newHost: NEW_HOST): StringApplicator<NEW_HOST>
 }
 
@@ -199,6 +200,7 @@ namespace StringApplicator {
 		state: State<string | undefined | null>
 		set (value?: string | Weave | null): HOST
 		bind (state?: StateOr<string | Weave | undefined | null>): HOST
+		/** Create a new string applicator with the same target that returns a different host */
 		rehost<NEW_HOST> (newHost: NEW_HOST): StringApplicator.Optional<NEW_HOST>
 	}
 
