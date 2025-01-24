@@ -36,7 +36,7 @@ export default ViewDefinition({
 			.viewTransition('work-view-work')
 			.style('view-type-chapter-work')
 			.setContainsHeading()
-			.appendTo(view)
+			.appendTo(view.content)
 
 		const initialChapterResponse = await EndpointChapterGet.query({ params })
 		if (initialChapterResponse instanceof Error)
@@ -51,7 +51,7 @@ export default ViewDefinition({
 			.type('flush')
 			.tweak(p => p.title.text.bind(chapterState.mapManual(chapter =>
 				quilt['view/chapter/title'](Maths.parseIntOrUndefined(chapter.url), chapter.name))))
-			.appendTo(view)
+			.appendTo(view.content)
 			.useInitial(initialChapterResponse.data, initialChapterResponse.page, initialChapterResponse.page_count)
 			.thenUse(chaptersQuery)
 			.withContent((slot, chapter, paginator) => {
@@ -110,7 +110,7 @@ export default ViewDefinition({
 
 				return Comments(chapter.root_comment as UUID, true)
 			})
-			.appendTo(view)
+			.appendTo(view.content)
 
 		return view
 	},

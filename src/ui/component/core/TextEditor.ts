@@ -19,6 +19,7 @@ import { findWrapping, liftTarget, Transform } from 'prosemirror-transform'
 import { EditorView } from 'prosemirror-view'
 import Announcer from 'ui/Announcer'
 import Component from 'ui/Component'
+import type { ButtonIcon } from 'ui/component/core/Button'
 import Button from 'ui/component/core/Button'
 import Checkbutton from 'ui/component/core/Checkbutton'
 import Dialog from 'ui/component/core/Dialog'
@@ -859,7 +860,6 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	const ToolbarButtonTypeMark = Component.Extension((component, type: Exclude<Marks, 'mention'>) => {
 		const mark = schema.marks[type]
 		return component
-			.style(`text-editor-toolbar-${type}`)
 			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
 			.extend<{ mark: MarkType }>(() => ({ mark }))
 	})
@@ -867,14 +867,12 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	const ToolbarButtonTypeNode = Component.Extension((component, type: ButtonTypeNodes) => {
 		const node = schema.nodes[type.replaceAll('-', '_')]
 		return component
-			.style(`text-editor-toolbar-${type}`)
 			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
 			.extend<{ node: NodeType }>(() => ({ node }))
 	})
 
 	const ToolbarButtonTypeOther = Component.Extension((component, type: Exclude<ButtonType, ButtonTypeNodes | Marks>) => {
 		return component
-			.style(`text-editor-toolbar-${type}`)
 			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
 	})
 
@@ -983,7 +981,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		const toggle = blockTypeToggler(node, { level })
 		const typeActive = state.map(component, state => isTypeActive(node, { level }))
 		return ToolbarRadioButton(`text-editor-${id}-block-type`, typeActive, toggle)
-			.style(`text-editor-toolbar-h${level as 1}`)
+			.setIcon(`${level as 1}`)
 	})
 
 	const ToolbarButtonWrap = Component.Builder((_, type: ButtonTypeNodes) =>
@@ -1091,16 +1089,17 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.style('text-editor-toolbar-left')
 			.append(ToolbarButtonGroup()
 				.ariaLabel.use('component/text-editor/toolbar/group/inline')
-				.append(ToolbarButtonMark('strong'))
-				.append(ToolbarButtonMark('em'))
+				.append(ToolbarButtonMark('strong').setIcon('bold'))
+				.append(ToolbarButtonMark('em').setIcon('italic'))
 				.append(ToolbarButtonPopover('left')
 					.and(ToolbarButtonTypeOther, 'other-formatting')
+					.setIcon('other-formatting')
 					.tweakPopover(popover => popover
-						.append(ToolbarButtonMark('underline'))
-						.append(ToolbarButtonMark('strikethrough'))
-						.append(ToolbarButtonMark('subscript'))
-						.append(ToolbarButtonMark('superscript'))
-						.append(ToolbarButtonMark('code'))
+						.append(ToolbarButtonMark('underline').setIcon('underline'))
+						.append(ToolbarButtonMark('strikethrough').setIcon('strikethrough'))
+						.append(ToolbarButtonMark('subscript').setIcon('subscript'))
+						.append(ToolbarButtonMark('superscript').setIcon('superscript'))
+						.append(ToolbarButtonMark('code').setIcon('code'))
 					)))
 			.append(ToolbarButtonGroup()
 				.ariaLabel.use('component/text-editor/toolbar/group/block')
@@ -1108,9 +1107,9 @@ const TextEditor = Component.Builder((component): TextEditor => {
 					ToolbarButtonPopover('centre')
 						.tweakPopover(popover => popover
 							.ariaRole('radiogroup')
-							.append(ToolbarButtonAlign('left'))
-							.append(ToolbarButtonAlign('centre'))
-							.append(ToolbarButtonAlign('right'))
+							.append(ToolbarButtonAlign('left').setIcon('align-left'))
+							.append(ToolbarButtonAlign('centre').setIcon('align-center'))
+							.append(ToolbarButtonAlign('right').setIcon('align-right'))
 						)
 						.tweak(button => {
 							state.use(button, () => {
@@ -1118,8 +1117,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 								button.ariaLabel.set(quilt['component/text-editor/toolbar/button/align'](
 									quilt[`component/text-editor/toolbar/button/align/currently/${align}`]()
 								).toString())
-								button.style.remove('text-editor-toolbar-align-left', 'text-editor-toolbar-align-centre', 'text-editor-toolbar-align-right', 'text-editor-toolbar-align-mixed')
-								button.style(`text-editor-toolbar-align-${align}`)
+								button.setIcon(align === 'mixed' ? 'asterisk' : `align-${align === 'centre' ? 'center' : align}`)
 							})
 						})
 				))
@@ -1128,9 +1126,9 @@ const TextEditor = Component.Builder((component): TextEditor => {
 				.append(ToolbarButtonPopover('centre')
 					.tweakPopover(popover => popover
 						.ariaRole('radiogroup')
-						.append(ToolbarButtonBlockType('paragraph'))
+						.append(ToolbarButtonBlockType('paragraph').setIcon('paragraph'))
 						.append(ToolbarButtonPopover('centre')
-							.style('text-editor-toolbar-heading')
+							.setIcon('heading')
 							.tweakPopover(popover => popover
 								.append(ToolbarButtonHeading(1))
 								.append(ToolbarButtonHeading(2))
@@ -1139,7 +1137,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 								.append(ToolbarButtonHeading(5))
 								.append(ToolbarButtonHeading(6))
 							))
-						.append(ToolbarButtonBlockType('code-block'))
+						.append(ToolbarButtonBlockType('code-block').setIcon('code'))
 					)
 					.tweak(button => {
 						state.use(button, () => {
@@ -1147,19 +1145,21 @@ const TextEditor = Component.Builder((component): TextEditor => {
 							button.ariaLabel.set(quilt['component/text-editor/toolbar/button/block-type'](
 								quilt[`component/text-editor/toolbar/button/block-type/currently/${blockType}`]()
 							).toString())
-							button.style.remove('text-editor-toolbar-mixed', ...BLOCK_TYPES
-								.map(type => type.replaceAll('_', '-') as BlockTypeR)
-								.map(type => `text-editor-toolbar-${type}` as const))
-							button.style(`text-editor-toolbar-${blockType}`)
+							button.setIcon(false
+								|| (blockType === 'paragraph' && 'paragraph')
+								|| (blockType === 'code-block' && 'code')
+								|| 'asterisk'
+							)
 						})
 					})))
 			.append(ToolbarButtonGroup()
 				.ariaLabel.use('component/text-editor/toolbar/group/wrapper')
 				.append(ToolbarButton(wrapCmd(lift)).and(ToolbarButtonTypeOther, 'lift')
+					.setIcon('outdent')
 					.style.bind(state.map(component, value => !value || !lift(value)), 'text-editor-toolbar-button--hidden'))
-				.append(ToolbarButtonWrap('blockquote'))
-				.append(ToolbarButtonList('bullet-list'))
-				.append(ToolbarButtonList('ordered-list'))
+				.append(ToolbarButtonWrap('blockquote').setIcon('quote-left'))
+				.append(ToolbarButtonList('bullet-list').setIcon('list-ul'))
+				.append(ToolbarButtonList('ordered-list').setIcon('list-ol'))
 			)
 			.append(ToolbarButtonGroup()
 				.ariaLabel.use('component/text-editor/toolbar/group/insert')
@@ -1167,16 +1167,16 @@ const TextEditor = Component.Builder((component): TextEditor => {
 					dispatch?.(state.tr.replaceSelectionWith(schema.nodes.horizontal_rule.create()))
 					return true
 				}))
-					.and(ToolbarButtonTypeOther, 'hr'))))
+					.and(ToolbarButtonTypeOther, 'hr')
+					.style('text-editor-toolbar-hr'))))
 		.append(Component()
 			.style('text-editor-toolbar-right')
 			.append(ToolbarButtonGroup()
 				.ariaLabel.use('component/text-editor/toolbar/group/actions')
-				.append(ToolbarButton(wrapCmd(undo)).and(ToolbarButtonTypeOther, 'undo'))
-				.append(ToolbarButton(wrapCmd(redo)).and(ToolbarButtonTypeOther, 'redo'))
+				.append(ToolbarButton(wrapCmd(undo)).and(ToolbarButtonTypeOther, 'undo').setIcon('undo'))
+				.append(ToolbarButton(wrapCmd(redo)).and(ToolbarButtonTypeOther, 'redo').setIcon('redo'))
 				.append(ToolbarButton(toggleFullscreen)
-					.style.bind(isFullscreen.not, 'text-editor-toolbar-fullscreen')
-					.style.bind(isFullscreen, 'text-editor-toolbar-unfullscreen')
+					.bindIcon(isFullscreen.map(component, (fullscreen): ButtonIcon => fullscreen ? 'compress' : 'expand'))
 					.ariaLabel.bind(isFullscreen.map(component, fullscreen => quilt[`component/text-editor/toolbar/button/${fullscreen ? 'unfullscreen' : 'fullscreen'}`]().toString())))
 			))
 

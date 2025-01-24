@@ -23,6 +23,7 @@ const NotificationList = Component.Builder(async (component, onlyUnread?: true, 
 
 	Button()
 		.setIcon('check-double')
+		.type('icon')
 		.event.subscribe('click', async () => {
 			const notifs = paginator.data.value as NotificationData[]
 			const response = await EndpointNotificationMarkRead.query({ body: { notification_ids: notifs.map(n => n.id) } })

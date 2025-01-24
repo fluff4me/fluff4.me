@@ -68,9 +68,10 @@
 			%box-shadow-none
 			%relative
 			%font-inherit
-			%border-box
+			; %border-box
 			%text-align-centre
 			%vertical-align-middle
+			%font-1
 			padding: #{size} #{size}
 			background: $button-background
 			$button-background: transparent
@@ -144,54 +145,13 @@
 					backdrop-filter: none
 
 		&-strong:
-			#icon name="bold
 			%border-top-left-radius-1
 
-		&-em:
-			#icon name="italic
-		&-underline:
-			#icon name="underline
-		&-strikethrough:
-			#icon name="strikethrough
-		&-subscript:
-			#icon name="subscript
-		&-superscript:
-			#icon name="superscript
-		&-blockquote:
-			#icon name="quote-left
-		&-bullet-list:
-			#icon name="list-ul
-		&-ordered-list:
-			#icon name="list-ol
-		&-lift:
-			#icon name="outdent
-		&-paragraph:
-			#icon name="paragraph
-		&-heading:
-			#icon name="heading
-		#each in 1...6 as var i:
-			&-h#{i}:
-				#icon name="#{i}
-		&-h2:
-			#icon name="2
-		&-code, &-code-block:
-			#icon name="code
-		&-link:
-			#icon name="link
-		&-align-left:
-			#icon name="align-left
-		&-align-right:
-			#icon name="align-right
-		&-align-centre:
-			#icon name="align-center
-		&-align-justify:
-			#icon name="align-justify
-		&-align-mixed, &-mixed:
-			#icon name="asterisk
-		&-other-formatting:
-			#dual-icon a="font" b="ellipsis-vertical
 		&-hr:
-			#icon-container
+			%block
+			%font-font-awesome
+			%weight-bolder
+			%size-em
 			@before:
 				%absolute
 				$width: 1.3em
@@ -202,15 +162,6 @@
 				top: calc(50% - $height / 2)
 				border-radius: calc($height / 2)
 				background: currentcolor
-
-		&-undo:
-			#icon rotate="-90deg" name="arrow-turn-up
-		&-redo:
-			#icon rotate="-90deg" name="arrow-turn-down
-		&-fullscreen:
-			#icon name="expand
-		&-unfullscreen:
-			#icon name="compress
 
 		&-popover:
 			%padding-1

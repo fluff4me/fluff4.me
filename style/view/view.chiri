@@ -1,9 +1,9 @@
 .view:
-	%flex
-	%flex-column
+	%grid
 	%align-items-centre
 	%gap-4
 	%padding-4-0
+	grid-template-columns: 1fr auto 1fr
 
 	&-container:
 
@@ -42,6 +42,24 @@
 						opacity: 0
 
 	&--hidden:
+
+	&-breadcrumbs:
+		%contents
+
+		&-back-button:
+			%column-1
+			%size-fit
+			%align-self-start
+			%justify-self-end
+
+		&-path:
+			%column-2
+
+	&-content:
+		%flex
+		%flex-column
+		%gap-4
+		%column-2
 
 #macro view:
 	#string type

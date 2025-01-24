@@ -42,6 +42,7 @@
 		%unmargin-right-3
 		%margin-left-0
 		%padding-block-2
+		%font-1
 		#transition:
 			$button-transition,
 			#{transition("margin")},

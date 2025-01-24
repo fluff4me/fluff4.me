@@ -19,13 +19,13 @@ export default ViewDefinition({
 
 		Heading()
 			.text.use(quilt => quilt['view/error/title']({ CODE: params.code }))
-			.appendTo(view)
+			.appendTo(view.content)
 
 		const key = `view/error/description-${params.code}` as const
 		if (key in quilt)
 			Paragraph()
 				.text.use(key as Quilt.SimpleKey)
-				.appendTo(view)
+				.appendTo(view.content)
 
 		return view
 	},

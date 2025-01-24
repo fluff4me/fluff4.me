@@ -11,7 +11,7 @@ export default ViewDefinition({
 	create: () => {
 		const view = View('home')
 
-		const block = Block().appendTo(view)
+		const block = Block().appendTo(view.content)
 		block.title.text.set('Test the text editor')
 		block.description.text.set('fluff4.me is still a work-in-progress. In the meantime, feel free to play with this!')
 		// const form = block.and(Form, block.title)

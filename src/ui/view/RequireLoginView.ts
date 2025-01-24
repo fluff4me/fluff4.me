@@ -9,7 +9,7 @@ export default ViewDefinition({
 	create: () => {
 		const view = View('require-login')
 
-		const block = Block().appendTo(view)
+		const block = Block().appendTo(view.content)
 
 		block.title.text.use('view/shared/login-required/title')
 		block.description.text.use('view/shared/login-required/description')

@@ -5,12 +5,18 @@
 	&-button:
 		#after: .button
 		%padding-0
-		%font-3
-		%weight-normal
 
 		&--reacted:
 			#after: .reaction-button
-			%weight-bolder
+
+		&-icon:
+			#after: .button-icon
+			%weight-normal
+			%font-3
+
+			&--reacted:
+				#after: .reaction-button-icon
+				%weight-bolder
 
 	&-count:
 		%font-2

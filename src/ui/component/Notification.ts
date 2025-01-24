@@ -56,9 +56,11 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 	const justMarkedUnread = State(false)
 	const readButton = Button()
 		.setIcon('check')
+		.type('icon')
 		.style('notification-read-button')
 		.style.bind(read, 'notification-read-button--read')
 		.style.bind(justMarkedUnread, 'notification-read-button--just-marked-unread')
+		.tweak(button => button.icon!.style('notification-read-button-icon'))
 		.event.subscribe('click', async event => {
 			event.preventDefault()
 			event.stopImmediatePropagation()

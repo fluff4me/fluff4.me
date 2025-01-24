@@ -53,6 +53,7 @@ const Tag = Object.assign(
 			addDeleteButton (handler) {
 				Button()
 					.style('tag-delete-button')
+					.setIcon('xmark')
 					.event.subscribe('click', handler)
 					.appendTo(component)
 				return component

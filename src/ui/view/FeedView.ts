@@ -14,7 +14,7 @@ export default ViewDefinition({
 			.viewTransition('author-view-feed')
 			.type('flush')
 			.tweak(p => p.title.text.use('view/feed/main/title'))
-			.appendTo(view)
+			.appendTo(view.content)
 		const endpoint = EndpointFeedGet.prep().setPageSize(3)
 		await paginator.useEndpoint(endpoint, (slot, { works, authors }) => {
 			for (const workData of works) {

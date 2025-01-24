@@ -31,7 +31,7 @@ export default ViewDefinition({
 				})
 		}
 
-		const oauthDiv = Block().appendTo(view)
+		const oauthDiv = Block().appendTo(view.content)
 
 		const OAuthServices = await EndpointAuthServices.query()
 
@@ -69,7 +69,7 @@ export default ViewDefinition({
 		// document.body.append(createButton(BUTTON_REGISTRY.createAuthor, "test author 1", "hi-im-an-author"));
 		oauthDiv.append(createButton(BUTTON_REGISTRY.clearSession))
 
-		const profileButtons = Block().appendTo(view)
+		const profileButtons = Block().appendTo(view.content)
 
 		profileButtons.append(createButton({
 			name: 'Seed Bulk Data',
@@ -155,7 +155,7 @@ export default ViewDefinition({
 		// 	},
 		// }))
 
-		const followButtons = Block().appendTo(view)
+		const followButtons = Block().appendTo(view.content)
 
 		followButtons.append(createButton({
 			name: 'Test New Following',
@@ -228,7 +228,7 @@ export default ViewDefinition({
 			},
 		}))
 
-		const privRoleButtons = Block().appendTo(view)
+		const privRoleButtons = Block().appendTo(view.content)
 
 		privRoleButtons.append(createButton({
 			name: 'privileges initial test',
@@ -292,7 +292,7 @@ export default ViewDefinition({
 			},
 		}))
 
-		const moreRoleButtons = Block().appendTo(view)
+		const moreRoleButtons = Block().appendTo(view.content)
 
 		moreRoleButtons.append(createButton({
 			name: 'Make ten billion works',
@@ -359,7 +359,7 @@ export default ViewDefinition({
 			},
 		}))
 
-		const commentsButton = Block().appendTo(view)
+		const commentsButton = Block().appendTo(view.content)
 
 		commentsButton.append(createButton({
 			name: 'Author 2 lots of comments',
@@ -411,7 +411,7 @@ export default ViewDefinition({
 			},
 		}))
 
-		const patreonButtons = Block().appendTo(view)
+		const patreonButtons = Block().appendTo(view.content)
 
 		Button()
 			.text.set('Campaign Test')
@@ -478,7 +478,7 @@ export default ViewDefinition({
 			},
 		}))
 
-		const tagButtons = Block().appendTo(view)
+		const tagButtons = Block().appendTo(view.content)
 
 		tagButtons.append(createButton({
 			name: 'Create Tag Author',
@@ -583,7 +583,7 @@ export default ViewDefinition({
 			},
 		}))
 
-		const notifButtons = Block().appendTo(view)
+		const notifButtons = Block().appendTo(view.content)
 
 		notifButtons.append(createButton({
 			name: 'Get Notifications',

@@ -25,6 +25,7 @@ save: Save
 create: Create!
 cancel: Cancel
 confirm: Confirm
+return: Return
 
 ## toast
 failed-to-save: Failed to save {0}

@@ -29,13 +29,17 @@ export default ViewDefinition({
 		const state = State<WorkFull | undefined>(work?.data)
 		const stateInternal = State<WorkFull | undefined>(work?.data)
 
+		if (params && work)
+			view.breadcrumbs.setBackButton(`/work/${params.author}/${params.vanity}`,
+				button => button.subText.set(work.data.name))
+
 		Slot()
 			.use(state, () => WorkEditForm(stateInternal).subviewTransition(id))
-			.appendTo(view)
+			.appendTo(view.content)
 
 		Slot()
 			.use(state, () => createActionRow()?.subviewTransition(id))
-			.appendTo(view)
+			.appendTo(view.content)
 
 		stateInternal.subscribe(view, work =>
 			ViewTransition.perform('subview', id, () => state.value = work))

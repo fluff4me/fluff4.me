@@ -29,6 +29,7 @@ const CanHasActionsMenuButton = Component.Extension((component, inserter?: (butt
 			const button = Button()
 				.style('block-actions-menu-button')
 				.setIcon('ellipsis-vertical')
+				.type('icon')
 				.setPopover('click', actionsMenuPopoverInitialiser)
 			if (inserter)
 				inserter(button)

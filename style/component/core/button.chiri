@@ -4,7 +4,6 @@ $$button-background-highlight!colour
 .button:
 	#after: .link
 	%borderless
-	%inline-block
 	%padding-2-3
 	%cursor-pointer
 	%no-select
@@ -14,6 +13,8 @@ $$button-background-highlight!colour
 	%font-4
 	%box-shadow-1
 	%decoration-none
+	%inline-flex
+	%column-gap-2
 	colour: $button-colour
 	$button-background: $background-interact-4
 	$button-background-highlight: hsl(from $button-background h s calc(l + 6))
@@ -58,6 +59,19 @@ $$button-background-highlight!colour
 	&-text:
 		%font-vertical-align
 
+	&-subtext:
+		%font-0
+		%weight-normal
+		%unmargin-top-1
+		%colour-4
+
+	&--has-subtext:
+		#after: .button
+		%inline-grid
+		%font-3
+		grid-template-columns: auto 1fr
+		grid-template-rows: auto auto
+
 	::hover, ::focus:
 		$button-background: $background-interact-5
 		%translate-up-1
@@ -93,6 +107,19 @@ $$button-background-highlight!colour
 			%box-shadow-inset-1
 			$transition-duration: $transition-action
 
+	&-icon:
+		%relative
+		%font-font-awesome
+		%weight-bolder
+		%size-em
+		%z-index-fg
+		%font-inherit
+		%row-1-2
+		%align-self-centre
+
+		&--has-subtext:
+			%unmargin-top-1
+
 	#list!string icons = [
 		"plus
 		"ellipsis-vertical
@@ -107,8 +134,61 @@ $$button-background-highlight!colour
 		"heart
 		"check
 		"check-double
+		"arrow-left
+		"arrow-right
+		"arrow-up
+		"arrow-down
+		"bold
+		"italic
+		"underline
+		"strikethrough
+		"subscript
+		"superscript
+		"quote-left
+		"list-ul
+		"list-ol
+		"outdent
+		"paragraph
+		"heading
+		"code
+		"link
+		"align-left
+		"align-right
+		"align-center
+		"align-justify
+		"asterisk
+		"expand
+		"compress
 
 	#each in icons as var icon:
 		&-icon-#{icon}:
-			#after: .button
+			#after: .button-icon
 			#icon name="#{icon}
+
+	#each in 0...9 as var i:
+		&-icon-#{i}:
+			#after: .button-icon
+			#icon name="#{i}
+
+	; icons rotated -90deg
+	#record!string icons-rotated = {
+		undo: "arrow-turn-up
+		redo: "arrow-turn-down
+
+	#each in icons-rotated as var name, var icon:
+		&-icon-#{name}:
+			#after: .button-icon
+			#icon rotate="-90deg" name="#{icon}
+
+	; icons rotated 90deg
+	; #set icons-rotated = {
+
+	; #each in icons-rotated as var name, var icon:
+	; 	&-icon-#{name}:
+	; 		#after: .button-icon
+	; 		#icon rotate="90deg" name="#{icon}
+
+	; other icons
+	&-icon-other-formatting:
+		#after: .button-icon
+		#dual-icon a="font" b="ellipsis-vertical

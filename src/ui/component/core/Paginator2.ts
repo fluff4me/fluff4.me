@@ -61,6 +61,7 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 	// first
 	Button()
 		.setIcon('angles-left')
+		.type('icon')
 		.style('paginator-button')
 		.style.bind(isFirstPage, 'paginator-button--disabled')
 		.event.subscribe('click', () => cursor.value = 0)
@@ -69,6 +70,7 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 	// prev
 	Button()
 		.setIcon('angle-left')
+		.type('icon')
 		.style('paginator-button')
 		.style.bind(isFirstPage, 'paginator-button--disabled')
 		.event.subscribe('click', () => cursor.value = Math.max(cursor.value - 1, 0))
@@ -77,6 +79,7 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 	// next
 	Button()
 		.setIcon('angle-right')
+		.type('icon')
 		.style('paginator-button')
 		.style.bind(isLastPage, 'paginator-button--disabled')
 		.event.subscribe('click', () => cursor.value = Math.min(cursor.value + 1, pageCount.value === undefined ? Infinity : pageCount.value - 1))
@@ -85,6 +88,7 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 	// last
 	Button()
 		.setIcon('angles-right')
+		.type('icon')
 		.style('paginator-button')
 		.style.bind(isLastPage, 'paginator-button--disabled')
 		.style.bind(hasNoPageCount, 'paginator-button--hidden')

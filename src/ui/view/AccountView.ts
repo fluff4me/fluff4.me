@@ -19,17 +19,22 @@ export default ViewDefinition({
 
 		const state = State<Session.Auth.State>(Session.Auth.state.value)
 
+		Session.Auth.author.use(view, author =>
+			view.breadcrumbs.setBackButton(!author?.vanity ? undefined : `/author/${author.vanity}`,
+				button => button.subText.set(author?.name))
+		)
+
 		Slot()
 			.use(state, () => createForm()?.subviewTransition(id))
-			.appendTo(view)
+			.appendTo(view.content)
 
 		const services = await OAuthServices(state)
 		services.header.subviewTransition(id)
-		services.appendTo(view)
+		services.appendTo(view.content)
 
 		Slot()
 			.use(state, () => createActionRow()?.subviewTransition(id))
-			.appendTo(view)
+			.appendTo(view.content)
 
 		Session.Auth.state.subscribe(view, () =>
 			ViewTransition.perform('subview', id, updateAuthState))
