@@ -48,9 +48,12 @@
 		%background-none
 		%box-shadow-none
 		%font-0
-		%padding-inline-2
+		%padding-right-2
 		%height-100
 		%unmargin-right-2
 		%colour-inherit
 		margin-top: -0.1em
 		#transition: #{transition("translate")}
+
+		@before:
+			%hidden
