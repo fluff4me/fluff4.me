@@ -46,6 +46,10 @@ tags/hint/global: {#B:Global tags} are chosen from a predefined list, meant for 
 tags/hint/custom: {#B:Custom tags} are custom text — whatever you want. Useful as stand-ins for missing global tags, or to better describe specifics.\nThese {#I:only} display on the full work page.
 progress-wheel/remaining/label: {0}
 progress-wheel/progress/label: {0}%
+visibility/label: Visibility
+visibility/public: Public
+visibility/private: Private
+visibility/patreon: Patreon
 
 invalid/too-long: This text is too long.
 invalid/tags/too-many-global: Too many global tags.
@@ -252,6 +256,10 @@ description/hint: A simple 1-2 sentence description of the work. This will be th
 synopsis/label: Synopsis
 synopsis/hint: The full text describing this work. This will only appear in the full work view.
 tags/label=shared/form/tags/label
+visibility/label=shared/form/visibility/label
+visibility/hint: When set to public, a work will not be visible until it has a public chapter as well.
+visibility/public=shared/form/visibility/public
+visibility/private=shared/form/visibility/private
 
 ## work-edit/create
 title: Create work
@@ -286,6 +294,10 @@ name/label=shared/form/name/label
 name/hint: The name of this chapter. This does not have to be unique.
 body/label=shared/form/body/label
 body/hint: The content of this chapter. There is no specific character count limit, but if your chapter exceeds 1MB it will be rejected. You will probably never run into this.
+visibility/label=shared/form/visibility/label
+visibility/public=shared/form/visibility/public
+visibility/private=shared/form/visibility/private
+visibility/patreon=shared/form/visibility/patreon
 
 ## chapter-edit/create
 title: Create chapter

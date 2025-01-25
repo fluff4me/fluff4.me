@@ -1,7 +1,8 @@
 #do:
 	#record!string colours = {
 		blue: "#69b3e2
-		blue-saturated: "#0173ba
+		blue-2: "#499FD5
+		blue-3: "#0173ba
 		pink: "#d94e8f
 		success: "#56d37a
 		success-bg: "#204731

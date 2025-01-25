@@ -1,0 +1,26 @@
+.radio-row:
+	%flex
+	%gap-2
+
+	&-option:
+		%justify-content-centre
+		%flex-grow
+		%border-1
+		%font-inherit
+		colour: $colour-blue
+
+		:not ::hover ::focus:
+			border-colour: transparent
+
+		::hover, ::focus:
+			$button-background: transparent
+
+		&--selected:
+			#after: .radio-row-option, .button--disabled
+			%colour-0
+			%opaque
+			$button-background: $colour-blue-2
+
+		&--hidden:
+			#after: .radio-row-option
+			%hidden

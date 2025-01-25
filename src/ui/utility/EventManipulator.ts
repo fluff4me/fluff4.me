@@ -11,8 +11,8 @@ export type EventHandler<HOST, EVENTS, EVENT extends keyof EVENTS> = (...params:
 type ResolveEvent<EVENT extends Arrays.Or<PropertyKey>> = EVENT extends PropertyKey[] ? EVENT[number] : EVENT
 
 interface EventManipulator<HOST, EVENTS> {
-	emit<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean }
-	bubble<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean }
+	emit<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean, stoppedPropagation: boolean | 'immediate' }
+	bubble<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean, stoppedPropagation: boolean | 'immediate' }
 	subscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 	subscribePassive<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 	unsubscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
@@ -45,17 +45,49 @@ function EventManipulator (component: Component): EventManipulator<Component, Na
 	return {
 		emit (event, ...params) {
 			const detail: EventDetail = { result: [], params }
-			const eventObject = new CustomEvent(event, { detail })
+			let stoppedPropagation: boolean | 'immediate' = false
+			let preventedDefault = false
+			const eventObject = Object.assign(
+				new CustomEvent(event, { detail }),
+				{
+					preventDefault () {
+						Event.prototype.preventDefault.call(this)
+						preventedDefault ||= true
+					},
+					stopPropagation () {
+						stoppedPropagation ||= true
+					},
+					stopImmediatePropagation () {
+						stoppedPropagation = 'immediate'
+					},
+				}
+			)
 			component.element.dispatchEvent(eventObject)
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-			return Object.assign(detail.result, { defaultPrevented: eventObject.defaultPrevented }) as any
+			return Object.assign(detail.result, { defaultPrevented: eventObject.defaultPrevented || preventedDefault, stoppedPropagation }) as any
 		},
 		bubble (event, ...params) {
 			const detail: EventDetail = { result: [], params }
-			const eventObject = new CustomEvent(event, { detail, bubbles: true })
+			let stoppedPropagation: boolean | 'immediate' = false
+			let preventedDefault = false
+			const eventObject = Object.assign(
+				new CustomEvent(event, { detail, bubbles: true }),
+				{
+					preventDefault () {
+						Event.prototype.preventDefault.call(this)
+						preventedDefault ||= true
+					},
+					stopPropagation () {
+						stoppedPropagation ||= true
+					},
+					stopImmediatePropagation () {
+						stoppedPropagation = 'immediate'
+					},
+				}
+			)
 			component.element.dispatchEvent(eventObject)
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-			return Object.assign(detail.result, { defaultPrevented: eventObject.defaultPrevented }) as any
+			return Object.assign(detail.result, { defaultPrevented: eventObject.defaultPrevented || preventedDefault, stoppedPropagation }) as any
 		},
 		subscribe (events, handler) {
 			return subscribe(handler, events)

@@ -24,7 +24,8 @@ $$button-background-highlight!colour
 		#{transition($$button-background-highlight)},
 		#{transition("translate")},
 		#{transition("color")},
-		#{transition("box-shadow")}
+		#{transition("box-shadow")},
+		#{transition("border")}
 	#transition: $button-transition
 
 	&-type-icon:
@@ -45,7 +46,7 @@ $$button-background-highlight!colour
 		%font-inherit
 
 	&-type-primary:
-		$colour: $colour-blue-saturated
+		$colour: $colour-blue-3
 		$button-background: $colour
 		colour: #{contrast($colour)}
 
