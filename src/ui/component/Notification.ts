@@ -1,7 +1,11 @@
 import type { ManifestNotificationTypes, Notification as NotificationData } from 'api.fluff4.me'
 import type { Weave, WeavingArg } from 'lang/en-nz'
 import quilt from 'lang/en-nz'
+import Authors from 'model/Authors'
+import Chapters from 'model/Chapters'
+import Comments from 'model/Comments'
 import Notifications from 'model/Notifications'
+import Works from 'model/Works'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
@@ -48,10 +52,14 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 		.style('notification')
 		.style.bind(read, 'notification--read')
 
-	const TRIGGERED_BY = !data.triggered_by ? undefined : Link(`/author/${data.triggered_by.vanity}`).text.set(data.triggered_by.name)
-	const AUTHOR = !data.author ? undefined : Link(`/author/${data.author.vanity}`).text.set(data.author.name)
-	const WORK = !data.author || !data.work ? undefined : Link(`/work/${data.author.vanity}/${data.work.vanity}`).text.set(data.work.name)
-	const CHAPTER = !data.author || !data.work || !data.chapter ? undefined : Link(`/work/${data.author.vanity}/${data.work.vanity}/chapter/${data.chapter.url}`).text.set(data.chapter.name)
+	const triggeredBy = Authors.resolve(data.triggered_by, Notifications.authors.value)
+	const TRIGGERED_BY = !triggeredBy ? undefined : Link(`/author/${triggeredBy.vanity}`).text.set(triggeredBy.name)
+	const author = Authors.resolve(data.author, Notifications.authors.value)
+	const AUTHOR = !author ? undefined : Link(`/author/${author.vanity}`).text.set(author.name)
+	const work = Works.resolve(data.work, Notifications.works.value)
+	const WORK = !work ? undefined : Link(`/work/${work.author}/${work.vanity}`).text.set(work.name)
+	const chapter = Chapters.resolve(data.chapter, Notifications.chapters.value)
+	const CHAPTER = !chapter ? undefined : Link(`/work/${chapter.author}/${chapter.work}/chapter/${chapter.url}`).text.set(chapter.name)
 
 	const justMarkedUnread = State(false)
 	const readButton = Button()
@@ -85,16 +93,17 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 		)
 		.appendTo(notification)
 
-	if (data.comment) {
+	const comment = Comments.resolve(data.comment, Notifications.comments.value)
+	if (comment) {
 		Component()
 			.style('markdown')
-			.append(data.comment.body && Component('blockquote')
+			.append(comment.body && Component('blockquote')
 				.style('notification-comment')
-				.setMarkdownContent(data.comment.body, 64))
+				.setMarkdownContent(comment.body, 64))
 			.appendTo(notification)
 
-		if (data.author && data.work && data.chapter)
-			notification.and(Link, `/work/${data.author.vanity}/${data.work.vanity}/chapter/${data.chapter.url}`)
+		if (chapter)
+			notification.and(Link, `/work/${chapter.author}/${chapter.work}/chapter/${chapter.url}`)
 	}
 
 	return notification

@@ -1,4 +1,4 @@
-import type { Author, Notification } from 'api.fluff4.me'
+import type { Author, ChapterLite, CommentResolved, Notification, Work } from 'api.fluff4.me'
 import EndpointNotificationGetAll from 'endpoint/notification/EndpointNotificationGetAll'
 import EndpointNotificationGetCount from 'endpoint/notification/EndpointNotificationGetCount'
 import EndpointNotificationMarkRead from 'endpoint/notification/EndpointNotificationMarkRead'
@@ -13,6 +13,9 @@ interface NotificationsCache {
 	lastUpdate?: number
 	cache?: Notification[]
 	authors?: Author[]
+	works?: Work[]
+	chapters?: ChapterLite[]
+	comments?: CommentResolved[]
 	hasMore?: boolean
 	unreadCount?: number
 }
@@ -37,18 +40,35 @@ namespace Notifications {
 				if (toast.handleError(response))
 					return false
 
-				const notifications = response.data
-				if (!notifications.length)
+				const data = response.data
+				if (!data.notifications.length)
 					return null
 
-				simpleCache.push(...notifications)
+				simpleCache.push(...data.notifications)
 				simpleCache.sort(...sortNotifs)
-				Store.items.notifications = { ...Store.items.notifications, cache: simpleCache }
+
+				authors.value = [...Store.items.notifications?.authors ?? [], ...data.authors]
+				works.value = [...Store.items.notifications?.works ?? [], ...data.works]
+				chapters.value = [...Store.items.notifications?.chapters ?? [], ...data.chapters]
+				comments.value = [...Store.items.notifications?.comments ?? [], ...data.comments]
+
+				Store.items.notifications = {
+					...Store.items.notifications,
+					cache: simpleCache,
+					authors: authors.value,
+					works: works.value,
+					chapters: chapters.value,
+					comments: comments.value,
+				}
 			}
 
 			return simpleCache.slice(start, end)
 		},
 	})
+	export const authors = State(Store.items.notifications?.authors ?? [])
+	export const works = State(Store.items.notifications?.works ?? [])
+	export const chapters = State(Store.items.notifications?.chapters ?? [])
+	export const comments = State(Store.items.notifications?.comments ?? [])
 	export const hasMore = State(Store.items.notifications?.hasMore ?? false)
 	export const unreadCount = State(Store.items.notifications?.unreadCount ?? 0)
 	export const lastUpdate = State(Store.items.notifications?.lastUpdate ?? 0)
@@ -128,7 +148,11 @@ namespace Notifications {
 
 			const count = response.data.unread_notification_count
 			notifications.unreadCount = unreadCount.value = count
-			notifications.cache = simpleCache = firstPage.data.sort(...sortNotifs)
+			notifications.cache = simpleCache = firstPage.data.notifications.sort(...sortNotifs)
+			notifications.authors = authors.value = firstPage.data.authors
+			notifications.works = works.value = firstPage.data.works
+			notifications.chapters = chapters.value = firstPage.data.chapters
+			notifications.comments = comments.value = firstPage.data.comments
 			notifications.hasMore = hasMore.value = firstPage.has_more
 			notifications.lastUpdate = lastUpdate.value = time
 			cache.clear()
