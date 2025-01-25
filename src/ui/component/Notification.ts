@@ -5,6 +5,7 @@ import Authors from 'model/Authors'
 import Chapters from 'model/Chapters'
 import Comments from 'model/Comments'
 import Notifications from 'model/Notifications'
+import TextBody from 'model/TextBody'
 import Works from 'model/Works'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
@@ -99,7 +100,7 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 			.style('markdown')
 			.append(comment.body && Component('blockquote')
 				.style('notification-comment')
-				.setMarkdownContent(comment.body, 64))
+				.setMarkdownContent(TextBody.resolve(comment.body, Notifications.authors.value), 64))
 			.appendTo(notification)
 
 		if (chapter)
