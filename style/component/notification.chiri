@@ -89,6 +89,7 @@
 		%absolute
 		%top-0
 		%unbottom-1
+		%z-index-bg
 		inset-inline: calc(-1 * ${popover-padding: 0px})
 		#transition: #{transition("background")}
 
