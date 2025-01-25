@@ -1,4 +1,4 @@
-import type { WorkFull } from 'api.fluff4.me'
+import type { Work, WorkFull } from 'api.fluff4.me'
 import EndpointWorkCreate from 'endpoint/work/EndpointWorkCreate'
 import EndpointWorkUpdate from 'endpoint/work/EndpointWorkUpdate'
 import quilt from 'lang/en-nz'
@@ -8,6 +8,8 @@ import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Form from 'ui/component/core/Form'
 import LabelledTable from 'ui/component/core/LabelledTable'
+import type RadioButton from 'ui/component/core/RadioButton'
+import RadioRow from 'ui/component/core/RadioRow'
 import Textarea from 'ui/component/core/Textarea'
 import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
@@ -72,6 +74,18 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 	table.label(label => label.text.use('view/work-edit/shared/form/tags/label'))
 		.content((content, label) => content.append(tagsEditor.setLabel(label)))
 
+	type Visibility = Work['visibility']
+	const VisibilityRadioInitialiser = (radio: RadioButton, id: Visibility) => radio
+		.text.use(`view/work-edit/shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
+
+	const visibility = RadioRow()
+		.hint.use('view/work-edit/shared/form/visibility/hint')
+		.add('Public', VisibilityRadioInitialiser)
+		.add('Private', VisibilityRadioInitialiser)
+		.default.bind(state.map(component, work => work?.visibility ?? 'Private'))
+	table.label(label => label.text.use('view/work-edit/shared/form/visibility/label'))
+		.content((content, label) => content.append(visibility.setLabel(label)))
+
 	form.event.subscribe('submit', async event => {
 		event.preventDefault()
 
@@ -86,6 +100,7 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 							vanity: vanityInput.value,
 							description: descriptionInput.value,
 							synopsis: synopsisInput.useMarkdown(),
+							visibility: visibility.selection.value ?? 'Private',
 							...tagsEditor.state.value,
 						},
 					})
@@ -108,6 +123,7 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 							vanity: vanityInput.value,
 							description: descriptionInput.value,
 							synopsis: synopsisInput.useMarkdown(),
+							visibility: visibility.selection.value ?? 'Private',
 							...tagsEditor.state.value,
 						},
 					})

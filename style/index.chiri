@@ -50,6 +50,7 @@
 	component/core/draggable
 	component/core/sortable
 	component/core/breadcrumbs
+	component/core/radio-row
 	component/vanity-input
 	component/flag
 	component/masthead

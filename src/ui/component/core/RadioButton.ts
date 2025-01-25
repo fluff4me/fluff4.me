@@ -1,9 +1,17 @@
-import Component from "ui/Component"
-import Checkbutton from "ui/component/core/Checkbutton"
+import Component from 'ui/Component'
+import Checkbutton from 'ui/component/core/Checkbutton'
 
-export default Component.Builder(() => {
-	const cb = Checkbutton()
-	cb.ariaRole("radio")
-	cb.input.attributes.set("type", "radio")
-	return cb
+interface RadioButtonExtensions {
+
+}
+
+interface RadioButton extends Checkbutton, RadioButtonExtensions { }
+
+const RadioButton = Component.Builder(() => {
+	const radio = Checkbutton()
+	radio.ariaRole('radio')
+	radio.input.attributes.set('type', 'radio')
+	return radio.extend<RadioButtonExtensions>(radio => ({}))
 })
+
+export default RadioButton

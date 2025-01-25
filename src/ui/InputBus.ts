@@ -79,11 +79,17 @@ function emitKeyEvent (e: RawEvent) {
 	const isClick = true
 		&& !usedByInput
 		&& e.type === 'keydown'
-		&& (e.key === 'Enter' || e.key === 'Space')
+		&& (e.key === 'Enter' || e.key === ' ')
 		&& !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey
 		&& target.classList.contains(Classes.ReceiveFocusedClickEvents)
 	if (isClick) {
 		const result = target.component?.event.emit('click')
+
+		if (result?.stoppedPropagation === true)
+			e.stopPropagation()
+		else if (result?.stoppedPropagation === 'immediate')
+			e.stopImmediatePropagation()
+
 		if (result?.defaultPrevented) {
 			e.preventDefault()
 			return
@@ -166,8 +172,8 @@ function emitKeyEvent (e: RawEvent) {
 	}
 }
 
-document.addEventListener('keydown', emitKeyEvent)
-document.addEventListener('keyup', emitKeyEvent)
+document.addEventListener('keydown', emitKeyEvent, { capture: true })
+document.addEventListener('keyup', emitKeyEvent, { capture: true })
 
 document.addEventListener('mousedown', emitKeyEvent)
 document.addEventListener('mouseup', emitKeyEvent)
