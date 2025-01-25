@@ -25,6 +25,7 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 		.viewTransition('work')
 		.style('work')
 		.style.toggle(component.is(Link), 'work--link')
+		.style.toggle(work.visibility === 'Private' || !work.chapter_count_public, 'work--private')
 
 	const block = component.and(Block)
 	const isFlush = block.type.state.mapManual(types => types.has('flush'))
@@ -101,7 +102,11 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 		.tweak(textLabel => textLabel.content.text.set(`${work.chapter_count_public}`))
 		.appendTo(block.footer.left)
 
-	if (work.time_last_update)
+	if (work.visibility === 'Private')
+		block.footer.right.append(Component().style('timestamp', 'work-timestamp').text.use('work/state/private'))
+	else if (!work.chapter_count_public)
+		block.footer.right.append(Component().style('timestamp', 'work-timestamp').text.use('work/state/private-no-chapters'))
+	else if (work.time_last_update)
 		block.footer.right.append(Timestamp(work.time_last_update).style('work-timestamp'))
 
 	block.setActionsMenu((popover, button) => {

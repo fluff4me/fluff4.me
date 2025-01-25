@@ -1,4 +1,5 @@
 .work:
+	%relative
 
 	&-header:
 		#after: .block-header
@@ -61,3 +62,18 @@
 
 		:last:
 			%border-bottom-radius-2
+
+	&--private:
+
+		@before:
+			%block
+			%absolute
+			%inset-0
+			#string darken = "#00000018
+			background:
+				repeating-linear-gradient(-45deg, 
+					#{darken}, 
+					#{darken} calc($space-4 * 4), 
+					transparent calc($space-4 * 4), 
+					transparent calc($space-4 * 7)
+				)
