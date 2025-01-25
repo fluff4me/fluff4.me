@@ -137,6 +137,8 @@ popover/account: Account Settings
 # work
 chapters/label=shared/term/chapters
 description/empty: This work has no description.
+state/private: Private
+state/private-no-chapters: Hidden (No Chapters)
 
 # author
 description/empty: This author prefers to remain elusive and mysterious...
@@ -154,6 +156,7 @@ action/delete=shared/action/delete
 
 # chapter
 action/index: Index
+state/private: Private
 
 # notification
 comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}

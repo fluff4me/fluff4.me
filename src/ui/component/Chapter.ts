@@ -19,6 +19,7 @@ interface Chapter extends Component, ChapterExtensions { }
 const Chapter = Component.Builder((component, chapter: ChapterLite, work: Work, author: Author): Chapter => {
 	component = Link(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}`)
 		.style('chapter')
+		.style.toggle(chapter.visibility === 'Private', 'chapter--private')
 
 	const chapterNumber = Maths.parseIntOrUndefined(chapter.url)
 	const number = Component()
@@ -35,10 +36,17 @@ const Chapter = Component.Builder((component, chapter: ChapterLite, work: Work, 
 		.style('chapter-right')
 		.appendTo(component)
 
-	const timestamp = !chapter.time_last_update ? undefined
-		: Timestamp(chapter.time_last_update)
-			.style('chapter-timestamp')
+	let timestamp: Timestamp | undefined
+	if (chapter.visibility === 'Private')
+		Component()
+			.style('timestamp', 'chapter-timestamp')
+			.text.use('chapter/state/private')
 			.appendTo(right)
+	else
+		timestamp = !chapter.time_last_update ? undefined
+			: Timestamp(chapter.time_last_update)
+				.style('chapter-timestamp')
+				.appendTo(right)
 
 	return component
 		.and(CanHasActionsMenuButton, button => button

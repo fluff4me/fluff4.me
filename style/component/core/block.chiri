@@ -25,6 +25,7 @@
 		%padding-block-2
 		%margin-bottom-4
 		%border-top-radius-2
+		%relative
 		grid-template-columns: 1fr auto
 		$border-colour: $block-border-colour
 		background: light-dark(#{alpha(0.2, $light-0)}, #{alpha(0.02, $colour-0)})
@@ -48,6 +49,7 @@
 		%column-1
 
 	&-content:
+		%relative
 
 	&-footer:
 		#after: .action-row
@@ -55,6 +57,7 @@
 		padding-inline: $block-padding
 		%padding-block-3
 		%margin-top-4
+		%relative
 		%border-top-1
 		%border-bottom-radius-2
 		%border-box
