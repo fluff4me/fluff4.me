@@ -2,6 +2,7 @@ import type { Author, ChapterLite, CommentResolved, Notification, Work } from 'a
 import EndpointNotificationGetAll from 'endpoint/notification/EndpointNotificationGetAll'
 import EndpointNotificationGetCount from 'endpoint/notification/EndpointNotificationGetCount'
 import EndpointNotificationMarkRead from 'endpoint/notification/EndpointNotificationMarkRead'
+import EndpointNotificationMarkUnread from 'endpoint/notification/EndpointNotificationMarkUnread'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
 import State from 'utility/State'
@@ -90,7 +91,8 @@ namespace Notifications {
 	}
 
 	export async function markRead (read: boolean, ...ids: string[]) {
-		const response = await EndpointNotificationMarkRead.query({ body: { notification_ids: ids } })
+		const endpoint = read ? EndpointNotificationMarkRead : EndpointNotificationMarkUnread
+		const response = await endpoint.query({ body: { notification_ids: ids } })
 		if (toast.handleError(response))
 			return false
 
