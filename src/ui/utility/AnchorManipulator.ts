@@ -243,13 +243,13 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			for (const unuse of subscribed)
 				unuse()
 
-			const tooltipBox = host?.rect.value
-			if (!tooltipBox.width || !tooltipBox.height) {
+			const anchoredBox = host?.rect.value
+			if (!anchoredBox.width || !anchoredBox.height) {
 				location = undefined
 				return { x: 0, y: 0, mouse: false } as AnchorLocation
 			}
 
-			if (tooltipBox && locationPreference && from) {
+			if (anchoredBox && locationPreference && from) {
 				for (const preference of locationPreference) {
 					let alignment: AnchorLocationAlignment = 'left'
 
@@ -263,26 +263,26 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 					let x: number
 					switch (xConf.type) {
 						case 'aligned':
-							x = xConf.side === 'right' ? xRefX - tooltipBox.width - xConf.offset : xRefX + xConf.offset
+							x = xConf.side === 'right' ? xRefX - anchoredBox.width - xConf.offset : xRefX + xConf.offset
 							alignment = xConf.side
 							break
 						case 'off':
-							x = xConf.side === 'right' ? xRefX + xConf.offset : xRefX - tooltipBox.width - xConf.offset
+							x = xConf.side === 'right' ? xRefX + xConf.offset : xRefX - anchoredBox.width - xConf.offset
 							// alignment is inverted side for "off"
 							alignment = xConf.side === 'left' ? 'right' : 'left'
 							break
 						case 'centre':
-							x = xRefX - tooltipBox.width / 2
+							x = xRefX - anchoredBox.width / 2
 							alignment = 'centre'
 							break
 					}
 
-					if (preference.options?.xValid?.(x, xBox, tooltipBox) === false) {
+					if (preference.options?.xValid?.(x, xBox, anchoredBox) === false) {
 						continue
 					}
 
-					if (!xConf.sticky && tooltipBox.width < Viewport.size.value.w && !preference.options?.allowXOffscreen) {
-						const isXOffScreen = x < 0 || x + tooltipBox.width > Viewport.size.value.w
+					if (!xConf.sticky && anchoredBox.width < Viewport.size.value.w && !preference.options?.allowXOffscreen) {
+						const isXOffScreen = x < 0 || x + anchoredBox.width > Viewport.size.value.w
 						if (isXOffScreen) {
 							continue
 						}
@@ -298,23 +298,23 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 					let y: number
 					switch (yConf.type) {
 						case 'aligned':
-							y = yConf.side === 'bottom' ? yRefY - tooltipBox.height - yConf.offset : yRefY + yConf.offset
+							y = yConf.side === 'bottom' ? yRefY - anchoredBox.height - yConf.offset : yRefY + yConf.offset
 							break
 						case 'off':
-							y = yConf.side === 'bottom' ? yRefY + yConf.offset : yRefY - tooltipBox.height - yConf.offset
+							y = yConf.side === 'bottom' ? yRefY + yConf.offset : yRefY - anchoredBox.height - yConf.offset
 							break
 						case 'centre':
-							y = yRefY - tooltipBox.height / 2
+							y = yRefY - anchoredBox.height / 2
 							break
 					}
 
-					if (preference.options?.yValid?.(y, yBox, tooltipBox) === false) {
+					if (preference.options?.yValid?.(y, yBox, anchoredBox) === false) {
 						continue
 					}
 
-					if (!yConf.sticky && tooltipBox.height < Viewport.size.value.h && !preference.options?.allowYOffscreen) {
+					if (!yConf.sticky && anchoredBox.height < Viewport.size.value.h && !preference.options?.allowYOffscreen) {
 						const isYOffScreen = y < 0
-							|| y + tooltipBox.height > Viewport.size.value.h
+							|| y + anchoredBox.height > Viewport.size.value.h
 						if (isYOffScreen) {
 							continue
 						}
