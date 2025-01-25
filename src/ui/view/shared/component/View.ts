@@ -37,7 +37,7 @@ const View = Component.Builder((_, id: ViewId): View => {
 				breadcrumbs.backButton?.style('view-breadcrumbs-back-button')
 				breadcrumbs.setBackButton = (...args) => {
 					originalAddBackButton(...args)
-					breadcrumbs.backButton!.style('view-breadcrumbs-back-button')
+					breadcrumbs.backButton?.style('view-breadcrumbs-back-button')
 					return breadcrumbs
 				}
 			})
