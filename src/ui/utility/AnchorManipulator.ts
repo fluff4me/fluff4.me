@@ -244,6 +244,11 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 				unuse()
 
 			const tooltipBox = host?.rect.value
+			if (!tooltipBox.width || !tooltipBox.height) {
+				location = undefined
+				return { x: 0, y: 0, mouse: false } as AnchorLocation
+			}
+
 			if (tooltipBox && locationPreference && from) {
 				for (const preference of locationPreference) {
 					let alignment: AnchorLocationAlignment = 'left'
