@@ -68,8 +68,6 @@
 		%font-3
 
 		&-icon:
-			%align-self-centre
-			margin-top: calc($space-1 * -0.5)
 
 		&--disabled:
 			#after: .button--disabled

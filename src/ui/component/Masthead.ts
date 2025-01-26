@@ -145,6 +145,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 							.and(Button)
 							.type('flush')
 							.style('masthead-popover-link-button')
+							.setIcon('circle-user')
 							.text.use('masthead/user/profile/popover/profile')
 							.appendTo(slot)
 
@@ -152,12 +153,14 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 							.and(Button)
 							.type('flush')
 							.style('masthead-popover-link-button')
+							.setIcon('id-card')
 							.text.use('masthead/user/profile/popover/account')
 							.appendTo(slot)
 
 						Button()
 							.type('flush')
 							.style('masthead-popover-link-button')
+							.setIcon('arrow-right-from-bracket')
 							.text.use('view/account/action/logout')
 							.event.subscribe('click', () => Session.reset())
 							.appendTo(slot)

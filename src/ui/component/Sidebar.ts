@@ -119,7 +119,7 @@ const Sidebar = Component.Builder('nav', (sidebar): Sidebar => {
 		.using(Session.Auth.author, (group, author) => {
 			if (author) group
 				.add(`/author/${author.vanity}`, 'sidebar/link/profile', button => button.setIcon('circle-user'))
-				.add('/account', 'sidebar/link/settings', button => button.setIcon('gear'))
+				.add('/account', 'sidebar/link/settings', button => button.setIcon('id-card'))
 			else group
 				.add('/account', 'sidebar/link/login', button => button.setIcon('circle-user'))
 		})
