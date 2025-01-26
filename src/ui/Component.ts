@@ -137,6 +137,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	extend<T> (extensionProvider: (component: this & T) => Omit<T, typeof SYMBOL_COMPONENT_BRAND>): this & T
 	extendMagic<K extends Exclude<keyof this, symbol>, O extends this = this> (property: K, magic: (component: this) => { get (): O[K], set?(value: O[K]): void }): this
 	extendJIT<K extends Exclude<keyof this, symbol>, O extends this = this> (property: K, supplier: (component: this) => O[K]): this
+	override<K extends keyof this> (property: K, provider: (component: this, original: this[K]) => this[K]): this
 
 	tweak<PARAMS extends any[]> (tweaker?: (component: this, ...params: PARAMS) => unknown, ...params: PARAMS): this
 
@@ -302,6 +303,11 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return component as any
 		},
 		extend: extension => Object.assign(component, extension(component as never)) as never,
+		override: (property, provider) => {
+			const original = component[property]
+			component[property] = provider(component, original)
+			return component
+		},
 		extendMagic: (property, magic) => {
 			Define.magic(component, property, magic(component))
 			return component

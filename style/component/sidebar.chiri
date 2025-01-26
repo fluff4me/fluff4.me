@@ -35,3 +35,41 @@
 	::focus:
 		$translate-x: 0%
 		%opaque
+
+	%flex
+	%flex-column
+	%gap-4
+
+	&-top, &-bottom:
+		%flex
+		%flex-column
+		%gap-4
+
+	&-top:
+		%justify-content-start
+		%grow
+
+	&-bottom:
+
+	&-group:
+		%flex
+		%flex-column
+
+		&-heading:
+			#after: .heading, .heading-1, .heading-2, .heading-3, .heading-4, .heading-5, .heading-6
+			%uppercase
+			%font-2
+			%colour-6
+			%margin-bottom-0
+			letter-spacing: .1em
+
+	&-link:
+		%font-3
+
+		&-icon:
+			%align-self-centre
+			margin-top: calc($space-1 * -0.5)
+
+		&--disabled:
+			#after: .button--disabled
+			$button-background: transparent

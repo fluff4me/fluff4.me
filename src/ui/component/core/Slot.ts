@@ -1,4 +1,4 @@
-import Component from 'ui/Component'
+import Component, { ComponentInsertionDestination } from 'ui/Component'
 import ComponentInsertionTransaction from 'ui/component/core/ext/ComponentInsertionTransaction'
 import type { AbortPromiseOr } from 'utility/AbortPromise'
 import AbortPromise from 'utility/AbortPromise'
@@ -6,7 +6,7 @@ import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
 export type SlotCleanup = () => unknown
-export type SlotInitialiserReturn = AbortPromiseOr<SlotCleanup | Component | undefined | null | false | 0 | '' | void>
+export type SlotInitialiserReturn = AbortPromiseOr<SlotCleanup | Component | ComponentInsertionTransaction | undefined | null | false | 0 | '' | void>
 
 interface SlotExtensions {
 	use<T> (state: T | State<T>, initialiser: (slot: ComponentInsertionTransaction, value: T) => SlotInitialiserReturn): this
@@ -101,6 +101,11 @@ const Slot = Object.assign(
 
 			if (Component.is(result)) {
 				result.appendTo(slot)
+				cleanup = undefined
+				return
+			}
+
+			if (ComponentInsertionDestination.is(result)) {
 				cleanup = undefined
 				return
 			}

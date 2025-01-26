@@ -6,9 +6,11 @@ import ChapterEditView from 'ui/view/ChapterEditView'
 import ChapterView from 'ui/view/ChapterView'
 import DebugView from 'ui/view/DebugView'
 import FeedView from 'ui/view/FeedView'
-import HomeView from 'ui/view/HomeView'
+import HistoryView from 'ui/view/HistoryView'
+import NewView from 'ui/view/NewView'
 import NotificationsView from 'ui/view/NotificationsView'
 import TagView from 'ui/view/TagView'
+import HomeView from 'ui/view/TestView'
 import WorkEditView from 'ui/view/WorkEditView'
 import WorkView from 'ui/view/WorkView'
 import Env from 'utility/Env'
@@ -16,7 +18,9 @@ import Env from 'utility/Env'
 const Routes = [
 	Route('/debug', DebugView.navigate),
 
-	Route('/', Env.isDev ? FeedView.navigate : HomeView.navigate),
+	Route('/', Env.isDev ? NewView.navigate : HomeView.navigate),
+	Route('/feed', FeedView.navigate),
+	Route('/history', HistoryView.navigate),
 
 	Route('/account', AccountView.navigate),
 	Route('/author/$vanity', AuthorView.navigate),

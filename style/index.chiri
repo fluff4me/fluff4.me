@@ -79,7 +79,9 @@
 	view/type/tag
 	view/type/chapter
 	view/type/chapter-edit
+	view/type/new
 	view/type/feed
+	view/type/history
 	view/type/notifications
 
 #import: app
