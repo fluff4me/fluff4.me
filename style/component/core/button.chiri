@@ -10,7 +10,7 @@ $$button-background-highlight!colour
 	%weight-bold
 	%border-radius-1
 	%font-family-inherit
-	%font-4
+	%font-3
 	%box-shadow-1
 	%decoration-none
 	%inline-flex
@@ -30,6 +30,7 @@ $$button-background-highlight!colour
 
 	&-type-icon:
 		#after: .button
+		%font-4
 		%background-none
 		%box-shadow-none
 		::hover, ::focus:
@@ -212,3 +213,6 @@ $$button-background-highlight!colour
 	&-icon-id-card:
 		@before:
 			font-size: .9em
+
+	&-icon-ellipsis-vertical:
+		%justify-content-centre

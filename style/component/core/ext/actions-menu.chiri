@@ -1,0 +1,37 @@
+.actions-menu:
+
+	&-popover:
+		#after: .popover
+		%gap-0
+		%overflow-visible
+		%border-none
+		$arrow-size: calc($space-2 + $space-1)
+		$arrow-height: calc($arrow-size * sin(45deg) * 2)
+		$arrow-width: calc($arrow-size * cos(45deg) * 2)
+
+		$popover-border-colour: $background-4
+
+		@before, @after:
+			%absolute
+			%right-100
+			%border-left-2
+			$border-colour: $popover-border-colour
+			height: calc(50% - $arrow-height / 2)
+
+		@before:
+			bottom: calc(50% + $arrow-height / 2)
+
+		@after:
+			top: calc(50% + $arrow-height / 2)
+
+		&-arrow:
+			%absolute
+			%top-50
+			%translate-up-50
+			%rotate-45
+			%border-2
+			size: $arrow-size
+			$border-colour: $popover-border-colour
+			right: calc(100% + 1px - ($arrow-width / 2))
+			border-top-colour: transparent
+			border-right-colour: transparent
