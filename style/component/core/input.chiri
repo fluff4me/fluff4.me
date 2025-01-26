@@ -3,16 +3,6 @@ $input-divider-border-colour: color-mix(in lch, $border-colour, transparent 90%)
 .input:
 
 	&-popover:
-		#after: .popover
-		max-width: calc($space-5 * 4)
-		%margin-0
-		%padding-0-3
-		%margin-left-3
-		%border-left-2
-		%background-none
-		%box-shadow-none
-		%border-radius-0
-		%z-index-bg
 
 		&-hint-text:
 			%italic

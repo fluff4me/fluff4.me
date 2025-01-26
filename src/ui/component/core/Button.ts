@@ -1,6 +1,7 @@
 import Component from 'ui/Component'
 import type { ComponentNameType } from 'ui/utility/StyleManipulator'
 import type TextManipulator from 'ui/utility/TextManipulator'
+import TypeManipulator from 'ui/utility/TypeManipulator'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Type from 'utility/Type'
@@ -8,15 +9,10 @@ import Type from 'utility/Type'
 export type ButtonType = ComponentNameType<'button-type'>
 export type ButtonIcon = ComponentNameType<'button-icon'>
 
-interface ButtonTypeManipulator<HOST> {
-	(...buttonTypes: ButtonType[]): HOST
-	remove (...buttonTypes: ButtonType[]): HOST
-}
-
 export interface ButtonExtensions {
 	readonly textWrapper: Component
 	readonly subTextWrapper: Component
-	readonly type: ButtonTypeManipulator<this>
+	readonly type: TypeManipulator<this, ButtonType>
 	readonly disabled: State.Generator<boolean>
 	readonly subText: TextManipulator<this>
 	icon?: Component
@@ -36,7 +32,6 @@ const Button = Component.Builder('button', (component): Button => {
 	const disabled = State.Generator(() => !!disabledReasons.size)
 
 	const hasSubtext = State(false)
-	const types = State(new Set<ButtonType>())
 
 	let icon: ButtonIcon | undefined
 	const unuseDisabledStateMap = new WeakMap<State<boolean | string>, UnsubscribeState>()
@@ -52,35 +47,7 @@ const Button = Component.Builder('button', (component): Button => {
 			subTextWrapper: undefined!,
 			subText: undefined!,
 			disabled,
-			type: Object.assign(
-				(...typesIn: ButtonType[]) => {
-					const typesSize = types.value.size
-					for (const type of typesIn) {
-						button.style(`button-type-${type}`)
-						types.value.add(type)
-					}
-
-					if (types.value.size !== typesSize)
-						types.emit()
-
-					return button
-				},
-				{
-					remove (...typesIn: ButtonType[]) {
-						const typesSize = types.value.size
-
-						for (const type of typesIn) {
-							button.style.remove(`button-type-${type}`)
-							types.value.delete(type)
-						}
-
-						if (types.value.size !== typesSize)
-							types.emit()
-
-						return button
-					},
-				},
-			),
+			type: TypeManipulator.Style(button, type => `button-type-${type}`),
 			setDisabled (newState, reason) {
 				const size = disabledReasons.size
 				if (newState)
@@ -140,7 +107,7 @@ const Button = Component.Builder('button', (component): Button => {
 			.style.bind(hasSubtext, 'button-icon--has-subtext')
 			.prependTo(button)
 
-		button.icon.style.bind(types.map(button.icon, types => types.has('icon')), 'button-icon--type-icon')
+		button.icon.style.bind(button.type.state.map(button.icon, types => types.has('icon')), 'button-icon--type-icon')
 
 		if (icon)
 			button.icon.style.remove(`button-icon-${icon}`)
