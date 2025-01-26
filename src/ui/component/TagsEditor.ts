@@ -259,7 +259,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 		)
 		.anchor.reset()
 		.anchor.from(input)
-		.anchor.add('off right', `.\\${BlockClasses.Main}`, 'centre', AllowYOffscreen)
+		.anchor.add('off right', `.${BlockClasses.Main}`, 'centre', AllowYOffscreen)
 	)
 
 	tagsState.use(editor, tags => {

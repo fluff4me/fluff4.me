@@ -110,12 +110,6 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 		block.footer.right.append(Timestamp(work.time_last_update).style('work-timestamp'))
 
 	block.setActionsMenu((popover, button) => {
-		Button()
-			.type('flush')
-			.text.use('view/author/works/action/label/view')
-			.event.subscribe('click', () => navigate.toURL(`/work/${author?.vanity}/${work.vanity}`))
-			.appendTo(popover)
-
 		if (author && author.vanity === Session.Auth.author.value?.vanity) {
 			Button()
 				.type('flush')

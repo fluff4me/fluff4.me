@@ -2,6 +2,7 @@ import type Component from 'ui/Component'
 import Mouse from 'ui/utility/Mouse'
 import Viewport from 'ui/utility/Viewport'
 import type { UnsubscribeState } from 'utility/State'
+import State from 'utility/State'
 import Time from 'utility/Time'
 import type { PartialRecord } from 'utility/Type'
 
@@ -123,6 +124,9 @@ export interface AnchorLocation {
 	mouse: boolean
 	padX: boolean
 	alignment?: AnchorLocationAlignment
+
+	xRefBox?: DOMRect
+	yRefBox?: DOMRect
 }
 
 //#endregion
@@ -135,6 +139,7 @@ export const AllowYOffscreen: AnchorLocationPreferenceOptions = { allowYOffscree
 export const AllowXOffscreen: AnchorLocationPreferenceOptions = { allowXOffscreen: true }
 
 interface AnchorManipulator<HOST> {
+	readonly state: State<AnchorLocation | undefined>
 	isMouse (): boolean
 	/** Reset the location preference for this anchor */
 	reset (): HOST
@@ -144,17 +149,19 @@ interface AnchorManipulator<HOST> {
 	 */
 	add (xAnchor: AnchorStringHorizontal, yAnchor: AnchorStringVertical, options?: AnchorLocationPreferenceOptions): HOST
 	/**
-	 * Add a location fallback by defining an x anchor on a selected ancestor component, and a y anchor on the source component.
+	 * Add a location fallback by defining an x anchor on a selected ancestor component (or descendant when prefixed with `>>`), and a y anchor on the source component.
 	 */
 	add (xAnchor: AnchorStringHorizontal, xRefSelector: string, yAnchor: AnchorStringVertical, options?: AnchorLocationPreferenceOptions): HOST
 	/**
-	 * Add a location fallback by defining an x anchor on the source component, and a y anchor on a selected ancestor component.
+	 * Add a location fallback by defining an x anchor on the source component, and a y anchor on a selected ancestor component (or descendant when prefixed with `>>`)
 	 */
 	add (xAnchor: AnchorStringHorizontal, yAnchor: AnchorStringVertical, yRefSelector: string, options?: AnchorLocationPreferenceOptions): HOST
 	/**
-	 * Add a location fallback by defining x and y anchors on selected ancestor components.
+	 * Add a location fallback by defining x and y anchors on selected ancestor components (or descendants when prefixed with `>>`)
 	 */
 	add (xAnchor: AnchorStringHorizontal, xRefSelector: string, yAnchor: AnchorStringVertical, yRefSelector: string, options?: AnchorLocationPreferenceOptions): HOST
+	/** Rather than anchoring on the mouse when all other fallbacks are invalid, hides the anchored element entirely */
+	orElseHide (): HOST
 
 	/**
 	 * Marks the anchor positioning "dirty", causing it to be recalculated from scratch on next poll
@@ -165,9 +172,9 @@ interface AnchorManipulator<HOST> {
 }
 
 function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulator<HOST> {
-	let locationPreference: AnchorLocationPreference[] | undefined
+	let locationPreference: (AnchorLocationPreference | false)[] | undefined
 	let refCache: PartialRecord<string, WeakRef<Component>> | undefined
-	let location: AnchorLocation | undefined
+	const location = State<AnchorLocation | undefined>(undefined)
 	let currentAlignment: AnchorLocationAlignment | undefined
 
 	let from: Component | undefined
@@ -180,6 +187,7 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 	let unuseFrom: UnsubscribeState | undefined
 
 	const result: AnchorManipulator<HOST> = {
+		state: location,
 		isMouse: () => !locationPreference?.length,
 		from: component => {
 			unuseFrom?.()
@@ -223,8 +231,12 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			result.markDirty()
 			return host
 		},
+		orElseHide: () => {
+			locationPreference?.push(false)
+			return host
+		},
 		markDirty: () => {
-			location = undefined
+			location.value = undefined
 
 			if (lastRender) {
 				const timeSinceLastRender = Date.now() - lastRender
@@ -237,20 +249,23 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			return host
 		},
 		get: () => {
-			if (location)
-				return location
+			if (location.value)
+				return location.value
 
 			for (const unuse of subscribed)
 				unuse()
 
 			const anchoredBox = host?.rect.value
 			if (!anchoredBox.width || !anchoredBox.height) {
-				location = undefined
+				location.value = undefined
 				return { x: 0, y: 0, mouse: false } as AnchorLocation
 			}
 
 			if (anchoredBox && locationPreference && from) {
 				for (const preference of locationPreference) {
+					if (!preference)
+						return location.value ??= { mouse: false, x: -10000, y: -10000, padX: false }
+
 					let alignment: AnchorLocationAlignment = 'left'
 
 					const xConf = preference.xAnchor
@@ -320,11 +335,11 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 						}
 					}
 
-					return location ??= { mouse: false, padX: xConf.type === 'off', alignment, x, y }
+					return location.value ??= { mouse: false, padX: xConf.type === 'off', alignment, x, y, yRefBox: yBox, xRefBox: xBox }
 				}
 			}
 
-			return location ??= { mouse: true, padX: true, ...Mouse.state.value }
+			return location.value ??= { mouse: true, padX: true, ...Mouse.state.value }
 		},
 		apply: () => {
 			const location = result.get()
@@ -364,7 +379,10 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			ref = refRef.deref()
 		}
 		else {
-			ref = from?.element.closest(selector)?.component
+			ref = selector.startsWith('>>')
+				? from?.element.querySelector(selector.slice(2))?.component
+				: from?.element.closest(selector)?.component
+
 			if (ref) {
 				if (getComputedStyle(ref.element).display === 'contents') {
 					const children = ref.element.children

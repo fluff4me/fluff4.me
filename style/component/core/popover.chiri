@@ -1,4 +1,5 @@
 .popover:
+	%relative
 	%border-radius-2
 	%inset-border-1
 	%borderless
@@ -56,7 +57,7 @@
 		#after: .popover
 		max-width: calc($space-5 * 4)
 		%margin-0
-		%padding-0-3
+		%padding-1-3
 		%margin-left-3
 		%border-left-2
 		%background-none

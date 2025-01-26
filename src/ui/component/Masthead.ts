@@ -130,6 +130,8 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 				.anchor.add('aligned right', 'off bottom')
 				.ariaRole('navigation')
 				.append(Slot()
+					.style('action-group')
+					.style.remove('slot')
 					.use(Session.Auth.author, (slot, author) => {
 						if (!author) {
 							Link('/account')

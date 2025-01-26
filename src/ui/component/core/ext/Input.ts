@@ -85,14 +85,14 @@ const Input = Object.assign(
 
 			popover = Popover()
 				.anchor.from(component)
-				.anchor.add('off right', `.\\${BlockClasses.Main}`, 'aligned top', {
+				.anchor.add('off right', `.${BlockClasses.Main}`, 'aligned top', {
 					...AllowYOffscreen,
 					yValid (y, hostBox, popoverBox) {
 						// only align top if the popover box is taller than the host box
 						return popoverBox.height > (hostBox?.height ?? 0)
 					},
 				})
-				.anchor.add('off right', `.\\${BlockClasses.Main}`, 'centre', AllowYOffscreen)
+				.anchor.add('off right', `.${BlockClasses.Main}`, 'centre', AllowYOffscreen)
 				.setNormalStacking()
 				.setCloseOnInput(false)
 				.style('input-popover')

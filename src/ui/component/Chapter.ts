@@ -2,7 +2,7 @@ import type { Author, ChapterLite, Work } from 'api.fluff4.me'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
-import CanHasActionsMenuButton from 'ui/component/core/ext/CanHasActionsMenuButton'
+import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Link from 'ui/component/core/Link'
 import Timestamp from 'ui/component/core/Timestamp'
 import Maths from 'utility/maths/Maths'
@@ -49,10 +49,10 @@ const Chapter = Component.Builder((component, chapter: ChapterLite, work: Work, 
 				.appendTo(right)
 
 	return component
-		.and(CanHasActionsMenuButton, button => button
+		.and(CanHasActionsMenu)
+		.setActionsMenuButton(button => button
 			.type('inherit-size')
 			.style('chapter-actions-menu-button')
-			.style.bind(component.hoveredOrHasFocused.not, 'chapter-actions-menu-button--not-focused')
 			.appendTo(right))
 		.setActionsMenu((popover, button) => {
 			if (author && author.vanity === Session.Auth.author.value?.vanity) {
@@ -69,7 +69,6 @@ const Chapter = Component.Builder((component, chapter: ChapterLite, work: Work, 
 					.appendTo(popover)
 			}
 		})
-		.tweak(component => component.actionsMenuButton)
 		.extend<ChapterExtensions>(component => ({
 			chapter,
 			number,

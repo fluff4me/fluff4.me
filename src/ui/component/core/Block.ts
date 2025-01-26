@@ -1,6 +1,6 @@
 import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
-import CanHasActionsMenuButton from 'ui/component/core/ext/CanHasActionsMenuButton'
+import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Heading from 'ui/component/core/Heading'
 import Paragraph from 'ui/component/core/Paragraph'
 import type { ComponentName } from 'ui/utility/StyleManipulator'
@@ -23,10 +23,11 @@ export interface BlockExtensions {
 }
 
 export enum BlockClasses {
-	Main = '$block',
+	Main = '_block',
+	Header = '_block-header',
 }
 
-interface Block extends Component, BlockExtensions, CanHasActionsMenuButton { }
+interface Block extends Component, BlockExtensions, CanHasActionsMenu { }
 
 const Block = Component.Builder((component): Block => {
 	const types = State(new Set<BlockType>())
@@ -64,6 +65,7 @@ const Block = Component.Builder((component): Block => {
 		}))
 		.extendJIT('header', block => header = Component('hgroup')
 			.style('block-header', ...[...types.value].map(t => `block-type-${t}-header` as const))
+			.classes.add(BlockClasses.Header)
 			.prependTo(block))
 		.extendJIT('title', block => Heading().style('block-title').prependTo(block.header))
 		.extendJIT('primaryActions', block => Component().style('block-actions-primary').appendTo(block.header))
@@ -73,7 +75,14 @@ const Block = Component.Builder((component): Block => {
 			.appendTo(block))
 
 	return block
-		.and(CanHasActionsMenuButton, button => button.appendTo(block.primaryActions))
+		.and(CanHasActionsMenu, popover => popover
+			.anchor.reset()
+			.anchor.add('off right', 'centre', `>> .${BlockClasses.Header}`)
+			.anchor.orElseHide()
+		)
+		.setActionsMenuButton(button => button
+			.style('block-actions-menu-button')
+			.appendTo(block.primaryActions))
 })
 
 export default Block

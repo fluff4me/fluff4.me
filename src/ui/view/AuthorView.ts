@@ -31,12 +31,14 @@ export default ViewDefinition({
 		const paginator = Paginator()
 			.viewTransition('author-view-works')
 			.tweak(p => p.title.text.use('view/author/works/title'))
-			.tweak(p => p.primaryActions.append(Slot()
-				.if(Session.Auth.loggedIn, () => Button()
-					.setIcon('plus')
-					.type('icon')
-					.ariaLabel.use('view/author/works/action/label/new')
-					.event.subscribe('click', () => navigate.toURL('/work/new')))))
+			.setActionsMenu(popover => popover
+				.append(Slot()
+					.if(Session.Auth.loggedIn, () => Button()
+						.setIcon('plus')
+						.type('icon')
+						.ariaLabel.use('view/author/works/action/label/new')
+						.event.subscribe('click', () => navigate.toURL('/work/new'))))
+			)
 			.appendTo(view.content)
 		const worksQuery = EndpointWorkGetAllAuthor.prep({
 			params: {

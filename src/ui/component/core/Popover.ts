@@ -21,6 +21,8 @@ const FOCUS_TRAP = Component()
 export interface PopoverComponentRegisteredExtensions {
 	popover: Popover
 	tweakPopover (initialiser: PopoverInitialiser<this>): this
+	/** Simulate a click on a button for this popover */
+	showPopover (): this
 }
 
 interface InternalPopoverExtensions {
@@ -77,12 +79,7 @@ Component.extend(component => {
 					event.stopPropagation()
 					event.preventDefault()
 
-					component.clickState = true
-					component.popover?.show()
-					component.popover?.focus()
-					component.popover?.style.removeProperties('left', 'top')
-					await Task.yield()
-					component.popover?.anchor.apply()
+					await showPopoverClick()
 				})
 
 				component.receiveAncestorInsertEvents()
@@ -105,7 +102,20 @@ Component.extend(component => {
 					initialiser(component.popover, component)
 					return component
 				},
+				showPopover: () => {
+					void showPopoverClick()
+					return component
+				},
 			}))
+
+			async function showPopoverClick () {
+				component.clickState = true
+				component.popover?.show()
+				component.popover?.focus()
+				component.popover?.style.removeProperties('left', 'top')
+				await Task.yield()
+				component.popover?.anchor.apply()
+			}
 
 			function updatePopoverParent () {
 				if (!component.popover)

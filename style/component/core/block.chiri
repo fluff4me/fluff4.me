@@ -44,6 +44,9 @@
 			margin-right: calc($space-3 * -1)
 
 		&-menu-button:
+			#transition: #{transition("opacity")}
+			:not ::focus: %transparent
+			::focus: $transition-duration: $transition-focus
 
 	&-description:
 		%column-1

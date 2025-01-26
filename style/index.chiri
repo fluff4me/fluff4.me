@@ -17,6 +17,7 @@
 #import:
 	class/markdown
 	class/transition
+	class/action-group
 
 #import:
 	component/core/break
@@ -27,6 +28,7 @@
 	component/core/link
 	component/core/button
 	component/core/popover
+	component/core/ext/actions-menu
 	component/core/progress-wheel
 	component/core/input
 	component/core/text-input

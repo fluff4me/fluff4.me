@@ -33,12 +33,14 @@ export default ViewDefinition({
 		const paginator = Paginator()
 			.viewTransition('work-view-chapters')
 			.tweak(p => p.title.text.use('view/work/chapters/title'))
-			.tweak(p => p.primaryActions.append(Slot()
-				.if(Session.Auth.loggedIn, () => Button()
-					.setIcon('plus')
-					.type('icon')
-					.ariaLabel.use('view/work/chapters/action/label/new')
-					.event.subscribe('click', () => navigate.toURL(`/work/${params.author}/${params.vanity}/chapter/new`)))))
+			.setActionsMenu(popover => popover
+				.append(Slot()
+					.if(Session.Auth.loggedIn, () => Button()
+						.setIcon('plus')
+						.type('flush')
+						.text.use('view/work/chapters/action/label/new')
+						.event.subscribe('click', () => navigate.toURL(`/work/${params.author}/${params.vanity}/chapter/new`))))
+			)
 			.appendTo(view.content)
 		const chaptersQuery = EndpointChapterGetAll.prep({
 			params: {

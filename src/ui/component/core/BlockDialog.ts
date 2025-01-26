@@ -3,7 +3,7 @@ import type { BlockExtensions } from 'ui/component/core/Block'
 import Block from 'ui/component/core/Block'
 import type { DialogExtensions } from 'ui/component/core/Dialog'
 import Dialog from 'ui/component/core/Dialog'
-import type { CanHasActionsMenuButtonExtensions } from 'ui/component/core/ext/CanHasActionsMenuButton'
+import type { CanHasActionsMenuExtensions } from 'ui/component/core/ext/CanHasActionsMenu'
 import Task from 'utility/Task'
 
 interface BlockDialogExtensions {
@@ -24,17 +24,17 @@ const BlockDialog = Component.Builder((component): BlockDialog => {
 		.style.bind(dialog.opened.not, 'dialog-block--closed')
 		.appendTo(dialog)
 	dialog
-		.extend<Partial<BlockExtensions & CanHasActionsMenuButtonExtensions>>(dialog => ({
+		.extend<Partial<BlockExtensions & CanHasActionsMenuExtensions>>(dialog => ({
 			type: block.type,
 			content: block.content,
-			setActionsMenu: block.setActionsMenu,
+			setActionsMenu: block.setActionsMenu as never,
+			setActionsMenuButton: block.setActionsMenuButton as never,
 		}))
 		.extendJIT('header', () => block.header)
 		.extendJIT('title', () => block.title)
 		.extendJIT('primaryActions', () => block.primaryActions)
 		.extendJIT('description', () => block.description)
 		.extendJIT('footer', () => block.footer)
-		.extendJIT('actionsMenuButton', () => block.actionsMenuButton)
 
 	const superOpen = dialog.open
 	return dialog.extend<BlockDialogExtensions & Partial<DialogExtensions>>(dialog => ({
