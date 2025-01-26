@@ -109,6 +109,7 @@ $$button-background-highlight!colour
 			$transition-duration: $transition-action
 
 	&-icon:
+		%flex
 		%relative
 		%font-font-awesome
 		%weight-bolder
@@ -116,12 +117,17 @@ $$button-background-highlight!colour
 		%z-index-fg
 		%row-1-2
 		%align-self-centre
+		%align-items-centre
+		margin-top: -.05em
 
 		&--has-subtext:
+			#after: .button-icon
 			%unmargin-top-1
 
 		&--type-icon:
+			#after: .button-icon
 			%font-inherit
+			%margin-0
 
 	#list!string icons = [
 		"plus
@@ -167,6 +173,8 @@ $$button-background-highlight!colour
 		"clock-rotate-left
 		"calendar-plus
 		"gear
+		"id-card
+		"arrow-right-from-bracket
 
 	#each in icons as var icon:
 		&-icon-#{icon}:
@@ -200,3 +208,7 @@ $$button-background-highlight!colour
 	&-icon-other-formatting:
 		#after: .button-icon
 		#dual-icon a="font" b="ellipsis-vertical
+
+	&-icon-id-card:
+		@before:
+			font-size: .9em
