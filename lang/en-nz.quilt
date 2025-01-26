@@ -134,6 +134,23 @@ popover/login=shared/action/login-or-signup
 popover/profile: View Profile
 popover/account: Account Settings
 
+# sidebar
+section/browse: Browse
+link/new: New
+link/feed: Feed
+link/history: History
+
+section/create: Create
+link/create-work: Create Work
+
+section/profile: Profile
+link/login: Log In/Sign up
+link/profile: Profile
+link/settings: Settings
+
+section/dev: Dev
+link/debug: Debug
+
 # work
 chapters/label=shared/term/chapters
 description/empty: This work has no description.
@@ -178,8 +195,12 @@ action=shared/action/login-or-signup
 title: Error {CODE}
 description-404: Your adventure has come to a close, your questions left unanswered, your goals unfulfilled. What will you do?
 
-## feed
+## new
 main/title: Recent Updates
+content/empty: And all was quiet...
+
+## feed
+main/title: Following
 content/empty: And all was quiet...
 
 ## account

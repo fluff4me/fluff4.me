@@ -114,12 +114,14 @@ $$button-background-highlight!colour
 		%weight-bolder
 		%size-em
 		%z-index-fg
-		%font-inherit
 		%row-1-2
 		%align-self-centre
 
 		&--has-subtext:
 			%unmargin-top-1
+
+		&--type-icon:
+			%font-inherit
 
 	#list!string icons = [
 		"plus
@@ -160,6 +162,11 @@ $$button-background-highlight!colour
 		"asterisk
 		"expand
 		"compress
+		"bug
+		"clock
+		"clock-rotate-left
+		"calendar-plus
+		"gear
 
 	#each in icons as var icon:
 		&-icon-#{icon}:

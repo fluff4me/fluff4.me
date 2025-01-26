@@ -13,7 +13,7 @@ interface ButtonTypeManipulator<HOST> {
 	remove (...buttonTypes: ButtonType[]): HOST
 }
 
-interface ButtonExtensions {
+export interface ButtonExtensions {
 	readonly textWrapper: Component
 	readonly subTextWrapper: Component
 	readonly type: ButtonTypeManipulator<this>
@@ -36,6 +36,7 @@ const Button = Component.Builder('button', (component): Button => {
 	const disabled = State.Generator(() => !!disabledReasons.size)
 
 	const hasSubtext = State(false)
+	const types = State(new Set<ButtonType>())
 
 	let icon: ButtonIcon | undefined
 	const unuseDisabledStateMap = new WeakMap<State<boolean | string>, UnsubscribeState>()
@@ -52,15 +53,30 @@ const Button = Component.Builder('button', (component): Button => {
 			subText: undefined!,
 			disabled,
 			type: Object.assign(
-				(...types: ButtonType[]) => {
-					for (const type of types)
+				(...typesIn: ButtonType[]) => {
+					const typesSize = types.value.size
+					for (const type of typesIn) {
 						button.style(`button-type-${type}`)
+						types.value.add(type)
+					}
+
+					if (types.value.size !== typesSize)
+						types.emit()
+
 					return button
 				},
 				{
-					remove (...types: ButtonType[]) {
-						for (const type of types)
+					remove (...typesIn: ButtonType[]) {
+						const typesSize = types.value.size
+
+						for (const type of typesIn) {
 							button.style.remove(`button-type-${type}`)
+							types.value.delete(type)
+						}
+
+						if (types.value.size !== typesSize)
+							types.emit()
+
 						return button
 					},
 				},
@@ -123,6 +139,8 @@ const Button = Component.Builder('button', (component): Button => {
 			.style('button-icon')
 			.style.bind(hasSubtext, 'button-icon--has-subtext')
 			.prependTo(button)
+
+		button.icon.style.bind(types.map(button.icon, types => types.has('icon')), 'button-icon--type-icon')
 
 		if (icon)
 			button.icon.style.remove(`button-icon-${icon}`)

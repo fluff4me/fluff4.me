@@ -1,4 +1,4 @@
-import EndpointFeedGetFollowed from 'endpoint/feed/EndpointFeedGetFollowed'
+import EndpointFeedGet from 'endpoint/feed/EndpointFeedGet'
 import Component from 'ui/Component'
 import Link from 'ui/component/core/Link'
 import Paginator from 'ui/component/core/Paginator'
@@ -8,14 +8,14 @@ import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 
 export default ViewDefinition({
 	create: async () => {
-		const view = View('feed')
+		const view = View('new')
 
 		const paginator = Paginator()
-			.viewTransition('feed-view-feed')
+			.viewTransition('new-view-feed')
 			.type('flush')
-			.tweak(p => p.title.text.use('view/feed/main/title'))
+			.tweak(p => p.title.text.use('view/new/main/title'))
 			.appendTo(view.content)
-		const endpoint = EndpointFeedGetFollowed.prep().setPageSize(3)
+		const endpoint = EndpointFeedGet.prep().setPageSize(3)
 		await paginator.useEndpoint(endpoint, (slot, { works, authors }) => {
 			for (const workData of works) {
 				const author = authors.find(author => author.vanity === workData.author)
@@ -27,7 +27,7 @@ export default ViewDefinition({
 		})
 		paginator.orElse(slot => Component()
 			.style('placeholder')
-			.text.use('view/feed/content/empty')
+			.text.use('view/new/content/empty')
 			.appendTo(slot))
 
 		return view

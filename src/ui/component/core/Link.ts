@@ -10,7 +10,7 @@ interface LinkExtensions {
 
 interface Link extends Component, LinkExtensions { }
 
-const Link = Component.Builder('a', (component, route: RoutePath | undefined) => {
+const Link = Component.Builder('a', (component, route: RoutePath | undefined): Link => {
 	component.style('link')
 
 	const canNavigate = State(true)

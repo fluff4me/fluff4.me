@@ -168,6 +168,9 @@ function computeHeadingLevel (node?: Node): number | undefined {
 	let incrementHeading = false
 
 	while (currentNode) {
+		if (currentNode.nodeType === Node.ELEMENT_NODE && (currentNode as HTMLElement).tagName === 'NAV')
+			return 2
+
 		const heading = getPreviousSiblingHeading(currentNode)
 		if (heading) {
 			const level = getHeadingLevel(heading)
