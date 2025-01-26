@@ -96,6 +96,7 @@ const Input = Object.assign(
 				.setNormalStacking()
 				.setCloseOnInput(false)
 				.style('input-popover')
+				.type('flush')
 				.setOwner(component)
 				.tweak(popover => {
 					if (popoverOverride.value)

@@ -51,3 +51,15 @@
 		:start:
 			%transparent
 			%translate-up-2
+
+	&--type-flush:
+		#after: .popover
+		max-width: calc($space-5 * 4)
+		%margin-0
+		%padding-0-3
+		%margin-left-3
+		%border-left-2
+		%background-none
+		%box-shadow-none
+		%border-radius-0
+		%z-index-bg

@@ -4,9 +4,13 @@ import InputBus from 'ui/InputBus'
 import FocusListener from 'ui/utility/FocusListener'
 import HoverListener from 'ui/utility/HoverListener'
 import Mouse from 'ui/utility/Mouse'
+import type { ComponentNameType } from 'ui/utility/StyleManipulator'
+import TypeManipulator from 'ui/utility/TypeManipulator'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Task from 'utility/Task'
+
+export type PopoverType = ComponentNameType<'popover--type'>
 
 const FOCUS_TRAP = Component()
 	.tabIndex('auto')
@@ -184,6 +188,7 @@ interface PopoverExtensions {
 	readonly popoverChildren: State<readonly Popover[]>
 	readonly popoverParent: State<Popover | undefined>
 	readonly popoverHasFocus: State<boolean>
+	readonly type: TypeManipulator<this, PopoverType>
 
 	/** Sets the distance the mouse can be from the popover before it hides, if it's shown due to hover */
 	setMousePadding (padding?: number): this
@@ -216,6 +221,7 @@ const Popover = Component.Builder((component): Popover => {
 		.attributes.set('popover', 'manual')
 		.extend<PopoverExtensions>(popover => ({
 			visible,
+			type: TypeManipulator.Style(popover, type => `popover--type-${type}`),
 			popoverChildren: State([]),
 			popoverParent: State(undefined),
 			popoverHasFocus: FocusListener.focused.map(popover, focused =>
