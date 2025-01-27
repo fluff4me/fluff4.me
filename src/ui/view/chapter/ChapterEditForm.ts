@@ -36,7 +36,7 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 		.setRequired()
 		.default.bind(state.map(component, work => work?.name))
 		.hint.use('view/chapter-edit/shared/form/name/hint')
-		.setMaxLength(FormInputLengths.manifest?.chapter.name)
+		.setMaxLength(FormInputLengths.value?.chapter.name)
 	table.label(label => label.text.use('view/chapter-edit/shared/form/name/label'))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
