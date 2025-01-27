@@ -93,7 +93,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 				const textEditor = TextEditor()
 					.default.set(commentData.body?.body ?? '')
-					.setMaxLength(FormInputLengths.manifest?.comment.body)
+					.setMaxLength(FormInputLengths.value?.comment.body)
 					.hint.use('comment/hint')
 					.appendTo(content)
 
