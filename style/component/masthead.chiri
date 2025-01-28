@@ -108,6 +108,12 @@
 						%background-none
 						%backdrop-filter-none
 
+				&-action:
+					#after: .button-type-icon
+					%font-3
+					%unmargin-top-3
+					%unmargin-bottom-2
+
 				&-title:
 					#after: .block-title, .heading-1
 					%unmargin-top-1

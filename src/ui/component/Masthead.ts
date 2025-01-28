@@ -113,6 +113,10 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 					list.paginator.content.style('masthead-user-notifications-list-content')
 					list.paginator.footer.style('masthead-user-notifications-list-footer')
 
+					for (const action of list.paginator.primaryActions.getChildren())
+						if (action.is(Button))
+							action.style('masthead-user-notifications-list-action')
+
 					Link('/notifications')
 						.and(Button)
 						.type('flush')
