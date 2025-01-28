@@ -8,7 +8,7 @@ import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
 import type { SlotInitialiserReturn } from 'ui/component/core/Slot'
 import Slot from 'ui/component/core/Slot'
-import type { Quilt } from 'ui/utility/StringApplicator'
+import { Quilt } from 'ui/utility/StringApplicator'
 import Env from 'utility/Env'
 import type State from 'utility/State'
 import Store from 'utility/Store'
@@ -109,7 +109,8 @@ const Sidebar = Component.Builder('nav', (sidebar): Sidebar => {
 		.use(Session.Auth.author, (slot, author) => author
 			&& Group('top', 'sidebar/section/create')
 				.tweak(group => {
-					// TODO include 3 most recently edited works
+					for (const work of author.works ?? [])
+						group.add(`/work/${work.author}/${work.vanity}`, Quilt.fake(work.name), button => button.setIcon('book'))
 				})
 				.add('/work/new', 'sidebar/link/create-work', button => button.setIcon('plus'))
 		)

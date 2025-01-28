@@ -29,7 +29,6 @@
 	&-left:
 		%flex
 		%padding-left-2
-		%margin-left-2
 		grid-area: left
 
 		&-hamburger:
@@ -71,7 +70,6 @@
 		%flex
 		%align-content-centre
 		%padding-right-2
-		%margin-right-2
 		%justify-content-end
 		grid-area: right
 
