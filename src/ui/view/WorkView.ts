@@ -35,7 +35,7 @@ export default ViewDefinition({
 			.tweak(p => p.title.text.use('view/work/chapters/title'))
 			.setActionsMenu(popover => popover
 				.append(Slot()
-					.if(Session.Auth.loggedIn, () => Button()
+					.if(Session.Auth.author.map(popover, author => author?.vanity === params.author), () => Button()
 						.setIcon('plus')
 						.type('flush')
 						.text.use('view/work/chapters/action/label/new')
