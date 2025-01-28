@@ -43,7 +43,7 @@ namespace Session {
 	export async function reset () {
 		await EndpointSessionReset.query()
 		delete Store.items.session
-		updateState()
+		await refresh()
 	}
 
 	export function setAuthor (author: AuthorFull & Partial<AuthorAuthorised>) {
