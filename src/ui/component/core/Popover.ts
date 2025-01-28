@@ -310,6 +310,9 @@ const Popover = Component.Builder((component): Popover => {
 	return popover
 
 	function togglePopover (shown?: boolean) {
+		if (!popover.hasContent())
+			shown = false
+
 		if (normalStacking)
 			popover.style.toggle(!shown, 'popover--normal-stacking--hidden')
 		else
