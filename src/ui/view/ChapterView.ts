@@ -6,6 +6,7 @@ import EndpointReactChapter from 'endpoint/reaction/EndpointReactChapter'
 import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import quilt from 'lang/en-nz'
+import Chapter from 'ui/component/Chapter'
 import Comments from 'ui/component/Comments'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
@@ -63,6 +64,8 @@ export default ViewDefinition({
 
 		paginator.header.style('view-type-chapter-block-header')
 		paginator.footer.style('view-type-chapter-block-paginator-actions')
+
+		paginator.setActionsMenu(popover => Chapter.initActions(popover, chapterState.value, workData, author))
 
 		Link(`/work/${params.author}/${params.vanity}`)
 			.and(Button)
