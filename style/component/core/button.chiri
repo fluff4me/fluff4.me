@@ -176,6 +176,9 @@ $$button-background-highlight!colour
 		"gear
 		"id-card
 		"arrow-right-from-bracket
+		"ban
+		"pencil
+		"trash
 
 	#each in icons as var icon:
 		&-icon-#{icon}:
@@ -216,3 +219,27 @@ $$button-background-highlight!colour
 
 	&-icon-ellipsis-vertical:
 		%justify-content-centre
+
+	&-icon-circle-check:
+		#after: .button-icon
+		%relative
+		#icon name="check
+
+		@before:
+			translate: .18em -.1em
+
+		@after:
+			%absolute
+			%inset-0
+			%border-radius-100
+			border: .16em solid
+
+	&-icon-circle:
+		#after: .button-icon
+		%relative
+
+		@after:
+			%absolute
+			%inset-0
+			%border-radius-100
+			border: .16em solid

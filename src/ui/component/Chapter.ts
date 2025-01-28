@@ -55,19 +55,23 @@ const Chapter = Component.Builder((component, chapter: ChapterLite, work: Work, 
 			.style('chapter-actions-menu-button')
 			.appendTo(right))
 		.setActionsMenu((popover, button) => {
-			if (author && author.vanity === Session.Auth.author.value?.vanity) {
-				Button()
-					.type('flush')
-					.text.use('view/work/chapters/action/label/edit')
-					.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}/edit`))
-					.appendTo(popover)
+			Session.Auth.author.use(popover, self => {
+				if (author.vanity === self?.vanity) {
+					Button()
+						.type('flush')
+						.setIcon('pencil')
+						.text.use('chapter/action/label/edit')
+						.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}/edit`))
+						.appendTo(popover)
 
-				Button()
-					.type('flush')
-					.text.use('view/author/works/action/label/delete')
-					.event.subscribe('click', () => { })
-					.appendTo(popover)
-			}
+					Button()
+						.type('flush')
+						.setIcon('trash')
+						.text.use('chapter/action/label/delete')
+						.event.subscribe('click', () => { })
+						.appendTo(popover)
+				}
+			})
 		})
 		.extend<ChapterExtensions>(component => ({
 			chapter,

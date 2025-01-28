@@ -34,9 +34,9 @@ export default ViewDefinition({
 			.setActionsMenu(popover => popover
 				.append(Slot()
 					.if(Session.Auth.loggedIn, () => Button()
+						.type('flush')
 						.setIcon('plus')
-						.type('icon')
-						.ariaLabel.use('view/author/works/action/label/new')
+						.text.use('view/author/works/action/label/new')
 						.event.subscribe('click', () => navigate.toURL('/work/new'))))
 			)
 			.appendTo(view.content)

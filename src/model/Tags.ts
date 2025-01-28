@@ -1,6 +1,7 @@
 import type { ErrorResponse, ManifestGlobalTags, Response, Tag, TagCategory } from 'api.fluff4.me'
 import EndpointTagManifest from 'endpoint/tag/EndpointTagManifest'
 import Manifest from 'model/Manifest'
+import Time from 'utility/Time'
 
 export type TagId = `${string}: ${string}`
 
@@ -23,6 +24,7 @@ export interface TagsManifest extends ManifestGlobalTags {
 
 const Tags = Object.assign(
 	Manifest({
+		valid: Time.minutes(5),
 		async get () {
 			const response = await EndpointTagManifest.query()
 			if (!response.data)
