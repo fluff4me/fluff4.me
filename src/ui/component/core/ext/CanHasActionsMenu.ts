@@ -1,6 +1,7 @@
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import type { PopoverComponentRegisteredExtensions, PopoverInitialiser } from 'ui/component/core/Popover'
+import Slot from 'ui/component/core/Slot'
 
 export interface CanHasActionsMenuExtensions {
 	setActionsMenu (initialiser: PopoverInitialiser<this>): this
@@ -26,7 +27,7 @@ const CanHasActionsMenu = Component.Extension((component, initialiser?: PopoverI
 					.style('actions-menu-popover')
 					.anchor.add('off right', 'centre')
 					.anchor.orElseHide()
-					.append(Component().style('actions-menu-popover-arrow'))
+					.append(Slot().style.remove('slot').style('actions-menu-popover-arrow'))
 					.tweak(baseInitialiser, button)
 					.tweak(initialiser, button)
 				)

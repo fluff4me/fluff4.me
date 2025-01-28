@@ -5,6 +5,31 @@ import AbortPromise from 'utility/AbortPromise'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
+interface SlotComponentExtensions {
+	hasContent (): boolean
+}
+
+declare module 'ui/Component' {
+	interface ComponentExtensions extends SlotComponentExtensions { }
+}
+
+Component.extend(component => {
+	component.extend<SlotComponentExtensions>(component => ({
+		hasContent () {
+			const walker = document.createTreeWalker(component.element, NodeFilter.SHOW_TEXT)
+			while (walker.nextNode())
+				if (walker.currentNode.textContent?.trim())
+					return true
+
+			for (const child of component.getDescendants())
+				if (!child.is(Slot))
+					return true
+
+			return false
+		},
+	}))
+})
+
 export type SlotCleanup = () => unknown
 export type SlotInitialiserReturn = AbortPromiseOr<SlotCleanup | Component | ComponentInsertionTransaction | undefined | null | false | 0 | '' | void>
 
