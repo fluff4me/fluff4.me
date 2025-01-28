@@ -1,4 +1,6 @@
 import type { Author, Work as WorkData, WorkFull } from 'api.fluff4.me'
+import quilt from 'lang/en-nz'
+import Follows from 'model/Follows'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
 import Tags from 'model/Tags'
@@ -113,27 +115,41 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 		if (author && author.vanity === Session.Auth.author.value?.vanity) {
 			Button()
 				.type('flush')
-				.text.use('view/author/works/action/label/edit')
+				.setIcon('pencil')
+				.text.use('work/action/label/edit')
 				.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/edit`))
 				.appendTo(popover)
 
 			Button()
 				.type('flush')
-				.text.use('view/author/works/action/label/delete')
+				.setIcon('trash')
+				.text.use('work/action/label/delete')
 				.event.subscribe('click', () => { })
 				.appendTo(popover)
 		}
 		else if (Session.Auth.loggedIn.value) {
 			Button()
 				.type('flush')
-				.text.use('view/author/works/action/label/follow')
-				.event.subscribe('click', () => { })
+				.bindIcon(Follows.map(popover, () => Follows.followingWork(work)
+					? 'circle-check'
+					: 'circle'))
+				.text.bind(Follows.map(popover, () => Follows.followingWork(work)
+					? quilt['work/action/label/unfollow']()
+					: quilt['work/action/label/follow']()
+				))
+				.event.subscribe('click', () => Follows.toggleFollowingWork(work))
 				.appendTo(popover)
 
 			Button()
 				.type('flush')
-				.text.use('view/author/works/action/label/ignore')
-				.event.subscribe('click', () => { })
+				.bindIcon(Follows.map(popover, () => Follows.ignoringWork(work)
+					? 'ban'
+					: 'circle'))
+				.text.bind(Follows.map(popover, () => Follows.ignoringWork(work)
+					? quilt['work/action/label/unignore']()
+					: quilt['work/action/label/ignore']()
+				))
+				.event.subscribe('click', () => Follows.toggleIgnoringWork(work))
 				.appendTo(popover)
 		}
 	})

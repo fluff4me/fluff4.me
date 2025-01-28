@@ -18,11 +18,12 @@ account-settings: Account Settings
 
 ## action
 login-or-signup: Log In or Sign Up
-view: View
 love: Love
 edit: Edit
 follow: Follow
 ignore: Ignore
+unfollow: Unfollow
+unignore: Unignore
 delete: Delete{ 0??}
 save: Save
 create: Create!
@@ -159,9 +160,20 @@ chapters/label=shared/term/chapters
 description/empty: This work has no description.
 state/private: Private
 state/private-no-chapters: Hidden (No Chapters)
+action/label/edit=shared/action/edit
+action/label/follow=shared/action/follow
+action/label/unfollow=shared/action/unfollow
+action/label/ignore=shared/action/ignore
+action/label/unignore=shared/action/unignore
+action/label/delete=shared/action/delete
 
 # author
 description/empty: This author prefers to remain elusive and mysterious...
+action/label/edit=shared/action/edit
+action/label/follow=shared/action/follow
+action/label/unfollow=shared/action/unfollow
+action/label/ignore=shared/action/ignore
+action/label/unignore=shared/action/unignore
 
 # comment
 timestamp/edited: Edited {0}
@@ -177,6 +189,9 @@ action/delete=shared/action/delete
 # chapter
 action/index: Index
 state/private: Private
+action/label/love=shared/action/love
+action/label/edit=shared/action/edit
+action/label/delete=shared/action/delete
 
 # notification
 comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}
@@ -260,11 +275,6 @@ submit=shared/action/save
 title: Works
 content/empty: This author has not yet shared any work...
 action/label/new: New Work
-action/label/view=shared/action/view
-action/label/edit=shared/action/edit
-action/label/follow=shared/action/follow
-action/label/ignore=shared/action/ignore
-action/label/delete=shared/action/delete
 
 
 ## work-edit
@@ -305,10 +315,6 @@ action/delete: Delete Work
 title=shared/term/chapters
 content/empty: This work does not contain any chapters.
 action/label/new: New Chapter
-action/label/view=shared/action/view
-action/label/love=shared/action/love
-action/label/edit=shared/action/edit
-action/label/delete=shared/action/delete
 
 
 ## chapter-edit

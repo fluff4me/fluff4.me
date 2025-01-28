@@ -5,6 +5,7 @@
 		%gap-0
 		%overflow-visible
 		%border-none
+		%padding-left-1
 		$arrow-size: calc($space-2 + $space-1)
 		$arrow-height: calc($arrow-size * sin(45deg) * 2)
 		$arrow-width: calc($arrow-size * cos(45deg) * 2)

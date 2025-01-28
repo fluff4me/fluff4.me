@@ -54,6 +54,7 @@ type EndpointQuery<ROUTE extends keyof Paths> =
 	: never
 
 interface Endpoint<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE> = EndpointQuery<ROUTE>> {
+	readonly route: ROUTE
 	header (header: string, value: string): this
 	headers (headers: Record<string, string>): this
 	removeHeader (header: string): this
@@ -82,6 +83,7 @@ interface PreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends Endpoin
 function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]['method'], headers?: Record<string, string>) {
 	let pageSize: number | undefined
 	const endpoint: ConfigurablePreparedEndpointQuery<ROUTE, any> = {
+		route,
 		header (header, value) {
 			headers ??= {}
 			headers[header] = value

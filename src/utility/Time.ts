@@ -1,6 +1,7 @@
 import Strings from 'utility/string/Strings'
 
 namespace Time {
+
 	export type ISO = `${bigint}-${bigint}-${bigint}T${bigint}:${bigint}:${number}Z`
 
 	export function floor (interval: number) {

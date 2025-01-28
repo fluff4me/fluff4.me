@@ -27,6 +27,7 @@
 		%outline-none
 
 		&-wrapper:
+			#after: .text-input
 			%flex
 			%flex-column
 			%gap-3
