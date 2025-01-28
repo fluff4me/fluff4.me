@@ -33,7 +33,7 @@ export default ViewDefinition({
 			.tweak(p => p.title.text.use('view/author/works/title'))
 			.setActionsMenu(popover => popover
 				.append(Slot()
-					.if(Session.Auth.loggedIn, () => Button()
+					.if(Session.Auth.author.map(popover, author => author?.vanity === params.vanity), () => Button()
 						.type('flush')
 						.setIcon('plus')
 						.text.use('view/author/works/action/label/new')
