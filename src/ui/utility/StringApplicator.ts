@@ -10,6 +10,11 @@ export type Quilt = QuiltBase
 export namespace Quilt {
 	export type SimpleKey = QuiltBase.SimpleKey
 	export type Handler = (quilt: Quilt, helper: typeof QuiltHelper) => Weave
+
+	export function fake (text: string): () => Weave {
+		const weave: Weave = { content: [{ content: text }], toString: () => text }
+		return () => weave
+	}
 }
 
 export namespace QuiltHelper {

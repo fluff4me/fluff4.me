@@ -1,6 +1,5 @@
 .sidebar:
-	%padding-4
-	%padding-right-3
+	%padding-4-2
 	%margin-right-4
 	%relative
 	%height-100
@@ -62,6 +61,8 @@
 			%font-2
 			%colour-6
 			%margin-bottom-0
+			%margin-left-2
+			%padding-left-1
 			letter-spacing: .1em
 
 	&-link:

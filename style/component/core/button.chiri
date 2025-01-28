@@ -179,6 +179,7 @@ $$button-background-highlight!colour
 		"ban
 		"pencil
 		"trash
+		"book
 
 	#each in icons as var icon:
 		&-icon-#{icon}:
