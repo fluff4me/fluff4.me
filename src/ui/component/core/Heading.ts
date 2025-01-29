@@ -41,7 +41,7 @@ interface HeadingExtensions {
 	/** Rather than using a heading style based on the actual level of this heading, instead use the style of another heading level */
 	setAestheticLevel (level?: HeadingLevel): this
 	/** Rather than using the default `heading-#` style, instead use a custom heading style */
-	setAestheticStyle (style?: HeadingStylePrefix): this
+	setAestheticStyle (style?: HeadingStylePrefix | false): this
 	setResizeRange (idealLength?: number, maxLength?: number): this
 	clearResizeRange (): this
 }
@@ -59,7 +59,7 @@ const Heading = Component.Builder('h1', (component): Heading => {
 
 	let initial = true
 	let aestheticLevel: HeadingLevel | undefined
-	let aestheticStyle: HeadingStylePrefix | undefined
+	let aestheticStyle: HeadingStylePrefix | false | undefined
 	interface ResizeRange {
 		minLength: number
 		maxLength: number
@@ -90,25 +90,25 @@ const Heading = Component.Builder('h1', (component): Heading => {
 			const style = aestheticStyle ?? 'heading'
 
 			const oldLevel = getHeadingLevel(component.element)
-			if (isStyledHeadingLevel(oldLevel))
+			if (style !== false && isStyledHeadingLevel(oldLevel))
 				component.style.remove(`${style}-${oldLevel}`)
 
-			if (aestheticLevel)
+			if (style !== false && aestheticLevel)
 				component.style.remove(`${style}-${aestheticLevel}`)
 
 			aestheticLevel = level
-			if (isStyledHeadingLevel(aestheticLevel))
+			if (style !== false && isStyledHeadingLevel(aestheticLevel))
 				component.style(`${style}-${aestheticLevel}`)
 
 			return heading
 		},
 		setAestheticStyle (style) {
 			const level = aestheticLevel ?? getHeadingLevel(component.element)
-			if (isStyledHeadingLevel(level))
+			if (aestheticStyle !== false && isStyledHeadingLevel(level))
 				component.style.remove(`${aestheticStyle ?? 'heading'}`, `${aestheticStyle ?? 'heading'}-${level}`)
 
 			aestheticStyle = style
-			if (isStyledHeadingLevel(level))
+			if (style !== false && isStyledHeadingLevel(level))
 				component.style(`${style ?? 'heading'}`, `${style ?? 'heading'}-${level}`)
 
 			return heading
@@ -138,14 +138,14 @@ const Heading = Component.Builder('h1', (component): Heading => {
 		const style = aestheticStyle ?? 'heading'
 
 		initial = false
-		if (isStyledHeadingLevel(oldLevel))
+		if (style !== false && isStyledHeadingLevel(oldLevel))
 			component.style.remove(`${style}-${oldLevel}`)
 
 		const isStyledLevel = isStyledHeadingLevel(newLevel)
-		if (!aestheticLevel && isStyledLevel)
+		if (style !== false && !aestheticLevel && isStyledLevel)
 			component.style(`${style}-${newLevel}`)
 
-		if (aestheticLevel)
+		if (style !== false && aestheticLevel)
 			component.style(`${style}-${aestheticLevel}`)
 
 		if (isSameLevel)

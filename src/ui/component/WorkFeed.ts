@@ -39,7 +39,7 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 					return null
 				},
 			})
-			feed.setFromWorks(data.resized(3), authors.value)
+			feed.setFromWorks(data/* .resized(3)*/, authors.value)
 			return feed
 		},
 		setFromWorks (pagedData, authors) {

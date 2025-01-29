@@ -46,11 +46,39 @@
 	&-breadcrumbs:
 		%contents
 
-		&-back-button:
+		&-meta:
 			%column-1
-			%size-fit
+			%sticky
+			%top-4
+			%flex
+			%flex-column
+			%gap-2
 			%align-self-start
-			%justify-self-end
+			%align-items-end
+
+		&-info:
+			%width-fit
+
+			@after:
+				%block
+				%width-4
+				%margin-top-2
+				%border-bottom-2
+
+		&-title:
+			%font-kanit
+			%font-4
+			%margin-0
+			%padding-0
+			%unmargin-bottom-2
+
+		&-description:
+			%margin-0
+			%italic
+			%font-2
+
+		&-back-button:
+			%size-fit
 
 		&-path:
 			%column-2

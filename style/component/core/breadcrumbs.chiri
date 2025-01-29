@@ -1,8 +1,12 @@
 .breadcrumbs:
 
+	&-meta:
+
+	&-title:
+
+	&-description:
+
 	&-back-button:
-		%sticky
-		%top-4
 
 	&-path:
 

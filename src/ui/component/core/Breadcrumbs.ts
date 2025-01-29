@@ -1,11 +1,16 @@
 import type { RoutePath } from 'navigation/Routes'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
+import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
 import type { Quilt } from 'ui/utility/StringApplicator'
 
 interface BreadcrumbsExtensions {
 	readonly path: Component
+	readonly meta: Component
+	readonly info: Component
+	readonly title: Heading
+	readonly description: Component
 	backButton?: Link & Button
 	setPath (...path: [route: RoutePath, translation: Quilt.SimpleKey | Quilt.Handler][]): this
 	setBackButton (route?: RoutePath, initialiser?: (button: Link & Button) => unknown): this
@@ -21,6 +26,10 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 	const breadcrumbs = component.style('breadcrumbs')
 		.append(pathComponent)
 		.extend<BreadcrumbsExtensions>(breadcrumbs => ({
+			meta: undefined!,
+			info: undefined!,
+			title: undefined!,
+			description: undefined!,
 			path: pathComponent,
 			setPath (...path) {
 				pathComponent.removeContents()
@@ -45,14 +54,25 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 					.type('flush')
 					.style('breadcrumbs-back-button')
 					.setIcon('arrow-left')
-					.viewTransition('breadcrumbs-back-button')
 					.text.use('shared/action/return')
 					.tweak(initialiser)
-					.prependTo(breadcrumbs)
+					.appendTo(breadcrumbs.meta)
 
 				return breadcrumbs
 			},
 		}))
+		.extendJIT('meta', breadcrumbs => Component()
+			.viewTransition('breadcrumbs-meta')
+			.prependTo(breadcrumbs))
+		.extendJIT('info', breadcrumbs => Component()
+			.prependTo(breadcrumbs.meta))
+		.extendJIT('title', breadcrumbs => Heading()
+			.style('breadcrumbs-title')
+			.setAestheticStyle(false)
+			.prependTo(breadcrumbs.info))
+		.extendJIT('description', breadcrumbs => Component()
+			.style('breadcrumbs-description')
+			.appendTo(breadcrumbs.info))
 
 	return breadcrumbs
 })

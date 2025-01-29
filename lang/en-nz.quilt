@@ -217,10 +217,12 @@ title: Error {CODE}
 description-404: Your adventure has come to a close, your questions left unanswered, your goals unfulfilled. What will you do?
 
 ## new
-main/title: Recent Updates
+main/title: New
+main/description: Today in fluff...
 
 ## feed
 main/title: Following
+main/description: New works and new chapters from the things you follow!
 
 ## account
 name/label=shared/form/name/label

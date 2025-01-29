@@ -40,6 +40,11 @@ const View = Component.Builder((_, id: ViewId): View => {
 					breadcrumbs.backButton?.style('view-breadcrumbs-back-button')
 					return breadcrumbs
 				}
+
+				breadcrumbs.tweakJIT('meta', meta => meta.style('view-breadcrumbs-meta'))
+				breadcrumbs.tweakJIT('info', info => info.style('view-breadcrumbs-info'))
+				breadcrumbs.tweakJIT('title', title => title.style('view-breadcrumbs-title'))
+				breadcrumbs.tweakJIT('description', description => description.style('view-breadcrumbs-description'))
 			})
 			.prependTo(view))
 })
