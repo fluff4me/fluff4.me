@@ -96,9 +96,18 @@ namespace Notifications {
 		if (toast.handleError(response))
 			return false
 
+		let modifiedCount = 0
 		for (const notification of simpleCache)
 			if (ids.includes(notification.id))
-				notification.read = read
+				if (notification.read !== read) {
+					notification.read = read
+					modifiedCount++
+				}
+
+		if (!modifiedCount)
+			return true
+
+		unreadCount.value += read ? -modifiedCount : modifiedCount
 
 		Store.items.notifications = { ...Store.items.notifications, cache: simpleCache }
 		for (const page of cache.pages)
