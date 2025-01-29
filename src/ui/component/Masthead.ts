@@ -85,92 +85,106 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 		.style('masthead-search')
 		.appendTo(masthead)
 
-	Component()
+	Slot()
+		.style.remove('slot')
 		.style('masthead-user')
-		.append(Slot().if(Session.Auth.loggedIn, () => Button()
-			.setIcon('bell')
-			.type('icon')
-			.style('masthead-user-notifications')
-			.clearPopover()
-			.ariaLabel.use('masthead/user/notifications/alt')
-			.append(Slot().use(Notifications.unreadCount, (slot, count) => !count ? undefined
-				: Component()
-					.style('masthead-user-notifications-badge')
-					.text.set(`${count}`)))
-			.setPopover('hover', popover => popover
-				.style('masthead-user-notifications-popover')
-				.anchor.add('aligned right', 'off bottom')
-				.append(Slot().use(Notifications.cache, AbortPromise.asyncFunction(async (signal, slot, notifications) => {
-					const list = await NotificationList(true, 5)
-					if (signal.aborted)
-						return
+		.if(Session.Auth.loggedIn, () => Component()
 
-					list.paginator.type('flush')
-						.style('masthead-user-notifications-list')
+			////////////////////////////////////
+			//#region Notifications Button
+			.append(Button()
+				.setIcon('bell')
+				.type('icon')
+				.style('masthead-user-notifications')
+				.clearPopover()
+				.ariaLabel.use('masthead/user/notifications/alt')
+				.append(Slot().use(Notifications.unreadCount, (slot, count) => !count ? undefined
+					: Component()
+						.style('masthead-user-notifications-badge')
+						.text.set(`${count}`)))
+				.setPopover('hover', popover => popover
+					.style('masthead-user-notifications-popover')
+					.anchor.add('aligned right', 'off bottom')
+					.append(Slot().use(Notifications.cache, AbortPromise.asyncFunction(async (signal, slot, notifications) => {
+						const list = await NotificationList(true, 5)
+						if (signal.aborted)
+							return
 
-					list.paginator.header.style('masthead-user-notifications-list-header')
-					list.paginator.title.style('masthead-user-notifications-list-title')
-					list.paginator.content.style('masthead-user-notifications-list-content')
-					list.paginator.footer.style('masthead-user-notifications-list-footer')
+						list.paginator.type('flush')
+							.style('masthead-user-notifications-list')
 
-					for (const action of list.paginator.primaryActions.getChildren())
-						if (action.is(Button))
-							action.style('masthead-user-notifications-list-action')
+						list.paginator.header.style('masthead-user-notifications-list-header')
+						list.paginator.title.style('masthead-user-notifications-list-title')
+						list.paginator.content.style('masthead-user-notifications-list-content')
+						list.paginator.footer.style('masthead-user-notifications-list-footer')
 
-					Link('/notifications')
-						.and(Button)
-						.type('flush')
-						.text.use('masthead/user/notifications/link/label')
-						.appendTo(list.paginator.footer.middle)
+						for (const action of list.paginator.primaryActions.getChildren())
+							if (action.is(Button))
+								action.style('masthead-user-notifications-list-action')
 
-					list.appendTo(slot)
-				}))))))
-		.append(Button()
-			.setIcon('circle-user')
-			.type('icon')
-			.clearPopover()
-			.ariaLabel.use('masthead/user/profile/alt')
-			.setPopover('hover', popover => popover
-				.anchor.add('aligned right', 'off bottom')
-				.ariaRole('navigation')
-				.append(Slot()
-					.style('action-group')
-					.style.remove('slot')
-					.use(Session.Auth.author, (slot, author) => {
-						if (!author) {
+						Link('/notifications')
+							.and(Button)
+							.type('flush')
+							.text.use('masthead/user/notifications/link/label')
+							.appendTo(list.paginator.footer.middle)
+
+						list.appendTo(slot)
+					})))))
+			//#endregion
+			////////////////////////////////////
+
+			////////////////////////////////////
+			//#region Profile Button
+			.append(Button()
+				.setIcon('circle-user')
+				.type('icon')
+				.clearPopover()
+				.ariaLabel.use('masthead/user/profile/alt')
+				.setPopover('hover', popover => popover
+					.anchor.add('aligned right', 'off bottom')
+					.ariaRole('navigation')
+					.append(Slot()
+						.style('action-group')
+						.style.remove('slot')
+						.use(Session.Auth.author, (slot, author) => {
+							if (!author) {
+								return
+							}
+
+							Link(`/author/${author.vanity}`)
+								.and(Button)
+								.type('flush')
+								.style('masthead-popover-link-button')
+								.setIcon('circle-user')
+								.text.use('masthead/user/profile/popover/profile')
+								.appendTo(slot)
+
 							Link('/account')
 								.and(Button)
 								.type('flush')
 								.style('masthead-popover-link-button')
-								.text.use('masthead/user/profile/popover/login')
+								.setIcon('id-card')
+								.text.use('masthead/user/profile/popover/account')
 								.appendTo(slot)
-							return
-						}
 
-						Link(`/author/${author.vanity}`)
-							.and(Button)
-							.type('flush')
-							.style('masthead-popover-link-button')
-							.setIcon('circle-user')
-							.text.use('masthead/user/profile/popover/profile')
-							.appendTo(slot)
-
-						Link('/account')
-							.and(Button)
-							.type('flush')
-							.style('masthead-popover-link-button')
-							.setIcon('id-card')
-							.text.use('masthead/user/profile/popover/account')
-							.appendTo(slot)
-
-						Button()
-							.type('flush')
-							.style('masthead-popover-link-button')
-							.setIcon('arrow-right-from-bracket')
-							.text.use('view/account/action/logout')
-							.event.subscribe('click', () => Session.reset())
-							.appendTo(slot)
-					}))))
+							Button()
+								.type('flush')
+								.style('masthead-popover-link-button')
+								.setIcon('arrow-right-from-bracket')
+								.text.use('view/account/action/logout')
+								.event.subscribe('click', () => Session.reset())
+								.appendTo(slot)
+						}))))
+			//#endregion
+			////////////////////////////////////
+		)
+		.else(() => Button()
+			.style('masthead-user-action-login')
+			.type('primary')
+			.setIcon('circle-user')
+			.text.use('masthead/action/login')
+			.event.subscribe('click', () => navigate.toURL('/account'))
+		)
 		.appendTo(masthead)
 
 	return masthead.extend<MastheadExtensions>(masthead => ({

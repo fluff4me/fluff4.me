@@ -315,7 +315,7 @@ const Popover = Component.Builder((component): Popover => {
 
 		if (normalStacking)
 			popover.style.toggle(!shown, 'popover--normal-stacking--hidden')
-		else
+		else if (popover.rooted.value)
 			popover.element.togglePopover(shown)
 	}
 
@@ -326,7 +326,9 @@ const Popover = Component.Builder((component): Popover => {
 		if (!event.key.startsWith('Mouse') || popover.containsPopoverDescendant(HoverListener.hovered()))
 			return
 
-		popover.element.togglePopover(false)
+		if (popover.rooted.value)
+			popover.element.togglePopover(false)
+
 		popover.visible.asMutable?.setValue(false)
 	}
 

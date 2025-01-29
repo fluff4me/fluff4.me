@@ -31,11 +31,17 @@ Component.extend(component => {
 })
 
 export type SlotCleanup = () => unknown
+export type SlotInitialiser = (slot: ComponentInsertionTransaction) => SlotInitialiserReturn
 export type SlotInitialiserReturn = AbortPromiseOr<SlotCleanup | Component | ComponentInsertionTransaction | undefined | null | false | 0 | '' | void>
+
+interface SlotIfElseExtensions {
+	elseIf (state: State<boolean>, initialiser: SlotInitialiser): this
+	else (initialiser: SlotInitialiser): this
+}
 
 interface SlotExtensions {
 	use<T> (state: T | State<T>, initialiser: (slot: ComponentInsertionTransaction, value: T) => SlotInitialiserReturn): this
-	if (state: State<boolean>, initialiser: (slot: ComponentInsertionTransaction) => SlotInitialiserReturn): this
+	if (state: State<boolean>, initialiser: SlotInitialiser): this & SlotIfElseExtensions
 }
 
 interface Slot extends Component, SlotExtensions { }
@@ -48,8 +54,17 @@ const Slot = Object.assign(
 		let cleanup: SlotCleanup | undefined
 		let abort: (() => unknown) | undefined
 		let abortTransaction: (() => unknown) | undefined
+
+		interface Elses {
+			elseIfs: { state: State<boolean>, initialiser: SlotInitialiser }[]
+			else?: SlotInitialiser
+		}
+
+		const elses = State<Elses>({ elseIfs: [] })
+		let unuseElses: UnsubscribeState | undefined
+
 		return slot
-			.extend<SlotExtensions>(slot => ({
+			.extend<SlotExtensions & SlotIfElseExtensions>(slot => ({
 				use: (state, initialiser) => {
 					state = State.get(state)
 
@@ -84,27 +99,60 @@ const Slot = Object.assign(
 						abort?.(); abort = undefined
 						cleanup?.(); cleanup = undefined
 						abortTransaction?.(); abortTransaction = undefined
+						unuseElses?.(); unuseElses = undefined
 
 						if (!value) {
-							slot.removeContents()
+							let unuseElsesList: UnsubscribeState | undefined
+							const unuseElsesContainer = elses.useManual(elses => {
+								unuseElsesList = State.MapManual(elses.elseIfs.map(({ state }) => state), (...elses) => elses.indexOf(true))
+									.useManual(elseToUse => {
+										const initialiser = elseToUse === -1 ? elses.else : elses.elseIfs[elseToUse].initialiser
+										if (!initialiser) {
+											slot.removeContents()
+											return
+										}
+
+										handleSlotInitialiser(initialiser)
+									})
+							})
+
+							unuseElses = () => {
+								unuseElsesList?.()
+								unuseElsesContainer()
+							}
+
 							return
 						}
 
-						const component = Component()
-						const transaction = ComponentInsertionTransaction(component, () => {
-							slot.removeContents()
-							slot.append(...component.element.children)
-						})
-						Object.assign(transaction, { closed: component.removed })
-						abortTransaction = transaction.abort
-
-						handleSlotInitialiserReturn(transaction, initialiser(transaction))
+						handleSlotInitialiser(initialiser)
 					})
 
 					return slot
 				},
+				elseIf (state, initialiser) {
+					elses.value.elseIfs.push({ state, initialiser })
+					elses.emit()
+					return slot
+				},
+				else (initialiser) {
+					elses.value.else = initialiser
+					elses.emit()
+					return slot
+				},
 			}))
 			.tweak(slot => slot.removed.awaitManual(true, () => cleanup?.()))
+
+		function handleSlotInitialiser (initialiser: SlotInitialiser) {
+			const component = Component()
+			const transaction = ComponentInsertionTransaction(component, () => {
+				slot.removeContents()
+				slot.append(...component.element.children)
+			})
+			Object.assign(transaction, { closed: component.removed })
+			abortTransaction = transaction.abort
+
+			handleSlotInitialiserReturn(transaction, initialiser(transaction))
+		}
 
 		function handleSlotInitialiserReturn (transaction: ComponentInsertionTransaction, result: SlotInitialiserReturn) {
 			if (!(result instanceof AbortPromise))
