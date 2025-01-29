@@ -126,6 +126,7 @@ formatting/mention: mention
 skip-navigation: Skip Navigation
 
 primary-nav/alt: primary
+action/login=shared/action/login-or-signup
 
 ## user/notifications
 alt: notifications
@@ -134,7 +135,6 @@ link/label: View All
 
 ## user/profile
 alt=shared/term/profile
-popover/login=shared/action/login-or-signup
 popover/profile=shared/term/profile
 popover/account=shared/term/account-settings
 
