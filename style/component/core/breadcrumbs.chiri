@@ -1,6 +1,8 @@
 .breadcrumbs:
 
 	&-back-button:
+		%sticky
+		%top-4
 
 	&-path:
 
