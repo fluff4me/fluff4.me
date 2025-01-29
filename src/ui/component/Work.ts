@@ -36,7 +36,7 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 	block.title
 		.style('work-name')
 		.text.set(work.name)
-		.setResizeRange(32, FormInputLengths.value?.work.name)
+		.setResizeRange(32, Math.min(FormInputLengths.value?.work.name ?? Infinity, 128))
 
 	if (author)
 		block.description

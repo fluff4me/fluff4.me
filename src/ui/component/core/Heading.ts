@@ -75,8 +75,7 @@ const Heading = Component.Builder('h1', (component): Heading => {
 
 			const length = text?.length ?? 0
 			const t = 1 - Maths.clamp1(Maths.unlerp(resizeRange.minLength, resizeRange.maxLength, length))
-			const size = Maths.lerp(0.5, 1, t)
-			textWrapper.style.setProperty('font-size', `${size}em`)
+			textWrapper.style.setProperty('--font-size-multiplier', `${t}`)
 		})
 
 	component.tabIndex('programmatic')

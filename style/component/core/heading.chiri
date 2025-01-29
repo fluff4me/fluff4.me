@@ -23,6 +23,7 @@
 	&-text:
 		%block
 		%padding-bottom-1
+		font-size: calc(${font-size-min: 1em} + ${font-size-multiplier: 1} * (${font-size-max: 1em} - ${font-size-min: 1em}))
 		line-height: 1.2em
 
 	#dec slant = 0.05
