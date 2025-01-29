@@ -124,7 +124,7 @@
 					%font-4
 
 				&-content:
-					#after: .paginator-content
+					#after: .paginator-content, .paginator-content--has-header
 					%padding-top-0
 					%unmargin-top-1
 
