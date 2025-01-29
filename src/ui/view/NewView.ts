@@ -7,8 +7,10 @@ export default ViewDefinition({
 	create: () => {
 		const view = View('new')
 
+		view.breadcrumbs.title.text.use('view/new/main/title')
+		view.breadcrumbs.description.text.use('view/new/main/description')
+
 		WorkFeed()
-			.tweak(p => p.title.text.use('view/new/main/title'))
 			.viewTransition('new-view-feed')
 			.setFromEndpoint(EndpointFeedGet)
 			.appendTo(view.content)
