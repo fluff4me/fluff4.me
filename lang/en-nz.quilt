@@ -198,6 +198,9 @@ comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}
 comment-reply: {TRIGGERED_BY} has replied to your comment on {CHAPTER} of {WORK}
 comment-mention: {TRIGGERED_BY} has mentioned you in a comment on {CHAPTER} of {WORK}
 
+# work-feed
+empty: And all was quiet...
+
 
 
 # view
@@ -215,11 +218,9 @@ description-404: Your adventure has come to a close, your questions left unanswe
 
 ## new
 main/title: Recent Updates
-content/empty: And all was quiet...
 
 ## feed
 main/title: Following
-content/empty: And all was quiet...
 
 ## account
 name/label=shared/form/name/label

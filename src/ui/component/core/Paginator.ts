@@ -47,9 +47,12 @@ const Paginator = Component.Builder((component): Paginator => {
 
 	block.style.bind(isFlush, 'paginator--flush')
 
-	block.header
-		.style('paginator-header')
-		.style.bind(isFlush, 'paginator-header--flush')
+	block.tweakJIT('header', header => {
+		header.style('paginator-header')
+			.style.bind(isFlush, 'paginator-header--flush')
+
+		block.content.style('paginator-content--has-header')
+	})
 
 	const content = block.content
 		.style('paginator-content')

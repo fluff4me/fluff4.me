@@ -138,6 +138,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	extendMagic<K extends Exclude<keyof this, symbol>, O extends this = this> (property: K, magic: (component: this) => { get (): O[K], set?(value: O[K]): void }): this
 	extendJIT<K extends Exclude<keyof this, symbol>, O extends this = this> (property: K, supplier: (component: this) => O[K]): this
 	override<K extends keyof this> (property: K, provider: (component: this, original: this[K]) => this[K]): this
+	tweakJIT<PARAMS extends any[], K extends Exclude<keyof this, symbol>, O extends this = this> (property: K, tweaker: (value: O[K], component: this) => unknown): this
 
 	tweak<PARAMS extends any[]> (tweaker?: (component: this, ...params: PARAMS) => unknown, ...params: PARAMS): this
 
@@ -236,6 +237,8 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 
 	let descendantsListeningForScroll: HTMLCollection | undefined
 
+	const jitTweaks = new Map<string, true | Set<(value: any, component: Component) => unknown>>()
+
 	let component = ({
 		supers: State([]),
 		isComponent: true,
@@ -317,12 +320,27 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 				get: () => {
 					const value = supplier(component)
 					Define.set(component, property, value)
+					const tweaks = jitTweaks.get(property)
+					if (tweaks && tweaks !== true)
+						for (const tweaker of tweaks)
+							tweaker(value, component)
+					jitTweaks.set(property, true)
 					return value
 				},
 				set: value => {
 					Define.set(component, property, value)
 				},
 			})
+			return component
+		},
+
+		tweakJIT: (property, tweaker) => {
+			const tweaks = jitTweaks.compute(property, () => new Set())
+			if (tweaks === true)
+				tweaker(component[property] as never, component)
+			else
+				tweaks.add(tweaker)
+
 			return component
 		},
 
