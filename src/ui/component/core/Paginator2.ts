@@ -10,6 +10,7 @@ interface PaginatorExtensions<DATA = any> {
 	readonly page: State<number>
 	readonly data: State<DATA>
 	set<NEW_DATA extends DATA> (data: PagedData<NEW_DATA>, initialiser: (slot: Slot, data: NEW_DATA, paginator: this) => unknown): Paginator2<NEW_DATA>
+	orElse (initialiser: (slot: Slot, paginator: this) => unknown): this
 }
 
 interface Paginator2<DATA = any> extends Block, PaginatorExtensions<DATA> { }
@@ -21,9 +22,12 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 
 	block.style.bind(isFlush, 'paginator--flush')
 
-	block.header
-		.style('paginator-header')
-		.style.bind(isFlush, 'paginator-header--flush')
+	block.tweakJIT('header', header => {
+		header.style('paginator-header')
+			.style.bind(isFlush, 'paginator-header--flush')
+
+		block.content.style('paginator-content--has-header')
+	})
 
 	const content = block.content
 		.style('paginator-content')
@@ -96,6 +100,7 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 		.appendTo(block.footer.right)
 
 	let initialiser: ((slot: Slot, data: T, paginator: Paginator2<T>) => unknown) | undefined
+	let orElseInitialiser: ((slot: Slot, paginator: Paginator2<T>) => unknown) | undefined
 
 	const paginator = block
 		.viewTransition('paginator')
@@ -107,6 +112,10 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 				initialiser = initialiserIn as never
 				allData.value = data
 				return this as never
+			},
+			orElse (initialiser) {
+				orElseInitialiser = initialiser
+				return this
 			},
 		}))
 
@@ -147,6 +156,20 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 					pages[previousPageNumber]?.style('paginator-page--bounce')
 					await Async.sleep(200)
 					cursor.value = previousPageNumber
+				}
+				else {
+					const isTotallyEmpty = false
+						|| data.pageCount.value === 0
+						|| data.pages.every(page => false
+							|| page.value === false
+							|| page.value === null
+							|| (Array.isArray(page.value) && !page.value.length)
+						)
+					if (isTotallyEmpty) {
+						orElseInitialiser?.(newPage, paginator)
+						newPage.style.remove('paginator-page--hidden')
+						return
+					}
 				}
 			})
 

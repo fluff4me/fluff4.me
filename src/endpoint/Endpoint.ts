@@ -61,6 +61,7 @@ interface Endpoint<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>
 	noResponse (): this
 	query: QUERY
 	prep: (...parameters: Parameters<QUERY>) => ConfigurablePreparedEndpointQuery<ROUTE, QUERY>
+	getPageSize?(): number | undefined
 }
 
 interface ConfigurablePreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>> extends PreparedEndpointQuery<ROUTE, QUERY> {

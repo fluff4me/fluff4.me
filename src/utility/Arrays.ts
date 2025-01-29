@@ -62,6 +62,9 @@ declare global {
 		distinct (): this
 		distinct (mapper: (value: T) => unknown): this
 
+		distinctInPlace (): this
+		distinctInPlace (mapper: (value: T) => unknown): this
+
 		findMap<FILTER extends T, RETURN> (predicate: (value: T, index: number, obj: T[]) => value is FILTER, mapper: (value: FILTER, index: number, obj: T[]) => RETURN): RETURN | undefined
 		findMap<RETURN> (predicate: (value: T, index: number, obj: T[]) => boolean, mapper: (value: T, index: number, obj: T[]) => RETURN): RETURN | undefined
 
@@ -341,6 +344,23 @@ namespace Arrays {
 			}
 
 			return result
+		})
+
+		Define(Array.prototype, 'distinctInPlace', function <T, D> (this: T[], mapper?: (value: T) => D) {
+			const encountered: (T | D)[] = []
+
+			let insertionPosition = 0
+			for (const value of this) {
+				const encounterValue = mapper ? mapper(value) : value
+				if (encountered.includes(encounterValue))
+					continue
+
+				encountered.push(encounterValue)
+				this[insertionPosition++] = value
+			}
+
+			this.length = insertionPosition
+			return this
 		})
 
 		Define(Array.prototype, 'findMap', function (predicate, mapper) {

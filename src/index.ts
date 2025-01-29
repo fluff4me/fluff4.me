@@ -15,6 +15,7 @@ Object.assign(window, {
 // @ts-expect-error no types
 import sourceMapSupport from 'browser-source-map-support'
 import Env from 'utility/Env'
+import Maps from 'utility/Maps'
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 sourceMapSupport.install({
 	environment: 'browser',
@@ -35,6 +36,7 @@ document.startViewTransition ??= cb => {
 
 applyDOMRectPrototypes()
 Arrays.applyPrototypes()
+Maps.applyPrototypes()
 Elements.applyPrototypes()
 
 void (async () => {
