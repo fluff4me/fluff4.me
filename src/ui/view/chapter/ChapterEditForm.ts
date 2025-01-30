@@ -14,6 +14,8 @@ import RadioRow from 'ui/component/core/RadioRow'
 import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
+import type { TagsState } from 'ui/component/TagsEditor'
+import TagsEditor from 'ui/component/TagsEditor'
 import type State from 'utility/State'
 
 export default Component.Builder((component, state: State.Mutable<Chapter | undefined>, workParams: WorkParams) => {
@@ -40,11 +42,34 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 	table.label(label => label.text.use('view/chapter-edit/shared/form/name/label'))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
+	const tagsEditor = TagsEditor()
+		.default.bind(state as State<TagsState>)
+		.setMaxLengthGlobal(FormInputLengths.value?.work_tags.global)
+		.setMaxLengthCustom(FormInputLengths.value?.work_tags.custom)
+	table.label(label => label.text.use('view/chapter-edit/shared/form/tags/label'))
+		.content((content, label) => content.append(tagsEditor.setLabel(label)))
+
+	const notesBeforeInput = TextEditor()
+		.default.bind(state.map(component, chapter => chapter?.notes_before ?? undefined))
+		.hint.use('view/chapter-edit/shared/form/notes/hint')
+		.setMaxLength(FormInputLengths.value?.chapter.notes)
+		.setMinimalByDefault()
+	table.label(label => label.text.use('view/chapter-edit/shared/form/notes/label'))
+		.content((content, label) => content.append(notesBeforeInput.setLabel(label)))
+
 	const bodyInput = TextEditor()
 		.default.bind(state.map(component, chapter => chapter?.body ?? undefined))
 		.hint.use('view/chapter-edit/shared/form/body/hint')
 	table.label(label => label.text.use('view/chapter-edit/shared/form/body/label'))
 		.content((content, label) => content.append(bodyInput.setLabel(label)))
+
+	const notesAfterInput = TextEditor()
+		.default.bind(state.map(component, chapter => chapter?.notes_after ?? undefined))
+		.hint.use('view/chapter-edit/shared/form/notes/hint')
+		.setMaxLength(FormInputLengths.value?.chapter.notes)
+		.setMinimalByDefault()
+	table.label(label => label.text.use('view/chapter-edit/shared/form/notes/label'))
+		.content((content, label) => content.append(notesAfterInput.setLabel(label)))
 
 	type Visibility = ChapterLite['visibility']
 	const VisibilityRadioInitialiser = (radio: RadioButton, id: Visibility) => radio
@@ -69,7 +94,10 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 						params: workParams,
 						body: {
 							name: nameInput.value,
+							...tagsEditor.state.value,
 							body: bodyInput.useMarkdown(),
+							notes_before: notesBeforeInput.useMarkdown(),
+							notes_after: notesAfterInput.useMarkdown(),
 							visibility: visibility.selection.value ?? 'Private',
 						},
 					})
@@ -89,7 +117,10 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 						},
 						body: {
 							name: nameInput.value,
+							...tagsEditor.state.value,
 							body: bodyInput.useMarkdown(),
+							notes_before: notesBeforeInput.useMarkdown(),
+							notes_after: notesAfterInput.useMarkdown(),
 							visibility: visibility.selection.value ?? 'Private',
 						},
 					})

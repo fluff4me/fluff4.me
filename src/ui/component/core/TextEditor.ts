@@ -800,6 +800,7 @@ interface TextEditorExtensions {
 	document?: Input
 	mirror?: EditorView
 	useMarkdown (): string
+	setMinimalByDefault (minimal?: boolean): this
 }
 
 interface TextEditor extends Input, TextEditorExtensions { }
@@ -811,6 +812,9 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	const isMarkdown = State<boolean>(false)
 	const content = State<string>('')
 	const isFullscreen = State<boolean>(false)
+
+	const minimal = State<boolean>(false)
+	const isMinimal = State.MapManual([minimal, content], (minimal, content) => minimal && !content.trim())
 
 	// eslint-disable-next-line prefer-const
 	let editor!: TextEditor
@@ -1084,6 +1088,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	const toolbar = Component()
 		.style('text-editor-toolbar')
 		.style.bind(isFullscreen, 'text-editor-toolbar--fullscreen')
+		.style.bind(isMinimal, 'text-editor-toolbar--minimal')
 		.ariaRole('toolbar')
 		.append(Component()
 			.style('text-editor-toolbar-left')
@@ -1220,6 +1225,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	editor = component
 		.and(Slot)
 		.and(Input)
+		.style.bind(isMinimal, 'text-editor--minimal')
 		.append(actualEditor)
 		.pipeValidity(hiddenInput)
 		.extend<TextEditorExtensions & Partial<InputExtensions>>(editor => ({
@@ -1247,6 +1253,10 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			useMarkdown: () => {
 				clearLocal()
 				return !state.value ? '' : markdownSerializer.serialize(state.value?.doc)
+			},
+			setMinimalByDefault (value = true) {
+				minimal.value = value
+				return editor
 			},
 		}))
 
