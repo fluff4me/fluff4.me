@@ -193,6 +193,7 @@ state/private: Private
 action/label/love=shared/action/love
 action/label/edit=shared/action/edit
 action/label/delete=shared/action/delete
+tags/label: This chapter contains:
 
 # notification
 comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}

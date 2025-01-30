@@ -3,7 +3,7 @@ import Component from 'ui/Component'
 import Markdown from 'utility/string/Markdown'
 
 interface MarkdownContentExtensions {
-	setMarkdownContent (markdown: TextBody | string, maxLength?: number): this
+	setMarkdownContent (markdown?: TextBody | string | null, maxLength?: number): this
 }
 
 declare module 'ui/Component' {
@@ -47,6 +47,11 @@ type MarkdownContext = Omit<TextBody, 'body'>
 const MENTION_OPEN_TAG_REGEX = /(?<=<mention[^>]*>)/g
 Component.extend(component => component.extend<MarkdownContentExtensions>(component => ({
 	setMarkdownContent (markdown, maxLength) {
+		if (!markdown) {
+			component.element.innerHTML = ''
+			return component
+		}
+
 		if (typeof markdown === 'string')
 			markdown = { body: markdown }
 
