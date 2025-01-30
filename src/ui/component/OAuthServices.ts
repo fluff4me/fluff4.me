@@ -51,6 +51,7 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 				.bindDisabled(State
 					.Use(component, { authorisations: Session.Auth.authorisations, author: Session.Auth.author })
 					.map(component, ({ authorisations, author }) => true
+						&& !reauthDangerToken
 						&& !!author
 						&& authorisations.length === 1
 						&& authorisations[0].service === service.name
