@@ -23,7 +23,7 @@ function Navigator (app: App): Navigator {
 	const navigate = {
 		isURL: (glob: string) => {
 			const pattern = glob
-				.replace(/\/\*(?!\*)/g, '[^/]*')
+				.replace(/(?<=\/)\*(?!\*)/g, '[^/]*')
 				.replace(/\/\*\*/g, '.*')
 			return new RegExp(`^${pattern}$`).test(location.pathname)
 		},

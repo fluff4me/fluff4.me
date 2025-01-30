@@ -1,4 +1,5 @@
 import type { Author, ChapterLite, Work } from 'api.fluff4.me'
+import Chapters from 'model/Chapters'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
@@ -21,7 +22,7 @@ function initActions (into: Component, chapter: ChapterLite, work: Work, author?
 				.type('flush')
 				.setIcon('trash')
 				.text.use('chapter/action/label/delete')
-				.event.subscribe('click', () => { })
+				.event.subscribe('click', () => Chapters.delete(chapter))
 				.appendTo(into)
 		}
 	})
