@@ -10,7 +10,7 @@ export type EventHandler<HOST, EVENTS, EVENT extends keyof EVENTS> = (...params:
 
 type ResolveEvent<EVENT extends Arrays.Or<PropertyKey>> = EVENT extends PropertyKey[] ? EVENT[number] : EVENT
 
-interface EventManipulator<HOST, EVENTS> {
+interface EventManipulator<HOST, EVENTS extends Record<string, any>> {
 	emit<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean, stoppedPropagation: boolean | 'immediate' }
 	bubble<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean, stoppedPropagation: boolean | 'immediate' }
 	subscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
@@ -20,15 +20,24 @@ interface EventManipulator<HOST, EVENTS> {
 
 export type NativeEvents = { [KEY in keyof HTMLElementEventMap]: (event: KEY extends 'toggle' ? ToggleEvent : HTMLElementEventMap[KEY]) => unknown }
 
-export type Events<HOST, EXTENSIONS> = HOST extends { event: EventManipulator<any, infer EVENTS> }
-	? {
-		[KEY in keyof EVENTS | keyof EXTENSIONS]:
-		| KEY extends keyof EVENTS ?
-		| KEY extends keyof EXTENSIONS ? EVENTS[KEY] & EXTENSIONS[KEY]
-		: EVENTS[KEY]
-		: KEY extends keyof EXTENSIONS ? EXTENSIONS[KEY]
-		: never
-	}
+export type Events<HOST, EXTENSIONS extends Record<string, any>> =
+	HOST extends { event: EventManipulator<any, infer EVENTS> }
+	? (
+		keyof EXTENSIONS extends never
+		? EVENTS
+		: (
+			Lowercase<keyof EXTENSIONS & string> extends keyof EXTENSIONS
+			? 'Custom events contain at least one uppercase letter'
+			: {
+				[KEY in keyof EVENTS | keyof EXTENSIONS]:
+				| KEY extends keyof EVENTS ?
+				| KEY extends keyof EXTENSIONS ? EVENTS[KEY] & EXTENSIONS[KEY]
+				: EVENTS[KEY]
+				: KEY extends keyof EXTENSIONS ? EXTENSIONS[KEY]
+				: never
+			}
+		)
+	)
 	: never
 
 interface EventDetail {

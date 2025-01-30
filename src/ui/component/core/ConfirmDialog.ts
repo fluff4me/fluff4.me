@@ -52,7 +52,7 @@ const ConfirmDialog = Object.assign(
 
 			const authServices = await OAuthServices(Session.Auth.state, definition.dangerToken)
 			authServices
-				.event.subscribe('dangerTokenGranted', () => confirmButton.setDisabled(false, 'danger-token'))
+				.event.subscribe('DangerTokenGranted', () => confirmButton.setDisabled(false, 'danger-token'))
 				.appendTo(dialog.content)
 		}
 
