@@ -16,6 +16,7 @@ const manifest = Manifest<FollowsManifest>({
 	valid: Time.minutes(5),
 	refresh: true,
 	cacheId: 'follows',
+	requiresAuthor: true,
 	get () {
 		return EndpointFollowGetManifest.query()
 	},

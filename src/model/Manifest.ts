@@ -1,4 +1,5 @@
 import type { ErrorResponse, Response } from 'api.fluff4.me'
+import Session from 'model/Session'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Time from 'utility/Time'
@@ -7,6 +8,7 @@ interface ManifestDefinition<T> {
 	valid: number
 	refresh?: true
 	cacheId?: string
+	requiresAuthor?: true
 	get (): Promise<Response<T> | ErrorResponse<Response<T>>>
 	orElse?(): T
 }
@@ -33,6 +35,9 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 				// don't re-request the tag manifest if it was requested less than 5 minutes ago
 				if (!force && result.isFresh(state.value))
 					return state.value
+
+				if (definition.requiresAuthor && !Session.Auth.loggedIn.value)
+					return undefined!
 
 				return promise ??= (async () => {
 					try {
