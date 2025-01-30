@@ -121,7 +121,11 @@ namespace Notifications {
 
 		unreadCount.value += read ? -modifiedCount : modifiedCount
 
-		Store.items.notifications = { ...Store.items.notifications, cache: simpleCache }
+		Store.items.notifications = {
+			...Store.items.notifications,
+			cache: simpleCache,
+			unreadCount: unreadCount.value,
+		}
 		for (const page of cache.pages)
 			if (Array.isArray(page.value) && page.value.some(n => ids.includes(n.id)))
 				page.emit()
