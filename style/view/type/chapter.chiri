@@ -20,19 +20,6 @@
 			#after: .paginator-content, .paginator-content--has-header
 			%padding-top-0
 
-		&-tags:
-			%block
-			%unmargin-top-3
-
-			&-title:
-				%block
-				%uppercase
-				%margin-bottom-1
-				%font-0
-				%bold
-				%colour-6
-				letter-spacing: .05em
-
 		&-notes:
 			%padding-3
 			%padding-top-0
@@ -45,6 +32,24 @@
 
 			&-after:
 				%margin-bottom-3
+
+			&-label:
+				%block
+				%uppercase
+				%unmargin-bottom-2
+				%margin-top-2
+				%font-0
+				%bold
+				%colour-6
+				letter-spacing: .05em
+
+		&-tags:
+			%block
+			%unmargin-top-3
+
+			&-title:
+				#after: .view-type-chapter-block-notes-label
+				%margin-bottom-2
 
 		&-body:
 			%padding-top-3
