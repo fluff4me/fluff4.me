@@ -21,9 +21,9 @@ declare module 'utility/Store' {
 
 namespace Session {
 
-	const clearedWithSessionChange: (keyof ILocalStorage)[] = []
-	export function setClearedWithSessionChange (...keys: (keyof ILocalStorage)[]) {
-		clearedWithSessionChange.push(...keys)
+	const clearedWithSessionChange: (keyof ILocalStorage | (() => unknown))[] = []
+	export function setClearedWithSessionChange (...cleared: (keyof ILocalStorage | (() => unknown))[]) {
+		clearedWithSessionChange.push(...cleared)
 	}
 
 	export async function refresh () {
@@ -33,8 +33,11 @@ namespace Session {
 			Store.items.stateToken = stateToken
 
 		if (Store.items.session?.created !== session.data?.created)
-			for (const key of clearedWithSessionChange)
-				Store.delete(key)
+			for (const keyOrHandler of clearedWithSessionChange)
+				if (typeof keyOrHandler === 'function')
+					keyOrHandler()
+				else
+					Store.delete(keyOrHandler)
 
 		Store.items.session = session?.data ?? undefined
 		updateState()

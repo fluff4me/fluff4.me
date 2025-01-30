@@ -29,6 +29,18 @@ declare module 'utility/Store' {
 
 namespace Notifications {
 
+	Session.setClearedWithSessionChange('notifications', () => {
+		cache.clear()
+		simpleCache = []
+		authors.value = []
+		works.value = []
+		chapters.value = []
+		comments.value = []
+		hasMore.value = false
+		unreadCount.value = 0
+		lastUpdate.value = 0
+	})
+
 	let simpleCache = Store.items.notifications?.cache ?? []
 	const pageSize = 25
 	export const cache = PagedListData(pageSize, {
