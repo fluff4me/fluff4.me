@@ -62,15 +62,17 @@ export default ViewDefinition({
 			.withContent((slot, chapter, paginator) => {
 				paginator.setURL(`/work/${params.author}/${params.vanity}/chapter/${chapter.url}`)
 
-				if (chapter.notes_before)
+				if (chapter.notes_before || chapter.global_tags?.length || chapter.custom_tags?.length)
 					Component()
-						.style('view-type-chapter-block-notes')
+						.style('view-type-chapter-block-notes', 'view-type-chapter-block-notes-before')
 						.setMarkdownContent(TextBody.resolve(chapter.notes_before, chapter.mentions))
+						.append((chapter.global_tags?.length || chapter.custom_tags?.length) && Component()
+							.style('view-type-chapter-block-tags-title')
+							.text.use('chapter/tags/label'))
+						.append(Tags()
+							.set(chapter as TagsState)
+							.style('view-type-chapter-block-tags'))
 						.appendTo(slot)
-
-				Tags()
-					.set(chapter as TagsState)
-					.appendTo(slot)
 
 				Component()
 					.style('view-type-chapter-block-body')
@@ -79,7 +81,7 @@ export default ViewDefinition({
 
 				if (chapter.notes_after)
 					Component()
-						.style('view-type-chapter-block-notes')
+						.style('view-type-chapter-block-notes', 'view-type-chapter-block-notes-after')
 						.setMarkdownContent(TextBody.resolve(chapter.notes_after, chapter.mentions))
 						.appendTo(slot)
 			})

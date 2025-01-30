@@ -10,6 +10,7 @@
 			%box-shadow-none
 			%relative
 			%padding-inline-0
+			%margin-bottom-3
 
 			@before:
 				%background-none
@@ -19,7 +20,31 @@
 			#after: .paginator-content, .paginator-content--has-header
 			%padding-top-0
 
+		&-tags:
+			%block
+			%unmargin-top-3
+
+			&-title:
+				%block
+				%uppercase
+				%margin-bottom-1
+				%font-0
+				%bold
+				%colour-6
+				letter-spacing: .05em
+
 		&-notes:
+			%padding-3
+			%padding-top-0
+			border-left: .3em solid $border-colour
+			$border-colour: $background-3
+			%background-2
+
+			&-before:
+				%margin-top-2
+
+			&-after:
+				%margin-bottom-3
 
 		&-body:
 			%padding-top-3
@@ -27,4 +52,6 @@
 			$paginator-page-display: block
 
 		&-paginator-actions:
+			#after: .paginator-footer--hidden
+			%flex
 			%padding-inline-0

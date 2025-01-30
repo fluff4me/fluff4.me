@@ -44,6 +44,7 @@
 			%font-0
 			%bold
 			%colour-6
+			letter-spacing: .05em
 
 		&-type:
 			%flex
