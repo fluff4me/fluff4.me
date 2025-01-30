@@ -25,6 +25,7 @@
 
 	&-container:
 		%block
+		%width-auto
 
 		&--reauth-list:
 			#after: .block
