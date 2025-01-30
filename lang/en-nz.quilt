@@ -41,6 +41,7 @@ name/label: Name
 vanity/label: Vanity
 description/label: Description
 body/label: Body
+notes/label: Notes
 tags/label: Tags
 tags/placeholder: Type to filter tag suggestions...
 tags/suggestion/add-as-custom: Add custom tag:
@@ -329,8 +330,11 @@ toast/saved=shared/toast/saved | chapter
 #### form
 name/label=shared/form/name/label
 name/hint: The name of this chapter. This does not have to be unique.
+tags/label=shared/form/tags/label
 body/label=shared/form/body/label
 body/hint: The content of this chapter. There is no specific character count limit, but if your chapter exceeds 1MB it will be rejected. You will probably never run into this.
+notes/label=shared/form/notes/label
+notes/hint: Optional additional text to display alongside the chapter.
 visibility/label=shared/form/visibility/label
 visibility/public=shared/form/visibility/public
 visibility/private=shared/form/visibility/private

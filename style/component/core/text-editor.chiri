@@ -14,6 +14,11 @@
 		outline: -webkit-focus-ring-color auto 1px
 		outline-offset: 1px
 
+	&--minimal:
+		#after: .markdown
+		&& p:
+			%margin-0
+
 	&-validity-pipe-input:
 		%absolute
 		%inset-0
@@ -37,6 +42,10 @@
 
 		&--fullscreen:
 			padding-inline: $fullscreen-padding-inline
+
+		&--minimal:
+			#after: .text-editor-toolbar
+			%hidden
 
 		&-left:
 			%block

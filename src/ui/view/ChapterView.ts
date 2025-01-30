@@ -6,12 +6,16 @@ import EndpointReactChapter from 'endpoint/reaction/EndpointReactChapter'
 import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import quilt from 'lang/en-nz'
+import TextBody from 'model/TextBody'
+import Component from 'ui/Component'
 import Chapter from 'ui/component/Chapter'
 import Comments from 'ui/component/Comments'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
 import Slot from 'ui/component/core/Slot'
 import Reaction from 'ui/component/Reaction'
+import Tags from 'ui/component/Tags'
+import type { TagsState } from 'ui/component/TagsEditor'
 import Work from 'ui/component/Work'
 import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
@@ -57,12 +61,31 @@ export default ViewDefinition({
 			.thenUse(chaptersQuery)
 			.withContent((slot, chapter, paginator) => {
 				paginator.setURL(`/work/${params.author}/${params.vanity}/chapter/${chapter.url}`)
-				slot
+
+				if (chapter.notes_before)
+					Component()
+						.style('view-type-chapter-block-notes')
+						.setMarkdownContent(TextBody.resolve(chapter.notes_before, chapter.mentions))
+						.appendTo(slot)
+
+				Tags()
+					.set(chapter as TagsState)
+					.appendTo(slot)
+
+				Component()
 					.style('view-type-chapter-block-body')
 					.setMarkdownContent(chapter.body ?? '')
+					.appendTo(slot)
+
+				if (chapter.notes_after)
+					Component()
+						.style('view-type-chapter-block-notes')
+						.setMarkdownContent(TextBody.resolve(chapter.notes_after, chapter.mentions))
+						.appendTo(slot)
 			})
 
 		paginator.header.style('view-type-chapter-block-header')
+		paginator.content.style('view-type-chapter-block-content')
 		paginator.footer.style('view-type-chapter-block-paginator-actions')
 
 		paginator.setActionsMenu(popover => Chapter.initActions(popover, chapterState.value, workData, author))

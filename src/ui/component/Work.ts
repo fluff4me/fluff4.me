@@ -3,7 +3,6 @@ import quilt from 'lang/en-nz'
 import Follows from 'model/Follows'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
-import Tags from 'model/Tags'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
@@ -11,8 +10,8 @@ import Link from 'ui/component/core/Link'
 import Slot from 'ui/component/core/Slot'
 import TextLabel from 'ui/component/core/TextLabel'
 import Timestamp from 'ui/component/core/Timestamp'
-import Tag from 'ui/component/Tag'
-import AbortPromise from 'utility/AbortPromise'
+import Tags from 'ui/component/Tags'
+import type { TagsState } from 'ui/component/TagsEditor'
 
 interface WorkExtensions {
 	work: WorkData
@@ -82,21 +81,13 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 		})
 		.appendTo(block.content)
 
-	Slot()
-		.use(work.global_tags, AbortPromise.asyncFunction(async (signal, slot, tagStrings) => {
-			const tags = await Tags.resolve(tagStrings)
-			return tags?.length && Component()
-				.style('work-tags', 'work-tags-global')
-				.style.bind(isFlush, 'work-tags--flush')
-				.append(...tags.map(tag => Tag(tag)))
-		}))
-		.appendTo(block.content)
-
-	Slot()
-		.use(work.custom_tags, (slot, customTags) => customTags?.length && Component()
-			.style('work-tags', 'work-tags-custom')
-			.style.bind(isFlush, 'work-tags--flush')
-			.append(...customTags.map(tag => Tag(tag))))
+	Tags()
+		.set(work as TagsState, {
+			initialiseGlobalTags: component => component
+				.style.bind(isFlush, 'work-tags--flush'),
+			initialiseCustomTags: component => component
+				.style.bind(isFlush, 'work-tags--flush'),
+		})
 		.appendTo(block.content)
 
 	TextLabel()
