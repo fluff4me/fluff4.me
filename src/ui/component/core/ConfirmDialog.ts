@@ -12,7 +12,7 @@ interface ConfirmDialogExtensions {
 	readonly state: State<boolean | undefined>
 	readonly cancelButton: Button
 	readonly confirmButton: Button
-	await (owner: Component): Promise<boolean>
+	await (owner: Component | null): Promise<boolean>
 	cancel (): void
 	confirm (): void
 }
@@ -64,7 +64,10 @@ const ConfirmDialog = Object.assign(
 				await (owner) {
 					state.value = undefined
 					dialog.open()
-					return new Promise<boolean>(resolve => dialog.state.await(owner, [true, false], resolve))
+					return new Promise<boolean>(resolve => owner
+						? dialog.state.await(owner, [true, false], resolve)
+						: dialog.state.awaitManual([true, false], resolve)
+					)
 				},
 				cancel () {
 					state.value = false
@@ -81,7 +84,7 @@ const ConfirmDialog = Object.assign(
 			})
 	}),
 	{
-		prompt: async (owner: Component, definition?: ConfirmDialogDefinition): Promise<boolean> =>
+		prompt: async (owner: Component | null, definition?: ConfirmDialogDefinition): Promise<boolean> =>
 			(await ConfirmDialog(definition))
 				.appendTo(document.body)
 				.event.subscribe('close', event =>

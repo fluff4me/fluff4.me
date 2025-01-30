@@ -41,7 +41,7 @@ interface State<T, E = T> {
 	unsubscribe (subscriber: (value: E, oldValue?: E) => unknown): void
 	emit (oldValue?: E): void
 	await<R extends Arrays.Or<T>> (owner: Owner, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
-	awaitManual<R extends Arrays.Or<T>> (value: Arrays.Or<T>, then: (value: R extends (infer R)[] ? R : R) => unknown): this
+	awaitManual<R extends Arrays.Or<T>> (value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
 
 	map<R> (owner: Owner, mapper: (value: T) => StateOr<R>): State.Generator<R>
 	mapManual<R> (mapper: (value: T) => StateOr<R>): State.Generator<R>

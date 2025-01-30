@@ -1,9 +1,8 @@
 import type { WorkFull } from 'api.fluff4.me'
-import EndpointWorkDelete from 'endpoint/work/EndpointWorkDelete'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
+import Works from 'model/Works'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
-import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import Slot from 'ui/component/core/Slot'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
@@ -55,20 +54,7 @@ export default ViewDefinition({
 				.tweak(row => row.right
 					.append(Button()
 						.text.use('view/work-edit/update/action/delete')
-						.event.subscribe('click', async () => {
-							if (!params)
-								return
-
-							const result = await ConfirmDialog.prompt(view, { dangerToken: 'delete-work' })
-							if (!result)
-								return
-
-							const response = await EndpointWorkDelete.query({ params })
-							if (toast.handleError(response))
-								return
-
-							return navigate.toURL(`/author/${params.author}`)
-						})))
+						.event.subscribe('click', async () => Works.delete(params, view))))
 		}
 	},
 })
