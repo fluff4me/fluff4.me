@@ -10,6 +10,7 @@ declare global {
 }
 
 interface Navigator {
+	isURL (glob: string): boolean
 	fromURL (): Promise<void>
 	toURL (route: RoutePath): Promise<void>
 	setURL (route: RoutePath): void
@@ -20,6 +21,12 @@ interface Navigator {
 function Navigator (app: App): Navigator {
 	let lastURL: URL | undefined
 	const navigate = {
+		isURL: (glob: string) => {
+			const pattern = glob
+				.replace(/\/\*(?!\*)/g, '[^/]*')
+				.replace(/\/\*\*/g, '.*')
+			return new RegExp(`^${pattern}$`).test(location.pathname)
+		},
 		fromURL: async () => {
 			if (location.href === lastURL?.href)
 				return

@@ -3,6 +3,7 @@ import quilt from 'lang/en-nz'
 import Follows from 'model/Follows'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
+import Works from 'model/Works'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
@@ -115,7 +116,7 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 				.type('flush')
 				.setIcon('trash')
 				.text.use('work/action/label/delete')
-				.event.subscribe('click', () => { })
+				.event.subscribe('click', () => Works.delete(work, popover))
 				.appendTo(popover)
 		}
 		else if (Session.Auth.loggedIn.value) {
