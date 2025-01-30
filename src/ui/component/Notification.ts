@@ -73,15 +73,7 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 		.event.subscribe('click', async event => {
 			event.preventDefault()
 			event.stopImmediatePropagation()
-
-			if (!await Notifications.markRead(!read.value, data.id))
-				return
-
-			read.value = !read.value
-			if (!read.value) {
-				justMarkedUnread.value = true
-				readButton.hoveredOrFocused.await(component, false, () => justMarkedUnread.value = false)
-			}
+			await toggleRead()
 		})
 		.appendTo(notification)
 
@@ -105,12 +97,24 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 
 		if (chapter)
 			notification.and(Link, `/work/${chapter.author}/${chapter.work}/chapter/${chapter.url}`)
+				.event.subscribe('Navigate', toggleRead)
 	}
 
 	return notification
 		.extend<NotificationChildrenExtensions>(notification => ({
 			readButton,
 		}))
+
+	async function toggleRead () {
+		if (!await Notifications.markRead(!read.value, data.id))
+			return
+
+		read.value = !read.value
+		if (!read.value) {
+			justMarkedUnread.value = true
+			readButton.hoveredOrFocused.await(component, false, () => justMarkedUnread.value = false)
+		}
+	}
 })
 
 export default Notification

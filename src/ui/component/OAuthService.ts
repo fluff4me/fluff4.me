@@ -8,7 +8,7 @@ import type { Events } from 'ui/utility/EventManipulator'
 import State from 'utility/State'
 
 export interface OAuthServiceEvents {
-	dangerTokenGranted (dangerToken: DangerTokenType): any
+	DangerTokenGranted (dangerToken: DangerTokenType): any
 }
 
 interface OAuthServiceExtensions {
@@ -81,7 +81,7 @@ const OAuthService = Component.Builder((component, service: AuthService, reauthD
 
 				const granted = await Session.Auth.requestDangerToken(reauthDangerToken, service)
 				if (granted)
-					button.event.bubble('dangerTokenGranted', reauthDangerToken)
+					button.event.bubble('DangerTokenGranted', reauthDangerToken)
 				else;
 				// TODO show notification
 				return
