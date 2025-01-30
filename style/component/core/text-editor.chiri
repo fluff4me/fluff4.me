@@ -76,11 +76,10 @@
 			#after: .button
 			%box-shadow-none
 			%relative
-			%font-inherit
 			; %border-box
 			%text-align-centre
 			%vertical-align-middle
-			%font-1
+			%font-2
 			padding: #{size} #{size}
 			background: $button-background
 			$button-background: transparent
