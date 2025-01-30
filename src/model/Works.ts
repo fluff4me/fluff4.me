@@ -28,7 +28,7 @@ export default Object.assign(
 			if (toast.handleError(response))
 				return false
 
-			if (navigate.isURL('/work/**'))
+			if (navigate.isURL(`/work/${work.author}/${work.vanity}/**`))
 				void navigate.toURL(`/author/${work.author}`)
 
 			return true
