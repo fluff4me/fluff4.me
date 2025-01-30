@@ -15,6 +15,7 @@ profile: Profile
 chapters: Chapters
 settings: Settings
 account-settings: Account Settings
+notes: Notes
 
 ## action
 login-or-signup: Log In or Sign Up
@@ -41,7 +42,7 @@ name/label: Name
 vanity/label: Vanity
 description/label: Description
 body/label: Body
-notes/label: Notes
+notes/label=shared/term/notes
 tags/label: Tags
 tags/placeholder: Type to filter tag suggestions...
 tags/suggestion/add-as-custom: Add custom tag:
@@ -194,6 +195,7 @@ action/label/love=shared/action/love
 action/label/edit=shared/action/edit
 action/label/delete=shared/action/delete
 tags/label: This chapter contains:
+notes/label=shared/term/notes
 
 # notification
 comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}
