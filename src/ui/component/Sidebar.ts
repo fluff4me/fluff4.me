@@ -81,9 +81,11 @@ const Sidebar = Component.Builder('nav', (sidebar): Sidebar => {
 					.text.use(translation)
 					.override('setIcon', (button, original) => icon => original(icon)
 						.tweak(button => button.icon?.style('sidebar-link-icon')))
-					.tweak(initialiser)
 					.tweak(button => button
 						.style.bind(button.disabled, 'button--disabled', 'sidebar-link--disabled'))
+					.tweak(button => button
+						.textWrapper.style('sidebar-link-text'))
+					.tweak(initialiser)
 					.appendTo(addTo)
 				return addTo
 			}
