@@ -147,16 +147,17 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 						.style('action-group')
 						.style.remove('slot')
 						.use(Session.Auth.author, (slot, author) => {
-							if (!author) {
+							if (!author)
 								return
-							}
 
 							Link(`/author/${author.vanity}`)
 								.and(Button)
 								.type('flush')
 								.style('masthead-popover-link-button')
+								.tweak(button => button.textWrapper.style('masthead-popover-link-button-text'))
 								.setIcon('circle-user')
-								.text.use('masthead/user/profile/popover/profile')
+								.text.set(author.name)
+								.ariaLabel.use(quilt => quilt['masthead/user/profile/popover/profile'](author.name))
 								.appendTo(slot)
 
 							Link('/account')
