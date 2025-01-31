@@ -121,7 +121,10 @@ const Sidebar = Component.Builder('nav', (sidebar): Sidebar => {
 	Group('bottom', 'sidebar/section/profile')
 		.using(Session.Auth.author, (group, author) => {
 			if (author) group
-				.add(`/author/${author.vanity}`, 'sidebar/link/profile', button => button.setIcon('circle-user'))
+				.add(`/author/${author.vanity}`, Quilt.fake(author.name), button => button
+					.setIcon('circle-user')
+					.ariaLabel.use(quilt => quilt['sidebar/link/profile'](author.name))
+				)
 				.add('/account', 'sidebar/link/settings', button => button.setIcon('id-card'))
 			else group
 				.add('/account', 'sidebar/link/login', button => button.setIcon('circle-user'))

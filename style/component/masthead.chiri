@@ -139,3 +139,7 @@
 
 	&-popover-link-button:
 		%text-align-left
+
+		&-text:
+			%clamp-1
+			max-width: calc($space-5 * 4)
