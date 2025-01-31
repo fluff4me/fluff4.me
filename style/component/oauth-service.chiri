@@ -25,11 +25,11 @@
 
 	&-container:
 		%block
-		%width-auto
 
 		&--reauth-list:
 			#after: .block
 			%padding-0
+			%width-auto
 
 	&-list:
 		%flex
