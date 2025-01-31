@@ -75,6 +75,9 @@ Component.extend(component => component.extend<MarkdownContentExtensions>(compon
 		for (const change of queuedChanges)
 			change()
 
+		if (component.element.lastElementChild?.tagName.length === 2 && component.element.lastElementChild.tagName[0] === 'H')
+			Component('p').appendTo(component)
+
 		return component
 	},
 })))
