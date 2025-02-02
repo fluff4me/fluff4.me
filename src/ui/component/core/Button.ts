@@ -1,4 +1,5 @@
 import Component from 'ui/Component'
+import FontsListener from 'ui/utility/FontsListener'
 import type { ComponentNameType } from 'ui/utility/StyleManipulator'
 import type TextManipulator from 'ui/utility/TextManipulator'
 import TypeManipulator from 'ui/utility/TypeManipulator'
@@ -105,6 +106,7 @@ const Button = Component.Builder('button', (component): Button => {
 		button.icon ??= Component()
 			.style('button-icon')
 			.style.bind(hasSubtext, 'button-icon--has-subtext')
+			.style.bind(FontsListener.loaded.not, 'button-icon--no-icon')
 			.prependTo(button)
 
 		button.icon.style.bind(button.type.state.map(button.icon, types => types.has('icon')), 'button-icon--type-icon')

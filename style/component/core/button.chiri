@@ -130,6 +130,10 @@ $$button-background-highlight!colour
 			%font-inherit
 			%margin-0
 
+		&--no-icon:
+			#after: .button-icon
+			%hidden
+
 	#list!string icons = [
 		"plus
 		"ellipsis-vertical
