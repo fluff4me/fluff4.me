@@ -246,7 +246,7 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 
 export default Endpoint
 
-export type EndpointResponse<ENDPOINT extends Endpoint<any, any>> = Exclude<Awaited<ReturnType<ENDPOINT['query']>>, ErrorResponse<any> | void>
+export type EndpointResponse<ENDPOINT extends Endpoint<any, any> | PreparedQueryOf<Endpoint<any, any>>> = Exclude<Awaited<ReturnType<ENDPOINT['query']>>, ErrorResponse<any> | void>
 export type ResponseData<RESPONSE> = RESPONSE extends Response<infer DATA> ? DATA : never
 export type EndpointReturn<PATH extends keyof Paths> = () => ReturnType<Endpoint<PATH>['query']>
 

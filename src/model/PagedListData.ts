@@ -1,12 +1,12 @@
-import type { PaginatedEndpoint, PreparedPaginatedQueryReturning, PreparedQueryOf } from 'endpoint/Endpoint'
+import type { EndpointResponse, PaginatedEndpoint, PreparedPaginatedQueryReturning, PreparedQueryOf, ResponseData } from 'endpoint/Endpoint'
 import type { PagedDataDefinition } from 'model/PagedData'
 import PagedData from 'model/PagedData'
 import State from 'utility/State'
 import type { PartialMutable, PromiseOr } from 'utility/Type'
 
-interface PagedListData<T> extends PagedData<T[]> {
+interface PagedListData<T, AUX extends object = object> extends PagedData<T[] & AUX> {
 	readonly pageSize: number
-	resized (pageSize: number): PagedListData<T>
+	resized (pageSize: number): PagedListData<T, AUX>
 }
 
 const PagedListData = Object.assign(
@@ -22,6 +22,14 @@ const PagedListData = Object.assign(
 					const newList = PagedListData(resizePageSize, {
 						get: getPage,
 					})
+
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+					const aux = (list as any).aux as Record<string, State<any[]>> | undefined
+					if (aux) {
+						const mutableAux = newList as PagedListData<T> & Record<string, State<any[]>>
+						for (const [key, value] of Object.entries(aux))
+							mutableAux[key] = value
+					}
 
 					list.rawPages.subscribeManual(() => {
 						// go through current pages and update each from the source list
@@ -127,22 +135,62 @@ const PagedListData = Object.assign(
 		)
 	},
 	{
-		fromEndpoint<T> (pageSize: number, endpoint: PreparedPaginatedQueryReturning<T>): PagedListData<T> {
-			const e = endpoint as PreparedQueryOf<PaginatedEndpoint>
-			return PagedListData(pageSize, {
-				async get (page) {
-					const response = await e.query(undefined, { page })
-					if (toast.handleError(response))
-						return false
-
-					if (!Array.isArray(response.data) || response.data.length)
-						return response.data as T[]
-
-					return null
-				},
-			})
-		},
+		fromEndpoint,
 	}
 )
+
+interface EndpointResponseDismantledData<C, A> {
+	content: C[]
+	auxiliary: A
+}
+type EndpointResponseDataDismantler<T, C, A> = (data: T) => EndpointResponseDismantledData<C, A>
+
+function fromEndpoint<T> (pageSize: number, endpoint: PreparedPaginatedQueryReturning<T[]>): PagedListData<T>
+function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>, C, A> (pageSize: number, endpoint: ENDPOINT, dismantler: EndpointResponseDataDismantler<NoInfer<ResponseData<EndpointResponse<ENDPOINT>>>, C, A>): { [KEY in keyof A]: State<A[KEY] extends any[] ? A[KEY] : []> } extends infer AUX ? PagedListData<C> & AUX : never
+function fromEndpoint (pageSize: number, endpoint: PreparedPaginatedQueryReturning<any> | PreparedPaginatedQueryReturning<any[]>, dismantler?: EndpointResponseDataDismantler<any, any, Record<string, any>>): any {
+	const e = endpoint as PreparedQueryOf<PaginatedEndpoint>
+
+	const aux: Record<string, State<any[]>> = {}
+	const result = PagedListData(pageSize, {
+		async get (page) {
+			const response = await e.query(undefined, { page })
+			if (toast.handleError(response))
+				return false
+
+			if (dismantler) {
+				const { content, auxiliary } = dismantler(response.data)
+
+				for (const [key, value] of Object.entries(auxiliary)) {
+					if (value === content)
+						continue
+
+					const state = aux[key] ??= State<any[]>([])
+					const mutableContent = content as any[] & Record<string, State<any[]>>
+					mutableContent[key] ??= state
+					result[key] ??= state
+					Object.assign(result, { aux })
+
+					if (Array.isArray(value))
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+						state.value.push(...value)
+					else
+						state.value.push(value)
+					state.emit()
+				}
+
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+				return content
+			}
+
+			if (!Array.isArray(response.data) || response.data.length)
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+				return response.data as any[]
+
+			return null
+		},
+	}) as PagedListData<any> & Record<string, State<any[]>>
+
+	return result
+}
 
 export default PagedListData
