@@ -1,11 +1,12 @@
-import type { Work as WorkData, WorkFull } from 'api.fluff4.me'
-import type { ChapterParams } from 'endpoint/chapter/EndpointChapterGet'
+import type { ChapterReference, Work as WorkData, WorkFull } from 'api.fluff4.me'
 import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
+import EndpointHistoryAddChapter from 'endpoint/history/EndpointHistoryAddChapter'
 import EndpointReactChapter from 'endpoint/reaction/EndpointReactChapter'
 import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import quilt from 'lang/en-nz'
+import Chapters from 'model/Chapters'
 import TextBody from 'model/TextBody'
 import Component from 'ui/Component'
 import Chapter from 'ui/component/Chapter'
@@ -24,10 +25,10 @@ import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
 
 export default ViewDefinition({
-	create: async (params: ChapterParams) => {
+	create: async (params: ChapterReference) => {
 		const view = PaginatedView('chapter')
 
-		const response = await EndpointWorkGet.query({ params })
+		const response = await EndpointWorkGet.query({ params: Chapters.work(params) })
 		if (response instanceof Error)
 			throw response
 
@@ -60,7 +61,9 @@ export default ViewDefinition({
 			.useInitial(initialChapterResponse.data, initialChapterResponse.page, initialChapterResponse.page_count)
 			.thenUse(chaptersQuery)
 			.withContent((slot, chapter, paginator) => {
-				paginator.setURL(`/work/${params.author}/${params.vanity}/chapter/${chapter.url}`)
+				paginator.setURL(`/work/${params.author}/${params.work}/chapter/${chapter.url}`)
+
+				void EndpointHistoryAddChapter.query({ params })
 
 				if (chapter.notes_before || chapter.global_tags?.length || chapter.custom_tags?.length)
 					Component()
@@ -98,7 +101,7 @@ export default ViewDefinition({
 
 		paginator.setActionsMenu(popover => Chapter.initActions(popover, chapterState.value, workData, author))
 
-		Link(`/work/${params.author}/${params.vanity}`)
+		Link(`/work/${params.author}/${params.work}`)
 			.and(Button)
 			.type('flush')
 			.text.use('chapter/action/index')

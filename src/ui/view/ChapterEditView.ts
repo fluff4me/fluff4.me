@@ -1,7 +1,7 @@
-import type { Chapter } from 'api.fluff4.me'
+import type { Chapter, ChapterReference } from 'api.fluff4.me'
 import EndpointChapterDelete from 'endpoint/chapter/EndpointChapterDelete'
-import type { ChapterParams } from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
+import Chapters from 'model/Chapters'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
 import Slot from 'ui/component/core/Slot'
@@ -11,7 +11,7 @@ import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import ViewTransition from 'ui/view/shared/ext/ViewTransition'
 import State from 'utility/State'
 
-interface ChapterEditViewParams extends Omit<ChapterParams, 'url'> {
+interface ChapterEditViewParams extends Omit<ChapterReference, 'url'> {
 	url?: string
 }
 
@@ -26,14 +26,14 @@ export default ViewDefinition({
 			throw chapter
 
 		if (params && chapter)
-			view.breadcrumbs.setBackButton(`/work/${params.author}/${params.vanity}/chapter/${params.url}`,
+			view.breadcrumbs.setBackButton(`/work/${params.author}/${params.work}/chapter/${params.url}`,
 				button => button.subText.set(chapter.data.name))
 
 		const state = State<Chapter | undefined>(chapter?.data)
 		const stateInternal = State<Chapter | undefined>(chapter?.data)
 
 		Slot()
-			.use(state, () => ChapterEditForm(stateInternal, params).subviewTransition(id))
+			.use(state, () => ChapterEditForm(stateInternal, Chapters.work(params)).subviewTransition(id))
 			.appendTo(view.content)
 
 		Slot()
@@ -62,7 +62,7 @@ export default ViewDefinition({
 							if (toast.handleError(response))
 								return
 
-							await navigate.toURL(`/work/${params.author}/${params.vanity}`)
+							await navigate.toURL(`/work/${params.author}/${params.work}`)
 						})))
 		}
 	},

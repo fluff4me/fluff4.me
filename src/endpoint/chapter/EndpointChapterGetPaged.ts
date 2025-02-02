@@ -1,3 +1,3 @@
 import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint('/work/{author}/{vanity}/chapters/paged', 'get')
+export default Endpoint('/work/{author}/{work}/chapters/paged', 'get')

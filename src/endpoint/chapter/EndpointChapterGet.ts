@@ -1,8 +1,3 @@
 import Endpoint from 'endpoint/Endpoint'
-import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
 
-export interface ChapterParams extends WorkParams {
-	url: string
-}
-
-export default Endpoint('/work/{author}/{vanity}/chapter/{url}/get', 'get')
+export default Endpoint('/work/{author}/{work}/chapter/{url}/get', 'get')
