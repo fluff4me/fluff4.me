@@ -1,4 +1,4 @@
-import type { ChapterLite, ChapterReference } from 'api.fluff4.me'
+import type { ChapterLite, ChapterReference, WorkReference } from 'api.fluff4.me'
 import EndpointChapterDelete from 'endpoint/chapter/EndpointChapterDelete'
 import type Component from 'ui/Component'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
@@ -6,6 +6,12 @@ import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 namespace Chapters {
 	export function resolve (reference: ChapterReference | null | undefined, chapters: ChapterLite[]): ChapterLite | undefined {
 		return !reference ? undefined : chapters.find(chapter => chapter.author === reference.author && chapter.work === reference.work && chapter.url === reference.url)
+	}
+
+	export function work (reference: Omit<ChapterReference, 'url'>): WorkReference
+	export function work (reference: Omit<ChapterReference, 'url'> | null | undefined): WorkReference | undefined
+	export function work (reference: Omit<ChapterReference, 'url'> | null | undefined): WorkReference | undefined {
+		return !reference ? undefined : { author: reference.author, vanity: reference.work }
 	}
 }
 
@@ -20,7 +26,7 @@ export default Object.assign(
 			if (!result)
 				return false
 
-			const response = await EndpointChapterDelete.query({ params: { author: chapter.author, vanity: chapter.work, url: chapter.url } })
+			const response = await EndpointChapterDelete.query({ params: chapter })
 			if (toast.handleError(response))
 				return false
 

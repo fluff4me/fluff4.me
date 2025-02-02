@@ -30,9 +30,9 @@ const Routes = [
 	Route('/work/$author/$vanity', WorkView.navigate),
 	Route('/work/$author/$vanity/edit', WorkEditView.navigate),
 
-	Route('/work/$author/$vanity/chapter/new', ChapterEditView.navigate),
-	Route('/work/$author/$vanity/chapter/$url', ChapterView.navigate),
-	Route('/work/$author/$vanity/chapter/$url/edit', ChapterEditView.navigate),
+	Route('/work/$author/$work/chapter/new', ChapterEditView.navigate),
+	Route('/work/$author/$work/chapter/$url', ChapterView.navigate),
+	Route('/work/$author/$work/chapter/$url/edit', ChapterEditView.navigate),
 
 	Route('/tag/$category/$name', TagView.navigate),
 	Route('/tag/$custom_name', TagView.navigate),

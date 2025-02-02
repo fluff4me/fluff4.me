@@ -1,4 +1,5 @@
 import EndpointChapterGetAll from 'endpoint/chapter/EndpointChapterGetAll'
+import EndpointHistoryAddWork from 'endpoint/history/EndpointHistoryAddWork'
 import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import Session from 'model/Session'
@@ -19,6 +20,8 @@ export default ViewDefinition({
 		const response = await EndpointWorkGet.query({ params })
 		if (response instanceof Error)
 			throw response
+
+		void EndpointHistoryAddWork.query({ params })
 
 		const workData = response.data
 		const authorData = workData.synopsis.mentions.find(author => author.vanity === params.author)!

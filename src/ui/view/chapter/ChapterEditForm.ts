@@ -112,7 +112,8 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 
 					return EndpointChapterUpdate.query({
 						params: {
-							...workParams,
+							author: workParams.author,
+							work: workParams.vanity,
 							url: state.value.url,
 						},
 						body: {
