@@ -1,5 +1,5 @@
 #font-face family="Font Awesome":
-	font-display: optional
+	font-display: swap
 	font-style: normal
 	font-weight: 400
 	display: inline-block
@@ -8,7 +8,7 @@
 		url('../font/fa-regular-400.ttf') format('truetype')
 
 #font-face family="Font Awesome":
-	font-display: optional
+	font-display: swap
 	font-style: normal
 	font-weight: 900
 	display: inline-block

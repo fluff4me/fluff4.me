@@ -10,6 +10,7 @@ import { registerMarkdownMentionHandler } from 'ui/component/Mention'
 import InputBus from 'ui/InputBus'
 import ActiveListener from 'ui/utility/ActiveListener'
 import FocusListener from 'ui/utility/FocusListener'
+import FontsListener from 'ui/utility/FontsListener'
 import HoverListener from 'ui/utility/HoverListener'
 import Mouse from 'ui/utility/Mouse'
 import Viewport from 'ui/utility/Viewport'
@@ -80,6 +81,7 @@ async function App (): Promise<App> {
 	FocusListener.listen()
 	Mouse.listen()
 	Viewport.listen()
+	void FontsListener.listen()
 	DevServer.connect()
 
 	document.title = quilt['fluff4me/title']().toString()
