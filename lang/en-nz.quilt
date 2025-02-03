@@ -229,6 +229,10 @@ main/description: Today in fluff...
 main/title: Following
 main/description: New works and new chapters from the things you follow!
 
+## history
+main/title: History
+main/description: A history of the content you've viewed, ordered by recency.
+
 ## account
 name/label=shared/form/name/label
 name/hint: Your display name or penname — the name your comments and works are attributed to. This can be changed whenever you like, and doesn't have to be unique.
