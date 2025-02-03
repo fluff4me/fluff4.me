@@ -63,7 +63,7 @@ export default ViewDefinition({
 			.withContent((slot, chapter, paginator) => {
 				paginator.setURL(`/work/${params.author}/${params.work}/chapter/${chapter.url}`)
 
-				void EndpointHistoryAddChapter.query({ params })
+				void EndpointHistoryAddChapter.query({ params: chapter })
 
 				if (chapter.notes_before || chapter.global_tags?.length || chapter.custom_tags?.length)
 					Component()
