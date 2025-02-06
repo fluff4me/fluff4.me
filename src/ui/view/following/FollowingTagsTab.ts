@@ -40,6 +40,7 @@ const FollowingTagsTab = Component.Builder((component, type: 'following' | 'igno
 			for (const tag of tags)
 				Link(`/tag/${tag.category.toLowerCase()}/${tag.name.toLowerCase()}`)
 					.and(TagBlock, tag)
+					.viewTransition(false)
 					.appendTo(slot)
 		}))
 		.appendTo(tab.content)

@@ -48,7 +48,7 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 					const author = authors.find(author => author.vanity === workData.author)
 					Link(author && `/work/${author.vanity}/${workData.vanity}`)
 						.and(Work, workData, author, true)
-						.viewTransition()
+						.viewTransition(false)
 						.appendTo(slot)
 				}
 			})

@@ -6,8 +6,8 @@ declare module 'ui/Component' {
 }
 
 interface ViewTransitionComponentExtensions {
-	viewTransition (name?: string): this
-	subviewTransition (name?: string): this
+	viewTransition (name: string | false): this
+	subviewTransition (name: string | false): this
 }
 
 namespace ViewTransition {
