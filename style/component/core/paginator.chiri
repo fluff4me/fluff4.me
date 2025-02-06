@@ -58,7 +58,7 @@
 		&--flush:
 			#after: .paginator-footer, .block-type-flush-footer
 			%relative
-			%margin-top-2
+			%margin-top-4
 			%background-none
 			%border-none
 			@before:
@@ -78,7 +78,9 @@
 		%hidden
 
 	&-content:
-		margin: calc(-1 * $block-padding)
+		margin-top: calc(-1 * $block-padding)
+		margin-inline: calc(-1 * $block-padding + -1 * $space-5)
+		%padding-inline-5
 		%margin-bottom-0
 		%grid
 		%stack

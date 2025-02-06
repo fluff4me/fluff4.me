@@ -6,7 +6,7 @@ import ClassManipulator from 'ui/utility/ClassManipulator'
 import type { NativeEvents } from 'ui/utility/EventManipulator'
 import EventManipulator from 'ui/utility/EventManipulator'
 import FocusListener from 'ui/utility/FocusListener'
-import StringApplicator, { QuiltHelper } from 'ui/utility/StringApplicator'
+import StringApplicator from 'ui/utility/StringApplicator'
 import StyleManipulator from 'ui/utility/StyleManipulator'
 import TextManipulator from 'ui/utility/TextManipulator'
 import Viewport from 'ui/utility/Viewport'
@@ -36,6 +36,9 @@ type AriaRole =
 	| 'group'
 	| 'radio'
 	| 'radiogroup'
+	| 'tablist'
+	| 'tab'
+	| 'tabpanel'
 
 const ELEMENT_TO_COMPONENT_MAP = new WeakMap<Element, Component>()
 
@@ -113,9 +116,10 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	readonly element: ELEMENT
 
 	/** Causes this element to be removed when its owner is removed */
-	setOwner (owner: Component): this
+	setOwner (owner: Component | undefined): this
 
 	setId (id?: string | State<string | undefined>): this
+	setRandomId (): this
 	setName (name?: string | State<string | undefined>): this
 
 	is<BUILDERS extends Component.BuilderLike[]> (builder: BUILDERS): this is { [INDEX in keyof BUILDERS]: BUILDERS[INDEX] extends infer BUILDER ? (BUILDER extends Component.BuilderLike<any[], infer COMPONENT> ? COMPONENT : never) | undefined : never }[number]
@@ -253,7 +257,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 
 		setOwner: newOwner => {
 			unuseOwnerRemove?.()
-			unuseOwnerRemove = newOwner.removed.use(component, removed => removed && component.remove())
+			unuseOwnerRemove = newOwner?.removed.use(component, removed => removed && component.remove())
 			return component
 		},
 
@@ -438,6 +442,10 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 					component.id.asMutable?.setValue(undefined)
 				}
 			}
+		},
+		setRandomId: () => {
+			component.setId(Strings.uid())
+			return component
 		},
 		setName: name => {
 			unuseNameState?.()
@@ -958,7 +966,5 @@ namespace Component {
 	}
 
 }
-
-QuiltHelper.setComponent(Component)
 
 export default Component

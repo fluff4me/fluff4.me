@@ -1,4 +1,4 @@
-import type { AuthorFull } from 'api.fluff4.me'
+import type { Author, AuthorFull } from 'api.fluff4.me'
 import quilt from 'lang/en-nz'
 import Follows from 'model/Follows'
 import Session from 'model/Session'
@@ -6,9 +6,10 @@ import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import ExternalLink from 'ui/component/core/ExternalLink'
+import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 
-export default Component.Builder((component, author: AuthorFull) => {
+export default Component.Builder((component, author: Author & Partial<AuthorFull>) => {
 	component
 		.viewTransition('author')
 		.style('author')
@@ -27,16 +28,17 @@ export default Component.Builder((component, author: AuthorFull) => {
 				.style('author-pronouns')
 				.text.set(author.pronouns)))
 
-	Component()
-		.style('author-description')
-		.append(Slot().tweak(slot => {
-			const body = author.description.body
-			if (body)
-				slot.setMarkdownContent(author.description)
-			else
-				slot.style('placeholder').text.use('author/description/empty')
-		}))
-		.appendTo(block.content)
+	if (author.description)
+		Component()
+			.style('author-description')
+			.append(Slot().tweak(slot => {
+				const body = author.description!.body
+				if (body)
+					slot.setMarkdownContent(author.description)
+				else
+					slot.and(Placeholder).text.use('author/description/empty')
+			}))
+			.appendTo(block.content)
 
 	if (author.support_link && author.support_message)
 		ExternalLink(author.support_link)

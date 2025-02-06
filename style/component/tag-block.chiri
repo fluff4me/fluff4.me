@@ -1,0 +1,42 @@
+.tag-block:
+	#after: .block
+	$block-border-colour: $colour-pink-2
+
+	&-tag:
+		#after: .tag
+		%width-fit
+		%height-fit
+		%colour-0
+		%padding-0
+		%border-radius-2
+		%border-none
+		%no-pointer-events
+		$button-background: transparent
+		grid-template-columns: auto
+
+		&-category:
+			#after: .tag-category
+			%font-3
+			%weight-normal
+			%unmargin-bottom-1
+			%font-kanit
+		&-name:
+			#after: .tag-name
+			%font-6
+			%font-kanit
+			%unmargin-top-2
+
+	&-header:
+		#after: .block-header
+		#background-gradient colour="$colour-pink-2"
+		border: 1px solid $block-border-colour
+
+	&-info:
+		%grid
+		grid-template-columns: auto 1fr
+		%gap-4
+
+	&-description:
+		%unmargin-top-3
+		%italic
+		%align-self-centre

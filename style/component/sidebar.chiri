@@ -1,6 +1,5 @@
 .sidebar:
 	%padding-4-2
-	%margin-right-4
 	%relative
 	%height-100
 	%border-box

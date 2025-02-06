@@ -1,5 +1,9 @@
 import type { PromiseOr } from 'utility/Type'
 
+export function mutable<T extends object> (object: T): { -readonly [P in keyof T]: T[P] } {
+	return object as never
+}
+
 namespace Objects {
 	export const EMPTY = {}
 

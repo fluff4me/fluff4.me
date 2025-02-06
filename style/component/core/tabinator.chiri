@@ -1,0 +1,45 @@
+.tabinator:
+	#after: .block
+	$block-padding: 0
+
+	&-tab-list:
+		#after: .block-header
+		%flex
+		%flex-wrap
+		%justify-content-start
+		%padding-inline-0
+		%padding-top-0
+		%background-none
+		%gap-3
+
+	&-tab:
+		%width-fit
+
+		&--active:
+			$button-background: $background-interact-5
+
+	&-content:
+		%grid
+		%stack
+
+	&-panel:
+		#block
+		%stack-self
+		%background-none
+		%opaque
+		#transition: #{transition("opacity")}, #{transition("translate")}, #{transition("display")}
+		%transition-discrete
+		%translate-x-0
+		$transition-duration: $transition-blur
+
+		:start:
+			%transparent
+			translate: calc($space-4 * $page-direction)
+
+		&--hidden:
+			#after: .tabinator-panel
+			%hidden
+			%transparent
+			%no-pointer-events
+			translate: calc($space-4 * $page-direction * -1)
+			$transition-duration: $transition-focus

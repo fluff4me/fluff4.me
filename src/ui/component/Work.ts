@@ -26,7 +26,6 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 	component
 		.viewTransition('work')
 		.style('work')
-		.style.toggle(component.is(Link), 'work--link')
 		.style.toggle(work.visibility === 'Private' || !work.chapter_count_public, 'work--private')
 
 	const block = component.and(Block)

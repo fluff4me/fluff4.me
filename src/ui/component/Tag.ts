@@ -10,7 +10,9 @@ import type { EventHandler } from 'ui/utility/EventManipulator'
 export { TagData }
 
 interface TagExtensions {
-	tag: TagData | string
+	readonly categoryWrapper?: Component
+	readonly nameWrapper: Component
+	readonly tag: TagData | string
 	addDeleteButton (handler: EventHandler<Button, ComponentEvents, 'click'>): this
 }
 
@@ -21,7 +23,7 @@ const toURL = (name: string) => name.replaceAll(toURLRegex, '-').toLowerCase()
 const Tag = Object.assign(
 	Component.Builder('a', (component, tag: TagData | string): Tag & Link => {
 		if (component.tagName === 'A')
-			component.and(Link, typeof tag === 'string' ? `/tag/${tag}` : `/tag/${toURL(tag.category)}/${toURL(tag.name)}`)
+			component.and(Link, typeof tag === 'string' ? undefined /* `/tag/${tag}` */ : `/tag/${toURL(tag.category)}/${toURL(tag.name)}`)
 
 		component
 			.and(Button)
@@ -29,13 +31,14 @@ const Tag = Object.assign(
 			.style.toggle(typeof tag === 'string', 'tag-custom')
 			.style.toggle(typeof tag !== 'string', 'tag-global')
 
-		if (typeof tag !== 'string')
-			Component()
+		const categoryWrapper = typeof tag === 'string'
+			? undefined
+			: Component()
 				.style('tag-category')
 				.text.set(tag.category)
 				.appendTo(component)
 
-		Component()
+		const nameWrapper = Component()
 			.style('tag-name')
 			.text.set(typeof tag === 'string' ? tag : tag.name)
 			.appendTo(component)
@@ -50,6 +53,8 @@ const Tag = Object.assign(
 
 		return component.extend<TagExtensions>(component => ({
 			tag,
+			categoryWrapper,
+			nameWrapper,
 			addDeleteButton (handler) {
 				Button()
 					.style('tag-delete-button')
