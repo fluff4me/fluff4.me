@@ -49,7 +49,7 @@ export default ViewDefinition({
 			slot.append(...works.map(workData =>
 				Link(`/work/${author.data.vanity}/${workData.vanity}`)
 					.and(Work, workData, author.data)
-					.viewTransition()
+					.viewTransition(false)
 					.type('flush')
 					.appendTo(slot))))
 		paginator.orElse(slot => Component()

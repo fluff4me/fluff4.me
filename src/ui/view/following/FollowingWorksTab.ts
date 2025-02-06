@@ -58,10 +58,12 @@ const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ign
 
 			Paginator2()
 				.type('flush')
+				.viewTransition(false)
 				.set(works, (slot, works) => {
 					for (const work of works) {
 						Link(`/work/${work.author}/${work.vanity}`)
 							.and(Work, work, authors.value.find(author => author.vanity === work.author), true)
+							.viewTransition(false)
 							.appendTo(slot)
 					}
 				})

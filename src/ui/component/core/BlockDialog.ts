@@ -13,7 +13,7 @@ interface BlockDialog extends Dialog, Block, BlockDialogExtensions { }
 
 const BlockDialog = Component.Builder((component): BlockDialog => {
 	const dialog = component.and(Dialog).and(Block)
-		.viewTransition()
+		.viewTransition(false)
 		.style.remove('block')
 	dialog
 		.style('dialog-block-wrapper')
