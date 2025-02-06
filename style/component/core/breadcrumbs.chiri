@@ -6,6 +6,9 @@
 
 	&-description:
 
+	&-actions:
+		%unmargin-left-3
+
 	&-back-button:
 
 	&-path:

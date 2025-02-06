@@ -3,9 +3,11 @@
 	%align-items-centre
 	%gap-4
 	%padding-4-0
-	grid-template-columns: 1fr auto 1fr
+	grid-template-columns: 1fr auto 1fr $app-column-width
+	grid-template-areas: "meta content related"
 
 	&-container:
+		%contents
 
 		&-ephemeral:
 			%flex-column
@@ -88,6 +90,7 @@
 		%flex-column
 		%gap-4
 		%column-2
+		%align-self-start
 
 #macro view:
 	#string type

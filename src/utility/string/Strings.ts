@@ -1,6 +1,14 @@
 export type UUID = `${string}-${string}-${string}-${string}-${string}`
 
 namespace Strings {
+	/** 
+	 * Generates a unique string valid for an ID on an element, in the format `_<base 36 timestamp><base 36 random number>`  
+	 * For example: `_m6rpr4mo02bw589br2ze`
+	 */
+	export function uid () {
+		return `_${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`
+	}
+
 	export type Replace<STRING extends string, MATCH extends string, REPLACE extends string> =
 		STRING extends `${infer A}${MATCH}${infer B}` ? `${Replace<A, MATCH, REPLACE>}${REPLACE}${Replace<B, MATCH, REPLACE>}` : STRING
 

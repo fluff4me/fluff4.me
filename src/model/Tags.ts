@@ -48,10 +48,21 @@ const Tags = Object.assign(
 			return response as Response<TagsManifest>
 		},
 	}),
-	{ resolve },
+	{
+		resolve,
+		toId,
+	},
 )
 
 export default Tags
+
+function toId (tag: Tag): string
+function toId (category: string, name: string): string
+function toId (category: string | Tag, name?: string): string {
+	return typeof category === 'string'
+		? `${category}: ${name}`
+		: `${category.category}: ${category.name}`
+}
 
 export async function resolve (tag: string): Promise<Tag | undefined>
 export async function resolve (category: string, name: string): Promise<Tag | undefined>

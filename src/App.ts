@@ -4,6 +4,8 @@ import Session from 'model/Session'
 import Navigator from 'navigation/Navigate'
 import style from 'style'
 import Component from 'ui/Component'
+import ExternalLink from 'ui/component/core/ExternalLink'
+import Link from 'ui/component/core/Link'
 import ToastList from 'ui/component/core/toast/ToastList'
 import Masthead from 'ui/component/Masthead'
 import { registerMarkdownMentionHandler } from 'ui/component/Mention'
@@ -13,12 +15,19 @@ import FocusListener from 'ui/utility/FocusListener'
 import FontsListener from 'ui/utility/FontsListener'
 import HoverListener from 'ui/utility/HoverListener'
 import Mouse from 'ui/utility/Mouse'
+import { QuiltHelper } from 'ui/utility/StringApplicator'
 import Viewport from 'ui/utility/Viewport'
 import ViewContainer from 'ui/view/shared/component/ViewContainer'
 import Async from 'utility/Async'
 import DevServer from 'utility/DevServer'
 import Store from 'utility/Store'
 import Time from 'utility/Time'
+
+QuiltHelper.init({
+	Component,
+	Link,
+	ExternalLink,
+})
 
 registerMarkdownMentionHandler()
 

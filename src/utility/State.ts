@@ -43,8 +43,8 @@ interface State<T, E = T> {
 	await<R extends Arrays.Or<T>> (owner: Owner, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
 	awaitManual<R extends Arrays.Or<T>> (value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
 
-	map<R> (owner: Owner, mapper: (value: T) => StateOr<R>): State.Generator<R>
-	mapManual<R> (mapper: (value: T) => StateOr<R>): State.Generator<R>
+	map<R> (owner: Owner, mapper: (value: T) => StateOr<R>, equals?: EqualsFunction<R>): State.Generator<R>
+	mapManual<R> (mapper: (value: T) => StateOr<R>, equals?: EqualsFunction<R>): State.Generator<R>
 	nonNullish: State.Generator<boolean>
 	truthy: State.Generator<boolean>
 	falsy: State.Generator<boolean>
@@ -178,8 +178,8 @@ function State<T> (defaultValue: T, equals?: EqualsFunction<T>): MutableState<T>
 			return result
 		},
 
-		map: (owner, mapper) => State.Map(owner, [result], mapper),
-		mapManual: mapper => State.MapManual([result], mapper),
+		map: (owner, mapper, equals) => State.Map(owner, [result], mapper, equals),
+		mapManual: (mapper, equals) => State.MapManual([result], mapper, equals),
 		get nonNullish () {
 			return Define.set(result, 'nonNullish', State
 				.Generator(() => result.value !== undefined && result.value !== null)
@@ -414,13 +414,13 @@ namespace State {
 			.observe(owner, ...anyOfStates)
 	}
 
-	export function Map<const INPUT extends (State<unknown> | undefined)[], OUTPUT> (owner: Owner, inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: INPUT[I] extends State<infer INPUT> ? INPUT : undefined }>) => StateOr<OUTPUT>): Generator<OUTPUT> {
-		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never))
+	export function Map<const INPUT extends (State<unknown> | undefined)[], OUTPUT> (owner: Owner, inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: INPUT[I] extends State<infer INPUT> ? INPUT : undefined }>) => StateOr<OUTPUT>, equals?: EqualsFunction<NoInfer<OUTPUT>>): Generator<OUTPUT> {
+		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never), equals)
 			.observe(owner, ...inputs.filter(FilterNonNullish))
 	}
 
-	export function MapManual<const INPUT extends (State<unknown> | undefined)[], OUTPUT> (inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: Exclude<INPUT[I], undefined> extends State<infer INPUT> ? INPUT : undefined }>) => StateOr<OUTPUT>): Generator<OUTPUT> {
-		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never))
+	export function MapManual<const INPUT extends (State<unknown> | undefined)[], OUTPUT> (inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: Exclude<INPUT[I], undefined> extends State<infer INPUT> ? INPUT : undefined }>) => StateOr<OUTPUT>, equals?: EqualsFunction<NoInfer<OUTPUT>>): Generator<OUTPUT> {
+		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never), equals)
 			.observeManual(...inputs.filter(FilterNonNullish))
 	}
 

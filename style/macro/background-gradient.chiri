@@ -1,0 +1,5 @@
+#macro background-gradient:
+	#string colour
+	#dec strength = 0.2
+	#string highlight = "color-mix(in lch, #{colour}, #fff #{strength * 100}%)
+	background: radial-gradient(ellipse at left 20% top 20%, #{highlight}, #{colour})

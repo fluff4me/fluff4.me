@@ -1,6 +1,9 @@
 import type { Quilt as QuiltBase, Weave, Weft } from 'lang/en-nz'
 import quilt, { WeavingArg } from 'lang/en-nz'
+import type { RoutePath } from 'navigation/Routes'
 import type Component from 'ui/Component'
+import type ExternalLinkFunction from 'ui/component/core/ExternalLink'
+import type LinkFunction from 'ui/component/core/Link'
 import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
@@ -21,9 +24,18 @@ export namespace QuiltHelper {
 
 	let isComponent!: (value: unknown) => value is Component
 	let Break!: Component.Builder<[], Component>
-	export function setComponent (ComponentFunction: typeof Component) {
-		isComponent = ComponentFunction.is
-		Break = ComponentFunction
+	let Link!: typeof LinkFunction
+	let ExternalLink!: typeof ExternalLinkFunction
+	export function init (dependencies: {
+		Component: typeof Component
+		Link: typeof LinkFunction
+		ExternalLink: typeof ExternalLinkFunction
+	}) {
+		const { Component } = dependencies
+		isComponent = Component.is
+		Link = dependencies.Link
+		ExternalLink = dependencies.ExternalLink
+		Break = Component
 			.Builder('br', component => component.style('break'))
 			.setName('Break')
 	}
@@ -60,13 +72,12 @@ export namespace QuiltHelper {
 		const tag = weft.tag?.toLowerCase()
 		if (tag) {
 			if (tag.startsWith('link(')) {
-				const link = element = document.createElement('a')
 				const href = tag.slice(5, -1)
-				link.href = href
-				link.addEventListener('click', event => {
-					event.preventDefault()
-					navigate.toRawURL(href)
-				})
+				const link = href.startsWith('/')
+					? Link(href as RoutePath)
+					: ExternalLink(href)
+
+				element = link.element
 			}
 
 			switch (tag) {
@@ -141,7 +152,7 @@ function BaseStringApplicator<HOST> (
 				unbind?.()
 				if (typeof translation === 'string') {
 					translationHandler = undefined
-					setInternal(quilt[translation]().toString())
+					setInternal(quilt[translation]())
 					return host
 				}
 

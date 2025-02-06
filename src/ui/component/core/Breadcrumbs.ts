@@ -11,6 +11,7 @@ interface BreadcrumbsExtensions {
 	readonly info: Component
 	readonly title: Heading
 	readonly description: Component
+	readonly actions: Component
 	backButton?: Link & Button
 	setPath (...path: [route: RoutePath, translation: Quilt.SimpleKey | Quilt.Handler][]): this
 	setBackButton (route?: RoutePath, initialiser?: (button: Link & Button) => unknown): this
@@ -30,6 +31,7 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 			info: undefined!,
 			title: undefined!,
 			description: undefined!,
+			actions: undefined!,
 			path: pathComponent,
 			setPath (...path) {
 				pathComponent.removeContents()
@@ -73,6 +75,9 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 		.extendJIT('description', breadcrumbs => Component()
 			.style('breadcrumbs-description')
 			.appendTo(breadcrumbs.info))
+		.extendJIT('actions', breadcrumbs => Component()
+			.style('breadcrumbs-actions')
+			.appendTo(breadcrumbs.meta))
 
 	return breadcrumbs
 })

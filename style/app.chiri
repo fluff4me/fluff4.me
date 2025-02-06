@@ -4,32 +4,32 @@
 	%width-100
 	%grid
 	grid-template-areas:
-		"masthead masthead masthead masthead masthead"
-		". sidebar content content ."
+		"masthead masthead masthead"
+		"sidebar content content"
 	grid-template-rows:
 		auto
 		1fr
-	#int w = 300
+	#string w = "calc($space-5 * 4 + $space-4)
+	$app-column-width: #{w}
 	grid-template-columns:
-		1fr #{w}px minmax(auto, calc(1920px - #{w}px * 2)) auto 1fr
+		#{w} 1fr #{w}
 
 	#tablet:
 		%contents
 
 	&-content:
 		%grid
-		%columns-subgrid
 		%overflow-auto-y
 		%gutter-stable
+		%padding-left-4
 		grid-area: content
-		grid-template-areas: "content related"
 
 		#tablet:
 			%block
 			%overflow-visible
 
 		&-related:
-			width: #{w}px
+			width: #{w}
 
 			#tablet:
 				%hidden
@@ -40,12 +40,8 @@
 
 .masthead:
 	grid-area: masthead
-	grid-template-columns: subgrid
-	grid-template-areas: ". left mid right ."
-
-	#tablet:
-		grid-template-columns: 1fr auto 1fr
-		grid-template-areas: "left mid right"
+	grid-template-columns: 1fr auto 1fr
+	grid-template-areas: "left mid right"
 
 .sidebar:
 	grid-area: sidebar

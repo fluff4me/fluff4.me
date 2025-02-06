@@ -2,6 +2,7 @@ import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
 import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Heading from 'ui/component/core/Heading'
+import Link from 'ui/component/core/Link'
 import Paragraph from 'ui/component/core/Paragraph'
 import type { ComponentName } from 'ui/utility/StyleManipulator'
 import TypeManipulator from 'ui/utility/TypeManipulator'
@@ -39,6 +40,7 @@ const Block = Component.Builder((component): Block => {
 		.classes.add(BlockClasses.Main)
 		.viewTransition('block')
 		.style('block')
+		.style.bind(component.supers.mapManual(() => component.is(Link)), 'block--link')
 		.extend<BlockExtensions>(block => ({
 			title: undefined!,
 			header: undefined!,

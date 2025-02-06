@@ -27,7 +27,7 @@ interface AttributeManipulator<HOST> {
 	insertAfter (referenceAttribute: string, ...attributes: string[]): HOST
 	/** Sets the attribute to `value`, or removes the attribute if `value` is `undefined` */
 	set (attribute: string, value?: string): HOST
-	bind (state: State<boolean>, attribute: string, value?: string): HOST
+	bind (state: State<boolean>, attribute: string, value?: string, orElse?: string): HOST
 	/**
 	 * If the attribute is already set, does nothing. 
 	 * Otherwise, calls the supplier, and sets the attribute to the result, or removes the attribute if it's `undefined` 
@@ -120,11 +120,13 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 				component.element.setAttribute(attribute, value)
 			return component
 		},
-		bind (state, attribute, value) {
+		bind (state, attribute, value, orElse) {
 			unuseAttributeMap.get(attribute)?.()
 			unuseAttributeMap.set(attribute, state.use(component, active => {
 				if (active)
 					component.element.setAttribute(attribute, value ?? '')
+				else if (orElse !== undefined)
+					component.element.setAttribute(attribute, orElse)
 				else
 					component.element.removeAttribute(attribute)
 			}))

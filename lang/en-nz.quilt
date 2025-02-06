@@ -143,9 +143,9 @@ popover/account=shared/term/account-settings
 
 # sidebar
 section/browse: Browse
-link/new: New
-link/feed: Feed
-link/history: History
+link/new=view/new/main/title
+link/feed=view/feed/main/title
+link/history=view/history/main/title
 
 section/create: Create
 link/create-work: Create Work
@@ -173,6 +173,12 @@ action/label/delete=shared/action/delete
 # author
 description/empty: This author prefers to remain elusive and mysterious...
 action/label/edit=shared/action/edit
+action/label/follow=shared/action/follow
+action/label/unfollow=shared/action/unfollow
+action/label/ignore=shared/action/ignore
+action/label/unignore=shared/action/unignore
+
+# tag
 action/label/follow=shared/action/follow
 action/label/unfollow=shared/action/unfollow
 action/label/ignore=shared/action/ignore
@@ -217,6 +223,10 @@ title: Log-in required
 description: You must log in or sign up to view this content.
 action=shared/action/login-or-signup
 
+### info
+following: Following {0??None}
+ignoring: Ignoring {0??None}
+
 ## error
 title: Error {CODE}
 description-404: Your adventure has come to a close, your questions left unanswered, your goals unfulfilled. What will you do?
@@ -226,12 +236,34 @@ main/title: New
 main/description: Today in fluff...
 
 ## feed
-main/title: Following
+main/title: Feed
 main/description: New works and new chapters from the things you follow!
 
 ## history
 main/title: History
 main/description: A history of the content you've viewed, ordered by recency.
+
+## following
+main/title: Following
+main/description: The content you're following. Latest updates for matching works appear in your {#LINK(/feed):Feed}.
+tab/works: Works
+tab/authors: Authors
+tab/tags: Tags
+tab/categories: Tag Categories
+panel/shared/empty: You are not following any {0}.
+panel/works/empty=view/following/panel/shared/empty | works
+panel/authors/empty=view/following/panel/shared/empty | authors
+panel/tags/empty=view/following/panel/shared/empty | tags
+panel/categories/empty=view/following/panel/shared/empty | tag categories
+
+## ignoring
+main/title: Ignoring
+main/description: The content you're ignoring. Ignored content is hidden everywhere on the site.
+panel/shared/empty: You are not ignoring any {0}.
+panel/works/empty=view/ignoring/panel/shared/empty | works
+panel/authors/empty=view/ignoring/panel/shared/empty | authors
+panel/tags/empty=view/ignoring/panel/shared/empty | tags
+panel/categories/empty=view/ignoring/panel/shared/empty | tag categories
 
 ## account
 name/label=shared/form/name/label

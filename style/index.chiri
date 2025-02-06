@@ -8,6 +8,7 @@
 
 #import:
 	macro/block
+	macro/background-gradient
 
 #import:
 	mixins
@@ -53,6 +54,7 @@
 	component/core/sortable
 	component/core/breadcrumbs
 	component/core/radio-row
+	component/core/tabinator
 	component/vanity-input
 	component/flag
 	component/masthead
@@ -67,6 +69,7 @@
 	component/reaction
 	component/notification
 	component/mention
+	component/tag-block
 
 #import:
 	view/view
@@ -85,5 +88,7 @@
 	view/type/feed
 	view/type/history
 	view/type/notifications
+	view/type/following
+	view/type/ignoring
 
 #import: app

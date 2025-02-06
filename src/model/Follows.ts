@@ -39,6 +39,21 @@ const manifest = Manifest<FollowsManifest>({
 
 const Util = {
 
+	getTotalFollowing () {
+		return 0
+			+ (manifest.value?.following.author.length ?? 0)
+			+ (manifest.value?.following.work.length ?? 0)
+			+ (manifest.value?.following.tag.length ?? 0)
+			+ (manifest.value?.following.category.length ?? 0)
+	},
+	getTotalIgnoring () {
+		return 0
+			+ (manifest.value?.ignoring.author.length ?? 0)
+			+ (manifest.value?.ignoring.work.length ?? 0)
+			+ (manifest.value?.ignoring.tag.length ?? 0)
+			+ (manifest.value?.ignoring.category.length ?? 0)
+	},
+
 	////////////////////////////////////
 	//#region Authors
 	followingAuthor (vanity: string) {

@@ -25,6 +25,7 @@ type SplitPath<PATH extends string> = PATH extends `${infer X}/${infer Y}` ? [X,
 
 type EndpointQuery<ROUTE extends keyof Paths> =
 	Paths[ROUTE]['body'] extends infer BODY ?
+	Paths[ROUTE]['search'] extends infer SEARCH ?
 
 	Exclude<Paths[ROUTE]['response'], ErrorResponse<any>> extends infer RESPONSE ?
 	(RESPONSE | ErrorResponse<RESPONSE>) extends infer RESPONSE ?
@@ -39,13 +40,25 @@ type EndpointQuery<ROUTE extends keyof Paths> =
 		)
 	) extends infer DATA ?
 
-	(
-		& (RESPONSE extends PaginatedResponse<any> ? { page?: number, page_size?: number } : { page?: never, page_size?: never })
-	) extends infer QUERY ?
-
-	[keyof DATA] extends [never]
-	? { (data?: undefined, query?: QUERY): Promise<RESPONSE> }
-	: { (data: DATA, query?: QUERY): Promise<RESPONSE> }
+	[keyof SEARCH] extends [never]
+	? (
+		[keyof DATA] extends [never]
+		? { (data?: undefined): Promise<RESPONSE> }
+		: { (data: DATA): Promise<RESPONSE> }
+	)
+	: (
+		[keyof { [K in keyof SEARCH as {} extends Pick<SEARCH, K> ? never : K]: SEARCH[K] }] extends [never]
+		? (
+			[keyof DATA] extends [never]
+			? { (data?: undefined, query?: SEARCH): Promise<RESPONSE> }
+			: { (data: DATA, query?: SEARCH): Promise<RESPONSE> }
+		)
+		: (
+			[keyof DATA] extends [never]
+			? { (data: undefined, query: SEARCH): Promise<RESPONSE> }
+			: { (data: DATA, query: SEARCH): Promise<RESPONSE> }
+		)
+	)
 
 	: never
 	: never
@@ -143,10 +156,13 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 	async function query (data?: EndpointQueryData, search?: EndpointQuerySearchParams) {
 		const body = !data?.body ? undefined : JSON.stringify(data.body)
 		const url = route.slice(1)
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
-			.replaceAll(/\{([^}]+)\}/g, (match, paramName) => data?.params?.[paramName])
+			.replaceAll(/\{([^}]+)\}/g, (match, paramName) =>
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				encodeURIComponent(String(data?.params?.[paramName] ?? '')))
 
-		const params = new URLSearchParams(search as Record<string, string> | undefined)
+		const params = Object.entries(search ?? {})
+			.map(([param, value]) => [param, typeof value === 'string' ? value : JSON.stringify(value)])
+			.collect(searchEntries => new URLSearchParams(searchEntries))
 		if (pageSize)
 			params.set('page_size', `${pageSize}`)
 

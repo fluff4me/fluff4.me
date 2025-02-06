@@ -48,21 +48,6 @@
 
 	&-timestamp:
 
-	&--link:
-		#after: .link
-		%decoration-none
-		%colour-inherit
-		%weight-inherit
-		%overflow-hidden
-		#transition: #{transition("background")}
-
-		::hover, ::focus:
-			%background-4
-			$transition-duration: $transition-focus
-
-		:last:
-			%border-bottom-radius-2
-
 	&--private:
 
 		@before:
