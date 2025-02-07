@@ -42,11 +42,16 @@
 		%padding-top-3
 		%font-2
 
+		&--flush:
+			%padding-top-1
+
 	&-content:
 		%block
 
 	&-synopsis:
-		%padding-top-3
+		%block
+		%padding-top-2
+		%padding-bottom-1
 
 	&-timestamp:
 

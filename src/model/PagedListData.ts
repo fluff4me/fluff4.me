@@ -145,7 +145,7 @@ interface EndpointResponseDismantledData<C, A> {
 }
 type EndpointResponseDataDismantler<T, C, A> = (data: T) => EndpointResponseDismantledData<C, A>
 
-function fromEndpoint<T> (pageSize: number, endpoint: PreparedPaginatedQueryReturning<T[]>): PagedListData<T>
+function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>> (pageSize: number, endpoint: ENDPOINT): PagedListData<ResponseData<EndpointResponse<ENDPOINT>> extends infer T ? T extends (infer T)[] ? T : T : never>
 function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>, C, A> (pageSize: number, endpoint: ENDPOINT, dismantler: EndpointResponseDataDismantler<NoInfer<ResponseData<EndpointResponse<ENDPOINT>>>, C, A>): { [KEY in keyof A]: State<A[KEY] extends any[] ? A[KEY] : []> } extends infer AUX ? PagedListData<C> & AUX : never
 function fromEndpoint (pageSize: number, endpoint: PreparedPaginatedQueryReturning<any> | PreparedPaginatedQueryReturning<any[]>, dismantler?: EndpointResponseDataDismantler<any, any, Record<string, any>>): any {
 	const e = endpoint as PreparedQueryOf<PaginatedEndpoint>

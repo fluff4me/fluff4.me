@@ -49,12 +49,15 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 
 	Slot()
 		.use(isFlush, (slot, isFlush) => {
+			const actuallyIsFlush = isFlush
+
 			isFlush ||= notFullOverride ?? false
 
 			const shouldShowDescription = isFlush || (work.synopsis?.body && work.description)
 			if (shouldShowDescription)
 				Component()
 					.style('work-description')
+					.style.toggle(actuallyIsFlush, 'work-description--flush')
 					.style.toggle(!work.description, 'placeholder')
 					.tweak(component => {
 						if (work.description)
