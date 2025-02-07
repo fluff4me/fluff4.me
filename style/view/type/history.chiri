@@ -10,7 +10,7 @@
 		#after: .block
 		%grid
 		%padding-0
-		%padding-bottom-3
+		%padding-bottom-2
 		%margin-inline-3
 		margin-bottom: calc($space-5 * -1 - 1px)
 		width: calc(100% - $space-3 * 2)
