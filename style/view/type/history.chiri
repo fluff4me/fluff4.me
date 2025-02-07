@@ -10,11 +10,14 @@
 		#after: .block
 		%grid
 		%padding-0
+		%padding-bottom-3
 		%margin-inline-3
 		margin-bottom: calc($space-5 * -1 - 1px)
-		%inset-border-1
-		%border-bottom-radius-0
 		width: calc(100% - $space-3 * 2)
+
+		@before:
+			%inset-border-1
+			%border-bottom-radius-0
 
 	&-chapter:
 		#after: .chapter
