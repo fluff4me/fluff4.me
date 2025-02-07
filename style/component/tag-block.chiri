@@ -1,7 +1,9 @@
 .tag-block:
 	#after: .block
 	$block-border-colour: $colour-pink-2
-	%inset-border-2
+
+	@before:
+		%inset-border-2
 
 	&-tag:
 		#after: .tag

@@ -6,13 +6,17 @@
 	max-width: #{content-width}
 
 	&--flush:
+		#after: .block-type-flush
 		%scheme-dark
-		%backdrop-filter-none
+
+		@before:
+			%backdrop-filter-none
 
 	&-header:
+		#after: .block-header
 		%sticky
 		%margin-bottom-0
-		%z-index-fg
+		%z-index-fg-2
 		top: -1px
 
 		@before:

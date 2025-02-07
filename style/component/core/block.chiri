@@ -3,16 +3,23 @@
 	%block
 	%relative
 	%border-radius-2
-	%inset-border-1
-	%block-border-shadow
 	%scheme-light-dark
 	%border-box
 	%width-content
-	%backdrop-blur
 	%z-index-fg
 	$block-padding: $space-4
 	padding: $block-padding
 	#block
+
+	@before:
+		%block
+		%absolute
+		%inset-0
+		%backdrop-blur
+		%inset-border-1
+		%border-radius-2
+		%block-border-shadow
+		$border-colour: $block-border-colour
 
 	:container root (width <= #{content-width}):
 		%border-radius-0
@@ -79,11 +86,13 @@
 	&-type-flush:
 		#after: .block
 		%background-none
-		%box-shadow-none
 		%border-bottom-1
 		%border-radius-0
 		$block-padding: $space-3
 		$block-flush-intensity: 10%
+
+		@before:
+			%box-shadow-none
 
 		:last:
 			$block-flush-intensity: 0%
