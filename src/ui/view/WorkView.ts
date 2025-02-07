@@ -2,11 +2,13 @@ import EndpointChapterGetAll from 'endpoint/chapter/EndpointChapterGetAll'
 import EndpointHistoryAddWork from 'endpoint/history/EndpointHistoryAddWork'
 import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
+import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
-import Component from 'ui/Component'
 import Chapter from 'ui/component/Chapter'
+import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
-import Paginator from 'ui/component/core/Paginator'
+import Paginator2 from 'ui/component/core/Paginator2'
+import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import Work from 'ui/component/Work'
 import View from 'ui/view/shared/component/View'
@@ -33,9 +35,29 @@ export default ViewDefinition({
 			.setContainsHeading()
 			.appendTo(view.content)
 
-		const paginator = Paginator()
+		Paginator2()
 			.viewTransition('work-view-chapters')
 			.tweak(p => p.title.text.use('view/work/chapters/title'))
+			.set(
+				PagedListData.fromEndpoint(25, EndpointChapterGetAll.prep({
+					params: {
+						author: params.author,
+						vanity: params.vanity,
+					},
+				})),
+				(slot, chapters) => {
+					slot.style('chapter-list')
+					for (const chapterData of chapters)
+						Chapter(chapterData, workData, authorData)
+							.appendTo(slot)
+				}
+			)
+			.orElse(slot => Block()
+				.type('flush')
+				.tweak(block => Placeholder()
+					.text.use('view/work/chapters/content/empty')
+					.appendTo(block.content))
+				.appendTo(slot))
 			.setActionsMenu(popover => popover
 				.append(Slot()
 					.if(Session.Auth.author.map(popover, author => author?.vanity === params.author), () => Button()
@@ -45,22 +67,6 @@ export default ViewDefinition({
 						.event.subscribe('click', () => navigate.toURL(`/work/${params.author}/${params.vanity}/chapter/new`))))
 			)
 			.appendTo(view.content)
-		const chaptersQuery = EndpointChapterGetAll.prep({
-			params: {
-				author: params.author,
-				vanity: params.vanity,
-			},
-		})
-		await paginator.useEndpoint(chaptersQuery, (slot, chapters) => {
-			slot.style('chapter-list')
-			for (const chapterData of chapters)
-				Chapter(chapterData, workData, authorData)
-					.appendTo(slot)
-		})
-		paginator.orElse(slot => Component()
-			.style('placeholder')
-			.text.use('view/work/chapters/content/empty')
-			.appendTo(slot))
 
 		return view
 	},

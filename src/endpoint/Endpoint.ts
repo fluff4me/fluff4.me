@@ -47,7 +47,7 @@ type EndpointQuery<ROUTE extends keyof Paths> =
 		: { (data: DATA): Promise<RESPONSE> }
 	)
 	: (
-		[keyof { [K in keyof SEARCH as {} extends Pick<SEARCH, K> ? never : K]: SEARCH[K] }] extends [never]
+		[keyof { [K in keyof SEARCH as object extends Pick<SEARCH, K> ? never : K]: SEARCH[K] }] extends [never]
 		? (
 			[keyof DATA] extends [never]
 			? { (data?: undefined, query?: SEARCH): Promise<RESPONSE> }
@@ -279,12 +279,13 @@ export type PaginatedEndpointRoutes = keyof {
 export type PaginatedEndpoint = { [ROUTE in PaginatedEndpointRoutes]: Endpoint<ROUTE> } extends infer ENDPOINTS ? ENDPOINTS[keyof ENDPOINTS] : never
 
 export type PreparedQueryOf<ENDPOINT extends Endpoint<any, any>> = ENDPOINT extends Endpoint<infer ROUTE, infer QUERY> ? PreparedEndpointQuery<ROUTE, QUERY> : never
-export type PreparedPaginatedQueryReturning<R> = PreparedQueryOf<Endpoint<keyof {
+
+export type PreparedPaginatedQueryReturning<R> = {
 	[PATH in keyof Paths as (
 		EndpointResponse<Endpoint<PATH>> extends infer RESPONSE ?
 		RESPONSE extends PaginatedResponse<R> ?
 		PATH
 		: never
 		: never
-	)]: Endpoint<PATH>
-}>>
+	)]: PreparedQueryOf<Endpoint<PATH>>
+} extends infer O ? O[keyof O] : never
