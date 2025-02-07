@@ -98,7 +98,8 @@
 				max-width: 100vw
 
 			&-list:
-				#after: .block-type-flush
+				#after: .block-type-flush, .paginator--flush
+				%scheme-light-dark
 				$block-padding: $space-0
 				$notification-read-button-padding: $space-1
 
@@ -129,13 +130,16 @@
 					%unmargin-top-1
 
 				&-footer:
-					#after: .paginator-footer
+					#after: .paginator-footer, .paginator-footer--flush
 					margin-inline: calc(-1 * $popover-padding)
 					width: calc(100% + $block-padding * 2 + $popover-padding * 2)
 					%padding-inline-0
 					%padding-bottom-0
 					%unmargin-bottom-2
 					%unmargin-top-2
+
+					@before:
+						%backdrop-filter-none
 
 	&-popover-link-button:
 		%text-align-left

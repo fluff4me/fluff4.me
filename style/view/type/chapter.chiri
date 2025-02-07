@@ -2,6 +2,18 @@
 
 	&-work:
 	&-block:
+		#after: .paginator--flush, .block-type-flush
+		%scheme-light-dark
+		%padding-4-5
+		%border-radius-2
+		%unmargin-inline-5
+		%max-width-none
+		%backdrop-blur
+		$block-padding: 0
+		width: calc(#{content-width} + $space-5 * 2)
+
+		:scheme light:
+			%background-1-a90
 
 		&-header:
 			#after: .block-header, .paginator-header, .paginator-header--flush
@@ -18,7 +30,7 @@
 
 		&-content:
 			#after: .paginator-content, .paginator-content--has-header
-			%padding-top-0
+			%padding-0
 
 		&-notes:
 			%padding-3
@@ -57,6 +69,11 @@
 			$paginator-page-display: block
 
 		&-paginator-actions:
-			#after: .paginator-footer--hidden
+			#after: .paginator-footer--hidden, .paginator-footer--flush, .block-type-flush-footer
 			%flex
 			%padding-inline-0
+			%scheme-light-dark
+			%box-shadow-none
+
+			@before:
+				%backdrop-filter-none

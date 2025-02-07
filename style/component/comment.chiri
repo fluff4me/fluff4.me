@@ -4,11 +4,18 @@
 	%relative
 
 	&-list:
+		#after: .block-type-flush
 		%width-100
 		%width-clamp-content
-		; %padding-3-4
-		; %border-radius-2
-		; %background-2
+		%scheme-light-dark
+		%padding-3-4
+		%border-radius-2
+		%unmargin-inline-4
+		%max-width-none
+		width: calc(#{content-width} + $space-4 * 2)
+
+		:scheme light:
+			%background-0-a80
 
 	&-content:
 		; %block
