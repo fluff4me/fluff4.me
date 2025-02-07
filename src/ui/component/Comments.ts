@@ -5,7 +5,7 @@ import Session from 'model/Session'
 import Component from 'ui/Component'
 import type { CommentData, CommentEditor } from 'ui/component/Comment'
 import Comment from 'ui/component/Comment'
-import { BlockClasses } from 'ui/component/core/Block'
+import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import Slot from 'ui/component/core/Slot'
 import AbortPromise from 'utility/AbortPromise'
@@ -16,11 +16,12 @@ interface CommentsExtensions {
 
 }
 
-interface Comments extends Component, CommentsExtensions { }
+interface Comments extends Block, CommentsExtensions { }
 
 const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: true): Comments => {
-	const component = rawComponent
-		.classes.add(BlockClasses.Main)
+	const block = rawComponent
+		.and(Block)
+		.type('flush')
 		.style('comment-list')
 		.viewTransition('comments')
 		.extend<CommentsExtensions>(component => ({}))
@@ -32,7 +33,7 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 			const authors = State<Author[]>(!author ? [] : [author])
 
 			if (author)
-				comments.use(component, commentsData => {
+				comments.use(block, commentsData => {
 					if (!commentsData[0].edit) {
 						commentsData.unshift({ edit: true, parent_id: under, author: author.vanity } as CommentEditor)
 						comments.emit()
@@ -45,7 +46,7 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 			query.value = EndpointCommentGetAllUnder.prep({ params: { under } }).query
 
 			Comment({ comments, authors }, comment, { isRootComment, noSiblings: true })
-				.appendTo(component)
+				.appendTo(block.content)
 
 			await loadMore()
 			if (signal.aborted)
@@ -55,7 +56,7 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 				.if(query.truthy, () => Button()
 					.event.subscribe('click', loadMore)
 					.text.set('load more'))
-				.appendTo(component)
+				.appendTo(slot)
 
 			async function loadMore () {
 				if (!query.value)
@@ -71,9 +72,9 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 				query.value = result.next
 			}
 		}))
-		.appendTo(component)
+		.appendTo(block.content)
 
-	return component
+	return block
 })
 
 export default Comments
