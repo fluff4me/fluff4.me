@@ -13,6 +13,12 @@ namespace Chapters {
 	export function work (reference: Omit<ChapterReference, 'url'> | null | undefined): WorkReference | undefined {
 		return !reference ? undefined : { author: reference.author, vanity: reference.work }
 	}
+
+	export function reference (reference: ChapterReference): ChapterReference
+	export function reference (reference: ChapterReference | null | undefined): ChapterReference | undefined
+	export function reference (reference: ChapterReference | null | undefined): ChapterReference | undefined {
+		return !reference ? undefined : { author: reference.author, work: reference.work, url: reference.url }
+	}
 }
 
 export default Object.assign(

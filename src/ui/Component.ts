@@ -233,6 +233,9 @@ function Component<TYPE extends keyof HTMLElementTagNameMap> (type: TYPE): Compo
 function Component (): Component<HTMLSpanElement>
 function Component (type?: keyof HTMLElementTagNameMap): Component
 function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
+	if (!canBuildComponents)
+		throw new Error('Components cannot be built yet')
+
 	let unuseIdState: UnsubscribeState | undefined
 	let unuseNameState: UnsubscribeState | undefined
 	let unuseAriaLabelledByIdState: UnsubscribeState | undefined
@@ -780,7 +783,13 @@ function updateRooted (component: Component | undefined) {
 	}
 }
 
+let canBuildComponents = false
 namespace Component {
+
+	export function allowBuilding () {
+		canBuildComponents = true
+	}
+
 	export function is (value: unknown): value is Component {
 		return typeof value === 'object' && !!(value as Component)?.isComponent
 	}

@@ -3,32 +3,38 @@ import type { Quilt } from 'ui/utility/StringApplicator'
 
 namespace Announcer {
 
-	const assertive = Component()
-		.attributes.set('aria-live', 'assertive')
-		.style.setProperty('opacity', '0')
-		.style.setProperty('user-select', 'none')
-		.style.setProperty('pointer-events', 'none')
-		.style.setProperty('position', 'fixed')
-		.appendTo(document.body)
+	let assertive: Component | undefined
+	function getAssertive () {
+		return assertive ??= Component()
+			.attributes.set('aria-live', 'assertive')
+			.style.setProperty('opacity', '0')
+			.style.setProperty('user-select', 'none')
+			.style.setProperty('pointer-events', 'none')
+			.style.setProperty('position', 'fixed')
+			.appendTo(document.body)
+	}
 
-	const polite = Component()
-		.attributes.set('aria-live', 'polite')
-		.style.setProperty('opacity', '0')
-		.style.setProperty('user-select', 'none')
-		.style.setProperty('pointer-events', 'none')
-		.style.setProperty('position', 'fixed')
-		.appendTo(document.body)
+	let polite: Component | undefined
+	function getPolite () {
+		return polite ??= Component()
+			.attributes.set('aria-live', 'polite')
+			.style.setProperty('opacity', '0')
+			.style.setProperty('user-select', 'none')
+			.style.setProperty('pointer-events', 'none')
+			.style.setProperty('position', 'fixed')
+			.appendTo(document.body)
+	}
 
 	export interface Announcer {
 		(keyOrHandler: Quilt.SimpleKey | Quilt.Handler): void
 	}
 
 	export function interrupt (id: string, announcer: (announce: Announcer) => unknown) {
-		announceInternal(assertive, id, announcer)
+		announceInternal(getAssertive(), id, announcer)
 	}
 
 	export function announce (id: string, announcer: (announce: Announcer) => unknown) {
-		announceInternal(polite, id, announcer)
+		announceInternal(getPolite(), id, announcer)
 	}
 
 	function announceInternal (within: Component, id: string, announcer: (announce: Announcer) => unknown) {
