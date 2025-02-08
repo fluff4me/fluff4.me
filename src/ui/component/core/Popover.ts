@@ -12,11 +12,24 @@ import Task from 'utility/Task'
 
 export type PopoverType = ComponentNameType<'popover--type'>
 
-const FOCUS_TRAP = Component()
-	.tabIndex('auto')
-	.ariaHidden()
-	.style.setProperty('display', 'none')
-	.prependTo(document.body)
+namespace FocusTrap {
+	let component: Component | undefined
+	function get () {
+		return component ??= Component()
+			.tabIndex('auto')
+			.ariaHidden()
+			.style.setProperty('display', 'none')
+			.prependTo(document.body)
+	}
+
+	export function show () {
+		get().style.setProperty('display', 'inline')
+	}
+
+	export function hide () {
+		get().style.setProperty('display', 'none')
+	}
+}
 
 export interface PopoverComponentRegisteredExtensions {
 	popover: Popover
@@ -154,14 +167,14 @@ Component.extend(component => {
 					Mouse.offMove(updatePopoverState)
 
 				if (!shouldShow)
-					FOCUS_TRAP.style.setProperty('display', 'none')
+					FocusTrap.hide()
 
 				isShown = shouldShow
 				component.popover.toggle(shouldShow)
 				if (!shouldShow)
 					return
 
-				FOCUS_TRAP.style.setProperty('display', 'inline')
+				FocusTrap.show()
 				component.popover.style.removeProperties('left', 'top')
 				await Task.yield()
 				component.popover.anchor.apply()
@@ -177,6 +190,10 @@ Component.extend(component => {
 
 				const clearsPopover = hovered?.closest('[data-clear-popover]')
 				if (!clearsPopover)
+					return false
+
+				const clearsPopoverContainsHost = clearsPopover.contains(component.element)
+				if (clearsPopoverContainsHost)
 					return false
 
 				const clearsPopoverWithinPopover = clearsPopover.component?.closest(Popover)

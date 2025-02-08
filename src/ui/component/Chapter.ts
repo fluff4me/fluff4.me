@@ -3,39 +3,42 @@ import Chapters from 'model/Chapters'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
+import type { ActionsMenu, HasActionsMenuExtensions } from 'ui/component/core/ext/CanHasActionsMenu'
 import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Link from 'ui/component/core/Link'
 import Timestamp from 'ui/component/core/Timestamp'
 import Maths from 'utility/maths/Maths'
 
-function initActions (into: Component, chapter: ChapterLite, work: Work, author?: Author) {
-	Session.Auth.author.use(into, self => {
-		if (author && author.vanity === self?.vanity) {
-			Button()
+function initActions (actions: ActionsMenu<never>, chapter: ChapterLite, work: Work, author?: Author) {
+	return actions
+
+		.appendAction('edit', Session.Auth.author, (slot, self) => true
+			&& author
+			&& author.vanity === self?.vanity
+			&& Button()
 				.type('flush')
 				.setIcon('pencil')
 				.text.use('chapter/action/label/edit')
-				.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}/edit`))
-				.appendTo(into)
+				.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}/edit`)))
 
-			Button()
+		.appendAction('delete', Session.Auth.author, (slot, self) => true
+			&& author
+			&& author.vanity === self?.vanity
+			&& Button()
 				.type('flush')
 				.setIcon('trash')
 				.text.use('chapter/action/label/delete')
-				.event.subscribe('click', () => Chapters.delete(chapter))
-				.appendTo(into)
-		}
-	})
+				.event.subscribe('click', () => Chapters.delete(chapter)))
 }
 
 interface ChapterExtensions {
-	chapter: ChapterLite
-	number: Component
-	chapterName: Component
-	timestamp?: Component
+	readonly chapter: ChapterLite
+	readonly number: Component
+	readonly chapterName: Component
+	readonly timestamp?: Component
 }
 
-interface Chapter extends Component, ChapterExtensions { }
+interface Chapter extends Component, ChapterExtensions, HasActionsMenuExtensions<'edit' | 'delete'> { }
 
 const Chapter = Object.assign(
 	Component.Builder((component, chapter: ChapterLite, work: Work, author: Author): Chapter => {
@@ -58,9 +61,9 @@ const Chapter = Object.assign(
 			.style('chapter-right')
 			.appendTo(component)
 
-		let timestamp: Timestamp | undefined
+		let timestamp: Component | undefined
 		if (chapter.visibility === 'Private')
-			Component()
+			timestamp = Component()
 				.style('timestamp', 'chapter-timestamp')
 				.text.use('chapter/state/private')
 				.appendTo(right)

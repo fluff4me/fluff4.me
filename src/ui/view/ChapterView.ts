@@ -114,7 +114,7 @@ export default ViewDefinition({
 				if (!author?.vanity)
 					return
 
-				const params = { author: author?.vanity, vanity: workData.vanity, url: chapterState.value.url, type: 'love' } as const
+				const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
 				if (reacted.value) {
 					const response = await EndpointUnreactChapter.query({ params })
 					if (toast.handleError(response))

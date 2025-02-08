@@ -1,1 +1,93 @@
 #view type="work":
+
+	&-chapter:
+
+		&-list:
+
+			&--moving-chapter:
+				%padding-block-3
+
+			&-chapter-moving:
+				#after: .chapter
+				box-shadow: #{box-shadow-inset-border-1}, #{box-shadow-2}
+				%border-blue
+				%unmargin-inline-4
+				%unmargin-bottom-2
+				%border-radius-0
+				%background-blue-4-a20
+				grid-template-columns: auto 1fr auto
+
+		&-slot:
+			#after: .button
+			%absolute
+			%width-100
+			%translate-up-50
+			%z-index-fg
+			%box-shadow-none
+			$button-background: transparent
+			%outline-none
+			#transition: #{transition("width")}
+
+			&-wrapper:
+				%hidden
+				%relative
+				%height-0
+				%width-100
+				%span-3
+
+				&--has-moving-chapter:
+					#after: .view-type-work-chapter-slot-wrapper
+					%block
+
+			@before:
+				content: "force same height as chapter"
+				%transparent
+
+			@after:
+				%block
+				%absolute
+				%top-50
+				%width-0
+				%left-50
+				%translate-left-50
+				height: 1px
+				%background-15
+				%border-block-1
+				%border-blue-3-a80
+				box-shadow: 0 0 0 1px $colour-blue-3, 0 0 3px 2px $colour-blue-3
+				%transparent
+				#transition: #{transition("opacity")}, #{transition("width")}
+
+			::hover, ::focus:
+				%background-none
+
+				@after:
+					%opaque
+					%width-100
+					$transition-duration: $transition-focus
+
+		&-reordering-icon:
+			#after: .button
+			%pointer-events-none
+			%colour-blue
+			%absolute
+			%left-2
+			%top-50
+			%padding-0
+			%font-1
+			%translate-up-50
+
+			&--slot:
+				#after: .view-type-work-chapter-reordering-icon
+				%colour-9
+
+		&--moving:
+			%background-0-a10
+			%inset-border-1
+			$border-colour: $colour-9
+
+			&-number, &-name, &-timestamp:
+				%opacity-10
+
+		&--has-moving-sibling:
+			%pointer-events-none

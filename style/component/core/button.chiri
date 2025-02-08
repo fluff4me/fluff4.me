@@ -199,6 +199,7 @@ $$button-background-highlight!colour
 	#record!string icons-rotated = {
 		undo: "arrow-turn-up
 		redo: "arrow-turn-down
+		arrow-up-arrow-down: "arrow-right-arrow-left
 
 	#each in icons-rotated as var name, var icon:
 		&-icon-#{name}:

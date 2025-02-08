@@ -16,6 +16,7 @@
 	%decoration-none
 	%colour-inherit
 	%weight-inherit
+	margin-inline: 1px
 	#transition: #{transition("background")}
 
 	::hover, ::focus:

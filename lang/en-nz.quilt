@@ -201,6 +201,8 @@ state/private: Private
 action/label/love=shared/action/love
 action/label/edit=shared/action/edit
 action/label/delete=shared/action/delete
+action/label/reorder: Reorder
+action/label/reorder-cancel: Cancel Reordering
 tags/label: This chapter contains:
 notes/label=shared/term/notes
 

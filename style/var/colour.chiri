@@ -3,6 +3,7 @@
 		blue: "light-dark(#487aa3, #69b3e2)
 		blue-2: "#499FD5
 		blue-3: "#0173ba
+		blue-4: "#004680
 		pink: "light-dark(#a35390, #d94e8f)
 		pink-2: "#94236b
 		pink-3: "#661448
@@ -14,6 +15,14 @@
 	#each colours as var name, var colour:
 		$colour-#{name}: #{colour}
 		%colour-#{name}: colour: $colour-#{name}
+		%background-#{name}: background: $colour-#{name}
+		%border-#{name}: $border-colour: $colour-#{name}
+
+		#for var i = 1, i < 100, set i++:
+			$colour-#{name}-a#{i}: color-mix(in lch, #{colour}, transparent #{100 - i}%)
+			%colour-#{name}-a#{i}: colour: color-mix(in lch, $colour-#{name}, transparent #{100 - i}%)
+			%background-#{name}-a#{i}: background: color-mix(in lch, $colour-#{name}, transparent #{100 - i}%)
+			%border-#{name}-a#{i}: $border-colour: color-mix(in lch, $colour-#{name}, transparent #{100 - i}%)
 
 #for var i = 1, i < 100, set i++:
 	%background-light-a#{i}: background: color-mix(in lch, $light-0, transparent #{100 - i}%)

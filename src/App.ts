@@ -70,6 +70,8 @@ async function App (): Promise<App> {
 			document.documentElement.classList.remove('persist-tooltips')
 	})
 
+	Component.allowBuilding()
+
 	await FormInputLengths.getManifest()
 
 	// const path = URL.path ?? URL.hash;
