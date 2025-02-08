@@ -9,6 +9,7 @@
 		grid-template-columns: auto 1fr
 
 	&-name:
+		%wrap-words
 
 	&-author:
 		%relative
