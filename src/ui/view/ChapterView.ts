@@ -55,8 +55,11 @@ export default ViewDefinition({
 			.viewTransition('chapter-view-chapter')
 			.style('view-type-chapter-block')
 			.type('flush')
-			.tweak(p => p.title.text.bind(chapterState.mapManual(chapter =>
-				quilt['view/chapter/title'](Maths.parseIntOrUndefined(chapter.url), chapter.name))))
+			.tweak(p => p.title
+				.style('view-type-chapter-block-title')
+				.text.bind(chapterState.mapManual(chapter =>
+					quilt['view/chapter/title'](Maths.parseIntOrUndefined(chapter.url), chapter.name)))
+			)
 			.appendTo(view.content)
 			.useInitial(initialChapterResponse.data, initialChapterResponse.page, initialChapterResponse.page_count)
 			.thenUse(chaptersQuery)

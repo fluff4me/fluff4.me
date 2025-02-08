@@ -28,6 +28,9 @@
 				%background-none
 				%backdrop-filter-none
 
+		&-title:
+			%wrap-words
+
 		&-content:
 			#after: .paginator-content, .paginator-content--has-header
 			%padding-0
