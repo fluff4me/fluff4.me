@@ -49,13 +49,25 @@ export default ViewDefinition({
 				.tweak(paginator => {
 					paginator.title.text.use('view/work/chapters/title')
 					Slot()
-						.use(movingChapter, (slot, movingChapter) => {
-							if (!movingChapter)
+						.use(movingChapter, (slot, movingChapterData) => {
+							if (!movingChapterData)
 								return
 
-							Chapter(movingChapter, workData, authorData)
+							Chapter(movingChapterData, workData, authorData)
 								.style('view-type-work-chapter-list-chapter-moving')
 								.append(ReorderingIcon())
+								.tweakActions(actions => actions
+									.insertAction('reorder', 'before', 'delete',
+										Session.Auth.author, (slot, self) => true
+											&& authorData.vanity === self?.vanity
+											&& Button()
+												.type('flush')
+												.setIcon('arrow-up-arrow-down')
+												.text.use('chapter/action/label/reorder-cancel')
+												.event.subscribe('click', () =>
+													movingChapter.value = undefined)
+									)
+								)
 								.appendTo(slot)
 						})
 						.appendTo(paginator.header)
