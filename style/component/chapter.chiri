@@ -31,6 +31,8 @@
 
 	&-name:
 		%relative
+		%wrap-words
+		%clamp-1
 
 	&-right:
 		%block
