@@ -33,7 +33,7 @@ export default ViewDefinition({
 				.style.setProperty('padding', '0.5em')
 				.style.setProperty('box-sizing', 'border-box')
 				.event.subscribe('input', event => {
-					const text = event.component.element.textContent ?? ''
+					const text = event.host.element.textContent ?? ''
 					const md = new MarkdownIt('commonmark', { html: true, breaks: true })
 					MarkdownItHTML.use(md, MarkdownItHTML.Options()
 						.disallowTags('img', 'figure', 'figcaption', 'map', 'area'))

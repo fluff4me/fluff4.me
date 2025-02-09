@@ -1,6 +1,7 @@
 import type App from 'App'
 import type { RoutePath } from 'navigation/Routes'
 import Routes from 'navigation/Routes'
+import EventManipulator from 'ui/utility/EventManipulator'
 import ErrorView from 'ui/view/ErrorView'
 import type ViewContainer from 'ui/view/shared/component/ViewContainer'
 import Env from 'utility/Env'
@@ -9,7 +10,12 @@ declare global {
 	export const navigate: Navigator
 }
 
+export interface NavigatorEvents {
+	Navigate (route: RoutePath | undefined): void
+}
+
 interface Navigator {
+	event: EventManipulator<this, NavigatorEvents>
 	isURL (glob: string): boolean
 	fromURL (): Promise<void>
 	toURL (route: RoutePath): Promise<void>
@@ -18,9 +24,10 @@ interface Navigator {
 	ephemeral: ViewContainer['showEphemeral']
 }
 
-function Navigator (app: App): Navigator {
+function Navigator (): Navigator {
 	let lastURL: URL | undefined
 	const navigate = {
+		event: undefined! as Navigator['event'],
 		isURL: (glob: string) => {
 			const pattern = glob
 				.replace(/(?<=\/)\*(?!\*)/g, '[^/]*')
@@ -31,9 +38,13 @@ function Navigator (app: App): Navigator {
 			if (location.href === lastURL?.href)
 				return
 
+			if (!app)
+				throw new Error('Cannot navigate yet, no app instance')
+
 			const oldURL = lastURL
 			lastURL = new URL(location.href)
 
+			let matchedRoute: RoutePath | undefined
 			let errored = false
 			if (location.pathname !== oldURL?.pathname) {
 				const url = location.pathname
@@ -42,6 +53,8 @@ function Navigator (app: App): Navigator {
 					const params = route.match(url)
 					if (!params)
 						continue
+
+					matchedRoute = route.path
 
 					await route.handler(app, (!Object.keys(params).length ? undefined : params) as never)
 					handled = true
@@ -66,6 +79,8 @@ function Navigator (app: App): Navigator {
 				element.scrollIntoView()
 				element.focus()
 			}
+
+			navigate.event.emit('Navigate', matchedRoute)
 		},
 		toURL: async (url: string) => {
 			navigate.setURL(url)
@@ -101,15 +116,29 @@ function Navigator (app: App): Navigator {
 			console.error(`Unsupported raw URL to navigate to: "${url}"`)
 			return false
 		},
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
-		ephemeral: (...args: unknown[]) => (app.view.showEphemeral as any)(...args),
+		ephemeral: (...args: unknown[]) => {
+			if (!app)
+				throw new Error('Cannot show ephemeral view yet, no app instance')
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+			return (app.view.showEphemeral as any)(...args)
+		},
 	}
+
+	navigate.event = EventManipulator(navigate)
 
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises
 	window.addEventListener('popstate', navigate.fromURL)
 
 	Object.assign(window, { navigate })
 	return navigate
+}
+
+let app: App | undefined
+namespace Navigator {
+	export function setApp (instance: App) {
+		app = instance
+	}
 }
 
 export default Navigator
