@@ -6,10 +6,15 @@
 	%scheme-light-dark
 	%border-box
 	%width-content
+	max-width: 100vw
 	%z-index-fg
 	$block-padding: $space-4
 	padding: $block-padding
 	#block
+
+	#flush:
+		%border-radius-0
+		$block-padding: $space-3
 
 	@before:
 		%block
@@ -21,11 +26,8 @@
 		%block-border-shadow
 		$border-colour: $block-border-colour
 
-	:container root (width <= #{content-width}):
-		%border-radius-0
-		box-shadow:
-			#{box-shadow-inset-border-block-1},
-			#{box-shadow-1}
+		#flush:
+			%border-radius-0
 
 	&-header:
 		margin: calc(-1 * $block-padding)
@@ -39,6 +41,9 @@
 		grid-template-columns: 1fr auto
 		$border-colour: $block-border-colour
 		background: light-dark(#{alpha(0.2, $light-0)}, #{alpha(0.02, $colour-0)})
+
+		#flush:
+			%border-radius-0
 
 	&-title:
 		%z-index-fg
@@ -83,6 +88,9 @@
 		%background-unclip
 		%z-index-fg
 
+		#flush:
+			%border-radius-0
+
 	&-type-flush:
 		#after: .block
 		%background-none
@@ -125,6 +133,9 @@
 
 		:last:
 			%border-bottom-radius-2
+
+			#flush:
+				%border-radius-0
 
 		@after:
 			%block

@@ -2,3 +2,7 @@
 	%gap-3
 	%grid
 	grid-template-columns: auto 1fr
+
+	#flush:
+		%flex
+		%flex-column

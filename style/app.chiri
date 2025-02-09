@@ -15,7 +15,10 @@
 		#{w} 1fr #{w}
 
 	#tablet:
-		%contents
+		grid-template-columns: 1fr
+		grid-template-areas:
+			"masthead"
+			"content"
 
 	&-content:
 		%grid
@@ -26,7 +29,7 @@
 
 		#tablet:
 			%block
-			%overflow-visible
+			%padding-left-0
 
 		&-related:
 			width: #{w}
@@ -36,7 +39,10 @@
 
 		@after:
 			%block
-			height: 12rem
+			height: calc($space-5 * 4)
+
+			#flush:
+				%height-3
 
 .masthead:
 	grid-area: masthead

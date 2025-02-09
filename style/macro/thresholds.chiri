@@ -1,0 +1,9 @@
+#macro tablet:
+	#body!component content
+	:container root (width < calc(#{space["5"]} * 20)):
+		#include content
+
+#macro flush:
+	#body!component content
+	:container root (width < #{content-width}):
+		#include content

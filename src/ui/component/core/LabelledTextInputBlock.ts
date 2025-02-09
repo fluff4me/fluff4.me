@@ -45,10 +45,13 @@ const LabelledTextInputBlock = Component.Builder((block): LabelledTextInputBlock
 						.appendTo(labels)
 
 					labelInitialiser!(label)
-					inputs.addInput(input => input
+					let input!: TextInput
+					inputs.addInput(i => input = i
 						.style('labelled-text-input-block-input')
 						.style.setProperty('grid-row', `${rowNumber}`)
-						.tweak(input => inputInitialiser(input.setLabel(label), label)))
+						.tweak(input => inputInitialiser(input.setLabel(label), label))
+					)
+					input.parent?.style('labelled-text-input-block-input-wrapper')
 					labelInitialiser = undefined
 					return block
 				},

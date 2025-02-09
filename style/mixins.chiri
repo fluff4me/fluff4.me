@@ -14,7 +14,17 @@
 		1.8
 		2.4
 
-	#list!dec font-size-mins = [
+	#list!dec font-sizes-mobile = [
+		0.6
+		0.8
+		0.9
+		1.0
+		1.2
+		1.4
+		1.6
+		1.8
+
+	#list!dec font-sizes-min = [
 		0.6
 		0.8
 		0.9
@@ -25,10 +35,19 @@
 		1.2
 
 	#each in font-sizes as var i, var font-size:
+		$font-#{i}: #{font-size}rem
+		$font-min-#{i}: #{font-sizes-min[i]}rem
+		$font-scaling-#{i}: #{font-size}
 		%font-#{i}:
-			$font-size-base: #{font-size}rem
+			$font-size-base: $font-#{i}
 			$font-size: round(calc($font-size-base / $font-scale-factor), 1px)
-			$font-scaling: #{font-size}
+			$font-scaling: $font-scaling-#{i}
 			font-size: $font-size
 
-			$font-size-min: #{font-size-mins[i]}rem
+			$font-size-min: $font-min-#{i}
+
+	.body:
+		#flush:
+			#each in font-sizes-mobile as var i, var font-size:
+				$font-#{i}: #{font-size}rem
+				$font-scaling-#{i}: #{font-size}
