@@ -48,6 +48,9 @@
 		bottom: -1px
 		$backdrop-filter-override: initial
 
+		#flush:
+			%unmargin-inline-3
+
 		&-left:
 			%gap-0
 		&-right:

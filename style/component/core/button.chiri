@@ -118,7 +118,11 @@ $$button-background-highlight!colour
 		%z-index-fg
 		%row-1-2
 		%align-self-centre
+		%justify-self-centre
 		%align-items-centre
+		%justify-items-centre
+		%justify-content-centre
+		%align-content-centre
 		margin-top: -.05em
 
 		&--has-subtext:
