@@ -898,7 +898,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.receiveFocusedClickEvents()
 			.event.subscribe('click', event => {
 				event.preventDefault()
-				handler(event.component)
+				handler(event.host)
 			})
 	})
 
@@ -911,7 +911,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.receiveFocusedClickEvents()
 			.event.subscribe('click', event => {
 				event.preventDefault()
-				toggler(event.component)
+				toggler(event.host)
 			})
 	})
 
@@ -925,7 +925,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.receiveFocusedClickEvents()
 			.event.subscribe('click', event => {
 				event.preventDefault()
-				toggler(event.component)
+				toggler(event.host)
 			})
 	})
 
@@ -946,7 +946,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			})
 			.receiveAncestorInsertEvents()
 			.event.subscribe(['insert', 'ancestorInsert'], event =>
-				event.component.style.toggle(!!event.component.closest(Popover), 'text-editor-toolbar-button--has-popover--within-popover'))
+				event.host.style.toggle(!!event.host.closest(Popover), 'text-editor-toolbar-button--has-popover--within-popover'))
 	})
 
 	//#endregion

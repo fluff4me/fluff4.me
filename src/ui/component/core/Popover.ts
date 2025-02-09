@@ -72,7 +72,7 @@ Component.extend(component => {
 				})
 				.tweak(initialiser, component)
 				.event.subscribe('toggle', e => {
-					const event = e as ToggleEvent & { component: Popover }
+					const event = e as ToggleEvent & { host: Popover }
 					if (event.newState === 'closed') {
 						isShown = false
 						component.clickState = false
@@ -88,6 +88,13 @@ Component.extend(component => {
 			const ariaRole = popover.attributes.getUsing('role') ?? popover.attributes.get('role')
 			component.ariaLabel.use((quilt, { arg }) => quilt['component/popover/button'](arg(ariaLabel), arg(ariaRole)))
 			popover.ariaLabel.use((quilt, { arg }) => quilt['component/popover'](arg(ariaLabel)))
+
+			navigate.event.subscribe('Navigate', forceClose)
+			popover.removed.awaitManual(true, () => navigate.event.unsubscribe('Navigate', forceClose))
+			function forceClose () {
+				component.clickState = false
+				popover.hide()
+			}
 
 			component.clickState = false
 			if (!component.popover) {

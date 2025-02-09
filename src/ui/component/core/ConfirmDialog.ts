@@ -88,8 +88,8 @@ const ConfirmDialog = Object.assign(
 			(await ConfirmDialog(definition))
 				.appendTo(document.body)
 				.event.subscribe('close', event =>
-					event.component.event.subscribe('transitionend', event =>
-						event.component.remove()))
+					event.host.event.subscribe('transitionend', event =>
+						event.host.remove()))
 				.await(owner),
 	},
 )

@@ -87,6 +87,8 @@ async function App (): Promise<App> {
 		Async.sleep(Time.seconds(2)),
 	])
 
+	const navigate = Navigator()
+
 	HoverListener.listen()
 	ActiveListener.listen()
 	FocusListener.listen()
@@ -115,9 +117,10 @@ async function App (): Promise<App> {
 		.append(masthead, masthead.sidebar, content)
 		.append(ToastList())
 		.extend<AppExtensions>(app => ({
-			navigate: Navigator(app),
+			navigate,
 			view,
 		}))
+		.tweak(Navigator.setApp)
 		.appendTo(document.body)
 
 	await app.navigate.fromURL()

@@ -2,7 +2,7 @@ import type Component from 'ui/Component'
 import Arrays from 'utility/Arrays'
 import type { AnyFunction } from 'utility/Type'
 
-type EventParameters<HOST, EVENTS, EVENT extends keyof EVENTS> = EVENTS[EVENT] extends (...params: infer PARAMS) => unknown ? PARAMS extends [infer EVENT extends Event, ...infer PARAMS] ? [EVENT & { component: HOST }, ...PARAMS] : [Event & { component: HOST }, ...PARAMS] : never
+type EventParameters<HOST, EVENTS, EVENT extends keyof EVENTS> = EVENTS[EVENT] extends (...params: infer PARAMS) => unknown ? PARAMS extends [infer EVENT extends Event, ...infer PARAMS] ? [EVENT & { host: HOST }, ...PARAMS] : [Event & { host: HOST }, ...PARAMS] : never
 type EventParametersEmit<EVENTS, EVENT extends keyof EVENTS> = EVENTS[EVENT] extends (...params: infer PARAMS) => unknown ? PARAMS extends [Event, ...infer PARAMS] ? PARAMS : PARAMS : never
 type EventResult<EVENTS, EVENT extends keyof EVENTS> = EVENTS[EVENT] extends (...params: any[]) => infer RESULT ? RESULT : never
 
@@ -50,7 +50,15 @@ interface EventHandlerRegistered extends AnyFunction {
 	[SYMBOL_REGISTERED_FUNCTION]?: AnyFunction
 }
 
-function EventManipulator (component: Component): EventManipulator<Component, NativeEvents> {
+function isComponent (host: unknown): host is Component {
+	return typeof host === 'object' && host !== null && 'isComponent' in host
+}
+
+function EventManipulator<T extends object> (host: T): EventManipulator<T, NativeEvents> {
+	const elementHost = isComponent(host)
+		? host
+		: { element: document.createElement('span') }
+
 	return {
 		emit (event, ...params) {
 			const detail: EventDetail = { result: [], params }
@@ -71,7 +79,7 @@ function EventManipulator (component: Component): EventManipulator<Component, Na
 					},
 				}
 			)
-			component.element.dispatchEvent(eventObject)
+			elementHost.element.dispatchEvent(eventObject)
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return Object.assign(detail.result, { defaultPrevented: eventObject.defaultPrevented || preventedDefault, stoppedPropagation }) as any
 		},
@@ -94,7 +102,7 @@ function EventManipulator (component: Component): EventManipulator<Component, Na
 					},
 				}
 			)
-			component.element.dispatchEvent(eventObject)
+			elementHost.element.dispatchEvent(eventObject)
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return Object.assign(detail.result, { defaultPrevented: eventObject.defaultPrevented || preventedDefault, stoppedPropagation }) as any
 		},
@@ -107,37 +115,37 @@ function EventManipulator (component: Component): EventManipulator<Component, Na
 		unsubscribe (events, handler) {
 			const realHandler = (handler as EventHandlerRegistered)[SYMBOL_REGISTERED_FUNCTION]
 			if (!realHandler)
-				return component
+				return host
 
 			delete (handler as EventHandlerRegistered)[SYMBOL_REGISTERED_FUNCTION]
 
 			for (const event of Arrays.resolve(events))
-				component.element.removeEventListener(event, realHandler)
+				elementHost.element.removeEventListener(event, realHandler)
 
-			return component
+			return host
 		},
 	}
 
 	function subscribe (handler: EventHandlerRegistered, events: Arrays.Or<keyof NativeEvents>, options?: AddEventListenerOptions) {
 		if (handler[SYMBOL_REGISTERED_FUNCTION]) {
 			console.error(`Can't register handler for event(s) ${Arrays.resolve(events).join(', ')}, already used for other events`, handler)
-			return component
+			return host
 		}
 
 		const realHandler = (event: Event) => {
 			const customEvent = event instanceof CustomEvent ? event : undefined
 			const eventDetail = customEvent?.detail as EventDetail | undefined
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-			const result = (handler as any)(Object.assign(event, { component }), ...eventDetail?.params ?? [])
+			const result = (handler as any)(Object.assign(event, { host }), ...eventDetail?.params ?? [])
 			eventDetail?.result.push(result)
 		}
 
 		Object.assign(handler, { [SYMBOL_REGISTERED_FUNCTION]: realHandler })
 
 		for (const event of Arrays.resolve(events))
-			component.element.addEventListener(event, realHandler, options)
+			elementHost.element.addEventListener(event, realHandler, options)
 
-		return component
+		return host
 	}
 }
 

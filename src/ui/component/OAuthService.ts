@@ -94,7 +94,7 @@ const OAuthService = Component.Builder((component, service: AuthService, reauthD
 				await Session.Auth.auth(service)
 
 			auth = Session.Auth.get(service.name)
-			event.component.setChecked(!!auth)
+			event.host.setChecked(!!auth)
 		})
 	})
 
