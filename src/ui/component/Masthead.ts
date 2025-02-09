@@ -13,7 +13,6 @@ import Viewport from 'ui/utility/Viewport'
 import type ViewContainer from 'ui/view/shared/component/ViewContainer'
 import AbortPromise from 'utility/AbortPromise'
 import Env from 'utility/Env'
-import Task from 'utility/Task'
 
 interface MastheadExtensions {
 	sidebar: Sidebar
@@ -21,7 +20,7 @@ interface MastheadExtensions {
 
 interface Masthead extends Component, MastheadExtensions { }
 
-const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => {
+const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Masthead => {
 	masthead.style('masthead')
 
 	const sidebar = Sidebar()
@@ -56,9 +55,12 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer) => 
 
 	sidebar.style.bind(masthead.hasFocused, 'sidebar--visible-due-to-keyboard-navigation')
 
-	Viewport.size.use(masthead, async () => {
-		await Task.yield()
-		nav.appendTo(sidebar.element.clientWidth ? sidebar : popover)
+	let sizeTimeout: number | undefined
+	Viewport.size.use(masthead, () => {
+		window.clearTimeout(sizeTimeout)
+		sizeTimeout = window.setTimeout(() => {
+			nav.appendTo(sidebar.element.clientWidth ? sidebar : popover)
+		}, 1)
 	})
 
 	const flag = Flag()
