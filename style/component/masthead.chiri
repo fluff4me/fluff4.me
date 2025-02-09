@@ -94,8 +94,11 @@
 				background: $colour-pink
 
 			&-popover:
-				width: calc($space-5 * 5)
-				max-width: 100vw
+				%border-box
+				%margin-left-2
+				width: calc($space-5 * 6)
+				max-width: calc(100vw - $space-2 * 2)
+				max-height: calc(100vh - $masthead-height - $space-2 * 2)
 
 			&-list:
 				#after: .block-type-flush, .paginator--flush

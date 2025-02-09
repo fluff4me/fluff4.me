@@ -13,12 +13,14 @@ import Env from 'utility/Env'
 import type State from 'utility/State'
 
 export default Component.Builder(nav => {
+	nav.style('primary-nav')
+
 	const top = Component()
-		.style('sidebar-top')
+		.style('primary-nav-top')
 		.appendTo(nav)
 
 	const bottom = Component()
-		.style('sidebar-bottom')
+		.style('primary-nav-bottom')
 		.appendTo(nav)
 
 	////////////////////////////////////
@@ -38,9 +40,9 @@ export default Component.Builder(nav => {
 
 	function Group (at: 'top' | 'bottom' | null, translation: Quilt.SimpleKey | Quilt.Handler): Group {
 		return Component()
-			.style('sidebar-group')
+			.style('primary-nav-group')
 			.append(Heading()
-				.style('sidebar-group-heading')
+				.style('primary-nav-group-heading')
 				.style.remove('heading')
 				.text.use(translation))
 			.extend<GroupExtensions>(group => ({
@@ -60,15 +62,15 @@ export default Component.Builder(nav => {
 			return (path, translation, initialiser) => {
 				Link(path)
 					.and(Button)
-					.style('sidebar-link')
+					.style('primary-nav-link')
 					.type('flush')
 					.text.use(translation)
 					.override('setIcon', (button, original) => icon => original(icon)
-						.tweak(button => button.icon?.style('sidebar-link-icon')))
+						.tweak(button => button.icon?.style('primary-nav-link-icon')))
 					.tweak(button => button
-						.style.bind(button.disabled, 'button--disabled', 'sidebar-link--disabled'))
+						.style.bind(button.disabled, 'button--disabled', 'primary-nav-link--disabled'))
 					.tweak(button => button
-						.textWrapper.style('sidebar-link-text'))
+						.textWrapper.style('primary-nav-link-text'))
 					.tweak(initialiser)
 					.appendTo(addTo)
 				return addTo
