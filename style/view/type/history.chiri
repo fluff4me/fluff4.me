@@ -12,12 +12,15 @@
 		%padding-0
 		%padding-bottom-2
 		%margin-inline-3
+		%border-top-radius-2
+		%overflow-hidden
 		margin-bottom: calc($space-5 * -1 - 1px)
 		width: calc(100% - $space-3 * 2)
 
 		@before:
 			%inset-border-1
 			%border-bottom-radius-0
+			%border-top-radius-2
 
 	&-chapter:
 		#after: .chapter
