@@ -10,7 +10,7 @@
 			#after: .reaction-button
 
 		&-icon:
-			#after: .button-icon
+			#after: .button-icon, .button-icon--type-icon
 			%weight-normal
 			%font-3
 

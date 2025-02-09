@@ -13,6 +13,11 @@
 		%unmargin-inline-4
 		%max-width-none
 		width: calc(#{content-width} + $space-4 * 2)
+		max-width: 100vw
+
+		#flush:
+			%margin-0
+			%padding-inline-3
 
 		:scheme light:
 			%background-0-a80

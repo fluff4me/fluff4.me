@@ -11,6 +11,11 @@
 		%backdrop-blur
 		$block-padding: 0
 		width: calc(#{content-width} + $space-5 * 2)
+		max-width: 100vw
+
+		#flush:
+			%margin-inline-0
+			%padding-inline-3
 
 		:scheme light:
 			%background-1-a90
