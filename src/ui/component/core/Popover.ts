@@ -99,14 +99,15 @@ Component.extend(component => {
 			component.clickState = false
 			if (!component.popover) {
 				component.event.subscribe('click', async event => {
-					// always subscribe click because we need to handle it for keyboard navigation
-					if (!component.focused.value && popoverEvent !== 'click')
-						return
+					component.clickState = !component.clickState
 
 					event.stopPropagation()
 					event.preventDefault()
 
-					await showPopoverClick()
+					if (component.clickState)
+						await showPopoverClick()
+					else
+						popover.hide()
 				})
 
 				component.receiveAncestorInsertEvents()
@@ -136,7 +137,6 @@ Component.extend(component => {
 			}))
 
 			async function showPopoverClick () {
-				component.clickState = true
 				component.popover?.show()
 				component.popover?.focus()
 				component.popover?.style.removeProperties('left', 'top')
