@@ -70,6 +70,7 @@
 	component/notification
 	component/mention
 	component/tag-block
+	component/primary-nav
 
 #import:
 	view/view

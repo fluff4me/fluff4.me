@@ -20,8 +20,10 @@ interface MastheadExtensions {
 
 interface Masthead extends Component, MastheadExtensions { }
 
+const MASTHEAD_CLASS = '_masthead'
+
 const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Masthead => {
-	masthead.style('masthead')
+	masthead.style('masthead').classes.add(MASTHEAD_CLASS)
 
 	const sidebar = Sidebar()
 	const nav = PrimaryNav()
@@ -48,6 +50,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 			.ariaLabel.use('masthead/primary-nav/alt')
 			.clearPopover()
 			.setPopover('hover', p => popover = p
+				.style('primary-nav-popover')
 				.anchor.add('aligned left', 'off bottom')
 				.ariaRole('navigation')))
 		.style('masthead-left')
@@ -107,6 +110,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 				.setPopover('hover', popover => popover
 					.style('masthead-user-notifications-popover')
 					.anchor.add('aligned right', 'off bottom')
+					.anchor.add('aligned left', `.${MASTHEAD_CLASS}`, 'off bottom')
 					.append(Slot().use(Notifications.cache, AbortPromise.asyncFunction(async (signal, slot, notifications) => {
 						const list = await NotificationList(true, 5)
 						if (signal.aborted)
