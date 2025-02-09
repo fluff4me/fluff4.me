@@ -63,6 +63,13 @@ Component.extend(component => {
 			const popover = Popover()
 				.anchor.from(component)
 				.setOwner(component)
+				.setCloseDueToMouseInputFilter(event => {
+					const hovered = HoverListener.hovered() ?? null
+					if (component.element.contains(hovered))
+						return false
+
+					return true
+				})
 				.tweak(initialiser, component)
 				.event.subscribe('toggle', e => {
 					const event = e as ToggleEvent & { component: Popover }
@@ -226,6 +233,7 @@ interface PopoverExtensions {
 	containsPopoverDescendant (node?: Node | Component): boolean
 	/** Defaults on */
 	setCloseOnInput (closeOnInput?: boolean): this
+	setCloseDueToMouseInputFilter (filter: (event: IInputEvent) => boolean): this
 
 	show (): this
 	hide (): this
@@ -241,6 +249,7 @@ const Popover = Component.Builder((component): Popover => {
 	let unbind: UnsubscribeState | undefined
 	const visible = State(false)
 	let shouldCloseOnInput = true
+	let inputFilter: ((event: IInputEvent) => boolean) | undefined
 	let normalStacking = false
 	const popover = component
 		.style('popover')
@@ -256,6 +265,10 @@ const Popover = Component.Builder((component): Popover => {
 
 			setCloseOnInput (closeOnInput = true) {
 				shouldCloseOnInput = closeOnInput
+				return popover
+			},
+			setCloseDueToMouseInputFilter (filter) {
+				inputFilter = filter
 				return popover
 			},
 			setMousePadding: padding => {
@@ -341,6 +354,9 @@ const Popover = Component.Builder((component): Popover => {
 			return
 
 		if (!event.key.startsWith('Mouse') || popover.containsPopoverDescendant(HoverListener.hovered()))
+			return
+
+		if (inputFilter && !inputFilter(event))
 			return
 
 		if (popover.rooted.value)
