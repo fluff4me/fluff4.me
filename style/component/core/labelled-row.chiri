@@ -11,11 +11,20 @@
 		%align-items-start
 		%span-2
 
+		#flush:
+			%flex
+			%flex-column
+			%gap-0
+
 	&-label:
 		%sticky
 		%top-0
 		%padding-2-0
 
+		#flush:
+			%padding-0
+
 	&-content:
 		%block
 		%relative
+		%width-100

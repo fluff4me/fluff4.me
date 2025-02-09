@@ -1,8 +1,3 @@
-#macro tablet:
-	#body!component content
-	:container root (width < calc(#{space["5"]} * 20)):
-		#include content
-
 %overflow-hidden
 %absolute
 %inset-0
@@ -30,6 +25,7 @@ $masthead-height: calc(round(up, $font-4 * 1.2, 1px) + $space-1 * 2 + $space-2 *
 .body:
 	%margin-0
 	%overflow-hidden
+	%font-3
 
 	#tablet:
 		%overflow-auto-y

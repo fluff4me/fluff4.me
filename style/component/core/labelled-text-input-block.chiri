@@ -1,8 +1,14 @@
 .labelled-text-input-block:
+	%relative
 	%row-gap-0
 
 	&-labels:
 		%contents
+
+		#flush:
+			%flex
+			%flex-wrap
+			%gap-4
 
 	&-inputs:
 		%contents
@@ -13,3 +19,7 @@
 
 	&-input:
 		%column-2
+		%width-100
+
+		&-wrapper:
+			%width-100
