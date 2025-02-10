@@ -8,6 +8,7 @@ import ProgressWheel from 'ui/component/core/ProgressWheel'
 import Slot from 'ui/component/core/Slot'
 import { AllowYOffscreen } from 'ui/utility/AnchorManipulator'
 import StringApplicator from 'ui/utility/StringApplicator'
+import Viewport from 'ui/utility/Viewport'
 import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 
@@ -19,6 +20,7 @@ export interface InputExtensions {
 	readonly maxLength: State<number | undefined>
 	readonly length: State<number | undefined>
 	readonly invalid: State<string>
+	readonly hasPopover: State<boolean>
 	getPopover (): Popover | undefined
 	/** 
 	 * By default the hint popover is visible on input focus. This allows disabling that in favour of custom handling. 
@@ -84,19 +86,8 @@ const Input = Object.assign(
 				return
 
 			popover = Popover()
-				.anchor.from(component)
-				.anchor.add('off right', `.${BlockClasses.Main}`, 'aligned top', {
-					...AllowYOffscreen,
-					yValid (y, hostBox, popoverBox) {
-						// only align top if the popover box is taller than the host box
-						return popoverBox.height > (hostBox?.height ?? 0)
-					},
-				})
-				.anchor.add('off right', `.${BlockClasses.Main}`, 'centre', AllowYOffscreen)
 				.setNormalStacking()
-				.setCloseOnInput(false)
 				.style('input-popover')
-				.type('flush')
 				.setOwner(component)
 				.tweak(popover => {
 					if (popoverOverride.value)
@@ -110,11 +101,40 @@ const Input = Object.assign(
 				})
 				.tweak(popoverInitialiser, component)
 				.appendTo(document.body)
+
+			Viewport.tablet.use(popover, isTablet => {
+				const tablet = isTablet()
+				popover?.type.toggle(!tablet, 'flush')
+
+				if (tablet) {
+					popover?.anchor.reset()
+						.anchor.from(component)
+						.anchor.add('aligned left', 'aligned top')
+						.anchor.add('aligned left', 'aligned bottom')
+						.setCloseOnInput(true)
+				}
+				else {
+					popover?.anchor.reset()
+						.anchor.from(component)
+						.anchor.add('off right', `.${BlockClasses.Main}`, 'aligned top', {
+							...AllowYOffscreen,
+							yValid (y, hostBox, popoverBox) {
+								// only align top if the popover box is taller than the host box
+								return popoverBox.height > (hostBox?.height ?? 0)
+							},
+						})
+						.anchor.add('off right', `.${BlockClasses.Main}`, 'centre', AllowYOffscreen)
+						.setCloseOnInput(false)
+				}
+			})
 		})
 
 		let customPopoverVisibilityHandling = false
 		component.hasFocused.subscribeManual(hasFocused => {
 			if (customPopoverVisibilityHandling)
+				return
+
+			if (Viewport.tablet.value)
 				return
 
 			popover?.toggle(hasFocused).anchor.apply()
@@ -137,6 +157,7 @@ const Input = Object.assign(
 			maxLength,
 			length,
 			invalid,
+			hasPopover,
 			disableDefaultHintPopoverVisibilityHandling () {
 				customPopoverVisibilityHandling = true
 				return component

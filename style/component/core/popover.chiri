@@ -1,3 +1,5 @@
+$popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
+
 .popover:
 	%relative
 	%border-radius-2
@@ -7,6 +9,7 @@
 	%flex-column
 	%gap-2
 	%block-border-shadow
+	%border-box
 	%scheme-light-dark
 	%transparent
 	%translate-down-3

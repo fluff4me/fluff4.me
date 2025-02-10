@@ -328,14 +328,14 @@ namespace State {
 		return result
 	}
 
-	export interface JIT<T> extends State<T, undefined> {
+	export interface JIT<T> extends State<T, () => T> {
 		markDirty (): this
 		observe (...states: State<any>[]): this
 		unobserve (...states: State<any>[]): this
 	}
 
 	export function JIT<T> (generate: () => StateOr<T>): JIT<T> {
-		const result = State(undefined) as State<T | undefined> as MakeMutable<JIT<T>> & InternalState<T>
+		const result = State(undefined!) as State<T, () => T> as MakeMutable<JIT<T>> & InternalState<T>
 		delete result.asMutable
 
 		let isCached = false
@@ -359,10 +359,22 @@ namespace State {
 			},
 		})
 
+		const get = () => result.value
 		result.emit = () => {
 			for (const subscriber of result[SYMBOL_SUBSCRIBERS].slice())
-				subscriber(undefined, cached)
+				subscriber(get, cached)
 			return result
+		}
+
+		result.use = (owner, subscriber) => {
+			result.subscribe(owner, subscriber)
+			subscriber(get, undefined)
+			return () => result.unsubscribe(subscriber)
+		}
+		result.useManual = subscriber => {
+			result.subscribeManual(subscriber)
+			subscriber(get, undefined)
+			return () => result.unsubscribe(subscriber)
 		}
 
 		result.markDirty = () => {
@@ -424,12 +436,12 @@ namespace State {
 			.observeManual(...inputs.filter(FilterNonNullish))
 	}
 
-	export function Use<const INPUT extends Record<string, (State<unknown> | undefined)>> (owner: Owner, input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends State<infer INPUT> ? INPUT : undefined }> {
+	export function Use<const INPUT extends Record<string, (State<unknown> | undefined)>> (owner: Owner, input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends State<infer INPUT, infer OUTPUT> ? INPUT : undefined }> {
 		return Generator(() => Object.entries(input).toObject(([key, state]) => [key, state?.value]) as never)
 			.observe(owner, ...Object.values(input).filter(FilterNonNullish))
 	}
 
-	export function UseManual<const INPUT extends Record<string, (State<unknown> | undefined)>> (input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends State<infer INPUT> ? INPUT : undefined }> {
+	export function UseManual<const INPUT extends Record<string, (State<unknown> | undefined)>> (input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends State<infer INPUT, infer OUTPUT> ? INPUT : undefined }> {
 		return Generator(() => Object.entries(input).toObject(([key, state]) => [key, state?.value]) as never)
 			.observeManual(...Object.values(input).filter(FilterNonNullish))
 	}

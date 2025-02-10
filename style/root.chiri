@@ -21,6 +21,8 @@ $font-5: calc(1.5rem / $font-scale-factor)
 $font-6: calc(1.8rem / $font-scale-factor)
 $font-7: calc(2.4rem / $font-scale-factor)
 $masthead-height: calc(round(up, $font-4 * 1.2, 1px) + $space-1 * 2 + $space-2 * 2)
+$content-width: #{content-width}
+$tablet-width: #{tablet-width}
 
 .body:
 	%margin-0

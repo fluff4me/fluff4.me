@@ -1,8 +1,22 @@
 .label:
 
+	&-text:
+
 	&-required:
 		@after:
 			content: "*"
 
 	&--invalid:
 		color: #f33
+
+	&-info-button:
+
+		&-icon:
+			%font-1
+
+		&--hidden:
+			#after: .label-info-button
+			%hidden
+
+		#not-tablet:
+			%hidden

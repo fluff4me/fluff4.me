@@ -188,6 +188,7 @@ $$button-background-highlight!colour
 		"pencil
 		"trash
 		"book
+		"circle-question
 
 	#each in icons as var icon:
 		&-icon-#{icon}:
