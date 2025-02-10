@@ -8,3 +8,8 @@ $input-divider-border-colour: color-mix(in lch, $border-colour, transparent 90%)
 		&-hint-text:
 			%italic
 			%font-1
+
+		#tablet:
+			%unmargin-top-1
+			max-width: $popover-max-width
+			left: $space-2 !important

@@ -31,6 +31,7 @@ const VanityInput = Component.Builder((component): VanityInput => {
 			maxLength: input.maxLength,
 			length: input.length,
 			invalid: input.invalid,
+			hasPopover: input.hasPopover,
 			getPopover () {
 				return input.getPopover()
 			},

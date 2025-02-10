@@ -22,7 +22,7 @@
 		%padding-2-0
 
 		#flush:
-			%padding-0
+			%padding-block-1
 
 	&-content:
 		%block

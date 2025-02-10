@@ -1,6 +1,16 @@
+#macro not-tablet:
+	#body!component content
+	:container root (width >= #{tablet-width}):
+		#include content
+
 #macro tablet:
 	#body!component content
-	:container root (width < calc(#{space["5"]} * 20)):
+	:container root (width < #{tablet-width}):
+		#include content
+
+#macro not-flush:
+	#body!component content
+	:container root (width >= #{content-width}):
 		#include content
 
 #macro flush:

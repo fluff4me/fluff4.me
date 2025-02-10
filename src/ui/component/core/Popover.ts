@@ -6,6 +6,8 @@ import HoverListener from 'ui/utility/HoverListener'
 import Mouse from 'ui/utility/Mouse'
 import type { ComponentNameType } from 'ui/utility/StyleManipulator'
 import TypeManipulator from 'ui/utility/TypeManipulator'
+import Viewport from 'ui/utility/Viewport'
+import { mutable } from 'utility/Objects'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Task from 'utility/Task'
@@ -230,6 +232,7 @@ interface PopoverExtensions {
 	readonly popoverParent: State<Popover | undefined>
 	readonly popoverHasFocus: State<boolean>
 	readonly type: TypeManipulator<this, PopoverType>
+	readonly lastStateChangeTime: number
 
 	/** Sets the distance the mouse can be from the popover before it hides, if it's shown due to hover */
 	setMousePadding (padding?: number): this
@@ -263,6 +266,7 @@ const Popover = Component.Builder((component): Popover => {
 		.tabIndex('programmatic')
 		.attributes.set('popover', 'manual')
 		.extend<PopoverExtensions>(popover => ({
+			lastStateChangeTime: 0,
 			visible,
 			type: TypeManipulator.Style(popover, type => `popover--type-${type}`),
 			popoverChildren: State([]),
@@ -283,10 +287,14 @@ const Popover = Component.Builder((component): Popover => {
 				return popover
 			},
 			setNormalStacking () {
-				popover.style('popover--normal-stacking')
-				popover.attributes.remove('popover')
-				normalStacking = true
-				togglePopover(visible.value)
+				Viewport.tablet.use(popover, isTablet => {
+					const tablet = isTablet()
+					popover.style.toggle(!tablet, 'popover--normal-stacking')
+					popover.attributes.toggle(tablet, 'popover', 'manual')
+					normalStacking = !tablet
+					togglePopover(visible.value)
+				})
+
 				return popover
 			},
 
@@ -350,10 +358,15 @@ const Popover = Component.Builder((component): Popover => {
 		if (!popover.hasContent())
 			shown = false
 
-		if (normalStacking)
+		if (normalStacking && !Viewport.tablet.value)
 			popover.style.toggle(!shown, 'popover--normal-stacking--hidden')
 		else if (popover.rooted.value)
-			popover.element.togglePopover(shown)
+			popover
+				.style.remove('popover--normal-stacking--hidden')
+				.attributes.set('popover', 'manual')
+				.element.togglePopover(shown)
+
+		mutable(popover).lastStateChangeTime = Date.now()
 	}
 
 	function onInputDown (event: IInputEvent) {
@@ -367,9 +380,13 @@ const Popover = Component.Builder((component): Popover => {
 			return
 
 		if (popover.rooted.value)
-			popover.element.togglePopover(false)
+			popover
+				.attributes.set('popover', 'manual')
+				.element.togglePopover(false)
 
 		popover.visible.asMutable?.setValue(false)
+
+		mutable(popover).lastStateChangeTime = Date.now()
 	}
 
 	function containsPopoverDescendant (descendant?: Node | Component) {

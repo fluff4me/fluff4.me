@@ -1,5 +1,6 @@
 import type { ComponentBrand } from 'ui/Component'
 import Component from 'ui/Component'
+import Button from 'ui/component/core/Button'
 import type Input from 'ui/component/core/ext/Input'
 import Form from 'ui/component/core/Form'
 import View from 'ui/view/shared/component/View'
@@ -7,6 +8,7 @@ import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
 interface LabelExtensions {
+	readonly textWrapper: Component
 	readonly for: State<string | undefined>
 	setFor (inputName?: string): this
 	setRequired (required?: boolean | State<boolean>): this
@@ -18,10 +20,22 @@ interface Label extends Component, LabelExtensions { }
 const Label = Component.Builder('label', (label): Label => {
 	label.style('label')
 
+	const textWrapper = Component()
+		.style('label-text')
+		.appendTo(label)
+
+	const infoButton = Button()
+		.style('label-info-button', 'label-info-button--hidden')
+		.type('icon')
+		.setIcon('circle-question')
+		.tweak(button => button.icon?.style('label-info-button-icon'))
+		.appendTo(label)
+
 	let requiredState: State<boolean> | undefined
 	let unuseInput: UnsubscribeState | undefined
 	return label
 		.extend<LabelExtensions>(label => ({
+			textWrapper,
 			for: State(undefined),
 			setFor: inputName => {
 				label.attributes.set('for', inputName)
@@ -32,9 +46,9 @@ const Label = Component.Builder('label', (label): Label => {
 				label.style.unbind(requiredState)
 				requiredState = undefined
 				if (typeof required === 'boolean')
-					label.style.toggle('label-required')
+					textWrapper.style.toggle('label-required')
 				else
-					label.style.bind(requiredState = required, 'label-required')
+					textWrapper.style.bind(requiredState = required, 'label-required')
 				return label
 			},
 			setInput: input => {
@@ -43,10 +57,31 @@ const Label = Component.Builder('label', (label): Label => {
 					label.setFor(input?.name.value)
 
 				label.setRequired(input?.required)
-				unuseInput = input?.invalid.use(label, invalid => label.style.toggle(!!invalid, 'label--invalid'))
+
+				const unuseInputInvalid = input?.invalid.use(label, invalid => label.style.toggle(!!invalid, 'label--invalid'))
+				const unuseInputHasPopover = input?.hasPopover.use(label, hasPopover => {
+					infoButton.style.toggle(!hasPopover, 'label-info-button--hidden')
+				})
+
+				infoButton.event.subscribe('click', onInfoButtonClick)
+				function onInfoButtonClick () {
+					const popover = input?.getPopover()
+					if ((popover?.lastStateChangeTime ?? Infinity) + 10 >= Date.now())
+						return
+
+					input?.getPopover()?.toggle().anchor.apply()
+				}
+
+				unuseInput = !input ? undefined : () => {
+					unuseInputInvalid?.()
+					unuseInputHasPopover?.()
+					infoButton.event.unsubscribe('click', onInfoButtonClick)
+					unuseInput = undefined
+				}
 				return label
 			},
 		}))
+		.extendJIT('text', label => label.textWrapper.text.rehost(label))
 })
 
 export default Label
