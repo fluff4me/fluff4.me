@@ -9,13 +9,13 @@ $$view-transition-delay!*: placeholder-delay-class
 	$backdrop-filter-override: none
 
 	@view-transition-class!old:
-		#animate #{.15 * duration-multiplier}s ease-out both:
+		#animate #{.1 * duration-multiplier}s ease-out both:
 			to:
 				translate: 0 $space-5
 				opacity: 0
 
 	@view-transition-class!new:
-		#animate #{.3 * duration-multiplier}s ease-out backwards:
+		#animate #{.2 * duration-multiplier}s ease-out backwards:
 			from:
 				translate: 0 $space-4
 				opacity: 0
@@ -28,17 +28,17 @@ $$subview-transition-classes!*: placeholder-class
 
 	@view-transition-class!group:
 		animation-timing-function: ease-out
-		animation-duration: .5s
+		animation-duration: .3s
 		animation-fill-mode: both
 
 	@view-transition-class!old:
-		animation-duration: .3s
+		animation-duration: .2s
 
 	view-transition-class: subview-transition $subview-transition-classes $view-transition-delay
 
 #each in 0..40 as var i:
 	.view-transition-delay-#{i}:
 		@view-transition-class!old:
-			animation-delay: #{i * .1}s
+			animation-delay: #{i * .02}s
 		@view-transition-class!new:
-			animation-delay: #{i * .1}s
+			animation-delay: #{i * .02}s
