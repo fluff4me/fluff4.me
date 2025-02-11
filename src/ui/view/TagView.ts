@@ -1,5 +1,9 @@
+import EndpointFeedGet from 'endpoint/feed/EndpointFeedGet'
+import EndpointFeedGetAuthed from 'endpoint/feed/EndpointFeedGetAuthed'
+import Session from 'model/Session'
 import Tags from 'model/Tags'
 import TagBlock from 'ui/component/TagBlock'
+import WorkFeed from 'ui/component/WorkFeed'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import Errors from 'utility/Errors'
@@ -29,6 +33,13 @@ export default ViewDefinition({
 			throw Errors.NotFound()
 
 		TagBlock(tag)
+			.appendTo(view.content)
+
+		WorkFeed()
+			.setFromEndpoint((Session.Auth.author.value ? EndpointFeedGetAuthed : EndpointFeedGet)
+				.prep(undefined, {
+					whitelistTags: [`${tag.category}: ${tag.name}`],
+				}))
 			.appendTo(view.content)
 
 		return view
