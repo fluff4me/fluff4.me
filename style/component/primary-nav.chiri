@@ -2,6 +2,7 @@
 	%flex
 	%flex-column
 	%gap-4
+	%height-100
 
 	#flush:
 		%gap-3
