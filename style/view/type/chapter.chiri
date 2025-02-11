@@ -2,7 +2,7 @@
 
 	&-work:
 	&-block:
-		#after: .paginator--flush, .block-type-flush
+		#after: .paginator--flush, .block--type-flush
 		%scheme-light-dark
 		%padding-4-5
 		%border-radius-2
@@ -77,7 +77,7 @@
 			$paginator-page-display: block
 
 		&-paginator-actions:
-			#after: .paginator-footer--hidden, .paginator-footer--flush, .block-type-flush-footer
+			#after: .paginator-footer--hidden, .paginator-footer--flush, .block--type-flush-footer
 			%flex
 			%padding-inline-0
 			%scheme-light-dark

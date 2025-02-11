@@ -101,7 +101,7 @@
 				max-height: calc(100vh - $masthead-height - $space-2 * 2)
 
 			&-list:
-				#after: .block-type-flush, .paginator--flush
+				#after: .block--type-flush, .paginator--flush
 				%scheme-light-dark
 				$block-padding: $space-0
 				$notification-read-button-padding: $space-1

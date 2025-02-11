@@ -45,7 +45,8 @@ interface StyleManipulatorFunctions<HOST> {
 	toggle (...names: ComponentName[]): HOST
 	toggle (enabled: boolean, ...names: ComponentName[]): HOST
 	bind (state: StateOr<boolean>, ...names: ComponentName[]): HOST
-	unbind (state?: State<boolean>): HOST
+	bindFrom (state: State<ComponentName[]>): HOST
+	unbind (state?: State<boolean> | State<ComponentName[]>): HOST
 	refresh (): HOST
 
 	hasProperty (property: string): boolean
@@ -68,7 +69,7 @@ interface StyleManipulator<HOST> extends StyleManipulatorFunction<HOST>, StyleMa
 function StyleManipulator (component: Component): StyleManipulator<Component> {
 	const styles = new Set<ComponentName>()
 	const currentClasses: string[] = []
-	const stateUnsubscribers = new WeakMap<State<boolean>, [UnsubscribeState, ComponentName[]]>()
+	const stateUnsubscribers = new WeakMap<State<boolean> | State<ComponentName[]>, [UnsubscribeState, ComponentName[]]>()
 	const unbindPropertyState: Record<string, UnsubscribeState | undefined> = {}
 
 	if (Env.isDev)
@@ -120,6 +121,25 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 				})
 
 				stateUnsubscribers.set(state, [unsubscribe, names])
+				return component
+			},
+			bindFrom (state) {
+				result.unbind(state)
+
+				const currentNames: ComponentName[] = []
+				const unsubscribe = state.use(component, (names, oldNames) => {
+					for (const oldName of oldNames ?? [])
+						styles.delete(oldName)
+
+					for (const name of names)
+						styles.add(name)
+
+					currentNames.splice(0, Infinity, ...names)
+
+					updateClasses()
+				})
+
+				stateUnsubscribers.set(state, [unsubscribe, currentNames])
 				return component
 			},
 			unbind (state) {
@@ -178,7 +198,7 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 					component.element.style.removeProperty(`--${variable}`)
 				return component
 			},
-		} as StyleManipulatorFunctions<Component>,
+		} satisfies StyleManipulatorFunctions<Component>,
 	)
 
 	return result

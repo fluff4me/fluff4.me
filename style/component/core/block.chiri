@@ -91,7 +91,7 @@
 		#flush:
 			%border-radius-0
 
-	&-type-flush:
+	&--type-flush:
 		#after: .block
 		%background-none
 		%border-bottom-1
@@ -129,7 +129,7 @@
 		%decoration-none
 		; %colour-inherit
 		%weight-inherit
-		%overflow-hidden
+		; %overflow-hidden
 
 		:last:
 			%border-bottom-radius-2
@@ -142,9 +142,15 @@
 			%absolute
 			%inset-0
 			%no-pointer-events
+			%border-radius-2
 			#transition: #{transition("background")}
 
 		::hover, ::focus:
 			@after:
 				background: light-dark(#fff3, #fff1)
 				$transition-duration: $transition-focus
+
+		&--type-flush:
+			#after: .block--type-flush
+			@after:
+				%border-radius-0
