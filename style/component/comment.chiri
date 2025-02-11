@@ -4,7 +4,7 @@
 	%relative
 
 	&-list:
-		#after: .block-type-flush
+		#after: .block--type-flush
 		%width-100
 		%width-clamp-content
 		%scheme-light-dark
