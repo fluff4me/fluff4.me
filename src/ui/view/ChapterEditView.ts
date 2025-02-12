@@ -4,6 +4,7 @@ import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import Chapters from 'model/Chapters'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
+import InfoDialog from 'ui/component/core/InfoDialog'
 import Slot from 'ui/component/core/Slot'
 import ChapterEditForm from 'ui/view/chapter/ChapterEditForm'
 import View from 'ui/view/shared/component/View'
@@ -24,6 +25,12 @@ export default ViewDefinition({
 		const chapter = !params.url ? undefined : await EndpointChapterGet.query({ params: params as Required<ChapterEditViewParams> })
 		if (chapter instanceof Error)
 			throw chapter
+
+		if (!chapter?.data)
+			await InfoDialog.prompt(view, {
+				titleTranslation: 'shared/prompt/beta-restrictions/title',
+				bodyTranslation: 'shared/prompt/beta-restrictions/description',
+			})
 
 		if (params && chapter)
 			view.breadcrumbs.setBackButton(`/work/${params.author}/${params.work}/chapter/${params.url}`,

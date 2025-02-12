@@ -58,6 +58,18 @@ export namespace QuiltHelper {
 		return arg
 	}
 
+	export function toString (arg: StateOr<Quilt.SimpleKey | Quilt.Handler>): string {
+		if (State.is(arg))
+			arg = arg.value
+
+		if (typeof arg !== 'function') {
+			const key = arg
+			arg = () => quilt[key]()
+		}
+
+		return arg(quilt, QuiltHelper).toString()
+	}
+
 	function isPlaintextWeft (weft: Weft): weft is Weft & { content: string } {
 		return true
 			&& typeof weft.content === 'string'
