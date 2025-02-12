@@ -3,6 +3,7 @@ import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import Works from 'model/Works'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
+import InfoDialog from 'ui/component/core/InfoDialog'
 import Slot from 'ui/component/core/Slot'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
@@ -24,6 +25,12 @@ export default ViewDefinition({
 		const work = params && await EndpointWorkGet.query({ params })
 		if (work instanceof Error)
 			throw work
+
+		if (!work?.data)
+			await InfoDialog.prompt(view, {
+				titleTranslation: 'shared/prompt/beta-restrictions/title',
+				bodyTranslation: 'shared/prompt/beta-restrictions/description',
+			})
 
 		const state = State<WorkFull | undefined>(work?.data)
 		const stateInternal = State<WorkFull | undefined>(work?.data)

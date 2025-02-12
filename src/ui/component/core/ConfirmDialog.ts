@@ -5,7 +5,7 @@ import BlockDialog from 'ui/component/core/BlockDialog'
 import Button from 'ui/component/core/Button'
 import Paragraph from 'ui/component/core/Paragraph'
 import OAuthServices from 'ui/component/OAuthServices'
-import type { Quilt } from 'ui/utility/StringApplicator'
+import { QuiltHelper, type Quilt } from 'ui/utility/StringApplicator'
 import State from 'utility/State'
 
 interface ConfirmDialogExtensions {
@@ -22,6 +22,7 @@ interface ConfirmDialog extends BlockDialog, ConfirmDialogExtensions { }
 interface ConfirmDialogDefinition {
 	dangerToken?: DangerTokenType
 	titleTranslation?: Quilt.SimpleKey | Quilt.Handler
+	bodyTranslation?: Quilt.SimpleKey | Quilt.Handler
 	confirmButtonTranslation?: Quilt.SimpleKey | Quilt.Handler
 	cancelButtonTranslation?: Quilt.SimpleKey | Quilt.Handler
 }
@@ -34,8 +35,13 @@ const ConfirmDialog = Object.assign(
 
 		dialog.title.text.use(definition?.titleTranslation ?? 'shared/prompt/confirm')
 
+		if (definition?.bodyTranslation)
+			Component()
+				.setMarkdownContent({ body: QuiltHelper.toString(definition.bodyTranslation) })
+				.appendTo(dialog.content)
+
 		const cancelButton = Button()
-			.text.use(definition?.confirmButtonTranslation ?? 'shared/action/cancel')
+			.text.use(definition?.cancelButtonTranslation ?? 'shared/action/cancel')
 			.appendTo(dialog.footer.right)
 
 		const confirmButton = Button()

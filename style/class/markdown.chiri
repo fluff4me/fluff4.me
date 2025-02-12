@@ -1,7 +1,7 @@
 $markdown-paragraph-padding-bottom: round(up, $space-3, 1px)
 $markdown-paragraph-padding-top: round(up, $space-2, 1px)
 .markdown:
-	&& p:
+	&& p, && li:
 		margin-block: $markdown-paragraph-padding-top $markdown-paragraph-padding-bottom
 
 	&& hr:
