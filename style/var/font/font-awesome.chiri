@@ -2,7 +2,6 @@
 	font-display: swap
 	font-style: normal
 	font-weight: 400
-	display: inline-block
 	src:
 		url('../font/fa-regular-400.woff2') format('woff2'),
 		url('../font/fa-regular-400.ttf') format('truetype')
@@ -11,7 +10,6 @@
 	font-display: swap
 	font-style: normal
 	font-weight: 900
-	display: inline-block
 	src:
 		url('../font/fa-solid-900.woff2') format('woff2'),
 		url('../font/fa-solid-900.ttf') format('truetype')
