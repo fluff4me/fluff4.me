@@ -12,15 +12,13 @@ import IgnoringView from 'ui/view/IgnoringView'
 import NewView from 'ui/view/NewView'
 import NotificationsView from 'ui/view/NotificationsView'
 import TagView from 'ui/view/TagView'
-import HomeView from 'ui/view/TestView'
 import WorkEditView from 'ui/view/WorkEditView'
 import WorkView from 'ui/view/WorkView'
-import Env from 'utility/Env'
 
 const Routes = [
 	Route('/debug', DebugView.navigate),
 
-	Route('/', Env.isDev ? NewView.navigate : HomeView.navigate),
+	Route('/', NewView.navigate),
 	Route('/feed', FeedView.navigate),
 	Route('/history', HistoryView.navigate),
 
