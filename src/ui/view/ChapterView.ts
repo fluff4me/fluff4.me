@@ -7,6 +7,7 @@ import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import quilt from 'lang/en-nz'
 import Chapters from 'model/Chapters'
+import Session from 'model/Session'
 import TextBody from 'model/TextBody'
 import Component from 'ui/Component'
 import Chapter from 'ui/component/Chapter'
@@ -66,7 +67,8 @@ export default ViewDefinition({
 			.withContent((slot, chapter, paginator) => {
 				paginator.setURL(`/work/${params.author}/${params.work}/chapter/${chapter.url}`)
 
-				void EndpointHistoryAddChapter.query({ params: chapter })
+				if (Session.Auth.loggedIn.value)
+					void EndpointHistoryAddChapter.query({ params: chapter })
 
 				if (chapter.notes_before || chapter.global_tags?.length || chapter.custom_tags?.length)
 					Component()
