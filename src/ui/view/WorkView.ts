@@ -27,7 +27,8 @@ export default ViewDefinition({
 		if (response instanceof Error)
 			throw response
 
-		void EndpointHistoryAddWork.query({ params })
+		if (Session.Auth.loggedIn.value)
+			void EndpointHistoryAddWork.query({ params })
 
 		const workData = response.data
 		const authorData = workData.synopsis.mentions.find(author => author.vanity === params.author)!
