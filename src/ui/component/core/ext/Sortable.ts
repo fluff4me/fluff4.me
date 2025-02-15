@@ -15,11 +15,14 @@ interface SortableExtensions<ID extends string | number> {
 
 interface Sortable<ID extends string | number> extends Component, SortableExtensions<ID> { }
 
+namespace Sortable {
+	export type BuilderOf<ID extends string | number> = Component.Extension<[SortableDefinition<ID>], Sortable<ID>>
+}
+
 export interface SortableDefinition<ID extends string | number> {
 	getID (component: Draggable): ID | undefined
 	sortDelay?: number
 	stickyDistance?: number
-	onOrderChange?(order: ID[]): any
 }
 
 export function SortableDefinition<ID extends string | number> (definition: SortableDefinition<ID>) {
@@ -28,8 +31,8 @@ export function SortableDefinition<ID extends string | number> (definition: Sort
 
 const isSortingAnySortable = State(false)
 
-export default Object.assign(
-	Component.Extension(<ID extends string | number> (component: Component, definition: SortableDefinition<ID>): Sortable<ID> => {
+const Sortable = Object.assign(
+	Component.Extension(<const ID extends string | number> (component: Component, definition: SortableDefinition<ID>): Sortable<ID> => {
 		const sorting = State(false)
 
 		const sortDelay = State(definition.sortDelay ?? 0)
@@ -224,3 +227,5 @@ export default Object.assign(
 		isSorting: isSortingAnySortable,
 	},
 )
+
+export default Sortable
