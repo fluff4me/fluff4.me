@@ -1,7 +1,8 @@
-import type { RoutePath } from 'navigation/Routes'
+import { RoutePath } from 'navigation/RoutePath'
 import Component from 'ui/Component'
 import type EventManipulator from 'ui/utility/EventManipulator'
 import type { Events } from 'ui/utility/EventManipulator'
+import MarkdownContent from 'ui/utility/MarkdownContent'
 import Env from 'utility/Env'
 import State from 'utility/State'
 
@@ -51,6 +52,24 @@ const Link = Component.Builder('a', (component, route: RoutePath | undefined): L
 	}
 
 	return link
+})
+
+MarkdownContent.handle((element, context) => {
+	if (element.tagName !== 'A')
+		return
+
+	let href = element.getAttribute('href')
+
+	if (href?.startsWith(Env.URL_ORIGIN))
+		href = href.slice(Env.URL_ORIGIN.length - 1)
+
+	if (!RoutePath.is(href))
+		return
+
+	return () => {
+		const link = Link(href).text.set(element.textContent ?? '')
+		element.replaceWith(link.element)
+	}
 })
 
 export default Link

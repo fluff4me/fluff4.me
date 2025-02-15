@@ -1,6 +1,6 @@
 import type { Quilt as QuiltBase, Weave, Weft } from 'lang/en-nz'
 import quilt, { WeavingArg } from 'lang/en-nz'
-import type { RoutePath } from 'navigation/Routes'
+import type { RoutePath } from 'navigation/RoutePath'
 import type Component from 'ui/Component'
 import type ExternalLinkFunction from 'ui/component/core/ExternalLink'
 import type LinkFunction from 'ui/component/core/Link'

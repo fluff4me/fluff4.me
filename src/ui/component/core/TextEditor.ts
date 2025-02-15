@@ -521,7 +521,7 @@ markdown.parse = (src, env) => {
 
 	for (const token of rawTokens)
 		if (token.type === 'inline' && token.children)
-			token.children = parseTokens(token.children)
+			token.children = textifyRemainingInlineHTML(parseTokens(token.children))
 
 	return parseTokens(rawTokens)
 
@@ -641,6 +641,18 @@ markdown.parse = (src, env) => {
 				endToken,
 			]
 		})
+	}
+
+	function textifyRemainingInlineHTML (rawTokens: FluffToken[]) {
+		for (const token of rawTokens) {
+			if (!token.type.startsWith('html_inline'))
+				continue
+
+			token.type = 'text'
+			token.content = token.raw ?? ''
+		}
+
+		return rawTokens
 	}
 }
 
