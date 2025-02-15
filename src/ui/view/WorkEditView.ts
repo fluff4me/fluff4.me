@@ -41,7 +41,7 @@ export default ViewDefinition({
 		const view = View(id)
 
 		const state = State<WorkFull | undefined>(work)
-		const stateInternal = State<WorkFull | undefined>(work)
+		const editFormState = State<WorkFull | undefined>(work)
 
 		state.use(view, work => view.breadcrumbs.setBackButton(
 			work && `/work/${work.author}/${work.vanity}`,
@@ -49,28 +49,37 @@ export default ViewDefinition({
 		))
 
 		Slot()
-			.use(state, () => WorkEditForm(stateInternal).subviewTransition(id))
+			.use(state, () => WorkEditForm(editFormState).subviewTransition(id))
 			.appendTo(view.content)
 
 		Slot()
 			.use(state, () => createActionRow()?.subviewTransition(id))
 			.appendTo(view.content)
 
-		stateInternal.subscribe(view, work =>
+		editFormState.subscribe(view, work =>
 			ViewTransition.perform('subview', id, () => state.value = work))
 
 		return view
 
 		function createActionRow (): ActionRow | undefined {
-			if (!stateInternal.value)
+			const work = state.value
+			if (!work)
 				return
 
 			return ActionRow()
 				.viewTransition('work-edit-action-row')
+				.tweak(row => row.left
+					.append(Button()
+						.setIcon('plus')
+						.text.use('view/work-edit/update/action/new-chapter')
+						.event.subscribe('click', () => navigate.toURL(`/work/${work.author}/${work.vanity}/chapter/new`)))
+				)
 				.tweak(row => row.right
 					.append(Button()
+						.setIcon('trash')
 						.text.use('view/work-edit/update/action/delete')
-						.event.subscribe('click', async () => Works.delete(state.value, view))))
+						.event.subscribe('click', async () => Works.delete(work, view)))
+				)
 		}
 	},
 })

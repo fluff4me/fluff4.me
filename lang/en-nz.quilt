@@ -42,6 +42,7 @@ confirm: Confirm
 return: Return
 view-profile: View Profile{0? ({0})}
 continue: Continue
+new-chapter: New Chapter
 
 ## toast
 failed-to-save: Failed to save {0}
@@ -363,6 +364,7 @@ submit=shared/action/create
 title: Edit work
 submit=shared/action/save
 action/delete: Delete Work
+action/new-chapter=shared/action/new-chapter
 
 
 ## work
@@ -370,7 +372,7 @@ action/delete: Delete Work
 ### chapters
 title=shared/term/chapters
 content/empty: This work does not contain any chapters.
-action/label/new: New Chapter
+action/label/new=shared/action/new-chapter
 
 
 ## chapter-edit
