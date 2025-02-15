@@ -2,6 +2,7 @@ import type { Author } from 'api.fluff4.me'
 import EndpointWorksResolveReferences from 'endpoint/work/EndpointWorksResolveReferences'
 import Follows from 'model/Follows'
 import PagedListData from 'model/PagedListData'
+import Works from 'model/Works'
 import Component from 'ui/Component'
 import Link from 'ui/component/core/Link'
 import Paginator2 from 'ui/component/core/Paginator2'
@@ -42,7 +43,7 @@ const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ign
 					if (!slice.length)
 						return null
 
-					const response = await EndpointWorksResolveReferences.query(undefined, { works: slice.map(follow => follow.work).filterInPlace(NonNullish) })
+					const response = await EndpointWorksResolveReferences.query(undefined, { works: slice.map(follow => Works.reference(follow.work)).filterInPlace(NonNullish) })
 					if (toast.handleError(response))
 						return false
 

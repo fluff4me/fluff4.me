@@ -178,7 +178,7 @@ const Util = {
 
 		manifest.value.ignoring.work.filterInPlace(w => !Works.equals(w.work, work))
 		manifest.value.following.work.push({
-			work,
+			work: Works.reference(work),
 			updated: new Date().toISOString(),
 		})
 		manifest.emit()
@@ -220,7 +220,7 @@ const Util = {
 
 		manifest.value.following.work.filterInPlace(w => !Works.equals(w.work, work))
 		manifest.value.ignoring.work.push({
-			work,
+			work: Works.reference(work),
 			updated: new Date().toISOString(),
 		})
 		manifest.emit()
