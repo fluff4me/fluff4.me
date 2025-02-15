@@ -11,6 +11,12 @@ namespace Works {
 	export function equals (a?: WorkReference | null, b?: WorkReference | null) {
 		return !!a && !!b && a.author === b.author && a.vanity === b.vanity
 	}
+
+	export function reference (work: WorkReference): WorkReference
+	export function reference (work?: WorkReference | null): WorkReference | null
+	export function reference (work?: WorkReference | null): WorkReference | null {
+		return work ? { author: work.author, vanity: work.vanity } : null
+	}
 }
 
 export default Object.assign(
