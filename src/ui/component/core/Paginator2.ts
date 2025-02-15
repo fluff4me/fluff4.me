@@ -121,6 +121,8 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 
 	paginator.footer.style.bind(isMultiPage.not, 'paginator-footer--hidden')
 
+	let bouncedFrom: number | undefined
+
 	Slot()
 		.use(allData, (slot, data) => {
 			const wrapper = Slot().appendTo(slot)
@@ -152,9 +154,13 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 				}
 
 				if (previousPageNumber !== undefined) {
+					if (bouncedFrom === previousPageNumber)
+						return
+
 					// empty, play bounce animation
 					pages[previousPageNumber]?.style('paginator-page--bounce')
 					await Async.sleep(200)
+					bouncedFrom = pageNumber
 					cursor.value = previousPageNumber
 				}
 				else {
