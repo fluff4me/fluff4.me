@@ -102,7 +102,7 @@ const ViewContainer = (): ViewContainer => {
 							return v
 						})
 						.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({
-							code: (error.code! < 200 ? undefined : error.code) ?? 500,
+							code: (error.code! < 200 ? undefined : error.code) ?? 600,
 							error,
 						}))
 					if (shownView) {
@@ -156,7 +156,7 @@ const ViewContainer = (): ViewContainer => {
 
 		const shownView = await Promise.resolve(definition.create(params))
 			.then(v => view = v)
-			.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({ code: error.code ?? 500, error }))
+			.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({ code: error.code ?? 600, error }))
 		if (shownView) {
 			shownView.prependTo(container.ephemeralDialog)
 			container.ephemeral = shownView
