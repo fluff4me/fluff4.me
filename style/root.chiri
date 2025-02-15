@@ -30,5 +30,7 @@ $tablet-width: #{tablet-width}
 	@before:
 		%block
 		%fixed
-		%inset-0
+		%no-pointer-events
+		width: 100vw
+		height: 100vh
 		background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $dark-2)
