@@ -1,4 +1,4 @@
-import type { RoutePath } from 'navigation/Routes'
+import type { RoutePath } from 'navigation/RoutePath'
 import Component from 'ui/Component'
 import Paginator from 'ui/component/core/Paginator'
 import type { ViewId } from 'ui/view/shared/component/View'

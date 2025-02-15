@@ -1,5 +1,5 @@
 import type App from 'App'
-import type { RoutePath } from 'navigation/Routes'
+import type { RoutePath } from 'navigation/RoutePath'
 import Routes from 'navigation/Routes'
 import EventManipulator from 'ui/utility/EventManipulator'
 import ErrorView from 'ui/view/ErrorView'

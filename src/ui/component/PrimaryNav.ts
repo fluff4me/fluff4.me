@@ -1,5 +1,5 @@
 import Session from 'model/Session'
-import type { RoutePath } from 'navigation/Routes'
+import type { RoutePath } from 'navigation/RoutePath'
 import type { ComponentInsertionDestination } from 'ui/Component'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'

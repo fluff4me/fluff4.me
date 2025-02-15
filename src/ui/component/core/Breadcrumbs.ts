@@ -1,4 +1,4 @@
-import type { RoutePath } from 'navigation/Routes'
+import type { RoutePath } from 'navigation/RoutePath'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Heading from 'ui/component/core/Heading'
