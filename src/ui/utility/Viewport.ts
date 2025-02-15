@@ -9,20 +9,20 @@ namespace Viewport {
 	}
 
 	export const size = State.JIT<Size>(() => ({ w: window.innerWidth, h: window.innerHeight }))
-	export const mobile = State.JIT(() => {
-		const result = State.UseManual({
+	export const mobile = State.JIT(owner => {
+		const result = State.Use(owner, {
 			contentWidth: Style.measure('--content-width'),
 			viewport: size,
-		}).mapManual(({ contentWidth, viewport }) => viewport.w < contentWidth)
-		result.subscribeManual(mobile.markDirty)
+		}).map(owner, ({ contentWidth, viewport }) => viewport.w < contentWidth)
+		result.subscribe(owner, mobile.markDirty)
 		return result
 	})
-	export const tablet = State.JIT(() => {
-		const result = State.UseManual({
+	export const tablet = State.JIT(owner => {
+		const result = State.Use(owner, {
 			tabletWidth: Style.measure('--tablet-width'),
 			viewport: size,
-		}).mapManual(({ tabletWidth, viewport }) => viewport.w < tabletWidth)
-		result.subscribeManual(tablet.markDirty)
+		}).map(owner, ({ tabletWidth, viewport }) => viewport.w < tabletWidth)
+		result.subscribe(owner, tablet.markDirty)
 		return result
 	})
 
