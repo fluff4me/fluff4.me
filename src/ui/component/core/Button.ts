@@ -1,4 +1,5 @@
 import Component from 'ui/Component'
+import BrowserListener from 'ui/utility/BrowserListener'
 import FontsListener from 'ui/utility/FontsListener'
 import type { ComponentNameType } from 'ui/utility/StyleManipulator'
 import type TextManipulator from 'ui/utility/TextManipulator'
@@ -40,6 +41,7 @@ const Button = Component.Builder('button', (component): Button => {
 	const button = component
 		.attributes.set('type', 'button')
 		.style('button')
+		.style.bind(BrowserListener.isWebkit, 'button--webkit')
 		.style.bind(disabled, 'button--disabled')
 		.style.bind(hasSubtext, 'button--has-subtext')
 		.attributes.bind(disabled, 'disabled')
