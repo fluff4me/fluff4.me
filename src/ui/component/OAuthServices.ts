@@ -46,18 +46,19 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 	}
 
 	for (const service of Objects.values(services.data))
-		if (!reauthDangerToken || Session.Auth.isAuthed(service))
-			AccountViewOAuthService(service, reauthDangerToken)
-				.bindDisabled(State
-					.Use(component, { authorisations: Session.Auth.authorisations, author: Session.Auth.author })
-					.map(component, ({ authorisations, author }) => true
-						&& !reauthDangerToken
-						&& !!author
-						&& authorisations.length === 1
-						&& authorisations[0].service === service.name
-					), 'singly-authed-service')
-				// .event.subscribe("dangerTokenGranted", event => block.event.emit("dangerTokenGranted"))
-				.appendTo(list)
+		if (!service.disabled)
+			if (!reauthDangerToken || Session.Auth.isAuthed(service))
+				AccountViewOAuthService(service, reauthDangerToken)
+					.bindDisabled(State
+						.Use(component, { authorisations: Session.Auth.authorisations, author: Session.Auth.author })
+						.map(component, ({ authorisations, author }) => true
+							&& !reauthDangerToken
+							&& !!author
+							&& authorisations.length === 1
+							&& authorisations[0].service === service.name
+						), 'singly-authed-service')
+					// .event.subscribe("dangerTokenGranted", event => block.event.emit("dangerTokenGranted"))
+					.appendTo(list)
 
 	return block
 })
