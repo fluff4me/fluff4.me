@@ -43,9 +43,10 @@ export default ViewDefinition({
 		const state = State<WorkFull | undefined>(work)
 		const stateInternal = State<WorkFull | undefined>(work)
 
-		if (params && work)
-			view.breadcrumbs.setBackButton(`/work/${params.author}/${params.vanity}`,
-				button => button.subText.set(work.name))
+		state.use(view, work => view.breadcrumbs.setBackButton(
+			work && `/work/${work.author}/${work.vanity}`,
+			button => work && button.subText.set(work.name),
+		))
 
 		Slot()
 			.use(state, () => WorkEditForm(stateInternal).subviewTransition(id))
