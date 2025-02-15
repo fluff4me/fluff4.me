@@ -25,12 +25,15 @@ type TagViewParams = TagViewGlobalParams // | TagViewCustomParams
 const fromURLRegex = /(-|^)(.)/g
 const fromURL = (name: string) => name.replaceAll(fromURLRegex, (_, dash: string, char: string) => `${dash ? ' ' : ''}${char.toUpperCase()}`)
 export default ViewDefinition({
-	create: async (params: TagViewParams) => {
-		const view = View('tag')
-
+	async load (params: TagViewParams) {
 		const tag = params.custom_name ?? await Tags.resolve(fromURL(params.category), fromURL(params.name))
 		if (!tag)
 			throw Errors.NotFound()
+
+		return { tag }
+	},
+	create (params: TagViewParams, { tag }) {
+		const view = View('tag')
 
 		TagBlock(tag)
 			.appendTo(view.content)

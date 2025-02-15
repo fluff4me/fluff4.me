@@ -16,14 +16,18 @@ interface AuthorViewParams {
 }
 
 export default ViewDefinition({
-	create: async (params: AuthorViewParams) => {
+	async load (params: AuthorViewParams) {
+		const response = await EndpointAuthorGet.query({ params })
+		if (response instanceof Error)
+			throw response
+
+		const author = response.data
+		return { author }
+	},
+	async create (params: AuthorViewParams, { author }) {
 		const view = View('author')
 
-		const author = await EndpointAuthorGet.query({ params })
-		if (author instanceof Error)
-			throw author
-
-		Author(author.data)
+		Author(author)
 			.viewTransition('author-view-author')
 			.setContainsHeading()
 			.appendTo(view.content)
@@ -47,8 +51,8 @@ export default ViewDefinition({
 		})
 		await paginator.useEndpoint(worksQuery, (slot, works) =>
 			slot.append(...works.map(workData =>
-				Link(`/work/${author.data.vanity}/${workData.vanity}`)
-					.and(Work, workData, author.data)
+				Link(`/work/${author.vanity}/${workData.vanity}`)
+					.and(Work, workData, author)
 					.viewTransition(false)
 					.type('flush')
 					.appendTo(slot))))

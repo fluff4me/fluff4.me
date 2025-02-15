@@ -1,6 +1,7 @@
 import type { WorkFull } from 'api.fluff4.me'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import Works from 'model/Works'
+import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
 import InfoDialog from 'ui/component/core/InfoDialog'
@@ -18,26 +19,33 @@ interface WorkEditViewParams {
 
 export default ViewDefinition({
 	requiresLogin: true,
-	create: async (params: WorkEditViewParams | undefined) => {
-		const id = 'work-edit'
-		const view = View(id)
+	async load (params: WorkEditViewParams | undefined) {
+		const response = params && await EndpointWorkGet.query({ params })
+		if (response instanceof Error)
+			throw response
 
-		const work = params && await EndpointWorkGet.query({ params })
-		if (work instanceof Error)
-			throw work
+		const owner = Component()
 
-		if (!work?.data)
-			await InfoDialog.prompt(view, {
+		const work = response?.data
+		if (!work)
+			await InfoDialog.prompt(owner, {
 				titleTranslation: 'shared/prompt/beta-restrictions/title',
 				bodyTranslation: 'shared/prompt/beta-restrictions/description',
 			})
 
-		const state = State<WorkFull | undefined>(work?.data)
-		const stateInternal = State<WorkFull | undefined>(work?.data)
+		owner.remove()
+		return { work }
+	},
+	create (params: WorkEditViewParams | undefined, { work }) {
+		const id = 'work-edit'
+		const view = View(id)
+
+		const state = State<WorkFull | undefined>(work)
+		const stateInternal = State<WorkFull | undefined>(work)
 
 		if (params && work)
 			view.breadcrumbs.setBackButton(`/work/${params.author}/${params.vanity}`,
-				button => button.subText.set(work.data.name))
+				button => button.subText.set(work.name))
 
 		Slot()
 			.use(state, () => WorkEditForm(stateInternal).subviewTransition(id))

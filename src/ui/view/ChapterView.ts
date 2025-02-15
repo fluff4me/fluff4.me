@@ -26,15 +26,21 @@ import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
 
 export default ViewDefinition({
-	create: async (params: ChapterReference) => {
-		const view = PaginatedView('chapter')
-
+	async load (params: ChapterReference) {
 		const response = await EndpointWorkGet.query({ params: Chapters.work(params) })
 		if (response instanceof Error)
 			throw response
 
-		const author = response.data.synopsis.mentions.find(author => author.vanity === params.author)
-		const workData = response.data as WorkData & Partial<WorkFull>
+		const initialChapterResponse = await EndpointChapterGet.query({ params })
+		if (initialChapterResponse instanceof Error)
+			throw initialChapterResponse
+
+		return { workData: response.data as WorkData & Partial<WorkFull>, initialChapterResponse }
+	},
+	async create (params: ChapterReference, { workData, initialChapterResponse }) {
+		const view = PaginatedView('chapter')
+
+		const author = workData.synopsis?.mentions.find(author => author.vanity === params.author)
 		delete workData.synopsis
 		delete workData.custom_tags
 
@@ -44,10 +50,6 @@ export default ViewDefinition({
 			.style('view-type-chapter-work')
 			.setContainsHeading()
 			.appendTo(view.content)
-
-		const initialChapterResponse = await EndpointChapterGet.query({ params })
-		if (initialChapterResponse instanceof Error)
-			throw initialChapterResponse
 
 		const chapterState = State(initialChapterResponse.data)
 
