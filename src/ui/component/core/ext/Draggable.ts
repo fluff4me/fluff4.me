@@ -91,14 +91,17 @@ const Draggable = Object.assign(
 				state.value = DragState.Delayed
 				delayTimeout = window.setTimeout(() => {
 					if (state.value === DragState.Delayed) {
-						const result = definition.onMoveStart?.(draggable, position)
-						if (result === false) {
-							dragEnd()
-							return
+						state.value = definition.stickyDistance?.value ? DragState.Starting : DragState.Dragging
+						if (!definition.stickyDistance?.value) {
+							const result = definition.onMoveStart?.(draggable, position)
+							if (result === false) {
+								dragEnd()
+								return
+							}
+
+							draggable.style('draggable-dragging')
 						}
 
-						state.value = DragState.Dragging
-						draggable.style('draggable-dragging')
 						dragMove(event)
 					}
 				}, delay.value)
