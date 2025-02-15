@@ -1,7 +1,5 @@
 %overflow-auto
 %gutter-stable
-%absolute
-%inset-0
 colour-scheme: dark
 #string background-highlight = "color-mix(in lch, $dark-2, #fff 5%)
 colour: $light-3
