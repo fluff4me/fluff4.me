@@ -15,5 +15,6 @@
 		@after:
 			%font-font-awesome
 			%vertical-align-super
+			%weight-bold
 			content: " #{get-icon("up-right-from-square")}"
 			font-size: .5em
