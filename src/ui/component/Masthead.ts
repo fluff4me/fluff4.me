@@ -62,7 +62,10 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 	Viewport.size.use(masthead, () => {
 		window.clearTimeout(sizeTimeout)
 		sizeTimeout = window.setTimeout(() => {
-			nav.appendTo(sidebar.element.clientWidth ? sidebar : popover)
+			const sidebarMode = !!sidebar.element.clientWidth
+			nav
+				.style.toggle(sidebarMode, 'primary-nav--sidebar')
+				.appendTo(sidebarMode ? sidebar : popover)
 		}, 1)
 	})
 
