@@ -497,6 +497,18 @@ const markdownHTMLMarkRegistry: PartialRecord<Marks, MarkdownHTMLTokenRemapSpec>
 			return [textToken]
 		},
 	},
+	link: {
+		getAttrs: token => {
+			if (token.tag !== 'a')
+				return undefined
+
+			const href = token.attrGet('href')
+			if (!href)
+				return undefined
+
+			return { href }
+		},
+	},
 }
 
 interface FluffToken extends MarkdownItHTML.Token {
@@ -589,7 +601,7 @@ markdown.parse = (src, env) => {
 			}
 
 			if (!isVoidToken) {
-				token.type = `${token.type}_open`
+				token.type = token.type.endsWith('_open') ? token.type : `${token.type}_open`
 				level = token.level
 			}
 
@@ -646,12 +658,12 @@ const markdownParser = new MarkdownParser(schema, markdown, Objects.filterNullis
 	...Object.entries(markdownHTMLNodeRegistry)
 		.toObject(([tokenType, spec]) => [tokenType, ({
 			block: tokenType,
-			getAttrs: token => (token as FluffToken).nodeAttrs ?? {},
+			getAttrs: token => (token as FluffToken).nodeAttrs ?? Object.fromEntries(token.attrs ?? []),
 		} satisfies ParseSpec)]),
 	...Object.entries(markdownHTMLMarkRegistry)
 		.toObject(([tokenType, spec]) => [tokenType, ({
 			mark: tokenType,
-			getAttrs: token => (token as FluffToken).nodeAttrs ?? {},
+			getAttrs: token => (token as FluffToken).nodeAttrs ?? Object.fromEntries(token.attrs ?? []),
 		} satisfies ParseSpec)]),
 } satisfies Record<string, ParseSpec | undefined>))
 
