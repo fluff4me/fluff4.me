@@ -307,6 +307,7 @@ service/accessibility/disconnect: disconnect {0} account {1}
 ### none
 title: Log in or sign up
 description: fluff4.me does not store an email address or password for your account. You must authenticate with a third-party service to begin.
+needs-session: You must have a session in order to log in. Try refreshing the page?
 
 ### has-authorisations
 title: Authorisations

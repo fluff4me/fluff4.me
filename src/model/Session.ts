@@ -21,6 +21,8 @@ declare module 'utility/Store' {
 
 namespace Session {
 
+	export const has = State(false)
+
 	const clearedWithSessionChange: (keyof ILocalStorage | (() => unknown))[] = []
 	export function setClearedWithSessionChange (...cleared: (keyof ILocalStorage | (() => unknown))[]) {
 		clearedWithSessionChange.push(...cleared)
@@ -43,10 +45,14 @@ namespace Session {
 		updateState()
 	}
 
-	export async function reset () {
+	export async function reset (skipRefresh = false) {
 		await EndpointSessionReset.query()
 		delete Store.items.session
-		await refresh()
+
+		if (skipRefresh)
+			updateState()
+		else
+			await refresh()
 	}
 
 	export function setAuthor (author: AuthorFull & Partial<AuthorAuthorised>) {
@@ -66,6 +72,7 @@ namespace Session {
 	}
 
 	function updateState () {
+		Session.has.value = !!Store.items.session
 		Auth.state.value = Store.items.session?.author ? 'logged-in' : Store.items.session?.authorisations?.length ? 'has-authorisations' : 'none'
 		Auth.authorisations.value = Store.items.session?.authorisations ?? []
 		Auth.author.value = Store.items.session?.author ?? undefined
