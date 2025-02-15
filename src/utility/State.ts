@@ -243,6 +243,10 @@ namespace State {
 		return is<T>(value) ? value : State(value)
 	}
 
+	export function value<T> (state: T | State<T>): T {
+		return is<T>(state) ? state.value : state
+	}
+
 	const SYMBOL_HAS_SUBSCRIPTIONS = Symbol('HAS_SUBSCRIPTIONS')
 	export interface OwnerMetadata {
 		[SYMBOL_HAS_SUBSCRIPTIONS]?: boolean
