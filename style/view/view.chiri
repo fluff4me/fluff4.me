@@ -107,6 +107,7 @@
 		%column-2
 		%align-self-start
 		%width-content
+		max-width: 100vw
 
 		#tablet:
 			%align-self-centre
