@@ -59,12 +59,12 @@
 		&-meta:
 			%column-1
 			%sticky
-			%top-4
 			%flex
 			%flex-column
 			%gap-2
 			%align-self-start
 			%align-items-end
+			top: calc($space-4 + $masthead-height)
 
 			#tablet:
 				%relative
