@@ -3,6 +3,8 @@ import type { DangerTokenType } from 'model/Session'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
+import Placeholder from 'ui/component/core/Placeholder'
+import Slot from 'ui/component/core/Slot'
 import type { OAuthServiceEvents } from 'ui/component/OAuthService'
 import AccountViewOAuthService from 'ui/component/OAuthService'
 import type EventManipulator from 'ui/utility/EventManipulator'
@@ -37,7 +39,7 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 
 	const list = Component()
 		.style('oauth-service-list')
-		.appendTo(block)
+		.appendTo(block.content)
 
 	const services = await EndpointAuthServices.query()
 	if (toast.handleError(services)) {
@@ -45,20 +47,30 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 		return block
 	}
 
-	for (const service of Objects.values(services.data))
-		if (!service.disabled)
-			if (!reauthDangerToken || Session.Auth.isAuthed(service))
-				AccountViewOAuthService(service, reauthDangerToken)
-					.bindDisabled(State
-						.Use(component, { authorisations: Session.Auth.authorisations, author: Session.Auth.author })
-						.map(component, ({ authorisations, author }) => true
-							&& !reauthDangerToken
-							&& !!author
-							&& authorisations.length === 1
-							&& authorisations[0].service === service.name
-						), 'singly-authed-service')
-					// .event.subscribe("dangerTokenGranted", event => block.event.emit("dangerTokenGranted"))
-					.appendTo(list)
+	Slot()
+		.use(Session.has, (slot, session) => {
+			if (!session)
+				return Component()
+					.and(Placeholder)
+					.text.use('view/account/auth/none/needs-session')
+					.appendTo(slot)
+
+			for (const service of Objects.values(services.data))
+				if (!service.disabled)
+					if (!reauthDangerToken || Session.Auth.isAuthed(service))
+						AccountViewOAuthService(service, reauthDangerToken)
+							.bindDisabled(State
+								.Use(component, { authorisations: Session.Auth.authorisations, author: Session.Auth.author })
+								.map(component, ({ authorisations, author }) => true
+									&& !reauthDangerToken
+									&& !!author
+									&& authorisations.length === 1
+									&& authorisations[0].service === service.name
+								), 'singly-authed-service')
+							// .event.subscribe("dangerTokenGranted", event => block.event.emit("dangerTokenGranted"))
+							.appendTo(slot)
+		})
+		.appendTo(list)
 
 	return block
 })
