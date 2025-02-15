@@ -1,4 +1,8 @@
 .masthead:
+	%fixed
+	%top-0
+	%z-index-fg-2
+	%width-100
 	%background-dark-a30
 	%grid
 	%align-content-centre

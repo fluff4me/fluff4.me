@@ -1,9 +1,8 @@
-%overflow-hidden
+%gutter-stable
 %absolute
 %inset-0
 colour-scheme: dark
 #string background-highlight = "color-mix(in lch, $dark-2, #fff 5%)
-background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $dark-2)
 colour: $light-3
 view-transition-name: unset
 font-size: 1.2rem
@@ -26,8 +25,10 @@ $tablet-width: #{tablet-width}
 
 .body:
 	%margin-0
-	%overflow-hidden
 	%font-3
 
-	#tablet:
-		%overflow-auto-y
+	@before:
+		%block
+		%fixed
+		%inset-0
+		background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $dark-2)

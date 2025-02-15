@@ -1,55 +1,56 @@
-.app:
-	%fixed
-	%height-100
-	%width-100
-	%grid
-	grid-template-areas:
-		"masthead masthead masthead"
-		"sidebar content content"
-	grid-template-rows:
-		auto
-		1fr
+#do:
 	#string w = "calc($space-5 * 4 + $space-4)
-	$app-column-width: #{w}
-	grid-template-columns:
-		#{w} 1fr #{w}
 
-	#tablet:
-		grid-template-columns: 1fr
-		grid-template-areas:
-			"masthead"
-			"content"
-
-	&-content:
+	.body:
+		%width-100
 		%grid
-		%overflow-auto-y
-		%gutter-stable
-		%padding-left-4
-		grid-area: content
+		grid-template-areas:
+			"masthead masthead masthead"
+			"sidebar content content"
+		grid-template-rows:
+			$masthead-height
+			1fr
+		$app-column-width: #{w}
+		grid-template-columns:
+			#{w} 1fr #{w}
+
+	.app:
+		%contents
 
 		#tablet:
-			%block
-			%padding-left-0
+			grid-template-columns: 1fr
+			grid-template-areas:
+				"masthead"
+				"content"
 
-		&-related:
-			width: #{w}
+		&-content:
+			%grid
+			%padding-left-4
+			grid-area: content
 
 			#tablet:
-				%hidden
+				%block
+				%padding-left-0
 
-		@after:
-			%block
-			height: calc($space-5 * 4)
+			&-related:
+				width: #{w}
 
-			#flush:
-				%height-3
+				#tablet:
+					%hidden
 
-.masthead:
-	grid-area: masthead
-	grid-template-columns: 1fr auto 1fr
-	grid-template-areas: "left mid right"
+			@after:
+				%block
+				height: calc($space-5 * 4)
 
-.sidebar:
-	grid-area: sidebar
-	#tablet:
-		%hidden
+				#flush:
+					%height-3
+
+	.masthead:
+		grid-area: masthead
+		grid-template-columns: 1fr auto 1fr
+		grid-template-areas: "left mid right"
+
+	.sidebar:
+		grid-area: sidebar
+		#tablet:
+			%hidden
