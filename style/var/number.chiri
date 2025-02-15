@@ -1,2 +1,2 @@
-#string tablet-width = "calc(#{space["5"]} * 20)
+#string tablet-width = "calc(#{space["5"]} * 25)
 #string content-width = "calc(#{space["5"]} * 13)
