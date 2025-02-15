@@ -8,8 +8,10 @@ import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Link from 'ui/component/core/Link'
 import Timestamp from 'ui/component/core/Timestamp'
 import Maths from 'utility/maths/Maths'
+import type { StateOr } from 'utility/State'
+import State from 'utility/State'
 
-function initActions (actions: ActionsMenu<never>, chapter: ChapterLite, work: Work, author?: Author) {
+function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>, work: Work, author?: Author) {
 	return actions
 
 		.appendAction('edit', Session.Auth.author, (slot, self) => true
@@ -19,7 +21,7 @@ function initActions (actions: ActionsMenu<never>, chapter: ChapterLite, work: W
 				.type('flush')
 				.setIcon('pencil')
 				.text.use('chapter/action/label/edit')
-				.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}/edit`)))
+				.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/${State.value(chapter).url}/edit`)))
 
 		.appendAction('delete', Session.Auth.author, (slot, self) => true
 			&& author
@@ -28,7 +30,7 @@ function initActions (actions: ActionsMenu<never>, chapter: ChapterLite, work: W
 				.type('flush')
 				.setIcon('trash')
 				.text.use('chapter/action/label/delete')
-				.event.subscribe('click', () => Chapters.delete(chapter)))
+				.event.subscribe('click', () => Chapters.delete(State.value(chapter))))
 }
 
 interface ChapterExtensions {

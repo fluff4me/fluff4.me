@@ -106,7 +106,7 @@ export default ViewDefinition({
 		paginator.content.style('view-type-chapter-block-content')
 		paginator.footer.style('view-type-chapter-block-paginator-actions')
 
-		paginator.setActionsMenu(popover => Chapter.initActions(popover, chapterState.value, workData, author))
+		paginator.setActionsMenu(popover => Chapter.initActions(popover, chapterState, workData, author))
 
 		Link(`/work/${params.author}/${params.work}`)
 			.and(Button)
