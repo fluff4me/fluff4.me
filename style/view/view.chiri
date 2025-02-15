@@ -106,6 +106,7 @@
 		%gap-4
 		%column-2
 		%align-self-start
+		%width-content
 
 		#tablet:
 			%align-self-centre
