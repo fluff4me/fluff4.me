@@ -984,4 +984,6 @@ namespace Component {
 
 }
 
+State.Owner.setConstructor(() => Component())
+
 export default Component

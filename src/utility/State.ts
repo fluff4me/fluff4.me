@@ -6,17 +6,6 @@ import Define from 'utility/Define'
 import Functions from 'utility/Functions'
 import type { Mutable as MakeMutable } from 'utility/Type'
 
-export type Owner =
-	| Component
-	| ComponentInsertionTransaction
-
-namespace Owner {
-	export function getOwnershipState (ownerIn: Owner) {
-		const owner = ownerIn as Partial<Component> & Partial<ComponentInsertionTransaction>
-		return owner.removed ?? owner.closed
-	}
-}
-
 export type StateOr<T> = State<T> | T
 export type MutableStateOr<T> = MutableState<T> | T
 
@@ -33,17 +22,17 @@ interface State<T, E = T> {
 	setId (id: string): this
 
 	/** Subscribe to state change events. Receive the initial state as an event. */
-	use (owner: Owner, subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
+	use (owner: State.Owner, subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
 	useManual (subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
 	/** Subscribe to state change events. The initial state is not sent as an event. */
-	subscribe (owner: Owner, subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
+	subscribe (owner: State.Owner, subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
 	subscribeManual (subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
 	unsubscribe (subscriber: (value: E, oldValue?: E) => unknown): void
 	emit (oldValue?: E): void
-	await<R extends Arrays.Or<T>> (owner: Owner, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
+	await<R extends Arrays.Or<T>> (owner: State.Owner, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
 	awaitManual<R extends Arrays.Or<T>> (value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
 
-	map<R> (owner: Owner, mapper: (value: T) => StateOr<R>, equals?: EqualsFunction<R>): State.Generator<R>
+	map<R> (owner: State.Owner, mapper: (value: T) => StateOr<R>, equals?: EqualsFunction<R>): State.Generator<R>
 	mapManual<R> (mapper: (value: T) => StateOr<R>, equals?: EqualsFunction<R>): State.Generator<R>
 	nonNullish: State.Generator<boolean>
 	truthy: State.Generator<boolean>
@@ -56,7 +45,7 @@ interface State<T, E = T> {
 interface MutableState<T> extends State<T> {
 	value: T
 	setValue (value: T): this
-	bind (owner: Owner, state: State<T>): UnsubscribeState
+	bind (owner: State.Owner, state: State<T>): UnsubscribeState
 	bindManual (state: State<T>): UnsubscribeState
 }
 
@@ -131,7 +120,7 @@ function State<T> (defaultValue: T, equals?: EqualsFunction<T>): MutableState<T>
 			return () => result.unsubscribe(subscriber)
 		},
 		subscribe: (owner, subscriber) => {
-			const ownerClosedState = Owner.getOwnershipState(owner)
+			const ownerClosedState = State.Owner.getOwnershipState(owner)
 			if (!ownerClosedState || ownerClosedState.value)
 				return Functions.NO_OP
 
@@ -220,6 +209,27 @@ function State<T> (defaultValue: T, equals?: EqualsFunction<T>): MutableState<T>
 }
 
 namespace State {
+
+	export type Owner =
+		| Component
+		| ComponentInsertionTransaction
+
+	export namespace Owner {
+		export function getOwnershipState (ownerIn: Owner) {
+			const owner = ownerIn as Partial<Component> & Partial<ComponentInsertionTransaction>
+			return owner.removed ?? owner.closed
+		}
+
+		export type Removable = Owner & { remove (): void }
+		let ownerConstructor: () => Owner.Removable
+		export function setConstructor (constructor: () => Owner.Removable) {
+			ownerConstructor = constructor
+		}
+
+		export function create (): Owner.Removable {
+			return ownerConstructor()
+		}
+	}
 
 	export type Mutable<T> = MutableState<T>
 
@@ -334,21 +344,24 @@ namespace State {
 		unobserve (...states: State<any>[]): this
 	}
 
-	export function JIT<T> (generate: () => StateOr<T>): JIT<T> {
+	export function JIT<T> (generate: (owner: Owner) => StateOr<T>): JIT<T> {
 		const result = State(undefined!) as State<T, () => T> as MakeMutable<JIT<T>> & InternalState<T>
 		delete result.asMutable
 
 		let isCached = false
 		let cached: T | undefined
 		let unuseInternalState: UnsubscribeState | undefined
+		let owner: Owner.Removable | undefined
 		Define.magic(result, 'value', {
 			get: () => {
 				if (!isCached) {
 					unuseInternalState?.(); unuseInternalState = undefined
+					owner?.remove(); owner = undefined
 
 					isCached = true
 
-					const result = generate()
+					owner = Owner.create()
+					const result = generate(owner)
 					if (State.is(result))
 						unuseInternalState = result.useManual(value => cached = value)
 					else
@@ -379,6 +392,7 @@ namespace State {
 
 		result.markDirty = () => {
 			unuseInternalState?.(); unuseInternalState = undefined
+			owner?.remove(); owner = undefined
 			const oldValue = cached
 			isCached = false
 			cached = undefined
