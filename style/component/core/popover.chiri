@@ -1,7 +1,7 @@
 $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 
 .popover:
-	%relative
+	%absolute
 	%border-radius-2
 	%inset-border-1
 	%borderless
@@ -39,7 +39,6 @@ $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 			%translate-up-2
 
 	&--normal-stacking:
-		%absolute
 		%flex
 		%opaque
 		$transition-duration: $transition-focus
