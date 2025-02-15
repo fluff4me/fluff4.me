@@ -104,7 +104,7 @@ const ViewContainer = (): ViewContainer => {
 						.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({
 							code: (error.code! < 200 ? undefined : error.code) ?? 600,
 							error,
-						}))
+						}, {}))
 					if (shownView) {
 						shownView.appendTo(container)
 						container.view = shownView
@@ -154,9 +154,12 @@ const ViewContainer = (): ViewContainer => {
 
 		let view: VIEW | undefined
 
-		const shownView = await Promise.resolve(definition.create(params))
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const loadParams = await definition.load?.(params)
+
+		const shownView = await Promise.resolve(definition.create(params, loadParams))
 			.then(v => view = v)
-			.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({ code: error.code ?? 600, error }))
+			.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({ code: error.code ?? 600, error }, {}))
 		if (shownView) {
 			shownView.prependTo(container.ephemeralDialog)
 			container.ephemeral = shownView

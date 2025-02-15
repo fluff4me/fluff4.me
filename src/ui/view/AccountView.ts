@@ -13,11 +13,14 @@ import ViewTransition from 'ui/view/shared/ext/ViewTransition'
 import State from 'utility/State'
 
 export default ViewDefinition({
-	create: async () => {
+	async load () {
+		const state = State<Session.Auth.State>(Session.Auth.state.value)
+		const services = await OAuthServices(state)
+		return { state, services }
+	},
+	create (_, { state, services }) {
 		const id = 'account'
 		const view = View(id)
-
-		const state = State<Session.Auth.State>(Session.Auth.state.value)
 
 		Session.Auth.author.use(view, author =>
 			view.breadcrumbs.setBackButton(!author?.vanity ? undefined : `/author/${author.vanity}`,
@@ -28,7 +31,6 @@ export default ViewDefinition({
 			.use(state, () => createForm()?.subviewTransition(id))
 			.appendTo(view.content)
 
-		const services = await OAuthServices(state)
 		services.header.subviewTransition(id)
 		services.appendTo(view.content)
 

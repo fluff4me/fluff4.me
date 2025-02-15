@@ -5,7 +5,7 @@ import type { PromiseOr } from 'utility/Type'
 interface ViewDefinitionBase<VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined = undefined> {
 	requiresLogin?: true
 	load?(params: PARAMS): PromiseOr<LOAD_PARAMS>
-	create (params: PARAMS, loadParams?: LOAD_PARAMS): PromiseOr<VIEW | undefined>
+	create (params: PARAMS, loadParams: LOAD_PARAMS): PromiseOr<VIEW | undefined>
 }
 
 interface ViewDefinition<VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined> extends ViewDefinitionBase<VIEW, PARAMS, LOAD_PARAMS> {

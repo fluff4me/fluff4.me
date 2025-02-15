@@ -2,6 +2,7 @@ import type { Chapter, ChapterReference } from 'api.fluff4.me'
 import EndpointChapterDelete from 'endpoint/chapter/EndpointChapterDelete'
 import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import Chapters from 'model/Chapters'
+import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
 import InfoDialog from 'ui/component/core/InfoDialog'
@@ -18,26 +19,33 @@ interface ChapterEditViewParams extends Omit<ChapterReference, 'url'> {
 
 export default ViewDefinition({
 	requiresLogin: true,
-	create: async (params: ChapterEditViewParams) => {
-		const id = 'chapter-edit'
-		const view = View(id)
+	async load (params: ChapterEditViewParams) {
+		const response = !params.url ? undefined : await EndpointChapterGet.query({ params: params as Required<ChapterEditViewParams> })
+		if (response instanceof Error)
+			throw response
 
-		const chapter = !params.url ? undefined : await EndpointChapterGet.query({ params: params as Required<ChapterEditViewParams> })
-		if (chapter instanceof Error)
-			throw chapter
+		const chapter = response?.data
 
-		if (!chapter?.data)
-			await InfoDialog.prompt(view, {
+		const owner = Component()
+		if (!chapter)
+			await InfoDialog.prompt(owner, {
 				titleTranslation: 'shared/prompt/beta-restrictions/title',
 				bodyTranslation: 'shared/prompt/beta-restrictions/description',
 			})
 
+		owner.remove()
+		return { chapter }
+	},
+	create (params: ChapterEditViewParams, { chapter }) {
+		const id = 'chapter-edit'
+		const view = View(id)
+
 		if (params && chapter)
 			view.breadcrumbs.setBackButton(`/work/${params.author}/${params.work}/chapter/${params.url}`,
-				button => button.subText.set(chapter.data.name))
+				button => button.subText.set(chapter.name))
 
-		const state = State<Chapter | undefined>(chapter?.data)
-		const stateInternal = State<Chapter | undefined>(chapter?.data)
+		const state = State<Chapter | undefined>(chapter)
+		const stateInternal = State<Chapter | undefined>(chapter)
 
 		Slot()
 			.use(state, () => ChapterEditForm(stateInternal, Chapters.work(params)).subviewTransition(id))

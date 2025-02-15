@@ -20,17 +20,20 @@ import Errors from 'utility/Errors'
 import State from 'utility/State'
 
 export default ViewDefinition({
-	create: async (params: WorkParams) => {
-		const view = View('work')
-
+	async load (params: WorkParams) {
 		const response = await EndpointWorkGet.query({ params })
 		if (response instanceof Error)
 			throw response
 
+		const work = response.data
+		return { work }
+	},
+	create (params: WorkParams, { work: workData }) {
+		const view = View('work')
+
 		if (Session.Auth.loggedIn.value)
 			void EndpointHistoryAddWork.query({ params })
 
-		const workData = response.data
 		const authorData = workData.synopsis.mentions.find(author => author.vanity === params.author)!
 		if (!authorData)
 			throw Errors.BadData('Work author not in synopsis authors')
