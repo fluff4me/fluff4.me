@@ -51,12 +51,10 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 
 			if (globalTags.length)
 				Component()
-					.and(Sortable, SortableDefinition<TagId>({
+					.and(Sortable as Sortable.BuilderOf<TagId>, SortableDefinition({
 						getID: component => getTagID(component.as(Tag)?.tag) as TagId | undefined,
-						onOrderChange: order => {
-							tagsState.value.global_tags = order
-						},
 					}))
+					.tweak(sortable => sortable.order.subscribeManual(order => tagsState.value.global_tags.splice(0, Infinity, ...order)))
 					.style('tags-editor-current-type', 'tags-editor-current-global')
 					.append(...globalTags.map(tag => Tag(tag)
 						.setNavigationDisabled(true)
@@ -68,12 +66,10 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 
 			if (tags.custom_tags.length)
 				Component()
-					.and(Sortable, SortableDefinition<string>({
+					.and(Sortable as Sortable.BuilderOf<string>, SortableDefinition({
 						getID: component => getTagID(component.as(Tag)?.tag),
-						onOrderChange: order => {
-							tagsState.value.custom_tags = order
-						},
 					}))
+					.tweak(sortable => sortable.order.subscribeManual(order => tagsState.value.custom_tags.splice(0, Infinity, ...order)))
 					.style('tags-editor-current-type', 'tags-editor-current-custom')
 					.append(...tags.custom_tags.map(tag => Tag(tag)
 						.setNavigationDisabled(true)
