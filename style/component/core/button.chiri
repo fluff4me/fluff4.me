@@ -28,6 +28,14 @@ $$button-background-highlight!colour
 		#{transition("border")}
 	#transition: $button-transition
 
+	&--webkit:
+		; fix glitchy animation on webkit
+		$button-transition:
+			#{transition("translate")},
+			#{transition("color")},
+			#{transition("box-shadow")},
+			#{transition("border")}
+
 	&-type-icon:
 		#after: .button
 		%font-4
