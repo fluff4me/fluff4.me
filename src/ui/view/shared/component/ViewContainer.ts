@@ -70,7 +70,13 @@ const ViewContainer = (): ViewContainer => {
 					}
 				}
 
-				loadParams = !definition.load ? undefined : await definition.load(params)
+				let loadError: Error & Partial<ErrorResponse> | undefined
+				try {
+					loadParams = !definition.load ? undefined : await Promise.resolve(definition.load(params))
+				}
+				catch (err) {
+					loadError = err as never
+				}
 
 				if (globalId !== showingId)
 					return
@@ -96,7 +102,7 @@ const ViewContainer = (): ViewContainer => {
 				}
 
 				async function swapAdd (replacementDefinition: ViewDefinition<View, object | undefined, object | undefined> = definition) {
-					const shownView = await Promise.resolve(replacementDefinition.create(params, loadParams))
+					const shownView = await (loadError ? Promise.reject(loadError) : Promise.resolve(replacementDefinition.create(params, loadParams)))
 						.then(v => {
 							view = replacementDefinition === definition ? v as VIEW : undefined
 							return v

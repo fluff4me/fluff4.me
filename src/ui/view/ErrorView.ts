@@ -2,6 +2,7 @@ import type { Quilt } from 'lang/en-nz'
 import quilt from 'lang/en-nz'
 import Heading from 'ui/component/core/Heading'
 import Paragraph from 'ui/component/core/Paragraph'
+import Placeholder from 'ui/component/core/Placeholder'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 
@@ -24,6 +25,7 @@ export default ViewDefinition({
 		const key = `view/error/description-${params.code}` as const
 		if (key in quilt)
 			Paragraph()
+				.and(Placeholder)
 				.text.use(key as Quilt.SimpleKey)
 				.appendTo(view.content)
 
