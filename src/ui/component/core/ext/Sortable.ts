@@ -23,6 +23,7 @@ export interface SortableDefinition<ID extends string | number> {
 	getID (component: Draggable): ID | undefined
 	sortDelay?: number
 	stickyDistance?: number
+	onOrderChange?(order: ID[]): void
 }
 
 export function SortableDefinition<ID extends string | number> (definition: SortableDefinition<ID>) {
@@ -77,6 +78,9 @@ const Sortable = Object.assign(
 				return component
 			},
 		}))
+
+		if (definition.onOrderChange)
+			order.subscribeManual(definition.onOrderChange)
 
 		return sortable
 
