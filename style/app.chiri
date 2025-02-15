@@ -14,14 +14,14 @@
 		grid-template-columns:
 			#{w} 1fr #{w}
 
-	.app:
-		%contents
-
 		#tablet:
 			grid-template-columns: 1fr
 			grid-template-areas:
 				"masthead"
 				"content"
+
+	.app:
+		%contents
 
 		&-content:
 			%grid
