@@ -52,6 +52,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 			if (globalTags.length)
 				Component()
 					.and(Sortable as Sortable.BuilderOf<TagId>, SortableDefinition({
+						stickyDistance: 10,
 						getID: component => getTagID(component.as(Tag)?.tag) as TagId | undefined,
 						onOrderChange: order => tagsState.value.global_tags.splice(0, Infinity, ...order),
 					}))
@@ -67,6 +68,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 			if (tags.custom_tags.length)
 				Component()
 					.and(Sortable as Sortable.BuilderOf<string>, SortableDefinition({
+						stickyDistance: 10,
 						getID: component => getTagID(component.as(Tag)?.tag),
 						onOrderChange: order => tagsState.value.custom_tags.splice(0, Infinity, ...order),
 					}))
