@@ -69,7 +69,7 @@ export default ViewDefinition({
 				.tweak(row => row.right
 					.append(Button()
 						.text.use('view/work-edit/update/action/delete')
-						.event.subscribe('click', async () => Works.delete(params, view))))
+						.event.subscribe('click', async () => Works.delete(state.value, view))))
 		}
 	},
 })
