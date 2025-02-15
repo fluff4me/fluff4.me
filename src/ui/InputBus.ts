@@ -20,6 +20,8 @@ Component.extend(component => {
 	}))
 })
 
+export const HandlesKeyboardEvents = Component.Extension(component => component)
+
 type Modifier = 'ctrl' | 'shift' | 'alt'
 
 export interface IInputEvent {
@@ -163,7 +165,8 @@ function emitKeyEvent (e: RawEvent) {
 		if (e.type === 'keydown' && eventKey === 'Enter' && !event.shift && !event.alt) {
 			const form = target.closest('form')
 			if (form && (target.tagName.toLowerCase() === 'input' || target.closest('[contenteditable]')) && !event.ctrl) {
-				e.preventDefault()
+				if (!Component.closest(HandlesKeyboardEvents, target))
+					e.preventDefault()
 			}
 			else {
 				form?.requestSubmit()

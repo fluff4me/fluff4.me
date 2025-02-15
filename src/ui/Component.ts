@@ -559,14 +559,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 
 		closest (builder: any) {
-			let cursor: HTMLElement | null = component.element
-			while (cursor) {
-				cursor = cursor.parentElement
-				const component = cursor?.component
-
-				if (component?.is(builder))
-					return component
-			}
+			return Component.closest(builder, component)
 		},
 
 		get parent () {
@@ -971,6 +964,21 @@ namespace Component {
 				removeContents(child)
 				child.remove()
 			}
+		}
+	}
+
+	export function closest<BUILDERS extends Component.BuilderLike[]> (builder: BUILDERS, element?: HTMLElement | Component | null): { [INDEX in keyof BUILDERS]: BUILDERS[INDEX] extends infer BUILDER ? (BUILDER extends Component.BuilderLike<any[], infer COMPONENT> ? COMPONENT : never) | undefined : never }[number]
+	export function closest<BUILDER extends Component.BuilderLike> (builder: BUILDER, element?: HTMLElement | Component | null): (BUILDER extends Component.BuilderLike<any[], infer COMPONENT> ? COMPONENT : never) | undefined
+	export function closest<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>, element?: HTMLElement | Component | null): COMPONENT | undefined
+	export function closest<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>, element?: HTMLElement | Component | null): COMPONENT | undefined
+	export function closest (builder: BuilderLike, element?: HTMLElement | Component | null) {
+		let cursor: HTMLElement | null = is(element) ? element.element : element ?? null
+		while (cursor) {
+			cursor = cursor.parentElement
+			const component = cursor?.component
+
+			if (component?.is(builder))
+				return component
 		}
 	}
 
