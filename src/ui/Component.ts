@@ -656,7 +656,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return component
 		},
 		monitorScrollEvents () {
-			descendantsListeningForScroll ??= component.element.getElementsByClassName(Classes.ReceiveScrollEvents)
+			descendantsListeningForScroll ??= (component.element === window as any ? document.documentElement : component.element).getElementsByClassName(Classes.ReceiveScrollEvents)
 			component.event.subscribe('scroll', () => {
 				for (const descendant of [...descendantsListeningForScroll!])
 					descendant.component?.event.emit('ancestorScroll')
