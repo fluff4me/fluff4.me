@@ -82,10 +82,15 @@ const Block = Component.Builder((component): Block => {
 			.appendTo(block))
 
 	return block
-		.and(CanHasActionsMenu, popover => popover
-			.anchor.reset()
-			.anchor.add('off right', 'centre', `>> .${BlockClasses.Header}`)
-			.anchor.orElseHide()
+		.and(CanHasActionsMenu, actionsMenu => actionsMenu
+			.subscribeReanchor((actionsMenu, isTablet) => {
+				if (isTablet)
+					return
+
+				actionsMenu.anchor.reset()
+					.anchor.add('off right', 'centre', `>> .${BlockClasses.Header}`)
+					.anchor.orElseHide()
+			})
 		)
 		.setActionsMenuButton(button => button
 			.style('block-actions-menu-button')
