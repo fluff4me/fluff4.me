@@ -1,4 +1,8 @@
-%height-100
+%gutter-stable
+%relative
+%height-auto
+%min-height-100
+%overflow-visible
 colour-scheme: dark
 #string background-highlight = "color-mix(in lch, $dark-2, #fff 5%)
 background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $dark-2)
@@ -24,10 +28,11 @@ $tablet-width: #{tablet-width}
 
 .body:
 	%margin-0
-	%overflow-auto-y
-	%gutter-stable
 	%font-3
-	height: 100vh
+	%relative
+	%height-auto
+	%min-height-100
+	%overflow-visible
 
 	#not-tablet:
 		%overflow-visible
