@@ -1,5 +1,3 @@
-%overflow-auto
-%gutter-stable
 colour-scheme: dark
 #string background-highlight = "color-mix(in lch, $dark-2, #fff 5%)
 colour: $light-3
@@ -24,7 +22,10 @@ $tablet-width: #{tablet-width}
 
 .body:
 	%margin-0
+	%overflow-auto-y
+	%gutter-stable
 	%font-3
+	height: 100vh
 
 	@before:
 		%block
