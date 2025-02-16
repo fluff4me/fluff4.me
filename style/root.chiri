@@ -28,3 +28,13 @@ $tablet-width: #{tablet-width}
 	%gutter-stable
 	%font-3
 	height: 100vh
+
+	#not-tablet:
+		%overflow-visible
+
+		@before:
+			%block
+			%fixed
+			%inset-0
+			%z-index-bg
+			background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $dark-2)
