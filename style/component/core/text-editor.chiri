@@ -33,7 +33,7 @@
 		%cursor-default
 		%z-index-fg
 		%border-top-radius-1
-		%top-0
+		top: $masthead-height
 		background: light-dark(#{alpha(0.05, $dark-0)}, #{alpha(0.2, $dark-0)})
 		$border-colour: light-dark(#{alpha(0.3, $dark-0)}, #{alpha(0.15, $light-0)})
 
