@@ -330,7 +330,7 @@ const TagsFilter = FilterFunction((before, selected, after) => {
 
 function filterSegment (text: string) {
 	return text.toLowerCase()
-		.replace(/[^a-z0-9: -]/g, ' ')
+		.replace(/[^\w/!?&$'.,: -]/g, ' ')
 		.replace(/(?<=:.*?):/g, ' ')
 		.replace(/ {2,}/g, ' ')
 		.replace(' :', ':')
