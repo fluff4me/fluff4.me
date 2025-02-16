@@ -4,7 +4,7 @@ import PagedListData from 'model/PagedListData'
 import Component from 'ui/Component'
 import Author from 'ui/component/Author'
 import Link from 'ui/component/core/Link'
-import Paginator2 from 'ui/component/core/Paginator2'
+import Paginator from 'ui/component/core/Paginator'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import { Tab } from 'ui/component/core/Tabinator'
@@ -49,7 +49,7 @@ const FollowingAuthorsTab = Component.Builder((component, type: 'following' | 'i
 
 			await authors.get(0)
 
-			Paginator2()
+			Paginator()
 				.type('flush')
 				.viewTransition(false)
 				.set(authors, (slot, authors) => {

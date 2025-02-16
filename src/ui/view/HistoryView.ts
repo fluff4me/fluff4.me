@@ -6,7 +6,7 @@ import Works from 'model/Works'
 import Chapter from 'ui/component/Chapter'
 import Block from 'ui/component/core/Block'
 import Link from 'ui/component/core/Link'
-import Paginator2 from 'ui/component/core/Paginator2'
+import Paginator from 'ui/component/core/Paginator'
 import Work from 'ui/component/Work'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
@@ -18,7 +18,7 @@ export default ViewDefinition({
 		view.breadcrumbs.title.text.use('view/history/main/title')
 		view.breadcrumbs.description.text.use('view/history/main/description')
 
-		Paginator2()
+		Paginator()
 			.type('flush')
 			.set(
 				PagedListData.fromEndpoint(25, EndpointHistoryGet.prep(), data => ({

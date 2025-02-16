@@ -10,7 +10,7 @@ import Component from 'ui/Component'
 import Chapter from 'ui/component/Chapter'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
-import Paginator2 from 'ui/component/core/Paginator2'
+import Paginator from 'ui/component/core/Paginator'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import Work from 'ui/component/Work'
@@ -47,7 +47,7 @@ export default ViewDefinition({
 
 		const chaptersListState = State(null)
 		Slot()
-			.use(chaptersListState, () => Paginator2()
+			.use(chaptersListState, () => Paginator()
 				.viewTransition('work-view-chapters')
 				.style('view-type-work-chapter-list')
 				.tweak(paginator => {

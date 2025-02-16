@@ -6,7 +6,7 @@ import Component from 'ui/Component'
 import Author from 'ui/component/Author'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
-import Paginator2 from 'ui/component/core/Paginator2'
+import Paginator from 'ui/component/core/Paginator'
 import Slot from 'ui/component/core/Slot'
 import Work from 'ui/component/Work'
 import View from 'ui/view/shared/component/View'
@@ -38,7 +38,7 @@ export default ViewDefinition({
 				author: params.vanity,
 			},
 		}))
-		Paginator2()
+		Paginator()
 			.viewTransition('author-view-works')
 			.tweak(p => p.title.text.use('view/author/works/title'))
 			.setActionsMenu(popover => popover

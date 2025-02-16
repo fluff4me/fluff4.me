@@ -5,7 +5,7 @@ import PagedListData from 'model/PagedListData'
 import Works from 'model/Works'
 import Component from 'ui/Component'
 import Link from 'ui/component/core/Link'
-import Paginator2 from 'ui/component/core/Paginator2'
+import Paginator from 'ui/component/core/Paginator'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import { Tab } from 'ui/component/core/Tabinator'
@@ -57,7 +57,7 @@ const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ign
 
 			await works.get(0)
 
-			Paginator2()
+			Paginator()
 				.type('flush')
 				.viewTransition(false)
 				.set(works, (slot, works) => {
