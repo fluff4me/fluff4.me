@@ -1,7 +1,7 @@
 #do:
 	#string w = "calc($space-5 * 4 + $space-4)
 
-	.body:
+	.app:
 		%width-100
 		%grid
 		grid-template-areas:
@@ -19,9 +19,6 @@
 			grid-template-areas:
 				"masthead"
 				"content"
-
-	.app:
-		%contents
 
 		&-content:
 			%grid
