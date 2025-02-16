@@ -1,4 +1,4 @@
-import type { PaginatedEndpoint, PreparedPaginatedQueryReturning, PreparedQueryOf } from 'endpoint/Endpoint'
+import type { EndpointResponse, PaginatedEndpoint, PreparedPaginatedQueryReturning, PreparedQueryOf, ResponseData } from 'endpoint/Endpoint'
 import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 import type { PromiseOr } from 'utility/Type'
@@ -9,8 +9,8 @@ interface PagedData<T> {
 	/** @deprecated */
 	get rawPages (): State.Mutable<PromiseOr<State.Mutable<T | false | null>>[]>
 	get (page: number): PromiseOr<State<T | false | null>>
-	set (page: number, data: T, isLastPage?: true): void
-	setPageCount (count: number): void
+	set (page: number, data: T, isLastPage?: boolean): void
+	setPageCount (count: number | true): void
 	clear (): void
 }
 
@@ -70,7 +70,7 @@ const PagedData = Object.assign(
 				pages.emit()
 			},
 			setPageCount (count) {
-				pageCount.value = count
+				pageCount.value = count === true ? undefined : count
 			},
 			clear () {
 				pages.value = []
@@ -79,22 +79,61 @@ const PagedData = Object.assign(
 		}
 	},
 	{
-		fromEndpoint<T> (endpoint: PreparedPaginatedQueryReturning<T>): PagedData<T> {
-			const e = endpoint as PreparedQueryOf<PaginatedEndpoint>
-			return PagedData({
-				async get (page) {
-					const response = await e.query(undefined, { page })
-					if (toast.handleError(response))
-						return false
-
-					if (!Array.isArray(response.data) || response.data.length)
-						return response.data as T
-
-					return null
-				},
-			})
-		},
+		fromEndpoint,
 	}
 )
+
+export interface EndpointResponseDismantledData<C, A> {
+	content: C[]
+	auxiliary: A
+}
+export type EndpointResponseDataDismantler<T, C, A> = (data: T) => EndpointResponseDismantledData<C, A>
+
+function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>> (endpoint: ENDPOINT): PagedData<ResponseData<EndpointResponse<ENDPOINT>> extends infer T ? T extends (infer T)[] ? T : T : never>
+function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>, C, A> (endpoint: ENDPOINT, dismantler: EndpointResponseDataDismantler<NoInfer<ResponseData<EndpointResponse<ENDPOINT>>>, C, A>): { [KEY in keyof A]: State<A[KEY] extends any[] ? A[KEY] : []> } extends infer AUX ? PagedData<C> & AUX : never
+function fromEndpoint (endpoint: PreparedPaginatedQueryReturning<any> | PreparedPaginatedQueryReturning<any[]>, dismantler?: EndpointResponseDataDismantler<any, any, Record<string, any>>): any {
+	const e = endpoint as PreparedQueryOf<PaginatedEndpoint>
+
+	const aux: Record<string, State<any[]>> = {}
+	const result = PagedData({
+		async get (page) {
+			const response = await e.query(undefined, { page })
+			if (toast.handleError(response))
+				return false
+
+			if (dismantler) {
+				const { content, auxiliary } = dismantler(response.data)
+
+				for (const [key, value] of Object.entries(auxiliary)) {
+					if (value === content)
+						continue
+
+					const state = aux[key] ??= State<any[]>([])
+					const mutableContent = content as any[] & Record<string, State<any[]>>
+					mutableContent[key] ??= state
+					result[key] ??= state
+					Object.assign(result, { aux })
+
+					if (Array.isArray(value))
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+						state.value.push(...value)
+					else
+						state.value.push(value)
+					state.emit()
+				}
+
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+				return content
+			}
+
+			if (!Array.isArray(response.data) || response.data.length)
+				return response.data
+
+			return null
+		},
+	}) as PagedData<any> & Record<string, State<any[]>>
+
+	return result
+}
 
 export default PagedData

@@ -7,7 +7,7 @@ import Async from 'utility/Async'
 import State from 'utility/State'
 
 interface PaginatorExtensions<DATA = any> {
-	readonly page: State<number>
+	readonly page: State.Mutable<number>
 	readonly data: State<DATA>
 	set<DATA_SOURCE extends PagedData<DATA>> (data: DATA_SOURCE, initialiser: (slot: Slot, data: DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never, source: DATA_SOURCE, paginator: this) => unknown): Paginator2<DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never>
 	orElse (initialiser: (slot: Slot, paginator: this) => unknown): this
@@ -60,7 +60,7 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 	})
 
 	const isFirstPage = cursor.mapManual(cursor => cursor <= 0)
-	const isLastPage = State.Map(component, [cursor, pageCount], (cursor, pageCount) => cursor >= (pageCount ?? Infinity))
+	const isLastPage = State.Map(component, [cursor, pageCount], (cursor, pageCount) => cursor + 1 >= (pageCount ?? Infinity))
 
 	// first
 	Button()
