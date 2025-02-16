@@ -3,17 +3,17 @@ import EndpointNotificationMarkRead from 'endpoint/notification/EndpointNotifica
 import Notifications from 'model/Notifications'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
-import Paginator2 from 'ui/component/core/Paginator2'
+import Paginator from 'ui/component/core/Paginator'
 import Notification from 'ui/component/Notification'
 
 interface NotificationListExtensions {
-	readonly paginator: Paginator2
+	readonly paginator: Paginator
 }
 
 interface NotificationList extends Component, NotificationListExtensions { }
 
 const NotificationList = Component.Builder(async (component, onlyUnread?: true, pageSize?: number): Promise<NotificationList> => {
-	const paginator = component.and(Paginator2)
+	const paginator = component.and(Paginator)
 		.style('notification-list')
 
 	const list = component

@@ -3,7 +3,7 @@ import type { PreparedPaginatedQueryReturning } from 'endpoint/Endpoint'
 import PagedListData from 'model/PagedListData'
 import Component from 'ui/Component'
 import Link from 'ui/component/core/Link'
-import Paginator2 from 'ui/component/core/Paginator2'
+import Paginator from 'ui/component/core/Paginator'
 import Work from 'ui/component/Work'
 import State from 'utility/State'
 
@@ -12,10 +12,10 @@ interface WorkFeedExtensions {
 	setFromWorks (pagedData: PagedListData<WorkData>, authors: Author[]): this
 }
 
-interface WorkFeed extends Paginator2, WorkFeedExtensions { }
+interface WorkFeed extends Paginator, WorkFeedExtensions { }
 
 const WorkFeed = Component.Builder((component): WorkFeed => {
-	const paginator = component.and(Paginator2)
+	const paginator = component.and(Paginator)
 		.type('flush')
 
 	const set = paginator.set

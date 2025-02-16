@@ -9,13 +9,13 @@ import State from 'utility/State'
 interface PaginatorExtensions<DATA = any> {
 	readonly page: State.Mutable<number>
 	readonly data: State<DATA>
-	set<DATA_SOURCE extends PagedData<DATA>> (data: DATA_SOURCE, initialiser: (slot: Slot, data: DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never, source: DATA_SOURCE, paginator: this) => unknown): Paginator2<DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never>
+	set<DATA_SOURCE extends PagedData<DATA>> (data: DATA_SOURCE, initialiser: (slot: Slot, data: DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never, source: DATA_SOURCE, paginator: this) => unknown): Paginator<DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never>
 	orElse (initialiser: (slot: Slot, paginator: this) => unknown): this
 }
 
-interface Paginator2<DATA = any> extends Block, PaginatorExtensions<DATA> { }
+interface Paginator<DATA = any> extends Block, PaginatorExtensions<DATA> { }
 
-const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> => {
+const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => {
 	const block = component.and(Block)
 
 	const isFlush = block.type.state.mapManual(type => type.has('flush'))
@@ -100,8 +100,8 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 		.event.subscribe('click', () => cursor.value = !pageCount.value ? cursor.value : pageCount.value - 1)
 		.appendTo(block.footer.right)
 
-	let initialiser: ((slot: Slot, data: T, source: PagedData<T>, paginator: Paginator2<T>) => unknown) | undefined
-	let orElseInitialiser: ((slot: Slot, paginator: Paginator2<T>) => unknown) | undefined
+	let initialiser: ((slot: Slot, data: T, source: PagedData<T>, paginator: Paginator<T>) => unknown) | undefined
+	let orElseInitialiser: ((slot: Slot, paginator: Paginator<T>) => unknown) | undefined
 
 	const paginator = block
 		.viewTransition('paginator')
@@ -260,4 +260,4 @@ function hasResults (result: unknown) {
 	return false
 }
 
-export default Paginator2
+export default Paginator
