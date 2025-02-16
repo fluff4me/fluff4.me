@@ -1,5 +1,7 @@
+%height-100
 colour-scheme: dark
 #string background-highlight = "color-mix(in lch, $dark-2, #fff 5%)
+background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $dark-2)
 colour: $light-3
 view-transition-name: unset
 font-size: 1.2rem
@@ -26,11 +28,3 @@ $tablet-width: #{tablet-width}
 	%gutter-stable
 	%font-3
 	height: 100vh
-
-	@before:
-		%block
-		%fixed
-		%no-pointer-events
-		width: 100vw
-		height: 100vh
-		background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $dark-2)
