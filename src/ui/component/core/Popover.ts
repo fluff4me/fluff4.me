@@ -38,6 +38,7 @@ export interface PopoverComponentRegisteredExtensions {
 	tweakPopover (initialiser: PopoverInitialiser<this>): this
 	/** Simulate a click on a button for this popover */
 	showPopover (): this
+	togglePopover (): this
 }
 
 interface InternalPopoverExtensions {
@@ -134,6 +135,14 @@ Component.extend(component => {
 				},
 				showPopover: () => {
 					void showPopoverClick()
+					return component
+				},
+				togglePopover: () => {
+					if (popover.visible.value)
+						popover.hide()
+					else
+						void showPopoverClick()
+
 					return component
 				},
 			}))

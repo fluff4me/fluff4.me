@@ -42,7 +42,6 @@
 
 	&-right:
 		%block
-		%relative
 		%text-align-right
 
 		#flush:
@@ -54,6 +53,7 @@
 		%font-2
 		%align-self-centre
 		%justify-self-end
+		%relative
 
 	&-actions-menu-button:
 		%unmargin-block-1
@@ -69,11 +69,18 @@
 			#{transition("opacity")}
 		$transition-duration: $transition-focus
 
-		:not ::focus:
-			%transparent
-			%unmargin-left-3
-			margin-right: calc(-1 * ($space-2 + $space-1))
-			$transition-duration: $transition-blur
+		#not-tablet:
+			:not ::focus:
+				%transparent
+				%unmargin-left-3
+				margin-right: calc(-1 * ($space-2 + $space-1))
+				$transition-duration: $transition-blur
+
+		#tablet:
+			%absolute
+			%right-2
+			%top-50
+			%translate-up-50
 
 	:last:
 		%border-bottom-radius-2
