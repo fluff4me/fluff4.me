@@ -31,6 +31,7 @@ const Paginator2 = Component.Builder(<T> (component: Component): Paginator2<T> =
 
 	const content = block.content
 		.style('paginator-content')
+		.style.bind(isFlush, 'paginator-content--flush')
 
 	block.footer
 		.style('paginator-footer')
