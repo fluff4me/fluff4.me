@@ -1,6 +1,6 @@
 import type { RoutePath } from 'navigation/RoutePath'
 import Component from 'ui/Component'
-import Paginator from 'ui/component/core/Paginator'
+import Paginator2 from 'ui/component/core/Paginator2'
 import type { ViewId } from 'ui/view/shared/component/View'
 import View from 'ui/view/shared/component/View'
 
@@ -8,7 +8,7 @@ interface PaginatedViewPaginatorExtensions {
 	setURL (route: RoutePath): void
 }
 
-interface PaginatedViewPaginator extends Paginator, PaginatedViewPaginatorExtensions { }
+interface PaginatedViewPaginator extends Paginator2, PaginatedViewPaginatorExtensions { }
 
 interface PaginatedViewExtensions {
 	paginator (): PaginatedViewPaginator
@@ -24,7 +24,7 @@ const PaginatedView = Component.Builder((_, id: ViewId): PaginatedView => {
 		.extend<PaginatedViewExtensions>(view => ({
 			setURL,
 			paginator: () => {
-				paginator ??= Paginator().extend<PaginatedViewPaginatorExtensions>(paginator => ({ setURL }))
+				paginator ??= Paginator2().extend<PaginatedViewPaginatorExtensions>(paginator => ({ setURL }))
 				paginator.page.subscribeManual(page => {
 					const route = urls[page]
 					if (route)

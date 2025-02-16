@@ -1,5 +1,5 @@
 import type { EndpointResponse, PaginatedEndpoint, PreparedPaginatedQueryReturning, PreparedQueryOf, ResponseData } from 'endpoint/Endpoint'
-import type { PagedDataDefinition } from 'model/PagedData'
+import type { EndpointResponseDataDismantler, PagedDataDefinition } from 'model/PagedData'
 import PagedData from 'model/PagedData'
 import State from 'utility/State'
 import type { PartialMutable, PromiseOr } from 'utility/Type'
@@ -138,12 +138,6 @@ const PagedListData = Object.assign(
 		fromEndpoint,
 	}
 )
-
-interface EndpointResponseDismantledData<C, A> {
-	content: C[]
-	auxiliary: A
-}
-type EndpointResponseDataDismantler<T, C, A> = (data: T) => EndpointResponseDismantledData<C, A>
 
 function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>> (pageSize: number, endpoint: ENDPOINT): PagedListData<ResponseData<EndpointResponse<ENDPOINT>> extends infer T ? T extends (infer T)[] ? T : T : never>
 function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>, C, A> (pageSize: number, endpoint: ENDPOINT, dismantler: EndpointResponseDataDismantler<NoInfer<ResponseData<EndpointResponse<ENDPOINT>>>, C, A>): { [KEY in keyof A]: State<A[KEY] extends any[] ? A[KEY] : []> } extends infer AUX ? PagedListData<C> & AUX : never

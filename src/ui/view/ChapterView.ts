@@ -7,6 +7,7 @@ import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import quilt from 'lang/en-nz'
 import Chapters from 'model/Chapters'
+import PagedData from 'model/PagedData'
 import Session from 'model/Session'
 import TextBody from 'model/TextBody'
 import Component from 'ui/Component'
@@ -37,7 +38,7 @@ export default ViewDefinition({
 
 		return { workData: response.data as WorkData & Partial<WorkFull>, initialChapterResponse }
 	},
-	async create (params: ChapterReference, { workData, initialChapterResponse }) {
+	create (params: ChapterReference, { workData, initialChapterResponse }) {
 		const view = PaginatedView('chapter')
 
 		const author = workData.synopsis?.mentions.find(author => author.vanity === params.author)
@@ -54,7 +55,11 @@ export default ViewDefinition({
 		const chapterState = State(initialChapterResponse.data)
 
 		const chaptersQuery = EndpointChapterGetPaged.prep({ params })
-		const paginator = await view.paginator()
+
+		const chapters = PagedData.fromEndpoint(chaptersQuery)
+		chapters.set(initialChapterResponse.page, initialChapterResponse.data, !initialChapterResponse.has_more)
+		chapters.setPageCount(initialChapterResponse.page_count)
+		const paginator = view.paginator()
 			.viewTransition('chapter-view-chapter')
 			.style('view-type-chapter-block')
 			.type('flush')
@@ -64,9 +69,8 @@ export default ViewDefinition({
 					quilt['view/chapter/title'](Maths.parseIntOrUndefined(chapter.url), chapter.name)))
 			)
 			.appendTo(view.content)
-			.useInitial(initialChapterResponse.data, initialChapterResponse.page, initialChapterResponse.page_count)
-			.thenUse(chaptersQuery)
-			.withContent((slot, chapter, paginator) => {
+			.tweak(p => p.page.value = initialChapterResponse.page)
+			.set(chapters, (slot, chapter, chapters, paginator) => {
 				paginator.setURL(`/work/${params.author}/${params.work}/chapter/${chapter.url}`)
 
 				if (Session.Auth.loggedIn.value)
