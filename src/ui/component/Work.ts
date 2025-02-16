@@ -116,6 +116,13 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 
 			Button()
 				.type('flush')
+				.setIcon('plus')
+				.text.use('work/action/label/new-chapter')
+				.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/new`))
+				.appendTo(popover)
+
+			Button()
+				.type('flush')
 				.setIcon('trash')
 				.text.use('work/action/label/delete')
 				.event.subscribe('click', () => Works.delete(work, popover))

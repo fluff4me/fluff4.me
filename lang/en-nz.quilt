@@ -175,6 +175,7 @@ description/empty: This work has no description.
 state/private: Private
 state/private-no-chapters: Hidden (No Chapters)
 action/label/edit=shared/action/edit
+action/label/new-chapter=shared/action/new-chapter
 action/label/follow=shared/action/follow
 action/label/unfollow=shared/action/unfollow
 action/label/ignore=shared/action/ignore
