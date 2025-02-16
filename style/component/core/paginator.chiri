@@ -17,7 +17,7 @@
 		%sticky
 		%margin-bottom-0
 		%z-index-fg-2
-		top: -1px
+		top: calc($masthead-height + -1px)
 
 		@before:
 			%absolute
