@@ -62,8 +62,10 @@
 
 		&-menu-button:
 			#transition: #{transition("opacity")}
-			:not ::focus: %transparent
 			::focus: $transition-duration: $transition-focus
+
+			#not-tablet:
+				:not ::focus: %transparent
 
 	&-description:
 		%column-1

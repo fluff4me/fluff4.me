@@ -26,6 +26,9 @@ $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 		#{transition("opacity")},
 		#{transition("translate")}
 
+	#flush:
+		$popover-padding: $space-1
+
 	%transition-discrete
 
 	:popover:

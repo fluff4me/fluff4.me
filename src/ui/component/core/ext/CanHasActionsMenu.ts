@@ -5,6 +5,7 @@ import type { PopoverComponentRegisteredExtensions, PopoverInitialiser } from 'u
 import Popover from 'ui/component/core/Popover'
 import type { SlotInitialiserReturn } from 'ui/component/core/Slot'
 import Slot from 'ui/component/core/Slot'
+import Viewport from 'ui/utility/Viewport'
 import { mutable } from 'utility/Objects'
 import type State from 'utility/State'
 
@@ -83,17 +84,27 @@ const CanHasActionsMenu = Component.Extension((component, popoverInitialiser?: P
 				if (actionsMenuButtonInserter)
 					addActionsMenuButton(component)
 
-				component.clearPopover().setPopover('hover', (popover, button) =>
+				component.clearPopover().setPopover('hover', (popover, button) => {
 					mutable(component).actionsMenu = popover
 						.and(ActionsMenu)
-						.type('flush')
 						.style('actions-menu-popover')
-						.anchor.add('off right', 'centre')
-						.anchor.orElseHide()
 						.append(Slot().style.remove('slot').style('actions-menu-popover-arrow'))
 						.tweak(popoverInitialiser, button)
 						.tweak(initialiser, button)
-				)
+
+					Viewport.tablet.use(popover, isTablet => {
+						const tablet = isTablet()
+						popover.anchor.reset()
+						if (tablet) popover
+							.type.remove('flush')
+							.anchor.add('aligned right', 'off bottom')
+							.anchor.add('aligned right', 'off top')
+						else popover
+							.type('flush')
+							.anchor.add('off right', 'centre')
+							.anchor.orElseHide()
+					})
+				})
 
 				return component as never
 			},
@@ -117,7 +128,11 @@ const CanHasActionsMenu = Component.Extension((component, popoverInitialiser?: P
 			.event.subscribe('click', event => {
 				event.preventDefault()
 				event.stopImmediatePropagation()
-				component.showPopover()
+
+				if (Viewport.tablet.value)
+					component.togglePopover()
+				else
+					component.showPopover()
 			})
 		if (typeof actionsMenuButtonInserter === 'function')
 			actionsMenuButtonInserter(button)
