@@ -86,8 +86,7 @@
 
 	&-content:
 		margin-top: calc(-1 * $block-padding)
-		margin-inline: calc(-1 * $block-padding + -1 * $space-5)
-		%padding-inline-5
+		margin-inline: calc(-1 * $block-padding)
 		%margin-bottom-0
 		%grid
 		%stack
@@ -100,6 +99,10 @@
 			#after: .paginator-content
 			%margin-0
 			%padding-block-3
+
+		&--flush:
+			margin-inline: calc(-1 * $block-padding + -1 * $space-5)
+			%padding-inline-5
 
 	&-page:
 		display: ${paginator-page-display: flex}
