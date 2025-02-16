@@ -15,6 +15,7 @@ import Async from 'utility/Async'
 import Define from 'utility/Define'
 import Env from 'utility/Env'
 import Errors from 'utility/Errors'
+import { mutable } from 'utility/Objects'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Strings from 'utility/string/Strings'
@@ -789,6 +790,12 @@ namespace Component {
 
 	export function element<NODE extends Node> (from: Component | NODE): NODE {
 		return is(from) ? from.element as Node as NODE : from
+	}
+
+	export function wrap (element: HTMLElement): Component {
+		const component = Component()
+		mutable(component).element = element
+		return component
 	}
 
 	const SYMBOL_COMPONENT_TYPE_BRAND = Symbol('COMPONENT_TYPE_BRAND')
