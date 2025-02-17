@@ -74,6 +74,8 @@ $$button-background-highlight!colour
 		%weight-normal
 		%unmargin-top-1
 		%colour-4
+		%wrap-words
+		%clamp-1
 
 	&--has-subtext:
 		#after: .button
