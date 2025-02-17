@@ -39,6 +39,7 @@
 		&-content:
 			#after: .paginator-content, .paginator-content--has-header
 			%padding-0
+			%padding-top-4
 
 		&-notes:
 			%padding-3
