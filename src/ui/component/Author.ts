@@ -40,10 +40,10 @@ export default Component.Builder((component, author: Author & Partial<AuthorFull
 			}))
 			.appendTo(block.content)
 
-	if (author.support_link && author.support_message)
+	if (author.support_link)
 		ExternalLink(author.support_link)
 			.style('author-support-link')
-			.text.set(author.support_message)
+			.text.set(author.support_message || quilt['author/support-message/placeholder']())
 			.appendTo(block.content)
 
 	block.setActionsMenu(popover => {
