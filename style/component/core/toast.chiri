@@ -1,6 +1,7 @@
 .toast-list:
 	%no-pointer-events
 	%fixed
+	%z-index-fg
 	%right-5
 	%bottom-4
 	%flex
@@ -26,6 +27,7 @@ $$toast-background-highlight!colour
 	%border-radius-2
 	%colour-0
 	%width-fit
+	max-width: min($space-5 * 5, 100vw)
 	%align-self-end
 	%pointer-events
 	$toast-background: $background-interact-4
@@ -60,10 +62,14 @@ $$toast-background-highlight!colour
 
 	&-title:
 		%weight-bold
+		%wrap-words
+		%clamp-2
 
 	&-content:
 		%font-1
 		%margin-bottom-1
+		%wrap-words
+		%clamp-3
 
 	&-error-type:
 		%weight-bold
