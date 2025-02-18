@@ -1369,6 +1369,11 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 	function createDefaultView (slot: Slot) {
 		const view = new EditorView(slot.element, {
+			transformPastedHTML (html, view) {
+				return html
+					.replaceAll(/(?<=<\/\s*p\s*>\s*)<\s*br\s*\/?\s*>(?=\s*<\s*p\b)/g, '<p></p>')
+					.replaceAll(/<\s*br\s*class="Apple-interchange-newline"\s*\/?\s*>/g, '')
+			},
 			state: EditorState.create({
 				doc: markdownParser.parse(content.value),
 				plugins: [
