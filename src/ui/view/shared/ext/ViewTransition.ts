@@ -62,20 +62,34 @@ namespace ViewTransition {
 		}
 
 		reapply(type as 'subview', name!)
-		const transition = document.startViewTransition(async () => {
+		async function doSwap () {
 			await swap!()
-			reapply(type as 'subview', name!)
-		})
+			reapply(type as 'subview', name as string)
+		}
+		const transition = document.startViewTransition(doSwap)
 
 		const id = queuedUnapply = i++
-		void transition.finished.then(() => {
-			if (queuedUnapply !== id)
-				// another view transition started, no unapply
-				return
+		transition.finished
+			.catch(async err => {
+				if (!String(err as Error).includes('AbortError'))
+					return
 
-			unapply(type)
-		})
-		return transition
+				await doSwap()
+			})
+			.finally(() => {
+				if (queuedUnapply !== id)
+					// another view transition started, no unapply
+					return
+
+				unapply(type)
+			})
+
+		return {
+			finished: transition.finished.catch(() => { }),
+			ready: transition.ready.catch(() => { }),
+			updateCallbackDone: transition.updateCallbackDone.catch(() => { }),
+			skipTransition: () => transition.skipTransition(),
+		}
 	}
 
 	export function reapply (type: 'view'): void
