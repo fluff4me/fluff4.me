@@ -4,13 +4,26 @@ import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import Slot from 'ui/component/core/Slot'
 import Async from 'utility/Async'
+import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
+import Style from 'utility/Style'
+
+interface ScrollContext {
+	scrollRect: DOMRect
+	scrollAnchorTopRect: DOMRect
+	scrollAnchorBottomRect: DOMRect
+	previousScrollRect?: DOMRect
+	scrollAnchorTopPreviousRect?: DOMRect
+	scrollAnchorBottomPreviousRect?: DOMRect
+}
 
 interface PaginatorExtensions<DATA = any> {
 	readonly page: State.Mutable<number>
 	readonly data: State<DATA>
-	set<DATA_SOURCE extends PagedData<DATA>> (data: DATA_SOURCE, initialiser: (slot: Slot, data: DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never, source: DATA_SOURCE, paginator: this) => unknown): Paginator<DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never>
+	readonly scrollAnchorBottom: Component
+	set<DATA_SOURCE extends PagedData<DATA>> (data: DATA_SOURCE, initialiser: (slot: Slot, data: DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never, page: number, source: DATA_SOURCE, paginator: this) => unknown): Paginator<DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never>
 	orElse (initialiser: (slot: Slot, paginator: this) => unknown): this
+	setScroll (scroll: boolean | ((target: HTMLElement, direction: 'forward' | 'backward', context: ScrollContext) => unknown)): this
 }
 
 interface Paginator<DATA = any> extends Block, PaginatorExtensions<DATA> { }
@@ -19,6 +32,10 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 	const block = component.and(Block)
 
 	const isFlush = block.type.state.mapManual(type => type.has('flush'))
+
+	const mastheadHeight = Style.measure('--masthead-height')
+	const space4 = Style.measure('--space-4')
+	void mastheadHeight.value; void space4.value // trigger init
 
 	block.style.bind(isFlush, 'paginator--flush')
 
@@ -36,6 +53,10 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 	block.footer
 		.style('paginator-footer')
 		.style.bind(isFlush, 'paginator-footer--flush')
+
+	const scrollAnchorBottom = Component()
+		.style('paginator-after-anchor')
+		.appendTo(block)
 
 	block.footer.left.style('paginator-footer-left')
 	block.footer.right.style('paginator-footer-right')
@@ -100,8 +121,10 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 		.event.subscribe('click', () => cursor.value = !pageCount.value ? cursor.value : pageCount.value - 1)
 		.appendTo(block.footer.right)
 
-	let initialiser: ((slot: Slot, data: T, source: PagedData<T>, paginator: Paginator<T>) => unknown) | undefined
+	let initialiser: ((slot: Slot, data: T, page: number, source: PagedData<T>, paginator: Paginator<T>) => unknown) | undefined
 	let orElseInitialiser: ((slot: Slot, paginator: Paginator<T>) => unknown) | undefined
+
+	let scrollOption: boolean | undefined | ((target: HTMLElement, direction: 'forward' | 'backward', context: ScrollContext) => unknown)
 
 	const paginator = block
 		.viewTransition('paginator')
@@ -109,13 +132,21 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 		.extend<PaginatorExtensions>(component => ({
 			page: cursor,
 			data: currentData,
+			scrollAnchorBottom,
 			set (data, initialiserIn) {
 				initialiser = initialiserIn as never
 				allData.value = data
+				const emitCursorUpdate = () => cursor.emit()
+				data.event.subscribe('DeletePage', emitCursorUpdate)
+				component.removed.awaitManual(true, () => data.event.unsubscribe('DeletePage', emitCursorUpdate))
 				return this as never
 			},
 			orElse (initialiser) {
 				orElseInitialiser = initialiser
+				return this
+			},
+			setScroll (scroll = true) {
+				scrollOption = scroll
 				return this
 			},
 		}))
@@ -123,14 +154,46 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 	paginator.footer.style.bind(isMultiPage.not, 'paginator-footer--hidden')
 
 	let bouncedFrom: number | undefined
+	let scrollAnchorBottomPreviousRect: DOMRect | undefined
+	let scrollAnchorTopPreviousRect: DOMRect | undefined
+	let previousScrollRect: DOMRect | undefined
+	let removeLastScrollIntoViewHandler: (() => void) | undefined
+	let unuseCursor: UnsubscribeState | undefined
 
 	Slot()
 		.use(allData, (slot, data) => {
 			const wrapper = Slot().appendTo(slot)
 
 			const pages: (Page | undefined)[] = []
-			cursor.use(slot, async (pageNumber, previousPageNumber) => {
+			const handleDelete = (event: Event, pageNumber: number) => {
+				const page = pages[pageNumber]
+				page?.style.remove('paginator-page--initial-load', 'paginator-page--bounce')
+					.style('paginator-page--hidden')
+					.style.setVariable('page-direction', 0)
+				pages.splice(pageNumber, 1)
+			}
+			data?.event.subscribe('DeletePage', handleDelete)
+			slot.closed.awaitManual(true, () => data?.event.unsubscribe('DeletePage', handleDelete))
+			const handleUnset = (event: Event, startNumber: number, endNumberInclusive: number) => {
+				for (let pageNumber = startNumber; pageNumber <= endNumberInclusive; pageNumber++) {
+					pages[pageNumber]?.remove()
+					// eslint-disable-next-line @typescript-eslint/no-array-delete
+					delete pages[pageNumber]
+				}
+			}
+			data?.event.subscribe('UnsetPages', handleUnset)
+			slot.closed.awaitManual(true, () => data?.event.unsubscribe('UnsetPages', handleUnset))
+
+			unuseCursor?.()
+			unuseCursor = cursor.use(slot, async (pageNumber, previousPageNumber) => {
+				previousScrollRect = new DOMRect(0, window.scrollY, window.innerWidth, document.documentElement.scrollHeight)
+				scrollAnchorTopPreviousRect = paginator.element.getBoundingClientRect()
+				scrollAnchorBottomPreviousRect = scrollAnchorBottom.element.getBoundingClientRect()
+				removeLastScrollIntoViewHandler?.(); removeLastScrollIntoViewHandler = undefined
+
 				const isInitialPage = !pages.length
+
+				const newPage = pages[pageNumber] ??= (await Page(pageNumber))?.appendTo(wrapper)
 
 				const direction = Math.sign(pageNumber - (previousPageNumber ?? pageNumber))
 				const previousPage = previousPageNumber === undefined ? undefined : pages[previousPageNumber]
@@ -139,7 +202,6 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 					.style('paginator-page--hidden')
 					.style.setVariable('page-direction', direction)
 
-				const newPage = pages[pageNumber] ??= (await Page(pageNumber))?.appendTo(wrapper)
 				newPage
 					?.style.toggle(isInitialPage, 'paginator-page--initial-load')
 					.style.setVariable('page-direction', direction)
@@ -150,7 +212,17 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				const hasContent = newPage.content.value === false || hasResults(newPage.content.value)
 				if (hasContent) {
 					newPage.style.remove('paginator-page--hidden')
-					scrollIntoView(direction)
+					const newScrollHeight = document.documentElement.scrollHeight
+					if (newScrollHeight > previousScrollRect.height)
+						scrollIntoView(direction)
+					else {
+						const doScrollIntoView = () => scrollIntoView(direction)
+						previousPage?.element.addEventListener('transitionend', doScrollIntoView, { once: true })
+						removeLastScrollIntoViewHandler = () => {
+							previousPage?.element.removeEventListener('transitionend', doScrollIntoView)
+							removeLastScrollIntoViewHandler = undefined
+						}
+					}
 					return
 				}
 
@@ -198,7 +270,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 
 					const hasContent = hasResults(content)
 					if (hasContent) {
-						initialiser?.(page, content as T, data, paginator)
+						initialiser?.(page, content as T, pageNumber, data, paginator)
 						return
 					}
 
@@ -218,11 +290,27 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			}
 
 			function scrollIntoView (direction: number) {
-				if (!direction)
+				if (!direction || scrollOption === false)
 					return
 
-				const scrollTarget = direction > 0 ? block.element : pages[cursor.value]?.element.lastElementChild
-				scrollTarget?.scrollIntoView()
+				const scrollTarget = direction > 0 ? block.element : scrollAnchorBottom.element
+				if (!scrollTarget)
+					return
+
+				if (typeof scrollOption === 'function') {
+					scrollOption(scrollTarget, direction > 0 ? 'forward' : 'backward', {
+						scrollRect: new DOMRect(0, window.scrollY, window.innerWidth, document.documentElement.scrollHeight),
+						scrollAnchorTopRect: block.element.getBoundingClientRect(),
+						scrollAnchorBottomRect: scrollAnchorBottom.element.getBoundingClientRect(),
+						previousScrollRect: previousScrollRect,
+						scrollAnchorTopPreviousRect,
+						scrollAnchorBottomPreviousRect,
+					})
+					return
+				}
+
+				const target = scrollTarget.getBoundingClientRect().top + window.scrollY - mastheadHeight.value - space4.value
+				window.scrollTo({ top: target, behavior: 'smooth' })
 			}
 		})
 		.appendTo(content)

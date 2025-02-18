@@ -148,6 +148,9 @@ function fromEndpoint (pageSize: number, endpoint: PreparedPaginatedQueryReturni
 	const result = PagedListData(pageSize, {
 		async get (page) {
 			const response = await e.query(undefined, { page })
+			if (response.code === 404)
+				return null
+
 			if (toast.handleError(response))
 				return false
 

@@ -93,6 +93,7 @@
 		%overflow-hidden
 
 		&--has-header:
+			#after: .paginator-content
 			%padding-top-4
 
 		&--or-else:
@@ -101,6 +102,8 @@
 			%padding-block-3
 
 		&--flush:
+			#after: .paginator-content
+			%overflow-visible
 			margin-inline: calc(-1 * $block-padding + -1 * $space-5)
 			%padding-inline-5
 
@@ -134,7 +137,7 @@
 
 		&--bounce:
 			#after: .paginator-page--hidden
-			%flex
+			display: ${paginator-page-display: flex}
 			%opaque
 
 	&-error:
@@ -150,3 +153,6 @@
 			%width-fit
 			%height-fit
 			%row-3
+
+	&-after-anchor:
+		%block

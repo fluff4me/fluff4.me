@@ -1,4 +1,4 @@
-import type { Chapter, ChapterLite } from 'api.fluff4.me'
+import type { Chapter, ChapterCreateBody, ChapterLite } from 'api.fluff4.me'
 import EndpointChapterCreate from 'endpoint/chapter/EndpointChapterCreate'
 import EndpointChapterUpdate from 'endpoint/chapter/EndpointChapterUpdate'
 import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
@@ -16,9 +16,17 @@ import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
+import Objects from 'utility/Objects'
 import type State from 'utility/State'
 
-export default Component.Builder((component, state: State.Mutable<Chapter | undefined>, workParams: WorkParams) => {
+interface ChapterEditFormExtensions {
+	hasUnsavedChanges (): boolean
+	save (): Promise<void>
+}
+
+type ChapterEditForm = Form & Block & ChapterEditFormExtensions
+
+export default Component.Builder((component, state: State.Mutable<Chapter | undefined>, workParams: WorkParams): ChapterEditForm => {
 	const block = component.and(Block)
 	const form = block.and(Form, block.title)
 	form.viewTransition('chapter-edit-form')
@@ -86,20 +94,65 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 
 	form.event.subscribe('submit', async event => {
 		event.preventDefault()
+		await save()
+	})
 
+	return form.extend<ChapterEditFormExtensions>(component => ({
+		hasUnsavedChanges,
+		save,
+	}))
+
+	function getFormData () {
+		return {
+			name: nameInput.value,
+			...tagsEditor.state.value,
+			body: bodyInput.useMarkdown(),
+			notes_before: notesBeforeInput.useMarkdown(),
+			notes_after: notesAfterInput.useMarkdown(),
+			visibility: visibility.selection.value ?? 'Private',
+		} satisfies ChapterCreateBody
+	}
+
+	function hasUnsavedChanges () {
+		if (!state.value)
+			return true
+
+		const data = getFormData()
+
+		const basicFields = Objects.keys(getFormData()).filter(key => key !== 'custom_tags' && key !== 'global_tags')
+		for (const field of basicFields) {
+			let dataValue = data[field]
+			let stateValue = state.value[field]
+
+			if (dataValue === '') stateValue ??= ''
+			if (stateValue === '') dataValue ??= ''
+
+			if (dataValue !== stateValue)
+				return true
+		}
+
+		if ((data.custom_tags?.length ?? 0) !== (state.value.custom_tags?.length ?? 0))
+			return true
+
+		if (data.custom_tags?.some(tag => !state.value?.custom_tags?.includes(tag)))
+			return true
+
+		if ((data.global_tags?.length ?? 0) !== (state.value.global_tags?.length ?? 0))
+			return true
+
+		if (data.global_tags?.some(tag => !state.value?.global_tags?.includes(tag)))
+			return true
+
+		return false
+	}
+
+	async function save () {
 		const response = await (() => {
 			switch (type) {
 				case 'create':
 					return EndpointChapterCreate.query({
 						params: workParams,
-						body: {
-							name: nameInput.value,
-							...tagsEditor.state.value,
-							body: bodyInput.useMarkdown(),
-							notes_before: notesBeforeInput.useMarkdown(),
-							notes_after: notesAfterInput.useMarkdown(),
-							visibility: visibility.selection.value ?? 'Private',
-						},
+						body: getFormData(),
 					})
 
 				case 'update': {
@@ -116,14 +169,7 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 							work: workParams.vanity,
 							url: state.value.url,
 						},
-						body: {
-							name: nameInput.value,
-							...tagsEditor.state.value,
-							body: bodyInput.useMarkdown(),
-							notes_before: notesBeforeInput.useMarkdown(),
-							notes_after: notesAfterInput.useMarkdown(),
-							visibility: visibility.selection.value ?? 'Private',
-						},
+						body: getFormData(),
 					})
 				}
 			}
@@ -134,7 +180,5 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 
 		toast.success(TOAST_SUCCESS, 'view/chapter-edit/shared/toast/saved')
 		state.value = response?.data
-	})
-
-	return form
+	}
 })
