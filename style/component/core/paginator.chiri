@@ -19,6 +19,11 @@
 		%z-index-fg-2
 		top: calc($masthead-height + -1px)
 
+		&--within-popover:
+			#after: .paginator-header
+			%relative
+			%top-0
+
 		@before:
 			%absolute
 			%backdrop-blur

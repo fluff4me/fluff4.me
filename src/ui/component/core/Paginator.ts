@@ -2,6 +2,7 @@ import type PagedData from 'model/PagedData'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
 import Async from 'utility/Async'
 import type { UnsubscribeState } from 'utility/State'
@@ -42,6 +43,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 	block.tweakJIT('header', header => {
 		header.style('paginator-header')
 			.style.bind(isFlush, 'paginator-header--flush')
+			.style.bind(component.getStateForClosest(Popover).truthy, 'paginator-header--within-popover')
 
 		block.content.style('paginator-content--has-header')
 	})

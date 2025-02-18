@@ -157,6 +157,10 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	closest<BUILDER extends Component.BuilderLike> (builder: BUILDER): (BUILDER extends Component.BuilderLike<any[], infer COMPONENT> ? COMPONENT : never) | undefined
 	closest<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): COMPONENT | undefined
 	closest<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): COMPONENT | undefined
+	getStateForClosest<BUILDERS extends Component.BuilderLike[]> (builder: BUILDERS): State<{ [INDEX in keyof BUILDERS]: BUILDERS[INDEX] extends infer BUILDER ? (BUILDER extends Component.BuilderLike<any[], infer COMPONENT> ? COMPONENT : never) | undefined : never }[number]>
+	getStateForClosest<BUILDER extends Component.BuilderLike> (builder: BUILDER): State<(BUILDER extends Component.BuilderLike<any[], infer COMPONENT> ? COMPONENT : never) | undefined>
+	getStateForClosest<COMPONENT extends Component> (builder: Component.Builder<any[], COMPONENT>): State<COMPONENT | undefined>
+	getStateForClosest<COMPONENT extends Component> (builder: Component.Extension<any[], COMPONENT>): State<COMPONENT | undefined>
 
 	get parent (): Component | undefined
 	/** Gets all ancestors of this component that have an associated component */
@@ -561,6 +565,15 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 
 		closest (builder: any) {
 			return Component.closest(builder, component)
+		},
+		getStateForClosest (builders: any): any {
+			const state = State.JIT(() => component.closest(builders))
+			component.receiveAncestorInsertEvents()
+			component.onRooted(() => {
+				state.markDirty()
+				component.event.subscribe(['insert', 'ancestorInsert'], () => state.markDirty())
+			})
+			return state
 		},
 
 		get parent () {
