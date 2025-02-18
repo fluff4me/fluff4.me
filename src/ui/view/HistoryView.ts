@@ -25,7 +25,7 @@ export default ViewDefinition({
 					content: data.items,
 					auxiliary: data,
 				})),
-				(slot, history, data) => {
+				(slot, history, page, data) => {
 					slot.style('history')
 
 					let currentWork: WorkReference | undefined

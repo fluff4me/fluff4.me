@@ -1,15 +1,26 @@
 import type { EndpointResponse, PaginatedEndpoint, PreparedPaginatedQueryReturning, PreparedQueryOf, ResponseData } from 'endpoint/Endpoint'
+import EventManipulator from 'ui/utility/EventManipulator'
+import { mutable } from 'utility/Objects'
 import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 import type { PromiseOr } from 'utility/Type'
 
+export interface PagedDataEvents<T> {
+	DeletePage (page: number): void
+	UnsetPages (startPage: number, endPageInclusive: number): void
+}
+
 interface PagedData<T> {
 	readonly pageCount: State<number | undefined>
+	readonly event: EventManipulator<this, PagedDataEvents<T>>
 	get pages (): readonly State<T | false | null>[]
 	/** @deprecated */
 	get rawPages (): State.Mutable<PromiseOr<State.Mutable<T | false | null>>[]>
 	get (page: number): PromiseOr<State<T | false | null>>
 	set (page: number, data: T, isLastPage?: boolean): void
+	unset (page: number): void
+	unset (startPage: number, endPageInclusive: number): void
+	delete (page: number): void
 	setPageCount (count: number | true): void
 	clear (): void
 }
@@ -22,8 +33,9 @@ const PagedData = Object.assign(
 	function <T> (definition: PagedDataDefinition<T>): PagedData<T> {
 		const pageCount = State<number | undefined>(undefined)
 		const pages: State.Mutable<PromiseOr<State.Mutable<T | false | null>>[]> = State([], false)// .setId('PagedData pages')
-		return {
+		const result: PagedData<T> = {
 			pageCount,
+			event: undefined!,
 			get pages () {
 				return pages.value.filter((page): page is Exclude<typeof page, Promise<any>> => !(page instanceof Promise))
 			},
@@ -69,6 +81,19 @@ const PagedData = Object.assign(
 
 				pages.emit()
 			},
+			unset (startPage, endPageInclusive: number = startPage) {
+				for (let i = startPage; i <= endPageInclusive; i++)
+					// eslint-disable-next-line @typescript-eslint/no-array-delete
+					delete pages.value[i]
+
+				pages.emit()
+				result.event.emit('UnsetPages', startPage, endPageInclusive)
+			},
+			delete (page) {
+				void pages.value.splice(page, 1)
+				pages.emit()
+				result.event.emit('DeletePage', page)
+			},
 			setPageCount (count) {
 				pageCount.value = count === true ? undefined : count
 			},
@@ -77,6 +102,9 @@ const PagedData = Object.assign(
 				pageCount.value = undefined
 			},
 		}
+
+		mutable(result).event = EventManipulator(result)
+		return result
 	},
 	{
 		fromEndpoint,
@@ -90,14 +118,20 @@ export interface EndpointResponseDismantledData<C, A> {
 export type EndpointResponseDataDismantler<T, C, A> = (data: T) => EndpointResponseDismantledData<C, A>
 
 function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>> (endpoint: ENDPOINT): PagedData<ResponseData<EndpointResponse<ENDPOINT>> extends infer T ? T extends (infer T)[] ? T : T : never>
-function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>, C, A> (endpoint: ENDPOINT, dismantler: EndpointResponseDataDismantler<NoInfer<ResponseData<EndpointResponse<ENDPOINT>>>, C, A>): { [KEY in keyof A]: State<A[KEY] extends any[] ? A[KEY] : []> } extends infer AUX ? PagedData<C> & AUX : never
-function fromEndpoint (endpoint: PreparedPaginatedQueryReturning<any> | PreparedPaginatedQueryReturning<any[]>, dismantler?: EndpointResponseDataDismantler<any, any, Record<string, any>>): any {
+function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>, C, A> (endpoint: ENDPOINT, orElse: undefined, dismantler: EndpointResponseDataDismantler<NoInfer<ResponseData<EndpointResponse<ENDPOINT>>>, C, A>): { [KEY in keyof A]: State<A[KEY] extends any[] ? A[KEY] : []> } extends infer AUX ? PagedData<C> & AUX : never
+function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>, ELSE> (endpoint: ENDPOINT, orElse: (page: number) => ELSE | null): PagedData<(ResponseData<EndpointResponse<ENDPOINT>> extends infer T ? T extends (infer T)[] ? T : T : never) | ELSE>
+function fromEndpoint<ENDPOINT extends PreparedQueryOf<PaginatedEndpoint>, C, A, ELSE> (endpoint: ENDPOINT, orElse: (page: number) => ELSE | null, dismantler: EndpointResponseDataDismantler<NoInfer<ResponseData<EndpointResponse<ENDPOINT>>>, C, A>): { [KEY in keyof A]: State<A[KEY] extends any[] ? A[KEY] : []> } extends infer AUX ? PagedData<C | ELSE> & AUX : never
+function fromEndpoint (endpoint: PreparedPaginatedQueryReturning<any> | PreparedPaginatedQueryReturning<any[]>, orElse?: (page: number) => any, dismantler?: EndpointResponseDataDismantler<any, any, Record<string, any>>): any {
 	const e = endpoint as PreparedQueryOf<PaginatedEndpoint>
 
 	const aux: Record<string, State<any[]>> = {}
 	const result = PagedData({
 		async get (page) {
 			const response = await e.query(undefined, { page })
+			if (response.code === 404)
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+				return orElse ? orElse(page) : null
+
 			if (toast.handleError(response))
 				return false
 
@@ -129,7 +163,8 @@ function fromEndpoint (endpoint: PreparedPaginatedQueryReturning<any> | Prepared
 			if (!Array.isArray(response.data) || response.data.length)
 				return response.data
 
-			return null
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+			return orElse ? orElse(page) : null
 		},
 	}) as PagedData<any> & Record<string, State<any[]>>
 

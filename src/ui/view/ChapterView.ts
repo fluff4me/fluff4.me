@@ -47,18 +47,17 @@ export default ViewDefinition({
 
 		Link(`/work/${author?.vanity}/${workData.vanity}`)
 			.and(Work, workData, author)
-			.viewTransition('work-view-work')
+			.viewTransition('chapter-view-work')
 			.style('view-type-chapter-work')
 			.setContainsHeading()
 			.appendTo(view.content)
 
 		const chapterState = State(initialChapterResponse.data)
 
-		const chaptersQuery = EndpointChapterGetPaged.prep({ params })
-
-		const chapters = PagedData.fromEndpoint(chaptersQuery)
+		const chapters = PagedData.fromEndpoint(EndpointChapterGetPaged.prep({ params }))
 		chapters.set(initialChapterResponse.page, initialChapterResponse.data, !initialChapterResponse.has_more)
 		chapters.setPageCount(initialChapterResponse.page_count)
+
 		const paginator = view.paginator()
 			.viewTransition('chapter-view-chapter')
 			.style('view-type-chapter-block')
@@ -70,7 +69,7 @@ export default ViewDefinition({
 			)
 			.appendTo(view.content)
 			.tweak(p => p.page.value = initialChapterResponse.page)
-			.set(chapters, (slot, chapter, chapters, paginator) => {
+			.set(chapters, (slot, chapter, page, chapters, paginator) => {
 				paginator.setURL(`/work/${params.author}/${params.work}/chapter/${chapter.url}`)
 
 				if (Session.Auth.loggedIn.value)

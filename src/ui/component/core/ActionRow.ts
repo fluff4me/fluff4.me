@@ -20,7 +20,7 @@ const ActionRow = Component.Builder((row): ActionRow => {
 		}))
 		.extendJIT('left', row => Component()
 			.style('action-row-left')
-			.appendTo(row))
+			.prependTo(row))
 		.extendJIT('middle', row => {
 			const middle = Component()
 				.style('action-row-middle')
