@@ -184,6 +184,7 @@ action/label/delete=shared/action/delete
 
 # author
 description/empty: This author prefers to remain elusive and mysterious...
+support-message/placeholder: Support My Writing
 action/label/edit=shared/action/edit
 action/label/follow=shared/action/follow
 action/label/unfollow=shared/action/unfollow
@@ -291,7 +292,7 @@ support-link/label: Support Link
 support-link/hint: An optional link that people can use to support you. You could link directly to a payment or subscription platform, or you could use a service like Linktree.
 support-message/label: Message
 support-message/hint: A message to display instead of the support link itself. This is required, and will default to "Support My Writing."\nIf you want it to actually display the link, for whatever reason, you can put the link here as well.
-support-message/placeholder: Support My Writing
+support-message/placeholder=author/support-message/placeholder
 pronouns/label: Pronouns
 pronouns/hint: The pronouns that others should refer to you with. These will appear next to your name, usually.
 
