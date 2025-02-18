@@ -29,14 +29,12 @@ export default ViewDefinition({
 		if (initialChapterResponse instanceof Error)
 			throw initialChapterResponse
 
-		const chapter = initialChapterResponse?.data
-
 		const workResponse = await EndpointWorkGet.query({ params: Chapters.work(params) })
 		if (workResponse instanceof Error)
 			throw workResponse
 
 		const owner = Component()
-		if (!chapter)
+		if (!params.url)
 			await InfoDialog.prompt(owner, {
 				titleTranslation: 'shared/prompt/beta-restrictions/title',
 				bodyTranslation: 'shared/prompt/beta-restrictions/description',
@@ -60,7 +58,7 @@ export default ViewDefinition({
 			.setContainsHeading()
 			.appendTo(view.content)
 
-		const chapterCount = State((Type.as('number', initialChapterResponse?.page_count) ?? 0) + 1)
+		const chapterCount = State((Type.as('number', initialChapterResponse?.page_count) ?? work.chapter_count ?? 0) + 1)
 
 		const chapters = PagedData.fromEndpoint(
 			EndpointChapterGetPaged.prep({ params }),
@@ -86,7 +84,7 @@ export default ViewDefinition({
 
 				window.scrollTo({ top: scrollY + (scrollHeight - previousScrollHeight), behavior: 'instant' })
 			})
-			.tweak(p => p.page.value = initialChapterResponse?.page ?? 0)
+			.tweak(p => p.page.value = initialChapterResponse?.page ?? chapterCount.value - 1)
 			.set(chapters, (slot, pageData, page, source, paginator) => {
 				paginator.setURL(pageData === NEW_CHAPTER
 					? `/work/${params.author}/${params.work}/chapter/new`
@@ -144,7 +142,7 @@ export default ViewDefinition({
 		paginator.data.use(view, chapter => view.breadcrumbs.setBackButton(
 			chapter === NEW_CHAPTER
 				? `/work/${params.author}/${params.work}`
-				: `/work/${params.author}/${params.work}/chapter/${params.url}`,
+				: `/work/${params.author}/${params.work}/chapter/${chapter.url}`,
 			button => button.subText.set(chapter === NEW_CHAPTER
 				? work.name
 				: chapter?.name)
