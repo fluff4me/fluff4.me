@@ -106,12 +106,13 @@ export default ViewDefinition({
 		profileButtons.append(createButton({
 			name: 'Create Profile 2',
 			async execute () {
-				await BUTTON_REGISTRY.createAuthor.execute('single story author', 'justonestory', '<mention vanity="somanystories"> writes so much')
-				await BUTTON_REGISTRY.createWork.execute('one big work', 'made by <mention vanity="justonestory">', 'wow description', 'bigstory', 'Ongoing', 'Public', ['Protagonist: Transgender', 'Genre: Fantasy', 'Genre: Romance', 'Setting: Urban Fantasy'], ['just a test work lmao', 'gotta add some custom tags'])
+				await BUTTON_REGISTRY.createAuthor.execute('single story author', 'justonestory', '<mention vanity="somanystories"> writes so much', 'she/her', false, undefined, true)
+				await BUTTON_REGISTRY.createWork.execute('one big work', 'made by <mention vanity="justonestory">', 'wow description', 'bigstory', 'Ongoing', 'Public', ['Protagonist: Transgender', 'Genre: Fantasy', 'Genre: Romance', 'Setting: Urban Fantasy'], ['Just A Test Work lmao', 'Gotta Add Some custom tags', 'apparently (these) are allowed?'], undefined, undefined, false)
+				await BUTTON_REGISTRY.getWorkFeedback.execute('feedback:', 'justonestory', 'bigstory')
 				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 1', 'start of a long story', 'Public')
 				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story interlude', 'middle of a long story', 'Public', false, 'only notes before')
 				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 2', 'aaaa', 'Public', true, undefined, 'only notes after')
-				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 3', 'aaaaaaa', 'Public', true, 'both notes before', 'and notes after')
+				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 3', 'aaaaaaa', 'Public', true, 'both notes before', 'and notes after', [], ['Capitalised Custom Tags', 'Capitalised Custom Tags Two', 'these are (also) allowed?'])
 				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 3.1', 'aaaaaaaaaaaaaaaaaaa', 'Public', false)
 				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 3.2', 'aaaaaaaaaaaaaaaaaaa', 'Private', false)
 				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 3.3', 'aaaaaaaaaaaaaaaaaaa', 'Public')
@@ -335,12 +336,10 @@ export default ViewDefinition({
 		moreRoleButtons.append(createButton({
 			name: 'admin list roles test (profile 1)',
 			async execute () {
-				await BUTTON_REGISTRY.privilegeGrantAuthor.execute('somanystories', 'RoleGrant', 'RoleCreate')
 				await BUTTON_REGISTRY.createRole.execute('Role4', 'Hidden', 'Admin')
 				await BUTTON_REGISTRY.createRole.execute('Role3', 'Visible', 'Admin')
 				await BUTTON_REGISTRY.createRole.execute('Role2', 'Hidden', 'Admin')
 				await BUTTON_REGISTRY.createRole.execute('Role1', 'Visible', 'Admin')
-				await BUTTON_REGISTRY.grantRoleToAuthor.execute('Role2', 'justonestory')
 				await BUTTON_REGISTRY.roleListAll.execute('all roles admin')
 			},
 		}))
