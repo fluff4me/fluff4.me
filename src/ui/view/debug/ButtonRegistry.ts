@@ -10,7 +10,7 @@ export interface IButtonImplementation<ARGS extends any[]> {
 export const BUTTON_REGISTRY = {
 	createAuthor: {
 		name: 'Create Author',
-		async execute (name: string, vanity: string, description?: string, pronouns?: string) {
+		async execute (name: string, vanity: string, description?: string, pronouns?: string, feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean) {
 			const response = await fetch(`${Env.API_ORIGIN}author/create`, {
 				method: 'POST',
 				credentials: 'include',
@@ -23,6 +23,9 @@ export const BUTTON_REGISTRY = {
 					vanity: vanity,
 					description: description,
 					pronouns: pronouns,
+					feedback_preference_critique,
+					feedback_preference_dont_hold_back,
+					feedback_preference_typos,
 				}),
 			}).then(response => response.json())
 			console.log(response)
@@ -32,7 +35,7 @@ export const BUTTON_REGISTRY = {
 
 	updateAuthor: {
 		name: 'Update Author',
-		async execute (name?: string, description?: string, vanity?: string, support_link?: string, support_message?: string) {
+		async execute (name?: string, description?: string, vanity?: string, support_link?: string, support_message?: string, feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean) {
 			await fetch(`${Env.API_ORIGIN}author/update`, {
 				method: 'POST',
 				credentials: 'include',
@@ -46,6 +49,9 @@ export const BUTTON_REGISTRY = {
 					vanity: vanity,
 					support_link: support_link,
 					support_message: support_message,
+					feedback_preference_critique,
+					feedback_preference_dont_hold_back,
+					feedback_preference_typos,
 				}),
 			})
 		},
@@ -92,7 +98,7 @@ export const BUTTON_REGISTRY = {
 
 	createWork: {
 		name: 'Create Work',
-		async execute (name: string, synopsis: string, description: string, vanity: string, status?: string, visibility?: string, globalTags?: string[], customTags?: string[]) {
+		async execute (name: string, synopsis: string, description: string, vanity: string, status?: string, visibility?: string, globalTags?: string[], customTags?: string[], feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean) {
 			const response = await fetch(`${Env.API_ORIGIN}work/create`, {
 				method: 'POST',
 				credentials: 'include',
@@ -108,6 +114,9 @@ export const BUTTON_REGISTRY = {
 					visibility: visibility,
 					global_tags: globalTags,
 					custom_tags: customTags,
+					feedback_preference_critique,
+					feedback_preference_dont_hold_back,
+					feedback_preference_typos,
 				}),
 			}).then(response => response.json())
 			console.log(response)
@@ -116,7 +125,7 @@ export const BUTTON_REGISTRY = {
 
 	updateWork: {
 		name: 'Update Work',
-		async execute (author: string, url: string, name?: string, description?: string, vanity?: string, status?: string, visibility?: string) {
+		async execute (author: string, url: string, name?: string, description?: string, vanity?: string, status?: string, visibility?: string, feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean) {
 			await fetch(`${Env.API_ORIGIN}work/${author}/${url}/update`, {
 				method: 'POST',
 				credentials: 'include',
@@ -129,6 +138,9 @@ export const BUTTON_REGISTRY = {
 					vanity: vanity,
 					status: status,
 					visibility: visibility,
+					feedback_preference_critique,
+					feedback_preference_dont_hold_back,
+					feedback_preference_typos,
 				}),
 			})
 		},
@@ -151,6 +163,16 @@ export const BUTTON_REGISTRY = {
 		name: 'View Work',
 		async execute (label: string, author: string, url: string) {
 			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${url}/get`, {
+				credentials: 'include',
+			}).then(response => response.json())
+			console.log(label, response)
+		},
+	},
+
+	getWorkFeedback: {
+		name: 'Get Work Feedback',
+		async execute (label: string, author: string, vanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}work/${author}/${vanity}/feedback`, {
 				credentials: 'include',
 			}).then(response => response.json())
 			console.log(label, response)
