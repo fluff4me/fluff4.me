@@ -4,6 +4,7 @@ import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Author from 'ui/component/Author'
+import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
 import Paginator from 'ui/component/core/Paginator'
@@ -56,9 +57,12 @@ export default ViewDefinition({
 						.viewTransition(false)
 						.type('flush')
 						.appendTo(slot))))
-			.orElse(slot => Component()
-				.style('placeholder')
-				.text.use('view/author/works/content/empty')
+			.orElse(slot => Block()
+				.type('flush')
+				.tweak(block => Component()
+					.style('placeholder')
+					.text.use('view/author/works/content/empty')
+					.appendTo(block.content))
 				.appendTo(slot))
 			.appendTo(view.content)
 
