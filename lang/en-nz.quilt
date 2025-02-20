@@ -70,6 +70,7 @@ visibility/private: Private
 visibility/patreon: Patreon
 
 invalid/too-long: This text is too long.
+invalid/required: This field is required.
 invalid/tags/too-many-global: Too many global tags.
 invalid/tags/too-many-custom: Too many custom tags.
 

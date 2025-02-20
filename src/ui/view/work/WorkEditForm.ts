@@ -54,6 +54,7 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
 	const descriptionInput = Textarea()
+		.setRequired()
 		.default.bind(state.map(component, work => work?.description))
 		.hint.use('view/work-edit/shared/form/description/hint')
 		.setMaxLength(FormInputLengths.value?.work.description)
