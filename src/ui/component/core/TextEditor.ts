@@ -524,6 +524,31 @@ markdown.parse = (src, env) => {
 			token.children = textifyRemainingInlineHTML(parseTokens(token.children))
 
 	return parseTokens(rawTokens)
+		.flatMap(token => {
+			if (token.type === 'softbreak') {
+				const Token = token.constructor as new () => FluffToken
+				return [
+					Object.assign(new Token(), {
+						nesting: 1,
+						tag: 'p',
+						type: 'paragraph_open',
+						block: true,
+						hidden: false,
+						level: 0,
+					}),
+					Object.assign(new Token(), {
+						nesting: -1,
+						tag: 'p',
+						type: 'paragraph_close',
+						block: true,
+						hidden: false,
+						level: 0,
+					}),
+				]
+			}
+
+			return token
+		})
 
 	function parseTokens (rawTokens: FluffToken[]) {
 		if (!rawTokens.length)
@@ -686,6 +711,13 @@ const markdownSerializer = new MarkdownSerializer(
 			state.write(`<div style="text-align:${node.attrs.align}">\n`)
 			state.renderContent(node)
 			state.write('</div>')
+			state.closeBlock(node)
+		},
+		paragraph: (state, node, parent, index) => {
+			if (node.content.size === 0)
+				state.write('<br>\n')
+			else
+				state.renderInline(node)
 			state.closeBlock(node)
 		},
 	},
