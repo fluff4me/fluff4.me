@@ -87,6 +87,9 @@ const Textarea = Component.Builder((component): Textarea => {
 			if ((input.length.value ?? 0) > (input.maxLength.value ?? Infinity))
 				invalid = quilt['shared/form/invalid/too-long']()
 
+			if (!input.length.value && input.required.value)
+				invalid = quilt['shared/form/invalid/required']()
+
 			input.setCustomInvalidMessage(invalid)
 		})
 	})
