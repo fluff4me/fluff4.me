@@ -8,6 +8,7 @@ import type { PromiseOr } from 'utility/Type'
 export interface PagedDataEvents<T> {
 	DeletePage (page: number): void
 	UnsetPages (startPage: number, endPageInclusive: number): void
+	SetPage (page: number, data: T): void
 }
 
 interface PagedData<T> {
@@ -80,6 +81,7 @@ const PagedData = Object.assign(
 					pageCount.value = undefined
 
 				pages.emit()
+				result.event.emit('SetPage', page, data)
 			},
 			unset (startPage, endPageInclusive: number = startPage) {
 				for (let i = startPage; i <= endPageInclusive; i++)

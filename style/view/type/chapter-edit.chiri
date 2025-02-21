@@ -1,1 +1,8 @@
 #view type="chapter-edit":
+
+	&-type-example:
+		%font-1
+		%uppercase
+		%opacity-50
+		%align-self-centre
+		%margin-left-2
