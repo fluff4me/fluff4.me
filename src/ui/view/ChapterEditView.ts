@@ -144,7 +144,7 @@ export default ViewDefinition({
 			.appendTo(paginator.footer.right)
 
 		paginator.data.use(view, chapter => view.breadcrumbs.setBackButton(
-			chapter === NEW_CHAPTER
+			chapter === NEW_CHAPTER || !chapter
 				? `/work/${params.author}/${params.work}`
 				: `/work/${params.author}/${params.work}/chapter/${chapter.url}`,
 			button => button.subText.set(chapter === NEW_CHAPTER
