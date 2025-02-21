@@ -9,6 +9,7 @@ import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Form from 'ui/component/core/Form'
 import LabelledTable from 'ui/component/core/LabelledTable'
+import Placeholder from 'ui/component/core/Placeholder'
 import type RadioButton from 'ui/component/core/RadioButton'
 import RadioRow from 'ui/component/core/RadioRow'
 import TextEditor from 'ui/component/core/TextEditor'
@@ -31,14 +32,14 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 	const form = block.and(Form, block.title)
 	form.viewTransition('chapter-edit-form')
 
-	const type = state.value ? 'update' : 'create'
+	const formType = state.value ? 'update' : 'create'
 
-	form.title.text.use(`view/chapter-edit/${type}/title`)
-	form.setName(quilt[`view/chapter-edit/${type}/title`]().toString())
+	form.title.text.use(`view/chapter-edit/${formType}/title`)
+	form.setName(quilt[`view/chapter-edit/${formType}/title`]().toString())
 	// if (params.type === "create")
 	// 	form.description.text.use("view/work-edit/create/description")
 
-	form.submit.textWrapper.text.use(`view/chapter-edit/${type}/submit`)
+	form.submit.textWrapper.text.use(`view/chapter-edit/${formType}/submit`)
 
 	const table = LabelledTable().appendTo(form.content)
 
@@ -49,6 +50,23 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 		.setMaxLength(FormInputLengths.value?.chapter.name)
 	table.label(label => label.text.use('view/chapter-edit/shared/form/name/label'))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
+
+	const type = RadioRow()
+		.add('numbered', radio => radio
+			.text.use('view/chapter-edit/shared/form/type/numbered')
+			.append(Placeholder()
+				.style('view-type-chapter-edit-type-example')
+				.text.use(quilt => quilt['view/chapter-edit/shared/form/type/numbered/example'](state.value?.index ?? 'N')))
+		)
+		.add('other', radio => radio
+			.text.use('view/chapter-edit/shared/form/type/other')
+			.append(Placeholder()
+				.style('view-type-chapter-edit-type-example')
+				.text.use('view/chapter-edit/shared/form/type/other/example'))
+		)
+		.default.bind(state.map(component, chapter => chapter?.is_numbered === false ? 'other' : 'numbered'))
+	table.label(label => label.text.use('view/chapter-edit/shared/form/type/label'))
+		.content((content, label) => content.append(type.setLabel(label)))
 
 	const tagsEditor = TagsEditor()
 		.default.bind(state as State<TagsState>)
@@ -84,12 +102,11 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 		.text.use(`view/chapter-edit/shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
 
 	const visibility = RadioRow()
-		.hint.use('view/work-edit/shared/form/visibility/hint')
 		.add('Public', VisibilityRadioInitialiser)
 		.add('Patreon', (radio, id) => radio.tweak(VisibilityRadioInitialiser, id).style('radio-row-option--hidden'))
 		.add('Private', VisibilityRadioInitialiser)
 		.default.bind(state.map(component, chapter => chapter?.visibility ?? 'Private'))
-	table.label(label => label.text.use('view/work-edit/shared/form/visibility/label'))
+	table.label(label => label.text.use('view/chapter-edit/shared/form/visibility/label'))
 		.content((content, label) => content.append(visibility.setLabel(label)))
 
 	form.event.subscribe('submit', async event => {
@@ -110,6 +127,7 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 			notes_before: notesBeforeInput.useMarkdown(),
 			notes_after: notesAfterInput.useMarkdown(),
 			visibility: visibility.selection.value ?? 'Private',
+			is_numbered: type.selection.value === 'numbered',
 		} satisfies ChapterCreateBody
 	}
 
@@ -148,7 +166,7 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 
 	async function save () {
 		const response = await (() => {
-			switch (type) {
+			switch (formType) {
 				case 'create':
 					return EndpointChapterCreate.query({
 						params: workParams,

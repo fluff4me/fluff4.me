@@ -185,6 +185,12 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			}
 			data?.event.subscribe('UnsetPages', handleUnset)
 			slot.closed.awaitManual(true, () => data?.event.unsubscribe('UnsetPages', handleUnset))
+			// const handleSet = (event: Event, page: number, data: T) => {
+			// 	if (cursor.value === page)
+			// 		currentData.emit()
+			// }
+			// data?.event.subscribe('SetPage', handleSet)
+			// slot.closed.awaitManual(true, () => data?.event.unsubscribe('SetPage', handleSet))
 
 			unuseCursor?.()
 			unuseCursor = cursor.use(slot, async (pageNumber, previousPageNumber) => {
