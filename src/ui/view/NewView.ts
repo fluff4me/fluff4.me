@@ -14,7 +14,7 @@ export default ViewDefinition({
 		view.breadcrumbs.description.text.use('view/new/main/description')
 
 		Slot()
-			.use(Session.Auth.loggedIn, loggedIn => WorkFeed()
+			.use(Session.Auth.loggedIn, (slot, loggedIn) => WorkFeed()
 				.viewTransition('new-view-feed')
 				.setFromEndpoint(loggedIn ? EndpointFeedGetAuthed : EndpointFeedGet)
 			)
