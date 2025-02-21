@@ -145,6 +145,9 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 			if (dataValue === '') stateValue ??= ''
 			if (stateValue === '') dataValue ??= ''
 
+			if (typeof dataValue === 'string') dataValue = dataValue.trim()
+			if (typeof stateValue === 'string') stateValue = stateValue.trim()
+
 			if (dataValue !== stateValue)
 				return true
 		}
