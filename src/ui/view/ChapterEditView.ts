@@ -72,6 +72,7 @@ export default ViewDefinition({
 				chapters.setPageCount(true)
 		})
 
+		const pageOwners: Record<number, Component | undefined> = {}
 		const paginator = view.paginator()
 			.type('flush')
 			.setScroll((target, direction, context) => {
@@ -86,9 +87,12 @@ export default ViewDefinition({
 			})
 			.tweak(p => p.page.value = initialChapterResponse?.page ?? chapterCount.value - 1)
 			.set(chapters, (slot, pageData, page, source, paginator) => {
+				pageOwners[page]?.remove()
+				const owner = pageOwners[page] = Component()
+
 				const state = State(pageData === NEW_CHAPTER ? undefined : pageData)
-				state.subscribe(slot, chapter => source.set(page, chapter ?? NEW_CHAPTER))
-				state.use(slot, chapter => {
+				state.subscribe(owner, chapter => source.set(page, chapter ?? NEW_CHAPTER))
+				state.use(owner, chapter => {
 					paginator.setURL(!chapter
 						? `/work/${params.author}/${params.work}/chapter/new`
 						: `/work/${params.author}/${params.work}/chapter/${chapter.url}/edit`)
@@ -101,7 +105,7 @@ export default ViewDefinition({
 					.subviewTransition(id)
 					.appendTo(slot)
 
-				paginator.page.use(slot, (newPage, oldPage) => {
+				paginator.page.use(owner, (newPage, oldPage) => {
 					if (state.value && oldPage === page && newPage !== oldPage && form.hasUnsavedChanges())
 						void form.save()
 				})
