@@ -1,8 +1,10 @@
 import * as fs from 'fs/promises'
 import type { ServerResponse } from 'http'
 import * as path from 'path'
+import Env from '../../utility/Env'
 import E404 from '../middleware/E404'
 import type { IncomingMessage } from './Middleware'
+import ngrok from './ngrok'
 
 export const ROOT = 'docs'
 
@@ -12,18 +14,30 @@ export default async function (req: IncomingMessage, res: ServerResponse, filePa
 	const fullPath = path.resolve(ROOT, dirname, basename)
 
 	// Use await with catch to handle errors directly
-	const fileContent = await fs.readFile(fullPath).catch(() => undefined)
+	let buffer = await fs.readFile(fullPath).catch(() => undefined)
 
-	if (fileContent === undefined)
+	if (buffer === undefined)
 		// If fileContent is undefined, file was not found or error occurred
 		return E404(req, res)
 
 	const contentType = getContentType(fullPath)
+	if (contentType.includes('text') || contentType === 'application/json' || contentType === 'application/javascript') {
+		let fileContent = buffer.toString('utf8')
+
+		if (Env.URL_ORIGIN && Env.URL_ORIGIN !== ngrok.getStaticOrigin())
+			fileContent = fileContent.replaceAll(Env.URL_ORIGIN, ngrok.getStaticOrigin())
+
+		if (Env.API_ORIGIN && Env.API_ORIGIN !== ngrok.getAPIOrigin())
+			fileContent = fileContent.replaceAll(Env.API_ORIGIN, ngrok.getAPIOrigin())
+
+		buffer = Buffer.from(fileContent)
+	}
+
 	res.writeHead(200, {
 		'Content-Type': contentType,
-		'Content-Length': fileContent.length,
+		'Content-Length': buffer.length,
 	})
-	return res.end(fileContent)
+	return res.end(buffer)
 }
 
 function getContentType (filePath: string) {

@@ -25,6 +25,7 @@ namespace Task {
 		cwd?: string
 		env?: NodeJS.ProcessEnv
 		stdout?(data: string): any
+		stderr?(data: string): any
 	}
 
 	export function cli (command: string, ...args: string[]): Promise<void>
@@ -47,10 +48,13 @@ namespace Task {
 				: path.resolve(`node_modules/.bin/${command}`)
 
 			const childProcess = spawn(command, [...args],
-				{ stdio: [process.stdin, options.stdout ? 'pipe' : process.stdout, process.stderr], cwd: options.cwd, env: options.env })
+				{ stdio: [process.stdin, options.stdout ? 'pipe' : process.stdout, options.stderr ? 'pipe' : process.stderr], cwd: options.cwd, env: options.env })
 
 			if (options.stdout)
 				childProcess.stdout?.on('data', options.stdout)
+
+			if (options.stderr)
+				childProcess.stderr?.on('data', options.stderr)
 
 			childProcess.on('error', reject)
 			childProcess.on('exit', code => {
