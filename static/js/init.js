@@ -229,13 +229,14 @@
 	//
 
 	/** 
-	 * @type {Window & typeof globalThis & { define: typeof define; getModule: typeof getModule; initializeModule: typeof initializeModuleByName }} 
+	 * @type {Window & typeof globalThis & { define: typeof define; getModule: typeof getModule; initializeModule: typeof initializeModuleByName; hasModule: (name: string) => boolean }} 
 	 */
 	const moddableWindow = (window)
 	moddableWindow.define = define
 	moddableWindow.getModule = getModule
 	moddableWindow.initializeModule = initializeModuleByName
 	moddableWindow.allowRedefine = allowRedefine
+	moddableWindow.hasModule = name => moduleMap.has(name)
 
 
 	////////////////////////////////////

@@ -12,14 +12,15 @@ Object.assign(window, {
 	select: (fn: () => unknown) => fn(),
 })
 
-// @ts-expect-error no types
-import sourceMapSupport from 'browser-source-map-support'
 import Env from 'utility/Env'
 import Maps from 'utility/Maps'
+
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-sourceMapSupport.install({
-	environment: 'browser',
-})
+if ((window as any).hasModule?.('browser-source-map-support'))
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-require-imports
+	require('browser-source-map-support').default.install({
+		environment: 'browser',
+	})
 
 // view transition api fallback
 const noopViewTransition: ViewTransition = {
