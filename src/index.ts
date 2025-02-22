@@ -13,14 +13,16 @@ Object.assign(window, {
 })
 
 import Env from 'utility/Env'
+import Import from 'utility/Import'
 import Maps from 'utility/Maps'
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-if ((window as any).hasModule?.('browser-source-map-support'))
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-require-imports
-	require('browser-source-map-support').default.install({
-		environment: 'browser',
-	})
+interface BrowserSourceMapSupport {
+	install (options: { environment: string }): void
+}
+
+Import.getModule<BrowserSourceMapSupport>('browser-source-map-support')?.install({
+	environment: 'browser',
+})
 
 // view transition api fallback
 const noopViewTransition: ViewTransition = {
