@@ -20,8 +20,23 @@ import Viewport from 'ui/utility/Viewport'
 import ViewContainer from 'ui/view/shared/component/ViewContainer'
 import Async from 'utility/Async'
 import DevServer from 'utility/DevServer'
+import Env from 'utility/Env'
 import Store from 'utility/Store'
 import Time from 'utility/Time'
+
+if (location.href.includes('localhost') && Env.isNgrok)
+	location.href = Env.URL_ORIGIN + location.pathname.slice(1)
+
+interface QRCodeOptions {
+	color?: {
+		dark: string
+		light: string
+	}
+}
+
+declare namespace QRCode {
+	export function toDataURL (text: string, options?: QRCodeOptions): Promise<string>
+}
 
 QuiltHelper.init({
 	Component,
@@ -125,6 +140,15 @@ async function App (): Promise<App> {
 		}))
 		.tweak(Navigator.setApp)
 		.appendTo(document.body)
+
+	if (Env.isNgrok)
+		Component()
+			.style('app-qrcode')
+			.tweak(async qrcode => {
+				const url = await QRCode.toDataURL(Env.URL_ORIGIN, { color: { dark: '#fff', light: '#0000' } })
+				qrcode.style.setProperty('background-image', `url(${url})`)
+			})
+			.appendTo(document.body)
 
 	await app.navigate.fromURL()
 

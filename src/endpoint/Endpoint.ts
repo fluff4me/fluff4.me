@@ -173,6 +173,7 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 
 			method,
 			headers: {
+				...!Env.API_ORIGIN.includes('ngrok') ? undefined : { 'ngrok-skip-browser-warning': 'true' },
 				'Content-Type': body ? 'application/json' : undefined,
 				'Accept': 'application/json',
 				...headers,

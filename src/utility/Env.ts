@@ -16,6 +16,10 @@ class Env {
 		return this.ENVIRONMENT === 'dev'
 	}
 
+	public get isNgrok () {
+		return this.URL_ORIGIN.includes('ngrok')
+	}
+
 	public async load () {
 		const origin = location.origin
 		const root = location.pathname.startsWith('/beta/') ? '/beta/' : '/'

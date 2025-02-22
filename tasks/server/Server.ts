@@ -13,6 +13,7 @@ import Router from '../server/Router'
 import { ROOT } from '../server/util/SendFile'
 import Env from '../utility/Env'
 import Log from '../utility/Log'
+import ngrok from './util/ngrok'
 
 interface SocketDefinition {
 	onConnect?(socket: WebSocket): any
@@ -43,6 +44,9 @@ const Server = Object.assign(
 
 		const result: Server = {
 			async listen () {
+				if (Env.ENVIRONMENT === 'dev')
+					ngrok.watch()
+
 				return new Promise<void>(resolve => server.listen(port, resolve))
 			},
 			socket (definition) {

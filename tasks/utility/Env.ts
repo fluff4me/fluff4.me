@@ -1,5 +1,6 @@
 export default process.env as {
 	ENVIRONMENT?: 'dev' | 'beta' | 'prod'
+	API_ORIGIN?: string
 	URL_ORIGIN?: string
 	URL_REWRITE?: string
 	PORT?: `${bigint}`

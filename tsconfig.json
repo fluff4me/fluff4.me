@@ -4,7 +4,7 @@
 		"esModuleInterop": true,
 		"allowJs": true,
 		"noEmit": true,
-		"target": "ES2020",
+		"target": "ES2022",
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"experimentalDecorators": true,

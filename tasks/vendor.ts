@@ -1,5 +1,6 @@
 import fs from 'fs/promises'
 import path from 'path'
+import Env from './utility/Env'
 import Task from './utility/Task'
 
 interface VendorScript {
@@ -42,17 +43,24 @@ const VENDOR_SCRIPTS: (string | VendorScript)[] = [
 		'generated/decode-data-html',
 		'generated/encode-html',
 		'generated/decode-data-xml',
-	].map(file => ({
+	].map((file): VendorScript => ({
 		package: 'entities',
 		name: `entities/${file}`,
 		file: `lib/${file}.js`,
 	})),
 
-	{
-		name: 'source-map-support',
-		file: 'browser-source-map-support.js',
-		noUMD: true,
-	},
+	...Env.ENVIRONMENT !== 'dev' ? [] : [
+		{
+			name: 'source-map-support',
+			file: 'browser-source-map-support.js',
+			noUMD: true,
+		},
+		{
+			name: 'qrcode',
+			file: 'build/qrcode.js',
+			noUMD: true,
+		},
+	] satisfies VendorScript[],
 ]
 
 const NO_OP_MODULES = [
