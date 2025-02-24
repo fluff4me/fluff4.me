@@ -303,6 +303,16 @@ action/delete: Delete Account
 toast/failed-to-save=shared/toast/failed-to-save | account data
 toast/saved=shared/toast/saved | account data
 
+### patreon/campaign
+title: Patreon Campaign
+description: Link your Patreon campaign to create patron-only chapters or works.
+tiers: Tiers
+
+#### unlink
+title: Unlink Patreon Campaign
+description: Are you sure you want to unlink your Patreon campaign? All tier information for works and chapters will be removed. **Patron-only works and chapters will become public.**
+confirm: Unlink
+
 ## account/auth
 service/accessibility/connect: connect {0}
 service/accessibility/disconnect: disconnect {0} account {1}

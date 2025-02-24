@@ -199,6 +199,7 @@ $$button-background-highlight!colour
 		"trash
 		"book
 		"circle-question
+		"rotate
 
 	#each in icons as var icon:
 		&-icon-#{icon}:
