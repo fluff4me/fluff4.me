@@ -26,6 +26,7 @@ Import.getModule<BrowserSourceMapSupport>('browser-source-map-support')?.install
 
 // view transition api fallback
 const noopViewTransition: ViewTransition = {
+	types: new Set(),
 	finished: Promise.resolve(undefined),
 	ready: Promise.resolve(undefined),
 	updateCallbackDone: Promise.resolve(undefined),

@@ -74,7 +74,7 @@ namespace Session {
 	function updateState () {
 		Session.has.value = !!Store.items.session
 		Auth.state.value = Store.items.session?.author ? 'logged-in' : Store.items.session?.authorisations?.length ? 'has-authorisations' : 'none'
-		Auth.authorisations.value = Store.items.session?.authorisations ?? []
+		Auth.authorisations.value = Store.items.session?.author?.authorisations ?? Store.items.session?.authorisations ?? []
 		Auth.author.value = Store.items.session?.author ?? undefined
 	}
 

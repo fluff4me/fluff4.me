@@ -1,18 +1,20 @@
+import type { AuthServices } from 'api.fluff4.me'
 import EndpointAuthServices from 'endpoint/auth/EndpointAuthServices'
 import type { DangerTokenType } from 'model/Session'
 import Session from 'model/Session'
 import Component from 'ui/Component'
+import type { OAuthServiceEvents } from 'ui/component/auth/OAuthService'
+import AccountViewOAuthService from 'ui/component/auth/OAuthService'
 import Block from 'ui/component/core/Block'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
-import type { OAuthServiceEvents } from 'ui/component/OAuthService'
-import AccountViewOAuthService from 'ui/component/OAuthService'
 import type EventManipulator from 'ui/utility/EventManipulator'
 import type { Events } from 'ui/utility/EventManipulator'
-import Objects from 'utility/Objects'
+import Objects, { mutable } from 'utility/Objects'
 import State from 'utility/State'
 
 interface OAuthServicesExtensions {
+	readonly data: AuthServices
 }
 
 interface OAuthServices extends Block, OAuthServicesExtensions {
@@ -25,7 +27,9 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 		.viewTransition('oauth-services')
 		.style('oauth-service-container')
 		.style.toggle(!!reauthDangerToken, 'oauth-service-container--reauth-list')
-		.extend<OAuthServicesExtensions>(block => ({})) as OAuthServices
+		.extend<OAuthServicesExtensions>(block => ({
+			data: undefined!,
+		})) as OAuthServices
 
 	if (reauthDangerToken) {
 		block.type('flush')
@@ -47,6 +51,8 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 		return block
 	}
 
+	mutable(block).data = services.data
+
 	Slot()
 		.use(Session.has, (slot, session) => {
 			if (!session)
@@ -58,7 +64,23 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 			for (const service of Objects.values(services.data))
 				if (!service.disabled)
 					if (!reauthDangerToken || Session.Auth.isAuthed(service))
-						AccountViewOAuthService(service, reauthDangerToken)
+						AccountViewOAuthService(service,
+							{
+								async onClick (button) {
+									if (!reauthDangerToken)
+										return
+
+									if (!Session.Auth.canRequestDangerToken())
+										return
+
+									const granted = await Session.Auth.requestDangerToken(reauthDangerToken, service)
+									if (granted)
+										button.event.bubble('DangerTokenGranted', reauthDangerToken)
+									else;
+									// TODO show notification
+									return
+								},
+							})
 							.bindDisabled(State
 								.Use(component, { authorisations: Session.Auth.authorisations, author: Session.Auth.author })
 								.map(component, ({ authorisations, author }) => true
@@ -68,6 +90,10 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 									&& authorisations[0].service === service.name
 								), 'singly-authed-service')
 							// .event.subscribe("dangerTokenGranted", event => block.event.emit("dangerTokenGranted"))
+							.tweak(service => {
+								if (reauthDangerToken)
+									service.stateIndicatorWrapper.remove()
+							})
 							.appendTo(slot)
 		})
 		.appendTo(list)

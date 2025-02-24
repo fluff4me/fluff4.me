@@ -1,11 +1,11 @@
 import EndpointAuthorDelete from 'endpoint/author/EndpointAuthorDelete'
 import Session from 'model/Session'
+import OAuthServices from 'ui/component/auth/OAuthServices'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import type Form from 'ui/component/core/Form'
 import Slot from 'ui/component/core/Slot'
-import OAuthServices from 'ui/component/OAuthServices'
 import AccountViewForm from 'ui/view/account/AccountViewForm'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
@@ -31,7 +31,12 @@ export default ViewDefinition({
 			.use(state, () => createForm()?.subviewTransition(id))
 			.appendTo(view.content)
 
-		services.header.subviewTransition(id)
+		// Slot()
+		// 	.use(state, (slot, state) => state === 'logged-in'
+		// 		&& AccountViewPatreonCampaign(services.data.patreon).subviewTransition(id))
+		// 	.appendTo(view.content)
+
+		services.subviewTransition(id)
 		services.appendTo(view.content)
 
 		Slot()

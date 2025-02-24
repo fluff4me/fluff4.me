@@ -1,3 +1,4 @@
+import type { Authorisation } from 'api.fluff4.me'
 import { type AuthService } from 'api.fluff4.me'
 import type { DangerTokenType } from 'model/Session'
 import Session from 'model/Session'
@@ -5,6 +6,7 @@ import Component from 'ui/Component'
 import Checkbutton from 'ui/component/core/Checkbutton'
 import type EventManipulator from 'ui/utility/EventManipulator'
 import type { Events } from 'ui/utility/EventManipulator'
+import { mutable } from 'utility/Objects'
 import State from 'utility/State'
 
 export interface OAuthServiceEvents {
@@ -12,17 +14,27 @@ export interface OAuthServiceEvents {
 }
 
 interface OAuthServiceExtensions {
+	readonly service: AuthService
+	readonly stateIndicatorWrapper: Component
+	readonly stateIndicator: Component
 }
 
 interface OAuthService extends Checkbutton, OAuthServiceExtensions {
 	readonly event: EventManipulator<this, Events<Checkbutton, OAuthServiceEvents>>
 }
 
-const OAuthService = Component.Builder((component, service: AuthService, reauthDangerToken?: DangerTokenType): OAuthService => {
+export interface OAuthServiceDefinition {
+	onClick?(button: OAuthService): unknown
+	authorisationState?: State<Authorisation | undefined>
+}
+
+const OAuthService = Component.Builder((component, service: AuthService, definition?: OAuthServiceDefinition): OAuthService => {
 	const authedAtStart = !!Session.Auth.get(service.name)
 
-	const authorisationState = Session.Auth.authorisations.map(component, authorisations =>
-		authorisations.find(authorisation => authorisation.service === service.name))
+	const authorisationState = _
+		?? definition?.authorisationState
+		?? Session.Auth.authorisations.map(component, authorisations =>
+			authorisations.find(authorisation => authorisation.service === service.name))
 
 	const isAuthed = State.Truthy(component, authorisationState)
 
@@ -32,6 +44,7 @@ const OAuthService = Component.Builder((component, service: AuthService, reauthD
 		.style('oauth-service')
 		.ariaRole('button')
 		.attributes.remove('aria-checked')
+		.use(isAuthed)
 		.style.bind(isAuthed, 'oauth-service--authenticated')
 		.style.setVariable('colour', `#${service.colour.toString(16)}`)
 		.append(Component('img')
@@ -40,22 +53,27 @@ const OAuthService = Component.Builder((component, service: AuthService, reauthD
 		.append(Component()
 			.style('oauth-service-name')
 			.text.set(service.name))
-		.extend<OAuthServiceExtensions>(button => ({})) as OAuthService
+		.extend<OAuthServiceExtensions>(button => ({
+			service,
+			stateIndicatorWrapper: undefined!,
+			stateIndicator: undefined!,
+		})) as OAuthService
 
 	button.style.bind(button.disabled, 'button--disabled', 'oauth-service--disabled')
 
-	if (!reauthDangerToken)
-		Component()
-			.style('oauth-service-state')
-			.style.bind(isAuthed, 'oauth-service-state--authenticated')
-			.style.bind(
-				State.Map(button, [button.hoveredOrFocused, button.disabled], (focus, disabled) => focus && !disabled),
-				'oauth-service-state--focus'
-			)
-			.appendTo(Component()
-				.style('oauth-service-state-wrapper')
-				.style.bind(button.hoveredOrFocused, 'oauth-service-state-wrapper--focus')
-				.appendTo(button))
+	mutable(button).stateIndicatorWrapper = Component()
+		.style('oauth-service-state-wrapper')
+		.style.bind(button.hoveredOrFocused, 'oauth-service-state-wrapper--focus')
+		.appendTo(button)
+
+	mutable(button).stateIndicator = Component()
+		.style('oauth-service-state')
+		.style.bind(isAuthed, 'oauth-service-state--authenticated')
+		.style.bind(
+			State.Map(button, [button.hoveredOrFocused, button.disabled], (focus, disabled) => focus && !disabled),
+			'oauth-service-state--focus'
+		)
+		.appendTo(button.stateIndicatorWrapper)
 
 	const username = Component()
 		.style('oauth-service-username')
@@ -75,26 +93,16 @@ const OAuthService = Component.Builder((component, service: AuthService, reauthD
 
 			event.preventDefault()
 
-			if (reauthDangerToken) {
-				if (!Session.Auth.canRequestDangerToken())
-					return
-
-				const granted = await Session.Auth.requestDangerToken(reauthDangerToken, service)
-				if (granted)
-					button.event.bubble('DangerTokenGranted', reauthDangerToken)
-				else;
-				// TODO show notification
+			if (definition?.onClick) {
+				await definition?.onClick(button)
 				return
 			}
 
-			let auth = Session.Auth.get(service.name)
+			const auth = Session.Auth.get(service.name)
 			if (auth)
 				await Session.Auth.unauth(auth.id)
 			else
 				await Session.Auth.auth(service)
-
-			auth = Session.Auth.get(service.name)
-			event.host.setChecked(!!auth)
 		})
 	})
 

@@ -261,6 +261,12 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 	}
 }
 
+namespace Endpoint {
+	export function path<PATH extends keyof Paths> (route: PATH): `${string}${PATH}` {
+		return `${Env.API_ORIGIN.slice(0, -1)}${route}`
+	}
+}
+
 export default Endpoint
 
 export type EndpointResponse<ENDPOINT extends Endpoint<any, any> | PreparedQueryOf<Endpoint<any, any>>> = Exclude<Awaited<ReturnType<ENDPOINT['query']>>, ErrorResponse<any> | void>
