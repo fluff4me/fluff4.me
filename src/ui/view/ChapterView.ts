@@ -23,8 +23,31 @@ import Work from 'ui/component/Work'
 import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import Maths from 'utility/maths/Maths'
+import Settings from 'utility/Settings'
 import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
+
+const settings = Settings.registerGroup('settings/chapter/name', {
+	fontSize: Settings.number({
+		name: 'settings/chapter/font-size/name',
+		description: 'settings/chapter/font-size/description',
+		default: 1,
+	}),
+	lineHeight: Settings.number({
+		name: 'settings/chapter/line-height/name',
+		description: 'settings/chapter/line-height/description',
+		default: 1.2,
+	}),
+	paragraphGap: Settings.number({
+		name: 'settings/chapter/paragraph-gap/name',
+		description: 'settings/chapter/paragraph-gap/description',
+		default: 1,
+	}),
+	justified: Settings.boolean({
+		name: 'settings/chapter/justified/name',
+		default: false,
+	}),
+})
 
 export default ViewDefinition({
 	async load (params: ChapterReference) {
@@ -61,6 +84,10 @@ export default ViewDefinition({
 		const paginator = view.paginator()
 			.viewTransition('chapter-view-chapter')
 			.style('view-type-chapter-block')
+			.style.bindVariable('chapter-font-size-multiplier', settings.fontSize.value)
+			.style.bindVariable('chapter-line-height', settings.lineHeight.value)
+			.style.bindVariable('chapter-paragraph-gap-multiplier', settings.paragraphGap.value)
+			.style.bindVariable('align-left-preference', settings.justified.value.map(view, justified => justified ? 'justify' : 'left'))
 			.type('flush')
 			.tweak(p => p.title
 				.style('view-type-chapter-block-title')

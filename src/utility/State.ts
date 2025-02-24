@@ -42,8 +42,11 @@ interface State<T, E = T> {
 	asMutable?: MutableState<T>
 }
 
-interface MutableState<T> extends State<T> {
+interface MutableStateSimple<T> extends State<T> {
 	value: T
+}
+
+interface MutableState<T> extends MutableStateSimple<T> {
 	setValue (value: T): this
 	bind (owner: State.Owner, state: State<T>): UnsubscribeState
 	bindManual (state: State<T>): UnsubscribeState
@@ -211,7 +214,7 @@ function State<T> (defaultValue: T, equals?: EqualsFunction<T>): MutableState<T>
 namespace State {
 
 	export type Owner =
-		| Component
+		| ({ removed: State<boolean>, remove (): void } & Partial<Component>)
 		| ComponentInsertionTransaction
 
 	export namespace Owner {
@@ -220,18 +223,19 @@ namespace State {
 			return owner.removed ?? owner.closed
 		}
 
-		export type Removable = Owner & { remove (): void }
-		let ownerConstructor: () => Owner.Removable
-		export function setConstructor (constructor: () => Owner.Removable) {
-			ownerConstructor = constructor
-		}
+		export type Removable = Extract<Owner, { remove (): void }>
 
 		export function create (): Owner.Removable {
-			return ownerConstructor()
+			const removed = State(false)
+			return {
+				removed,
+				remove: () => removed.value = true,
+			}
 		}
 	}
 
 	export type Mutable<T> = MutableState<T>
+	export type MutableSetOnly<T> = MutableStateSimple<T>
 
 	export function is<T> (value: unknown): value is State<T> {
 		return typeof value === 'object' && (value as State<T>)?.isState === true
@@ -245,6 +249,10 @@ namespace State {
 
 	export function value<T> (state: T | State<T>): T {
 		return is<T>(state) ? state.value : state
+	}
+
+	export function getInternalValue<T> (state: T | State<T>): T {
+		return is<T>(state) ? (state as State<T> & InternalState<T>)[SYMBOL_VALUE] : state
 	}
 
 	const SYMBOL_HAS_SUBSCRIPTIONS = Symbol('HAS_SUBSCRIPTIONS')
