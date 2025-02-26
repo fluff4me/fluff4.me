@@ -87,10 +87,13 @@ Component.extend(component => {
 			if (popoverEvent === 'hover' && !component.popover)
 				component.hoveredOrFocused.subscribe(component, updatePopoverState)
 
-			const ariaLabel = component.attributes.getUsing('aria-label') ?? popover.attributes.get('aria-label')
+			const rawLabel = component.ariaLabel.state.value
+			const ariaLabel = popover.ariaLabel.state.map(popover, popoverLabel => rawLabel || popoverLabel)
 			const ariaRole = popover.attributes.getUsing('role') ?? popover.attributes.get('role')
-			component.ariaLabel.use((quilt, { arg }) => quilt['component/popover/button'](arg(ariaLabel), arg(ariaRole)))
-			popover.ariaLabel.use((quilt, { arg }) => quilt['component/popover'](arg(ariaLabel)))
+			component.ariaLabel.bind(ariaLabel.mapManual(ariaLabel =>
+				(quilt, { arg }) => quilt['component/popover/button'](arg(ariaLabel), arg(ariaRole))))
+			popover.ariaLabel.bind(ariaLabel.mapManual(ariaLabel =>
+				(quilt, { arg }) => quilt['component/popover'](arg(ariaLabel))))
 
 			navigate.event.subscribe('Navigate', forceClose)
 			popover.removed.awaitManual(true, () => navigate.event.unsubscribe('Navigate', forceClose))
@@ -117,13 +120,14 @@ Component.extend(component => {
 				component.event.subscribe(['insert', 'ancestorInsert'], updatePopoverParent)
 			}
 
-			popover.popoverHasFocus.subscribe(component, hasFocused => {
+			popover.popoverHasFocus.subscribe(component, (hasFocused, oldValue) => {
 				if (hasFocused)
 					return
 
 				component.clickState = false
 				component.popover?.hide()
-				component.focus()
+				if (oldValue !== 'no-focus')
+					component.focus()
 			})
 
 			return component.extend<PopoverComponentRegisteredExtensions>(component => ({
@@ -239,7 +243,7 @@ interface PopoverExtensions {
 	readonly visible: State<boolean>
 	readonly popoverChildren: State<readonly Popover[]>
 	readonly popoverParent: State<Popover | undefined>
-	readonly popoverHasFocus: State<boolean>
+	readonly popoverHasFocus: State<"focused" | "no-focus" | undefined>
 	readonly type: TypeManipulator<this, PopoverType>
 	readonly lastStateChangeTime: number
 
@@ -281,7 +285,10 @@ const Popover = Component.Builder((component): Popover => {
 			popoverChildren: State([]),
 			popoverParent: State(undefined),
 			popoverHasFocus: FocusListener.focused.map(popover, focused =>
-				visible.value && containsPopoverDescendant(focused)),
+				!focused ? 'no-focus'
+					: (visible.value && containsPopoverDescendant(focused)) ? 'focused'
+						: undefined
+			),
 
 			setCloseOnInput (closeOnInput = true) {
 				shouldCloseOnInput = closeOnInput

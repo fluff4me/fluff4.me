@@ -6,3 +6,7 @@
 		%opacity-50
 		%align-self-centre
 		%margin-left-2
+
+	&-visibility-patreon:
+		$radio-background: #FF5900
+		$radio-colour: #FF6E20

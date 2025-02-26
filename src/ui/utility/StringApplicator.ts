@@ -147,13 +147,14 @@ function BaseStringApplicator<HOST> (
 ): StringApplicator.Optional<HOST> {
 	let translationHandler: Quilt.Handler | undefined
 	let unbind: UnsubscribeState | undefined
+	const state = State(defaultValue)
 	const result = makeApplicator(host)
 	const setInternal = set.bind(null, result)
 	return result
 
 	function makeApplicator<HOST> (host: HOST): StringApplicator.Optional<HOST> {
 		return {
-			state: State(defaultValue),
+			state,
 			set: value => {
 				unbind?.()
 				translationHandler = undefined
@@ -181,12 +182,20 @@ function BaseStringApplicator<HOST> (
 					return host
 				}
 
+				if (typeof state === 'function')
+					state = state(quilt, QuiltHelper)
+
 				if (!State.is(state)) {
 					setInternal(state)
 					return host
 				}
 
-				unbind = state?.use(host as Component, setInternal)
+				unbind = state?.use(host as Component, state => {
+					if (typeof state === 'function')
+						state = state(quilt, QuiltHelper)
+
+					setInternal(state)
+				})
 				return host
 			},
 			unbind: () => {
@@ -198,7 +207,7 @@ function BaseStringApplicator<HOST> (
 				if (!translationHandler)
 					return
 
-				setInternal(translationHandler(quilt, QuiltHelper).toString())
+				setInternal(translationHandler(quilt, QuiltHelper))
 			},
 			rehost: makeApplicator,
 		}
@@ -227,7 +236,7 @@ namespace StringApplicator {
 	export interface Optional<HOST> extends Omit<StringApplicator<HOST>, 'state' | 'set' | 'bind' | 'rehost'> {
 		state: State<string | undefined | null>
 		set (value?: string | Weave | null): HOST
-		bind (state?: StateOr<string | Weave | undefined | null>): HOST
+		bind (state?: StateOr<string | Weave | Quilt.Handler | undefined | null>): HOST
 		/** Create a new string applicator with the same target that returns a different host */
 		rehost<NEW_HOST> (newHost: NEW_HOST): StringApplicator.Optional<NEW_HOST>
 	}

@@ -91,7 +91,7 @@ namespace Session {
 		export const state = State<State>('none')
 		export const loggedIn = State.Generator(() => state.value === 'logged-in').observeManual(state)
 		export const authorisations = State<Authorisation[]>([])
-		export const author = State<AuthorSelf | undefined>(undefined, (a, b) => a?.vanity === b?.vanity)
+		export const author = State<AuthorSelf | undefined>(undefined, false)
 
 		export function getAll () {
 			return Store.items.session?.authorisations ?? []

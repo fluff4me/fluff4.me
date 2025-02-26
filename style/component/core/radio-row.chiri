@@ -7,7 +7,7 @@
 		%flex-grow
 		%border-1
 		%font-inherit
-		colour: $colour-blue
+		colour: ${radio-colour: $colour-blue}
 
 		:not ::hover ::focus:
 			border-colour: transparent
@@ -19,7 +19,7 @@
 			#after: .radio-row-option, .button--disabled
 			%colour-0
 			%opaque
-			$button-background: $colour-blue-2
+			$button-background: ${radio-background: $colour-blue-2}
 
 		&--hidden:
 			#after: .radio-row-option

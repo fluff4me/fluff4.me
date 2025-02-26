@@ -1,5 +1,6 @@
 import type { AuthService } from 'api.fluff4.me'
 import Endpoint from 'endpoint/Endpoint'
+import EndpointPatreonCampaignRemove from 'endpoint/patreon/EndpointPatreonCampaignRemove'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import OAuthService from 'ui/component/auth/OAuthService'
@@ -81,7 +82,7 @@ export default Component.Builder((component, patreon: AuthService) => {
 		if (!shouldUnlink)
 			return
 
-		// TODO
+		await EndpointPatreonCampaignRemove.query()
 		await Session.refresh()
 	}
 })

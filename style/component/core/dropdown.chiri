@@ -1,0 +1,25 @@
+.dropdown:
+
+	&-button:
+
+	&-popover:
+		%unmargin-top-3
+		%unmargin-left-3
+
+		&--is-bottom:
+			#after: .dropdown-popover
+			%margin-top-3
+
+		&-input:
+
+		&-content:
+			%flex
+			%flex-column
+
+	&-option:
+
+		&--selected:
+
+		&--filtered-out:
+			#after: .button
+			%hidden
