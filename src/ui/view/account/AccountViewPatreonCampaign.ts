@@ -29,6 +29,7 @@ export default Component.Builder((component, patreon: AuthService) => {
 							await unlink()
 						else
 							await relink()
+						return true
 					},
 				}),
 			Slot()

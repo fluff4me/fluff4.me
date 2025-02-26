@@ -68,17 +68,17 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 							{
 								async onClick (button) {
 									if (!reauthDangerToken)
-										return
+										return false
 
 									if (!Session.Auth.canRequestDangerToken())
-										return
+										return true
 
 									const granted = await Session.Auth.requestDangerToken(reauthDangerToken, service)
 									if (granted)
 										button.event.bubble('DangerTokenGranted', reauthDangerToken)
 									else;
 									// TODO show notification
-									return
+									return true
 								},
 							})
 							.bindDisabled(State
