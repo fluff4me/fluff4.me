@@ -16,6 +16,7 @@ interface RadioRow<ID extends string = never> extends Input, RadioRowExtensions<
 const RadioRow = Component.Builder((component: Component): RadioRow => {
 	const selection = State<string | undefined>(undefined)
 	const options: Record<string, RadioButton> = {}
+	let labelFor: State<string | undefined> | undefined
 	const row = component.and(Input)
 		.style('radio-row')
 		.ariaRole('group')
@@ -28,6 +29,7 @@ const RadioRow = Component.Builder((component: Component): RadioRow => {
 					.type('flush')
 					.tweak(initialiser, id)
 					.setId(id)
+					.setName(labelFor)
 					.use(selection.map(row, selected => selected === id))
 					.receiveFocusedClickEvents()
 					.event.subscribe('click', event => {
@@ -45,8 +47,9 @@ const RadioRow = Component.Builder((component: Component): RadioRow => {
 		}))
 		.extend<Partial<InputExtensions>>(row => ({
 			setLabel (label) {
+				labelFor = label?.for
 				for (const option of Object.values(options))
-					option.setName(label?.for)
+					option.setName(labelFor)
 
 				label?.setInput(row)
 				return row

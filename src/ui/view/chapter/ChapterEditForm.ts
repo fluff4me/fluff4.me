@@ -7,6 +7,7 @@ import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
+import Dropdown from 'ui/component/core/Dropdown'
 import Form from 'ui/component/core/Form'
 import LabelledTable from 'ui/component/core/LabelledTable'
 import Placeholder from 'ui/component/core/Placeholder'
@@ -18,7 +19,7 @@ import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
 import Objects from 'utility/Objects'
-import type State from 'utility/State'
+import State from 'utility/State'
 
 interface ChapterEditFormExtensions {
 	hasUnsavedChanges (): boolean
@@ -101,13 +102,34 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 	const VisibilityRadioInitialiser = (radio: RadioButton, id: Visibility) => radio
 		.text.use(`view/chapter-edit/shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
 
+	const campaign = Session.Auth.author.map(component, author => author?.patreon_campaign)
 	const visibility = RadioRow()
 		.add('Public', VisibilityRadioInitialiser)
-		.add('Patreon', (radio, id) => radio.tweak(VisibilityRadioInitialiser, id).style('radio-row-option--hidden'))
+		.add('Patreon', (radio, id) => radio
+			.tweak(VisibilityRadioInitialiser, id)
+			.style('view-type-chapter-edit-visibility-patreon')
+			.style.bind(campaign.falsy, 'radio-row-option--hidden'))
 		.add('Private', VisibilityRadioInitialiser)
 		.default.bind(state.map(component, chapter => chapter?.visibility ?? 'Private'))
 	table.label(label => label.text.use('view/chapter-edit/shared/form/visibility/label'))
 		.content((content, label) => content.append(visibility.setLabel(label)))
+
+	const visibilityStateIsPatreon = visibility.selection.map(component, selection => selection === 'Patreon')
+	const tiers = State.Use(component, { campaign, visibilityStateIsPatreon })
+		.map(component, ({ campaign, visibilityStateIsPatreon }) =>
+			campaign && visibilityStateIsPatreon ? campaign.tiers : undefined)
+
+	const threshold = Dropdown()
+		.tweak(dropdown => {
+			tiers.use(dropdown, tiers => {
+				dropdown.clear()
+				for (const tier of tiers ?? [])
+					dropdown.add(tier.tier_id, radio => radio.text.set(`${tier.tier_name}: $${(tier.amount / 100).toFixed(2)}`))
+			})
+		})
+	table.label(label => label.text.use('view/chapter-edit/shared/form/visibility-patreon-tier/label'))
+		.if(tiers.truthy)
+		.content((content, label) => content.append(threshold.setLabel(label)))
 
 	form.event.subscribe('submit', async event => {
 		event.preventDefault()

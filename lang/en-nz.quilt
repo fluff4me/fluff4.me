@@ -50,6 +50,8 @@ saved: Saved {0}
 error-occurred: An error has occurred!
 
 ## form
+dropdown/no-selection: No Selection
+dropdown/filter/placeholder: Filter...
 name/label: Name
 vanity/label: Vanity
 description/label: Description
@@ -68,6 +70,7 @@ visibility/label: Visibility
 visibility/public: Public
 visibility/private: Private
 visibility/patreon: Patreon
+visibility-patreon-tier/label: Tier
 
 invalid/too-long: This text is too long.
 invalid/required: This field is required.
@@ -426,6 +429,7 @@ visibility/label=shared/form/visibility/label
 visibility/public=shared/form/visibility/public
 visibility/private=shared/form/visibility/private
 visibility/patreon=shared/form/visibility/patreon
+visibility-patreon-tier/label=shared/form/visibility-patreon-tier/label
 type/label: Type
 type/numbered: Numbered
 type/numbered/example: Chapter {0}

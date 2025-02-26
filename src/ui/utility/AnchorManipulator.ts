@@ -127,6 +127,8 @@ export interface AnchorLocation {
 
 	xRefBox?: DOMRect
 	yRefBox?: DOMRect
+
+	preference?: AnchorLocationPreference
 }
 
 //#endregion
@@ -264,7 +266,7 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			if (anchoredBox && locationPreference && from) {
 				for (const preference of locationPreference) {
 					if (!preference)
-						return location.value ??= { mouse: false, x: -10000, y: -10000, padX: false }
+						return location.value ??= { mouse: false, x: -10000, y: -10000, padX: false, }
 
 					let alignment: AnchorLocationAlignment = 'left'
 
@@ -335,7 +337,7 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 						}
 					}
 
-					return location.value ??= { mouse: false, padX: xConf.type === 'off', alignment, x, y, yRefBox: yBox, xRefBox: xBox }
+					return location.value ??= { mouse: false, padX: xConf.type === 'off', alignment, x, y, yRefBox: yBox, xRefBox: xBox, preference }
 				}
 			}
 

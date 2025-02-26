@@ -24,7 +24,8 @@ $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 		#{transition("display")},
 		#{transition("overlay")},
 		#{transition("opacity")},
-		#{transition("translate")}
+		#{transition("translate")},
+		#{transition("margin")}
 
 	#flush:
 		$popover-padding: $space-1
