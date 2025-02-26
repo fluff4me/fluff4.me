@@ -8,6 +8,7 @@ import type EventManipulator from 'ui/utility/EventManipulator'
 import type { Events } from 'ui/utility/EventManipulator'
 import { mutable } from 'utility/Objects'
 import State from 'utility/State'
+import { PromiseOr } from 'utility/Type'
 
 export interface OAuthServiceEvents {
 	DangerTokenGranted (dangerToken: DangerTokenType): any
@@ -24,7 +25,7 @@ interface OAuthService extends Checkbutton, OAuthServiceExtensions {
 }
 
 export interface OAuthServiceDefinition {
-	onClick?(button: OAuthService): unknown
+	onClick?(button: OAuthService): PromiseOr<boolean>
 	authorisationState?: State<Authorisation | undefined>
 }
 
@@ -93,10 +94,8 @@ const OAuthService = Component.Builder((component, service: AuthService, definit
 
 			event.preventDefault()
 
-			if (definition?.onClick) {
-				await definition?.onClick(button)
+			if (await definition?.onClick?.(button))
 				return
-			}
 
 			const auth = Session.Auth.get(service.name)
 			if (auth)
