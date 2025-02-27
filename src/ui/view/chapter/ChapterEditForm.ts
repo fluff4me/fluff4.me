@@ -119,17 +119,23 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 		.map(component, ({ campaign, visibilityStateIsPatreon }) =>
 			campaign && visibilityStateIsPatreon ? campaign.tiers : undefined)
 
-	const threshold = Dropdown()
-		.tweak(dropdown => {
-			tiers.use(dropdown, tiers => {
-				dropdown.clear()
-				for (const tier of tiers ?? [])
-					dropdown.add(tier.tier_id, radio => radio.text.set(`${tier.tier_name}: $${(tier.amount / 100).toFixed(2)}`))
-			})
-		})
+	let threshold: Dropdown<string> | undefined
 	table.label(label => label.text.use('view/chapter-edit/shared/form/visibility-patreon-tier/label'))
-		.if(tiers.truthy)
-		.content((content, label) => content.append(threshold.setLabel(label)))
+		.if(tiers.truthy, () => threshold = undefined)
+		.content((content, label) => content.append(
+			threshold = (Dropdown() as Dropdown<string>)
+				.tweak(dropdown => {
+					tiers.use(dropdown, tiers => {
+						dropdown.clear()
+						for (const tier of tiers ?? [])
+							dropdown.add(tier.tier_id, {
+								translation: `${tier.tier_name}: $${(tier.amount / 100).toFixed(2)}`,
+							})
+					})
+				})
+				.default.bind(state.map(component, chapter => chapter?.tier?.tier_id))
+				.setLabel(label)
+		))
 
 	form.event.subscribe('submit', async event => {
 		event.preventDefault()
@@ -139,6 +145,7 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 	return form.extend<ChapterEditFormExtensions>(component => ({
 		hasUnsavedChanges,
 		save,
+		getFormData,
 	}))
 
 	function getFormData () {
@@ -150,6 +157,7 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 			notes_after: notesAfterInput.useMarkdown(),
 			visibility: visibility.selection.value ?? 'Private',
 			is_numbered: type.selection.value === 'numbered',
+			tier_id: threshold?.selection.value,
 		} satisfies ChapterCreateBody
 	}
 
@@ -159,7 +167,7 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 
 		const data = getFormData()
 
-		const basicFields = Objects.keys(getFormData()).filter(key => key !== 'custom_tags' && key !== 'global_tags')
+		const basicFields = Objects.keys(getFormData()).filter(key => key !== 'custom_tags' && key !== 'global_tags' && key !== 'tier_id')
 		for (const field of basicFields) {
 			let dataValue = data[field]
 			let stateValue = state.value[field]
@@ -173,6 +181,9 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 			if (dataValue !== stateValue)
 				return true
 		}
+
+		if (data.tier_id !== state.value.tier?.tier_id)
+			return true
 
 		if ((data.custom_tags?.length ?? 0) !== (state.value.custom_tags?.length ?? 0))
 			return true

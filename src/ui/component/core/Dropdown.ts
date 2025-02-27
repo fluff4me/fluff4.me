@@ -1,4 +1,4 @@
-import quilt from "lang/en-nz"
+import quilt, { Weave } from "lang/en-nz"
 import Component from "ui/Component"
 import Button from "ui/component/core/Button"
 import Input, { InputExtensions } from "ui/component/core/ext/Input"
@@ -6,13 +6,21 @@ import Popover from "ui/component/core/Popover"
 import RadioButton from "ui/component/core/RadioButton"
 import TextInput from "ui/component/core/TextInput"
 import Applicator from "ui/utility/Applicator"
+import { Quilt } from "ui/utility/StringApplicator"
 import Async from "utility/Async"
+import Functions from "utility/Functions"
 import State from "utility/State"
+import { SupplierOr } from "utility/Type"
+
+interface DropdownOptionDefinition<ID extends string> {
+	translation: SupplierOr<string | Weave | Quilt.Handler, [ID]>
+	tweakButton?(button: RadioButton, id: ID): unknown
+}
 
 interface DropdownExtensions<ID extends string> {
 	readonly selection: State<ID | undefined>
 	readonly default: Applicator.Optional<this, ID>
-	add<NEW_ID extends string> (id: NEW_ID, initialiser: (radio: RadioButton, id: NEW_ID) => unknown): Dropdown<ID | NEW_ID>
+	add<NEW_ID extends string> (id: NEW_ID, definition: DropdownOptionDefinition<NEW_ID>): Dropdown<ID | NEW_ID>
 	clear (): Dropdown<never>
 }
 
@@ -22,13 +30,20 @@ const Dropdown = Component.Builder((component): Dropdown => {
 	const dropdown = component.and(Input)
 		.style('dropdown')
 
+	interface DropdownOption extends DropdownOptionDefinition<string> {
+		button: RadioButton
+	}
+
 	const selection = State<string | undefined>(undefined)
-	let options: Record<string, RadioButton> = {}
+	let options: Record<string, DropdownOption> = {}
 
 	let popover!: Popover
 	Button()
 		.style('dropdown-button')
-		.text.bind(selection.mapManual(state => state ?? quilt['shared/form/dropdown/no-selection']()))
+		.text.bind(selection.mapManual(state => _
+			?? Functions.resolve(options[state!]?.translation, state!)
+			?? quilt['shared/form/dropdown/no-selection']()
+		))
 		.setPopover('click', p => popover = p
 			.style('dropdown-popover')
 			.anchor.add('aligned left', 'aligned top')
@@ -65,13 +80,14 @@ const Dropdown = Component.Builder((component): Dropdown => {
 		.extend<DropdownExtensions<string> & Partial<InputExtensions>>(dropdown => ({
 			selection,
 			default: Applicator(dropdown, (id?: string) => selection.value = id),
-			add (id, initialiser) {
-				const button = options[id] = RadioButton()
+			add (id, definition: DropdownOptionDefinition<string>) {
+				const button = RadioButton()
 					.style('dropdown-option')
 					.type('flush')
-					.tweak(initialiser, id)
+					.tweak(definition.tweakButton, id)
 					.setId(id)
 					.setName(labelFor)
+					.text.bind(Functions.resolve(definition.translation, id))
 					.use(selection.mapManual(selected => selected === id))
 					.receiveFocusedClickEvents()
 					.event.subscribe('click', event => {
@@ -83,6 +99,8 @@ const Dropdown = Component.Builder((component): Dropdown => {
 					})
 					.appendTo(content)
 
+				options[id] = Object.assign(definition, { button })
+
 				button.style.bind(button.checked, 'dropdown-option--selected')
 				const filteredOut = State.Map(button, [input.state, button.checked], (filter, selected) =>
 					!selected && !!filter && !button.element.textContent?.includes(filter))
@@ -93,7 +111,7 @@ const Dropdown = Component.Builder((component): Dropdown => {
 			},
 			clear () {
 				for (const option of Object.values(options))
-					option.remove()
+					option.button.remove()
 
 				options = {}
 				return dropdown as Dropdown<never>
@@ -104,7 +122,7 @@ const Dropdown = Component.Builder((component): Dropdown => {
 				labelFor = label?.for
 				popover.ariaLabel.bind(label?.text.state)
 				for (const option of Object.values(options))
-					option.setName(labelFor)
+					option.button.setName(labelFor)
 
 				label?.setInput(dropdown)
 				return dropdown

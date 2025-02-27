@@ -6,7 +6,7 @@ import Slot from 'ui/component/core/Slot'
 import State from 'utility/State'
 
 interface LabelledRowFactory<HOST extends LabelledTable> {
-	if (state: State<boolean>): this
+	if (state: State<boolean>, orElse?: () => unknown): this
 	content (initialiser: (content: Component, label: Label, row: LabelledRow) => Component | undefined | void): HOST
 }
 
@@ -20,6 +20,7 @@ const LabelledTable = Component.Builder((table): LabelledTable => {
 	table.style('labelled-table')
 
 	let nextLabelInitialiser: ((label: AutoLabel, row: LabelledRow) => Label) | undefined
+	let orElse: (() => unknown) | undefined
 	let factory: LabelledRowFactory<LabelledTable> | undefined
 
 	return table.extend<LabelledTableExtensions>(table => ({
@@ -27,8 +28,9 @@ const LabelledTable = Component.Builder((table): LabelledTable => {
 			nextLabelInitialiser = initialiser
 			let state: State<boolean> | undefined
 			return factory ??= {
-				if (stateIn) {
+				if (stateIn, elseFn) {
 					state = stateIn
+					orElse = elseFn
 					return factory!
 				},
 				content: contentInitialiser => {
@@ -36,7 +38,7 @@ const LabelledTable = Component.Builder((table): LabelledTable => {
 					nextLabelInitialiser = undefined
 
 					if (state)
-						Slot().if(state, create).appendTo(table)
+						Slot().if(state, create).else(() => { orElse?.() }).appendTo(table)
 					else
 						create().appendTo(table)
 

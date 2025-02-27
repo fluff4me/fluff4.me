@@ -70,7 +70,7 @@ visibility/label: Visibility
 visibility/public: Public
 visibility/private: Private
 visibility/patreon: Patreon
-visibility-patreon-tier/label: Tier
+visibility-patreon-tier/label: Patreon Tier
 
 invalid/too-long: This text is too long.
 invalid/required: This field is required.
