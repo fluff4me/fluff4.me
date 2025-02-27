@@ -11,6 +11,9 @@
 		success-bg: "#204731
 		warning: "#a8403e
 		warning-bg: "#4f2322
+		patreon: "#FF5900
+		patreon-2: "#FF6E20
+		patreon-3: "#a84c1a
 
 	#each colours as var name, var colour:
 		$colour-#{name}: #{colour}

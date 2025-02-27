@@ -47,6 +47,7 @@ const Chapter = Object.assign(
 		component = Link(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}`)
 			.style('chapter')
 			.style.toggle(chapter.visibility === 'Private', 'chapter--private')
+			.style.toggle(chapter.visibility === 'Patreon', 'chapter--patreon')
 
 		const chapterNumber = Maths.parseIntOrUndefined(chapter.url)
 		const number = Component()
