@@ -124,3 +124,18 @@
 			%size-em
 			filter: invert() brightness(50%) sepia(10) hue-rotate(-7deg) saturate(21.5)
 			background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3C!--!Font%20Awesome%20Free%206.7.2%20by%20%40fontawesome%20-%20https%3A%2F%2Ffontawesome.com%20License%20-%20https%3A%2F%2Ffontawesome.com%2Flicense%2Ffree%20Copyright%202025%20Fonticons%2C%20Inc.--%3E%3Cpath%20d%3D%22M489.7%20153.8c-.1-65.4-51-119-110.7-138.3C304.8-8.5%20207-5%20136.1%2028.4C50.3%2068.9%2023.3%20157.7%2022.3%20246.2C21.5%20319%2028.7%20510.6%20136.9%20512c80.3%201%2092.3-102.5%20129.5-152.3c26.4-35.5%2060.5-45.5%20102.4-55.9c72-17.8%20121.1-74.7%20121-150z%22%2F%3E%3C%2Fsvg%3E")
+
+
+	&-patreon-tier:
+		#after: .chapter--patreon
+		%relative
+		%padding-1-2
+		padding-left: calc($space-4 + $space-2 + $space-1)
+
+		@before:
+			%unmargin-left-1
+			%border-none
+			background: linear-gradient(to right, color-mix(in lch, $colour-patreon, transparent 90%), transparent)
+
+		@after:
+			%margin-left-2

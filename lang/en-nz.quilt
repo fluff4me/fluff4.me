@@ -25,6 +25,7 @@ chapters: Chapters
 settings: Settings
 account-settings: Account Settings
 notes: Notes
+patreon-tier: {NAME}: {#B:{PRICE}}
 
 ## action
 login-or-signup: Log In or Sign Up
