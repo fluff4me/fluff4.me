@@ -1,4 +1,5 @@
 import type { Author, ChapterLite, Work } from 'api.fluff4.me'
+import quilt from 'lang/en-nz'
 import Chapters from 'model/Chapters'
 import Session from 'model/Session'
 import Component from 'ui/Component'
@@ -13,6 +14,16 @@ import State from 'utility/State'
 
 function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>, work: Work, author?: Author) {
 	return actions
+
+		.appendAction('patreon', State.get(chapter), (slot, chapter) => true
+			&& chapter.visibility === 'Patreon'
+			&& chapter.tier
+			&& Component()
+				.style('chapter-patreon-tier', 'chapter--patreon')
+				.text.set(quilt['shared/term/patreon-tier']({
+					NAME: chapter.tier.tier_name,
+					PRICE: `$${(chapter.tier.amount / 100).toFixed(2)}`,
+				})))
 
 		.appendAction('edit', Session.Auth.author, (slot, self) => true
 			&& author

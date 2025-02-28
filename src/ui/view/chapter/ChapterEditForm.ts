@@ -129,7 +129,10 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 						dropdown.clear()
 						for (const tier of tiers ?? [])
 							dropdown.add(tier.tier_id, {
-								translation: `${tier.tier_name}: $${(tier.amount / 100).toFixed(2)}`,
+								translation: quilt['shared/term/patreon-tier']({
+									NAME: tier.tier_name,
+									PRICE: `$${(tier.amount / 100).toFixed(2)}`,
+								}),
 							})
 					})
 				})
