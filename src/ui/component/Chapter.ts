@@ -12,17 +12,18 @@ import Maths from 'utility/maths/Maths'
 import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 
-function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>, work: Work, author?: Author) {
+function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>, work: Work, author?: Author, isChapterView = false) {
 	return actions
 
 		.appendAction('patreon', State.get(chapter), (slot, chapter) => true
+			&& !isChapterView
 			&& chapter.visibility === 'Patreon'
-			&& chapter.tier
+			&& chapter.patreon
 			&& Component()
-				.style('chapter-patreon-tier', 'chapter--patreon')
+				.style('chapter-patreon-tier', 'patreon-icon-after')
 				.text.set(quilt['shared/term/patreon-tier']({
-					NAME: chapter.tier.tier_name,
-					PRICE: `$${(chapter.tier.amount / 100).toFixed(2)}`,
+					NAME: chapter.patreon.tier.tier_name,
+					PRICE: `$${(chapter.patreon.tier.amount / 100).toFixed(2)}`,
 				})))
 
 		.appendAction('edit', Session.Auth.author, (slot, self) => true
@@ -58,7 +59,7 @@ const Chapter = Object.assign(
 		component = Link(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}`)
 			.style('chapter')
 			.style.toggle(chapter.visibility === 'Private', 'chapter--private')
-			.style.toggle(chapter.visibility === 'Patreon', 'chapter--patreon')
+			.style.toggle(chapter.visibility === 'Patreon', 'chapter--patreon', 'patreon-icon-after')
 
 		const chapterNumber = Maths.parseIntOrUndefined(chapter.url)
 		const number = Component()

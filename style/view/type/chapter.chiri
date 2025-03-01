@@ -47,6 +47,7 @@
 			border-left: .3em solid $border-colour
 			$border-colour: $background-3
 			%background-2
+			%z-index-fg
 
 			&-before:
 				%margin-top-2
@@ -72,10 +73,66 @@
 				#after: .view-type-chapter-block-notes-label
 				%margin-bottom-2
 
+		&-patreon-header, &-patreon-footer:
+			%block
+			%relative
+			%margin-block-4
+			%unmargin-inline-4
+			%padding-2-4
+
+			@before:
+				%block
+				%absolute
+				%inset-0
+				%border-1
+				%border-patreon
+				%background-patreon-a10
+				$gradient-mask-height: $space-5
+
+		&-patreon-header:
+			%padding-bottom-5
+			%unmargin-bottom-5
+
+			@before:
+				%border-top-radius-2
+				%border-bottom-none
+				%gradient-mask-bottom
+
+			&-label:
+				%uppercase
+				%colour-patreon-a60
+				%font-1
+				%weight-bold
+				letter-spacing: 0.1em
+
+			&-title:
+				%font-kanit
+				%font-4
+				%colour-patreon
+				%margin-0
+				%unmargin-top-1
+				%flex
+				%justify-content-space-between
+
+			&-button:
+				%z-index-fg
+				$button-background: $colour-patreon-3
+				margin-top: calc(($space-1 + $space-2) * -1)
+
+		&-patreon-footer:
+			%padding-top-5
+			%unmargin-top-5
+
+			@before:
+				%border-bottom-radius-2
+				%border-top-none
+				%gradient-mask-top
+
 		&-body:
 			%padding-top-3
 			%padding-bottom-4
 			$paginator-page-display: block
+			%z-index-fg
 
 		&-paginator-actions:
 			#after: .paginator-footer--hidden, .paginator-footer--flush, .block--type-flush-footer

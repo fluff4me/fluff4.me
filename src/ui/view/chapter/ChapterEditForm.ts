@@ -36,7 +36,8 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 	const formType = state.value ? 'update' : 'create'
 
 	form.title.text.use(`view/chapter-edit/${formType}/title`)
-	form.setName(quilt[`view/chapter-edit/${formType}/title`]().toString())
+	state.use(form, chapter => form.setName(quilt[`view/chapter-edit/${formType}/title`](chapter?.url).toString()))
+
 	// if (params.type === "create")
 	// 	form.description.text.use("view/work-edit/create/description")
 
@@ -136,7 +137,7 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 							})
 					})
 				})
-				.default.bind(state.map(component, chapter => chapter?.tier?.tier_id))
+				.default.bind(state.map(component, chapter => chapter?.patreon?.tier.tier_id))
 				.setLabel(label)
 		))
 
@@ -185,7 +186,7 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 				return true
 		}
 
-		if (data.tier_id !== state.value.tier?.tier_id)
+		if (data.tier_id !== state.value.patreon?.tier.tier_id)
 			return true
 
 		if ((data.custom_tags?.length ?? 0) !== (state.value.custom_tags?.length ?? 0))

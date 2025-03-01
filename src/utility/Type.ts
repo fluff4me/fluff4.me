@@ -8,6 +8,7 @@ export type Nullish = null | undefined
 export type Falsy = false | '' | 0 | 0n | Nullish
 export type PartialRecord<K extends keyof any, T> = { [P in K]?: T }
 export type Empty = Record<string, never>
+export type MakePartial<T, P extends keyof T> = Omit<T, P> & Partial<Pick<T, P>>
 
 declare global {
 	interface ScreenOrientation {

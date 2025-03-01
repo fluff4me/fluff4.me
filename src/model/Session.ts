@@ -101,6 +101,10 @@ namespace Session {
 			return Store.items.session?.authorisations?.find(auth => auth.service === service)
 		}
 
+		export function loggedInAs (owner: State.Owner, authorVanity: string): State.Generator<boolean> {
+			return author.map(owner, author => author?.vanity === authorVanity)
+		}
+
 		export function isAuthed (service: AuthService) {
 			return Session.Auth.authorisations.value.some(auth => auth.service === service.name)
 		}
