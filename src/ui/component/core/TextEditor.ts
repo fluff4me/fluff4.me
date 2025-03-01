@@ -30,6 +30,7 @@ import Popover from 'ui/component/core/Popover'
 import RadioButton from 'ui/component/core/RadioButton'
 import Slot from 'ui/component/core/Slot'
 import { HandlesKeyboardEvents } from 'ui/InputBus'
+import MarkdownContent from 'ui/utility/MarkdownContent'
 import type { Quilt } from 'ui/utility/StringApplicator'
 import StringApplicator from 'ui/utility/StringApplicator'
 import Viewport from 'ui/utility/Viewport'
@@ -1310,7 +1311,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			},
 			useMarkdown: () => {
 				clearLocal()
-				return !state.value ? '' : markdownSerializer.serialize(state.value?.doc)
+				return !state.value ? '' : MarkdownContent.trim(markdownSerializer.serialize(state.value?.doc))
 			},
 			setMinimalByDefault (value = true) {
 				minimal.value = value
