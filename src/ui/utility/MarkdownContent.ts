@@ -152,6 +152,12 @@ namespace MarkdownContent {
 	export function handle (handler: MarkdownContentHandler) {
 		handlers.push(handler)
 	}
+
+	export function trim (markdown: string) {
+		return markdown.trim()
+			.replace(/^(?:\s|<br>)+/, '')
+			.replace(/(?:\s|<br>)+$/, '')
+	}
 }
 
 export default MarkdownContent
