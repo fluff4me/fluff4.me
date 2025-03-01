@@ -44,6 +44,7 @@ return: Return
 view-profile: View Profile{0? ({0})}
 continue: Continue
 new-chapter: New Chapter
+become-patron: Become a Patron
 
 ## toast
 failed-to-save: Failed to save {0}
@@ -221,8 +222,6 @@ action/label/edit=shared/action/edit
 action/label/delete=shared/action/delete
 action/label/reorder: Reorder
 action/label/reorder-cancel: Cancel Reordering
-tags/label: This chapter contains:
-notes/label=shared/term/notes
 
 # notification
 comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}
@@ -442,10 +441,14 @@ title: Create chapter
 submit=shared/action/create
 
 ## chapter-edit/update
-title: Edit chapter
+title: Edit chapter{ 0??}
 submit=shared/action/save
 action/delete: Delete Chapter
 
 
 ## chapter
 title: {0?{0}. }{1}
+tags/label: This chapter contains:
+notes/label=shared/term/notes
+patreon/label: Patrons Only
+action/become-patron=shared/action/become-patron

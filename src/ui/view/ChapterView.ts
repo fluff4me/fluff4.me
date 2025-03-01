@@ -14,6 +14,8 @@ import Component from 'ui/Component'
 import Chapter from 'ui/component/Chapter'
 import Comments from 'ui/component/Comments'
 import Button from 'ui/component/core/Button'
+import ExternalLink from 'ui/component/core/ExternalLink'
+import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
 import Slot from 'ui/component/core/Slot'
 import Reaction from 'ui/component/Reaction'
@@ -76,6 +78,9 @@ export default ViewDefinition({
 			.appendTo(view.content)
 
 		const chapterState = State(initialChapterResponse.data)
+		const isOwn = Session.Auth.loggedInAs(view, params.author)
+		const sufficientPledge = chapterState.mapManual(chapter => !chapter.insufficient_pledge)
+		const shouldShowPatreon = State.Some(view, isOwn.truthy, sufficientPledge.falsy)
 
 		const chapters = PagedData.fromEndpoint(EndpointChapterGetPaged.prep({ params }))
 		chapters.set(initialChapterResponse.page, initialChapterResponse.data, !initialChapterResponse.has_more)
@@ -108,13 +113,39 @@ export default ViewDefinition({
 						.setMarkdownContent(TextBody.resolve(chapter.notes_before, chapter.mentions))
 						.prepend(chapter.notes_before && Component()
 							.style('view-type-chapter-block-notes-label')
-							.text.use('chapter/notes/label'))
+							.text.use('view/chapter/notes/label'))
 						.append((chapter.global_tags?.length || chapter.custom_tags?.length) && Component()
 							.style('view-type-chapter-block-notes-label', 'view-type-chapter-block-tags-title')
-							.text.use('chapter/tags/label'))
+							.text.use('view/chapter/tags/label'))
 						.append(Tags()
 							.set(chapter as TagsState)
 							.style('view-type-chapter-block-tags'))
+						.appendTo(slot)
+
+				const isPatreon = chapter.visibility === 'Patreon'
+				if (isPatreon)
+					Slot().if(shouldShowPatreon, () =>
+						Component()
+							.style('view-type-chapter-block-patreon-header')
+							.append(Component()
+								.style('view-type-chapter-block-patreon-header-label')
+								.text.use('view/chapter/patreon/label'))
+							.append(Heading()
+								.style('view-type-chapter-block-patreon-header-title')
+								.setAestheticStyle(false)
+								.removeContents()
+								.append(
+									Component()
+										.text.use(quilt => quilt['shared/term/patreon-tier']({
+											NAME: chapter.patreon?.tier.tier_name ?? '',
+											PRICE: `$${((chapter.patreon?.tier?.amount ?? 0) / 100).toFixed(2)}`,
+										})),
+									Slot()
+										.if(isOwn.falsy, () => chapter.patreon && ExternalLink(chapter.patreon?.campaign.url)
+											.and(Button)
+											.style('view-type-chapter-block-patreon-header-button')
+											.text.use('view/chapter/action/become-patron')),
+								)))
 						.appendTo(slot)
 
 				Component()
@@ -128,15 +159,20 @@ export default ViewDefinition({
 						.setMarkdownContent(TextBody.resolve(chapter.notes_after, chapter.mentions))
 						.prepend(chapter.notes_after && Component()
 							.style('view-type-chapter-block-notes-label')
-							.text.use('chapter/notes/label'))
+							.text.use('view/chapter/notes/label'))
 						.appendTo(slot)
+
+				Slot()
+					.if(isOwn, () => isPatreon && Component()
+						.style('view-type-chapter-block-patreon-footer'))
+					.appendTo(slot)
 			})
 
 		paginator.header.style('view-type-chapter-block-header')
 		paginator.content.style('view-type-chapter-block-content')
 		paginator.footer.style('view-type-chapter-block-paginator-actions')
 
-		paginator.setActionsMenu(popover => Chapter.initActions(popover, chapterState, workData, author))
+		paginator.setActionsMenu(popover => Chapter.initActions(popover, chapterState, workData, author, true))
 
 		Link(`/work/${params.author}/${params.work}`)
 			.and(Button)
@@ -146,40 +182,41 @@ export default ViewDefinition({
 
 		const reactions = chapterState.mapManual(chapter => chapter.reactions ?? 0)
 		const reacted = chapterState.mapManual(chapter => !!chapter.reacted)
-		Reaction('love', reactions, reacted)
-			.event.subscribe('click', async () => {
-				if (!author?.vanity)
-					return
-
-				const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
-				if (reacted.value) {
-					const response = await EndpointUnreactChapter.query({ params })
-					if (toast.handleError(response))
+		Slot()
+			.if(sufficientPledge, () => Reaction('love', reactions, reacted)
+				.event.subscribe('click', async () => {
+					if (!author?.vanity)
 						return
 
-					delete chapterState.value.reacted
-					if (chapterState.value.reactions)
-						chapterState.value.reactions--
-					chapterState.emit()
-				}
-				else {
-					const response = await EndpointReactChapter.query({ params })
-					if (toast.handleError(response))
-						return
+					const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
+					if (reacted.value) {
+						const response = await EndpointUnreactChapter.query({ params })
+						if (toast.handleError(response))
+							return
 
-					chapterState.value.reacted = true
-					chapterState.value.reactions ??= 0
-					chapterState.value.reactions++
-					chapterState.emit()
-				}
-			})
+						delete chapterState.value.reacted
+						if (chapterState.value.reactions)
+							chapterState.value.reactions--
+						chapterState.emit()
+					}
+					else {
+						const response = await EndpointReactChapter.query({ params })
+						if (toast.handleError(response))
+							return
+
+						chapterState.value.reacted = true
+						chapterState.value.reactions ??= 0
+						chapterState.value.reactions++
+						chapterState.emit()
+					}
+				}))
 			.appendTo(paginator.footer.middle)
 
 		paginator.data.use(paginator, chapter => chapterState.value = chapter)
 
 		Slot()
-			.use(paginator.data, (slot, chapter) => {
-				if (!chapter.root_comment)
+			.use(chapterState, (slot, chapter) => {
+				if (!chapter.root_comment || chapter.insufficient_pledge)
 					return
 
 				return Comments(chapter.root_comment as UUID, true)

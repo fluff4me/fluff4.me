@@ -20,6 +20,7 @@
 	class/markdown
 	class/transition
 	class/action-group
+	class/patreon-icon-before
 
 #import:
 	component/core/break
