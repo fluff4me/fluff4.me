@@ -113,11 +113,34 @@
 				%unmargin-top-1
 				%flex
 				%justify-content-space-between
+				%align-items-centre
+				%gap-4
+
+			&-actions:
+				%flex
+				%flex-wrap
+				%gap-3
+				%justify-content-centre
 
 			&-button:
+				%font-3
 				%z-index-fg
+				%font-open-sans
+				%height-fit
+				%weight-bold
 				$button-background: $colour-patreon-3
 				margin-top: calc(($space-1 + $space-2) * -1)
+				line-height: 1em
+				%nowrap
+
+			&-placeholder:
+				margin-top: calc(($space-1 + $space-2) * -1)
+				%block
+				%font-2
+				%font-open-sans
+				%colour-patreon-3
+				%weight-bold
+				%height-fit
 
 		&-patreon-footer:
 			%padding-top-5

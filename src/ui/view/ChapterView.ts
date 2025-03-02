@@ -1,7 +1,9 @@
 import type { ChapterReference, Work as WorkData, WorkFull } from 'api.fluff4.me'
 import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
+import Endpoint from 'endpoint/Endpoint'
 import EndpointHistoryAddChapter from 'endpoint/history/EndpointHistoryAddChapter'
+import EndpointPatreonPatronRemove from 'endpoint/patreon/EndpointPatreonPatronRemove'
 import EndpointReactChapter from 'endpoint/reaction/EndpointReactChapter'
 import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
@@ -11,12 +13,17 @@ import PagedData from 'model/PagedData'
 import Session from 'model/Session'
 import TextBody from 'model/TextBody'
 import Component from 'ui/Component'
+import OAuthService from 'ui/component/auth/OAuthService'
+import OAuthServices from 'ui/component/auth/OAuthServices'
 import Chapter from 'ui/component/Chapter'
 import Comments from 'ui/component/Comments'
 import Button from 'ui/component/core/Button'
+import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
+import Paragraph from 'ui/component/core/Paragraph'
+import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import Reaction from 'ui/component/Reaction'
 import Tags from 'ui/component/Tags'
@@ -25,6 +32,7 @@ import Work from 'ui/component/Work'
 import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import Maths from 'utility/maths/Maths'
+import popup from 'utility/Popup'
 import Settings from 'utility/Settings'
 import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
@@ -141,10 +149,37 @@ export default ViewDefinition({
 											PRICE: `$${((chapter.patreon?.tier?.amount ?? 0) / 100).toFixed(2)}`,
 										})),
 									Slot()
-										.if(isOwn.falsy, () => chapter.patreon && ExternalLink(chapter.patreon?.campaign.url)
-											.and(Button)
-											.style('view-type-chapter-block-patreon-header-button')
-											.text.use('view/chapter/action/become-patron')),
+										.style.remove('slot')
+										.style('view-type-chapter-block-patreon-header-actions')
+										.if(isOwn.falsy, slot => {
+											if (!chapter.patreon)
+												return
+
+											Slot()
+												.if(Session.Auth.loggedIn, slot => {
+
+													Button()
+														.style('view-type-chapter-block-patreon-header-button')
+														.text.bind(Session.Auth.author.map(slot, author =>
+															!author?.patreon_patron
+																? 'view/chapter/action/auth-to-patreon'
+																: quilt => quilt['view/chapter/action/unlink-patreon'](author.patreon_patron!.display_name)))
+														.event.subscribe('click', () => authAsPatron(slot))
+														.appendTo(slot)
+
+													ExternalLink(chapter.patreon?.campaign.url)
+														.and(Button)
+														.attributes.remove('type')
+														.style('view-type-chapter-block-patreon-header-button')
+														.text.use('view/chapter/action/become-patron')
+														.appendTo(slot)
+												})
+												.else(() => Placeholder()
+													.style('view-type-chapter-block-patreon-header-placeholder')
+													.text.use('view/chapter/placeholder/login-for-patreon'))
+												.appendTo(slot)
+
+										}),
 								)))
 						.appendTo(slot)
 
@@ -226,3 +261,43 @@ export default ViewDefinition({
 		return view
 	},
 })
+
+function authAsPatron (owner: State.Owner) {
+	ConfirmDialog.prompt(owner, {
+		titleTranslation: 'view/chapter/dialog/patron/title',
+		confirmButtonTranslation: 'view/chapter/dialog/patron/done',
+		cancelButtonTranslation: false,
+		async tweak (dialog) {
+			Paragraph()
+				.text.use('view/chapter/dialog/patron/description')
+				.appendTo(dialog.content)
+
+			const patron = Session.Auth.author.map(dialog, author => author?.patreon_patron ?? undefined)
+			const services = await OAuthServices(State("none"))
+
+			OAuthService(services.data.patreon,
+				{
+					authorisationState: patron,
+					async onClick () {
+						if (patron.value)
+							await unlink()
+						else
+							await relink()
+						return true
+					},
+				})
+				.appendTo(dialog.content)
+
+			async function relink () {
+				await popup('Link Patron Account', Endpoint.path('/auth/patreon/patron/begin'), 600, 900)
+					.then(() => true).catch(err => { console.warn(err); return false })
+				await Session.refresh()
+			}
+
+			async function unlink () {
+				await EndpointPatreonPatronRemove.query()
+				await Session.refresh()
+			}
+		},
+	})
+}
