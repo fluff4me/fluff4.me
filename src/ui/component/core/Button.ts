@@ -1,4 +1,5 @@
 import Component from 'ui/Component'
+import { HandlesMouseEvents } from 'ui/InputBus'
 import BrowserListener from 'ui/utility/BrowserListener'
 import FontsListener from 'ui/utility/FontsListener'
 import type { ComponentNameType } from 'ui/utility/StyleManipulator'
@@ -39,6 +40,7 @@ const Button = Component.Builder('button', (component): Button => {
 	const unuseDisabledStateMap = new WeakMap<State<boolean | string>, UnsubscribeState>()
 	let unuseIconState: UnsubscribeState | undefined
 	const button = component
+		.and(HandlesMouseEvents)
 		.attributes.set('type', 'button')
 		.style('button')
 		.style.bind(BrowserListener.isWebkit, 'button--webkit')

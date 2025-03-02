@@ -1,6 +1,6 @@
 import Component from 'ui/Component'
 import type { IInputEvent } from 'ui/InputBus'
-import InputBus from 'ui/InputBus'
+import InputBus, { HandlesMouseEvents } from 'ui/InputBus'
 import FocusListener from 'ui/utility/FocusListener'
 import HoverListener from 'ui/utility/HoverListener'
 import Mouse from 'ui/utility/Mouse'
@@ -105,6 +105,10 @@ Component.extend(component => {
 			component.clickState = false
 			if (!component.popover) {
 				component.event.subscribe('click', async event => {
+					const closestHandlesMouseEvents = (event.target as HTMLElement).component?.closest(HandlesMouseEvents)
+					if (closestHandlesMouseEvents && closestHandlesMouseEvents?.element !== component.element && component.element.contains(closestHandlesMouseEvents.element))
+						return
+
 					component.clickState = !component.clickState
 
 					event.stopPropagation()

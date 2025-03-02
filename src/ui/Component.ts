@@ -815,14 +815,14 @@ namespace Component {
 
 	export type BuilderLike<PARAMS extends any[] = any[], COMPONENT extends Component = Component> = Builder<PARAMS, COMPONENT> | Extension<PARAMS, COMPONENT>
 
-	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<Extension<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'builderType' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
+	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<Extension<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'setName' | 'builderType' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
 		builderType: 'builder'
 		[SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
 		(...params: PARAMS): BUILD_COMPONENT
 		setName (name: string): this
 	}
 
-	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<ExtensionAsync<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'builderType' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
+	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<ExtensionAsync<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'setName' | 'builderType' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
 		builderType: 'builder'
 		[SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
 		(...params: PARAMS): Promise<BUILD_COMPONENT>
@@ -921,6 +921,7 @@ namespace Component {
 		[SYMBOL_COMPONENT_TYPE_BRAND]: EXT_COMPONENT
 		name: BuilderName
 		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): COMPONENT & EXT_COMPONENT
+		setName (name: string): this
 	}
 
 	export interface ExtensionAsync<PARAMS extends any[], EXT_COMPONENT extends Component> {
@@ -928,6 +929,7 @@ namespace Component {
 		[SYMBOL_COMPONENT_TYPE_BRAND]: EXT_COMPONENT
 		name: BuilderName
 		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): Promise<COMPONENT & EXT_COMPONENT>
+		setName (name: string): this
 	}
 
 	export function Extension<PARAMS extends any[], COMPONENT extends Component> (builder: (component: Component, ...params: PARAMS) => COMPONENT): Extension<PARAMS, COMPONENT>
@@ -936,6 +938,10 @@ namespace Component {
 		return {
 			name: getBuilderName(),
 			from: builder,
+			setName (newName: string) {
+				this.name = addKebabCase(newName)
+				return this
+			}
 		} as Extension<any[], Component> | ExtensionAsync<any[], Component>
 	}
 
