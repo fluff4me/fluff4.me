@@ -3,6 +3,7 @@ import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import type Input from 'ui/component/core/ext/Input'
 import Form from 'ui/component/core/Form'
+import Textarea from 'ui/component/core/Textarea'
 import View from 'ui/view/shared/component/View'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
@@ -58,7 +59,11 @@ const Label = Component.Builder('label', (label): Label => {
 
 				label.setRequired(input?.required)
 
-				const unuseInputInvalid = input?.invalid.use(label, invalid => label.style.toggle(!!invalid, 'label--invalid'))
+				const inputInvalidOwner = State.Owner.create()
+				if (input)
+					State.Use(inputInvalidOwner, { invalid: input.invalid, touched: input.as(Textarea)?.touched })
+						.use(inputInvalidOwner, ({ invalid, touched }) =>
+							label.style.toggle(!!invalid && (touched ?? true), 'label--invalid'))
 				const unuseInputHasPopover = input?.hasPopover.use(label, hasPopover => {
 					infoButton.style.toggle(!hasPopover, 'label-info-button--hidden')
 				})
@@ -73,7 +78,7 @@ const Label = Component.Builder('label', (label): Label => {
 				}
 
 				unuseInput = !input ? undefined : () => {
-					unuseInputInvalid?.()
+					inputInvalidOwner.remove()
 					unuseInputHasPopover?.()
 					infoButton.event.unsubscribe('click', onInfoButtonClick)
 					unuseInput = undefined
