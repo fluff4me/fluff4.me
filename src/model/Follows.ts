@@ -1,4 +1,4 @@
-import type { Follow, FollowsManifest, WorkReference } from 'api.fluff4.me'
+import type { FollowsManifest, WorkReference } from 'api.fluff4.me'
 import EndpointFollowAdd from 'endpoint/follow/EndpointFollowAdd'
 import EndpointFollowAddWork from 'endpoint/follow/EndpointFollowAddWork'
 import EndpointFollowGetManifest from 'endpoint/follow/EndpointFollowGetManifest'
@@ -12,7 +12,7 @@ import Manifest from 'model/Manifest'
 import Works from 'model/Works'
 import Time from 'utility/Time'
 
-const manifest = Manifest<FollowsManifest>({
+const manifest = Manifest<{ [KEY in keyof FollowsManifest]: Partial<FollowsManifest[KEY]> }>({
 	valid: Time.minutes(5),
 	refresh: true,
 	cacheId: 'follows',
@@ -21,18 +21,19 @@ const manifest = Manifest<FollowsManifest>({
 		return EndpointFollowGetManifest.query()
 	},
 	orElse () {
-		const empy: Follow[] = []
 		return {
-			following: new Proxy({} as FollowsManifest['following'], {
-				get (target, p, receiver) {
-					return empy
-				},
-			}),
-			ignoring: new Proxy({} as FollowsManifest['ignoring'], {
-				get (target, p, receiver) {
-					return empy
-				},
-			}),
+			following: {
+				work: [],
+				author: [],
+				tag: [],
+				category: [],
+			},
+			ignoring: {
+				work: [],
+				author: [],
+				tag: [],
+				category: [],
+			},
 		}
 	},
 })
@@ -41,26 +42,26 @@ const Util = {
 
 	getTotalFollowing () {
 		return 0
-			+ (manifest.value?.following.author.length ?? 0)
-			+ (manifest.value?.following.work.length ?? 0)
-			+ (manifest.value?.following.tag.length ?? 0)
-			+ (manifest.value?.following.category.length ?? 0)
+			+ (manifest.value?.following.author?.length ?? 0)
+			+ (manifest.value?.following.work?.length ?? 0)
+			+ (manifest.value?.following.tag?.length ?? 0)
+			+ (manifest.value?.following.category?.length ?? 0)
 	},
 	getTotalIgnoring () {
 		return 0
-			+ (manifest.value?.ignoring.author.length ?? 0)
-			+ (manifest.value?.ignoring.work.length ?? 0)
-			+ (manifest.value?.ignoring.tag.length ?? 0)
-			+ (manifest.value?.ignoring.category.length ?? 0)
+			+ (manifest.value?.ignoring.author?.length ?? 0)
+			+ (manifest.value?.ignoring.work?.length ?? 0)
+			+ (manifest.value?.ignoring.tag?.length ?? 0)
+			+ (manifest.value?.ignoring.category?.length ?? 0)
 	},
 
 	////////////////////////////////////
 	//#region Authors
 	followingAuthor (vanity: string) {
-		return manifest.value?.following.author.some(follow => follow.author === vanity)
+		return manifest.value?.following.author?.some(follow => follow.author === vanity)
 	},
 	ignoringAuthor (vanity: string) {
-		return manifest.value?.ignoring.author.some(ignore => ignore.author === vanity)
+		return manifest.value?.ignoring.author?.some(ignore => ignore.author === vanity)
 	},
 	async toggleFollowingAuthor (vanity: string) {
 		if (Util.followingAuthor(vanity))
@@ -81,8 +82,8 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.ignoring.author.filterInPlace(ignore => ignore.author !== vanity)
-		manifest.value.following.author.push({
+		manifest.value.ignoring.author?.filterInPlace(ignore => ignore.author !== vanity)
+		manifest.value.following.author?.push({
 			author: vanity,
 			updated: new Date().toISOString(),
 		})
@@ -101,7 +102,7 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.following.author.filterInPlace(follow => follow.author !== vanity)
+		manifest.value.following.author?.filterInPlace(follow => follow.author !== vanity)
 		manifest.emit()
 	},
 	async toggleIgnoringAuthor (vanity: string) {
@@ -123,8 +124,8 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.following.author.filterInPlace(ignore => ignore.author !== vanity)
-		manifest.value.ignoring.author.push({
+		manifest.value.following.author?.filterInPlace(ignore => ignore.author !== vanity)
+		manifest.value.ignoring.author?.push({
 			author: vanity,
 			updated: new Date().toISOString(),
 		})
@@ -143,7 +144,7 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.ignoring.author.filterInPlace(follow => follow.author !== vanity)
+		manifest.value.ignoring.author?.filterInPlace(follow => follow.author !== vanity)
 		manifest.emit()
 	},
 	//#endregion
@@ -152,10 +153,10 @@ const Util = {
 	////////////////////////////////////
 	//#region Works
 	followingWork (work: WorkReference) {
-		return manifest.value?.following.work.some(follow => Works.equals(follow.work, work))
+		return manifest.value?.following.work?.some(follow => Works.equals(follow.work, work))
 	},
 	ignoringWork (work: WorkReference) {
-		return manifest.value?.ignoring.work.some(ignore => Works.equals(ignore.work, work))
+		return manifest.value?.ignoring.work?.some(ignore => Works.equals(ignore.work, work))
 	},
 	async toggleFollowingWork (work: WorkReference) {
 		if (Util.followingWork(work))
@@ -176,8 +177,8 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.ignoring.work.filterInPlace(w => !Works.equals(w.work, work))
-		manifest.value.following.work.push({
+		manifest.value.ignoring.work?.filterInPlace(w => !Works.equals(w.work, work))
+		manifest.value.following.work?.push({
 			work: Works.reference(work),
 			updated: new Date().toISOString(),
 		})
@@ -196,7 +197,7 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.following.work.filterInPlace(w => !Works.equals(w.work, work))
+		manifest.value.following.work?.filterInPlace(w => !Works.equals(w.work, work))
 		manifest.emit()
 	},
 	async toggleIgnoringWork (work: WorkReference) {
@@ -218,8 +219,8 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.following.work.filterInPlace(w => !Works.equals(w.work, work))
-		manifest.value.ignoring.work.push({
+		manifest.value.following.work?.filterInPlace(w => !Works.equals(w.work, work))
+		manifest.value.ignoring.work?.push({
 			work: Works.reference(work),
 			updated: new Date().toISOString(),
 		})
@@ -238,7 +239,7 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.ignoring.work.filterInPlace(w => !Works.equals(w.work, work))
+		manifest.value.ignoring.work?.filterInPlace(w => !Works.equals(w.work, work))
 		manifest.emit()
 	},
 	//#endregion
@@ -247,10 +248,10 @@ const Util = {
 	////////////////////////////////////
 	//#region Tags
 	followingTag (tag: string) {
-		return manifest.value?.following.tag.some(follow => follow.tag === tag)
+		return manifest.value?.following.tag?.some(follow => follow.tag === tag)
 	},
 	ignoringTag (tag: string) {
-		return manifest.value?.ignoring.tag.some(ignore => ignore.tag === tag)
+		return manifest.value?.ignoring.tag?.some(ignore => ignore.tag === tag)
 	},
 	async toggleFollowingTag (tag: string) {
 		if (Util.followingTag(tag))
@@ -271,8 +272,8 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.ignoring.tag.filterInPlace(ignore => ignore.tag !== tag)
-		manifest.value.following.tag.push({
+		manifest.value.ignoring.tag?.filterInPlace(ignore => ignore.tag !== tag)
+		manifest.value.following.tag?.push({
 			tag,
 			updated: new Date().toISOString(),
 		})
@@ -291,7 +292,7 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.following.tag.filterInPlace(follow => follow.tag !== tag)
+		manifest.value.following.tag?.filterInPlace(follow => follow.tag !== tag)
 		manifest.emit()
 	},
 	async toggleIgnoringTag (tag: string) {
@@ -313,8 +314,8 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.following.tag.filterInPlace(ignore => ignore.tag !== tag)
-		manifest.value.ignoring.tag.push({
+		manifest.value.following.tag?.filterInPlace(ignore => ignore.tag !== tag)
+		manifest.value.ignoring.tag?.push({
 			tag,
 			updated: new Date().toISOString(),
 		})
@@ -333,7 +334,7 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.ignoring.tag.filterInPlace(follow => follow.tag !== tag)
+		manifest.value.ignoring.tag?.filterInPlace(follow => follow.tag !== tag)
 		manifest.emit()
 	},
 	//#endregion
@@ -342,10 +343,10 @@ const Util = {
 	////////////////////////////////////
 	//#region Categories
 	followingCategory (category: string) {
-		return manifest.value?.following.category.some(follow => follow.tag_category === category)
+		return manifest.value?.following.category?.some(follow => follow.tag_category === category)
 	},
 	ignoringCategory (category: string) {
-		return manifest.value?.ignoring.tag.some(ignore => ignore.tag_category === category)
+		return manifest.value?.ignoring.tag?.some(ignore => ignore.tag_category === category)
 	},
 	async toggleFollowingCategory (category: string) {
 		if (Util.followingCategory(category))
@@ -366,8 +367,8 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.ignoring.category.filterInPlace(ignore => ignore.tag_category !== category)
-		manifest.value.following.category.push({
+		manifest.value.ignoring.category?.filterInPlace(ignore => ignore.tag_category !== category)
+		manifest.value.following.category?.push({
 			tag_category: category,
 			updated: new Date().toISOString(),
 		})
@@ -386,7 +387,7 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.following.category.filterInPlace(follow => follow.tag_category !== category)
+		manifest.value.following.category?.filterInPlace(follow => follow.tag_category !== category)
 		manifest.emit()
 	},
 	async toggleIgnoringCategory (category: string) {
@@ -408,8 +409,8 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.following.category.filterInPlace(ignore => ignore.tag_category !== category)
-		manifest.value.ignoring.category.push({
+		manifest.value.following.category?.filterInPlace(ignore => ignore.tag_category !== category)
+		manifest.value.ignoring.category?.push({
 			tag_category: category,
 			updated: new Date().toISOString(),
 		})
@@ -428,7 +429,7 @@ const Util = {
 		if (toast.handleError(response))
 			return
 
-		manifest.value.ignoring.category.filterInPlace(follow => follow.tag_category !== category)
+		manifest.value.ignoring.category?.filterInPlace(follow => follow.tag_category !== category)
 		manifest.emit()
 	},
 	//#endregion
