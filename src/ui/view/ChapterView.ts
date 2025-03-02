@@ -7,7 +7,6 @@ import EndpointPatreonPatronRemove from 'endpoint/patreon/EndpointPatreonPatronR
 import EndpointReactChapter from 'endpoint/reaction/EndpointReactChapter'
 import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
-import quilt from 'lang/en-nz'
 import Chapters from 'model/Chapters'
 import PagedData from 'model/PagedData'
 import Session from 'model/Session'
@@ -102,11 +101,20 @@ export default ViewDefinition({
 			.style.bindVariable('chapter-paragraph-gap-multiplier', settings.paragraphGap.value)
 			.style.bindVariable('align-left-preference', settings.justified.value.map(view, justified => justified ? 'justify' : 'left'))
 			.type('flush')
-			.tweak(p => p.title
-				.style('view-type-chapter-block-title')
-				.text.bind(chapterState.mapManual(chapter =>
-					quilt['view/chapter/title'](Maths.parseIntOrUndefined(chapter.url), chapter.name)))
-			)
+			.tweak(p => {
+				p.title.style('view-type-chapter-block-title')
+					.text.bind(chapterState.mapManual(chapter => chapter.name))
+
+				p.primaryActions.style('view-type-chapter-block-actions')
+
+				const number = chapterState.mapManual(chapter => Maths.parseIntOrUndefined(chapter.url))
+				Slot()
+					.if(number.mapManual(number => number !== undefined), () => Heading()
+						.setAestheticStyle(false)
+						.style('view-type-chapter-block-number-label')
+						.text.bind(number.mapManual(number => quilt => quilt['view/chapter/number/label'](number))))
+					.prependTo(p.header)
+			})
 			.appendTo(view.content)
 			.tweak(p => p.page.value = initialChapterResponse.page)
 			.set(chapters, (slot, chapter, page, chapters, paginator) => {
