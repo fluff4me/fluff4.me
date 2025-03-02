@@ -1,5 +1,6 @@
 import { RoutePath } from 'navigation/RoutePath'
 import Component from 'ui/Component'
+import { HandlesMouseEvents } from 'ui/InputBus'
 import type EventManipulator from 'ui/utility/EventManipulator'
 import type { Events } from 'ui/utility/EventManipulator'
 import MarkdownContent from 'ui/utility/MarkdownContent'
@@ -20,7 +21,9 @@ interface Link extends Component, LinkExtensions {
 }
 
 const Link = Component.Builder('a', (component, route: RoutePath | undefined): Link => {
-	component.style('link')
+	component
+		.and(HandlesMouseEvents)
+		.style('link')
 
 	const canNavigate = State(true)
 

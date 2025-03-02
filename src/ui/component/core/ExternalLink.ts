@@ -1,5 +1,6 @@
 import { RoutePath } from 'navigation/RoutePath'
 import Component from 'ui/Component'
+import { HandlesMouseEvents } from 'ui/InputBus'
 import MarkdownContent from 'ui/utility/MarkdownContent'
 import Env from 'utility/Env'
 
@@ -10,7 +11,9 @@ interface ExternalLinkExtensions {
 interface ExternalLink extends Component, ExternalLinkExtensions { }
 
 const ExternalLink = Component.Builder('a', (component, href: string | undefined) => {
-	component.style('link', 'link-external')
+	component
+		.and(HandlesMouseEvents)
+		.style('link', 'link-external')
 
 	if (href !== undefined)
 		component.attributes.set('href', href)
