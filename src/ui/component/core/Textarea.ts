@@ -7,6 +7,7 @@ import State from 'utility/State'
 
 interface TextareaExtensions {
 	readonly state: State<string>
+	readonly touched: State<boolean>
 	value: string
 	readonly default: StringApplicator.Optional<Textarea>
 	readonly placeholder: StringApplicator.Optional<Textarea>
@@ -35,6 +36,7 @@ const Textarea = Component.Builder((component): Textarea => {
 		.setName(`text-area-validity-pipe-input-${Math.random().toString(36).slice(2)}`)
 
 	const state = State('')
+	const touched = State(false)
 
 	const input: Textarea = component
 		.and(Input)
@@ -43,12 +45,15 @@ const Textarea = Component.Builder((component): Textarea => {
 		.append(contenteditable, hiddenInput)
 		.extend<TextareaExtensions & Partial<InputExtensions>>(input => ({
 			value: '',
+			touched,
 			state,
 			default: StringApplicator(input, value => {
 				if (input.value === '') {
 					input.value = value ?? ''
 					state.value = value ?? ''
 					input.length.asMutable?.setValue(value?.length ?? 0)
+					touched.value = true
+					updateValidity()
 				}
 			}),
 			placeholder: StringApplicator(input, value => {
@@ -72,29 +77,35 @@ const Textarea = Component.Builder((component): Textarea => {
 				contenteditable.element.textContent = value
 				state.value = value
 				input.length.asMutable?.setValue(value.length)
+				updateValidity()
 			},
 		}))
 
 	input.length.asMutable?.setValue(0)
 
 	input.onRooted(input => {
+		updateValidity()
 		contenteditable.event.subscribe(['input', 'change'], event => {
 			if (shouldIgnoreInputEvent) return
 			state.value = input.value
 			input.length.asMutable?.setValue(input.value.length)
-
-			let invalid: InvalidMessageText
-			if ((input.length.value ?? 0) > (input.maxLength.value ?? Infinity))
-				invalid = quilt['shared/form/invalid/too-long']()
-
-			if (!input.length.value && input.required.value)
-				invalid = quilt['shared/form/invalid/required']()
-
-			input.setCustomInvalidMessage(invalid)
+			touched.value = true
+			updateValidity()
 		})
 	})
 
 	return input
+
+	function updateValidity () {
+		let invalid: InvalidMessageText
+		if ((input.length.value ?? 0) > (input.maxLength.value ?? Infinity))
+			invalid = quilt['shared/form/invalid/too-long']()
+
+		if (!input.length.value && input.required.value)
+			invalid = quilt['shared/form/invalid/required']()
+
+		input.setCustomInvalidMessage(invalid)
+	}
 })
 
 export default Textarea

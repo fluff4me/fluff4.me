@@ -462,12 +462,12 @@ namespace State {
 			.observeManual(...inputs.filter(FilterNonNullish))
 	}
 
-	export function Use<const INPUT extends Record<string, (State<unknown> | undefined)>> (owner: Owner, input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends State<infer INPUT, infer OUTPUT> ? INPUT : undefined }> {
+	export function Use<const INPUT extends Record<string, (State<unknown> | undefined)>> (owner: Owner, input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends State<infer INPUT, infer OUTPUT> ? INPUT : INPUT[KEY] extends State<infer INPUT, infer OUTPUT> | undefined ? INPUT | undefined : undefined }> {
 		return Generator(() => Object.entries(input).toObject(([key, state]) => [key, state?.value]) as never)
 			.observe(owner, ...Object.values(input).filter(FilterNonNullish))
 	}
 
-	export function UseManual<const INPUT extends Record<string, (State<unknown> | undefined)>> (input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends State<infer INPUT, infer OUTPUT> ? INPUT : undefined }> {
+	export function UseManual<const INPUT extends Record<string, (State<unknown> | undefined)>> (input: INPUT): Generator<{ [KEY in keyof INPUT]: INPUT[KEY] extends State<infer INPUT, infer OUTPUT> ? INPUT : INPUT[KEY] extends State<infer INPUT, infer OUTPUT> | undefined ? INPUT | undefined : undefined }> {
 		return Generator(() => Object.entries(input).toObject(([key, state]) => [key, state?.value]) as never)
 			.observeManual(...Object.values(input).filter(FilterNonNullish))
 	}

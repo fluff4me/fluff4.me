@@ -54,6 +54,7 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 					input.value = value ?? ''
 					state.value = value ?? ''
 					input.length.asMutable?.setValue(value?.length ?? 0)
+					updateValidity()
 				}
 			}),
 			placeholder: StringApplicator(input, value => {
@@ -76,26 +77,31 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 				applyFilter('change')
 				state.value = element.value
 				input.length.asMutable?.setValue(element.value.length)
+				updateValidity()
 			},
 		}))
 
 	input.length.asMutable?.setValue(0)
 
+	updateValidity()
 	input.event.subscribe(['input', 'change'], event => {
 		applyFilter(event.type as 'input' | 'change')
 
 		if (shouldIgnoreInputEvent) return
 		state.value = input.value
 		input.length.asMutable?.setValue(input.value.length)
+		updateValidity()
+	})
 
+	return input
+
+	function updateValidity () {
 		let invalid: InvalidMessageText
 		if ((input.length.value ?? 0) > (input.maxLength.value ?? Infinity))
 			invalid = quilt['shared/form/invalid/too-long']()
 
 		input.setCustomInvalidMessage(invalid)
-	})
-
-	return input
+	}
 
 	function applyFilter (type: 'input' | 'change') {
 		const element = input.element.asType('input')
