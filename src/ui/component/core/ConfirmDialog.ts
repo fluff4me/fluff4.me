@@ -6,13 +6,14 @@ import BlockDialog from 'ui/component/core/BlockDialog'
 import Button from 'ui/component/core/Button'
 import Paragraph from 'ui/component/core/Paragraph'
 import { QuiltHelper, type Quilt } from 'ui/utility/StringApplicator'
+import Errors from 'utility/Errors'
 import State from 'utility/State'
 
 interface ConfirmDialogExtensions {
 	readonly state: State<boolean | undefined>
-	readonly cancelButton: Button
-	readonly confirmButton: Button
-	await (owner: Component | null): Promise<boolean>
+	readonly cancelButton?: Button
+	readonly confirmButton?: Button
+	await (owner: State.Owner | null): Promise<boolean>
 	cancel (): void
 	confirm (): void
 }
@@ -23,13 +24,17 @@ interface ConfirmDialogDefinition {
 	dangerToken?: DangerTokenType
 	titleTranslation?: Quilt.SimpleKey | Quilt.Handler
 	bodyTranslation?: Quilt.SimpleKey | Quilt.Handler
-	confirmButtonTranslation?: Quilt.SimpleKey | Quilt.Handler
-	cancelButtonTranslation?: Quilt.SimpleKey | Quilt.Handler
+	confirmButtonTranslation?: Quilt.SimpleKey | Quilt.Handler | false
+	cancelButtonTranslation?: Quilt.SimpleKey | Quilt.Handler | false
+	tweak?(dialog: ConfirmDialog): unknown
 }
 
 const ConfirmDialog = Object.assign(
 	Component.Builder(async (component, definition?: ConfirmDialogDefinition): Promise<ConfirmDialog> => {
 		const dialog = component.and(BlockDialog)
+
+		if (definition?.cancelButtonTranslation === false && definition.confirmButtonTranslation === false)
+			throw Errors.create('At least one ConfirmDialog button must be enabled')
 
 		const state = State<boolean | undefined>(undefined)
 
@@ -40,17 +45,19 @@ const ConfirmDialog = Object.assign(
 				.setMarkdownContent({ body: QuiltHelper.toString(definition.bodyTranslation) })
 				.appendTo(dialog.content)
 
-		const cancelButton = Button()
-			.text.use(definition?.cancelButtonTranslation ?? 'shared/action/cancel')
-			.appendTo(dialog.footer.right)
+		const cancelButton = definition?.cancelButtonTranslation === false ? undefined
+			: Button()
+				.text.use(definition?.cancelButtonTranslation ?? 'shared/action/cancel')
+				.appendTo(dialog.footer.right)
 
-		const confirmButton = Button()
-			.type('primary')
-			.text.use(definition?.confirmButtonTranslation ?? 'shared/action/confirm')
-			.appendTo(dialog.footer.right)
+		const confirmButton = definition?.confirmButtonTranslation === false ? undefined
+			: Button()
+				.type('primary')
+				.text.use(definition?.confirmButtonTranslation ?? 'shared/action/confirm')
+				.appendTo(dialog.footer.right)
 
 		if (definition?.dangerToken) {
-			confirmButton.setDisabled(true, 'danger-token')
+			confirmButton?.setDisabled(true, 'danger-token')
 
 			Paragraph()
 				.text.use('shared/prompt/reauth')
@@ -58,11 +65,11 @@ const ConfirmDialog = Object.assign(
 
 			const authServices = await OAuthServices(Session.Auth.state, definition.dangerToken)
 			authServices
-				.event.subscribe('DangerTokenGranted', () => confirmButton.setDisabled(false, 'danger-token'))
+				.event.subscribe('DangerTokenGranted', () => confirmButton?.setDisabled(false, 'danger-token'))
 				.appendTo(dialog.content)
 		}
 
-		return dialog
+		const confirmDialog = dialog
 			.extend<ConfirmDialogExtensions>(dialog => ({
 				state,
 				cancelButton,
@@ -85,12 +92,15 @@ const ConfirmDialog = Object.assign(
 				},
 			}))
 			.onRooted(dialog => {
-				dialog.cancelButton.event.subscribe('click', dialog.cancel)
-				dialog.confirmButton.event.subscribe('click', dialog.confirm)
+				dialog.cancelButton?.event.subscribe('click', dialog.confirmButton ? dialog.cancel : dialog.confirm)
+				dialog.confirmButton?.event.subscribe('click', dialog.confirm)
 			})
+
+		await definition?.tweak?.(confirmDialog)
+		return confirmDialog
 	}),
 	{
-		prompt: async (owner: Component | null, definition?: ConfirmDialogDefinition): Promise<boolean> =>
+		prompt: async (owner: State.Owner | null, definition?: ConfirmDialogDefinition): Promise<boolean> =>
 			(await ConfirmDialog(definition))
 				.appendTo(document.body)
 				.event.subscribe('close', event =>

@@ -7,6 +7,7 @@ import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import type Form from 'ui/component/core/Form'
 import Slot from 'ui/component/core/Slot'
 import AccountViewForm from 'ui/view/account/AccountViewForm'
+import AccountViewPatreonCampaign from 'ui/view/account/AccountViewPatreonCampaign'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import ViewTransition from 'ui/view/shared/ext/ViewTransition'
@@ -31,10 +32,10 @@ export default ViewDefinition({
 			.use(state, () => createForm()?.subviewTransition(id))
 			.appendTo(view.content)
 
-		// Slot()
-		// 	.use(state, (slot, state) => state === 'logged-in'
-		// 		&& AccountViewPatreonCampaign(services.data.patreon).subviewTransition(id))
-		// 	.appendTo(view.content)
+		Slot()
+			.use(state, (slot, state) => state === 'logged-in'
+				&& AccountViewPatreonCampaign(services.data.patreon).subviewTransition(id))
+			.appendTo(view.content)
 
 		services.subviewTransition(id)
 		services.appendTo(view.content)
