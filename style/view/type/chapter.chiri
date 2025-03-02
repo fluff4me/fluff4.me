@@ -33,8 +33,23 @@
 				%background-none
 				%backdrop-filter-none
 
+		&-number-label:
+			%uppercase
+			%weight-bold
+			%font-2
+			%colour-6
+			%margin-0
+			%unmargin-bottom-2
+			line-height: 1em
+			letter-spacing: 0.1em
+
 		&-title:
 			%wrap-words
+			%margin-bottom-3
+
+		&-actions:
+			#after: .block-actions-primary
+			%row-1-2
 
 		&-content:
 			#after: .paginator-content, .paginator-content--has-header

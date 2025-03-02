@@ -449,7 +449,7 @@ action/delete: Delete Chapter
 
 
 ## chapter
-title: {0?{0}. }{1}
+number/label: Chapter {0}
 tags/label: This chapter contains:
 notes/label=shared/term/notes
 patreon/label: Patrons Only
