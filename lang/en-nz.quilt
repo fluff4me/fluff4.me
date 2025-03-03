@@ -87,6 +87,10 @@ popover: {0??details}
 
 paginator/error: Failed to load content.
 paginator/error/retry: Retry
+paginator/first/label: first page
+paginator/previous/label: previous page
+paginator/next/label: next page
+paginator/last/label: last page
 
 ## text-editor
 
