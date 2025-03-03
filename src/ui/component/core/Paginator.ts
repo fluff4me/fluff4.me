@@ -92,6 +92,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 		.type('icon')
 		.style('paginator-button')
 		.style.bind(isFirstPage, 'paginator-button--disabled')
+		.ariaLabel.use('component/paginator/first/label')
 		.event.subscribe('click', () => cursor.value = 0)
 		.appendTo(block.footer.left)
 
@@ -101,6 +102,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 		.type('icon')
 		.style('paginator-button')
 		.style.bind(isFirstPage, 'paginator-button--disabled')
+		.ariaLabel.use('component/paginator/previous/label')
 		.event.subscribe('click', () => cursor.value = Math.max(cursor.value - 1, 0))
 		.appendTo(block.footer.left)
 
@@ -110,6 +112,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 		.type('icon')
 		.style('paginator-button')
 		.style.bind(isLastPage, 'paginator-button--disabled')
+		.ariaLabel.use('component/paginator/next/label')
 		.event.subscribe('click', () => cursor.value = Math.min(cursor.value + 1, pageCount.value === undefined ? Infinity : pageCount.value - 1))
 		.appendTo(block.footer.right)
 
@@ -120,6 +123,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 		.style('paginator-button')
 		.style.bind(isLastPage, 'paginator-button--disabled')
 		.style.bind(hasNoPageCount, 'paginator-button--hidden')
+		.ariaLabel.use('component/paginator/last/label')
 		.event.subscribe('click', () => cursor.value = !pageCount.value ? cursor.value : pageCount.value - 1)
 		.appendTo(block.footer.right)
 
