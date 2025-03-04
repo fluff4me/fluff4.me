@@ -126,13 +126,13 @@ async function App (): Promise<App> {
 		.style('app-content')
 		.append(view, related)
 
-	Component.wrap(document.documentElement).monitorScrollEvents()
 	Component.wrap(document.body).monitorScrollEvents()
+	Component.wrap(document.documentElement).monitorScrollEvents()
 	Component.wrap(window as any as HTMLElement).monitorScrollEvents()
 
 	const app: App = Component()
 		.style('app')
-		.append(masthead, masthead.sidebar, content)
+		.append(masthead.flush, masthead, masthead.sidebar, content)
 		.append(ToastList())
 		.extend<AppExtensions>(app => ({
 			navigate,

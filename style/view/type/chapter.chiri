@@ -94,6 +94,11 @@
 			%margin-block-4
 			%unmargin-inline-4
 			%padding-2-4
+			max-width: 100vw
+			%border-box
+
+			#flush:
+				%unmargin-inline-3
 
 			@before:
 				%block
@@ -174,7 +179,6 @@
 
 		&-paginator-actions:
 			#after: .paginator-footer--hidden, .paginator-footer--flush, .block--type-flush-footer
-			%flex
 			%padding-inline-0
 			%scheme-light-dark
 			%box-shadow-none

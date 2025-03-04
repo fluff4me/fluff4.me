@@ -15,7 +15,8 @@ import AbortPromise from 'utility/AbortPromise'
 import Env from 'utility/Env'
 
 interface MastheadExtensions {
-	sidebar: Sidebar
+	readonly sidebar: Sidebar
+	readonly flush: Component
 }
 
 interface Masthead extends Component, MastheadExtensions { }
@@ -51,7 +52,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 			.clearPopover()
 			.setPopover('hover', p => popover = p
 				.style('primary-nav-popover')
-				.anchor.add('aligned left', 'off bottom')
+				.anchor.add('aligned left', 'off top')
 				.ariaRole('navigation')))
 		.style('masthead-left')
 		.appendTo(masthead)
@@ -69,25 +70,9 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 		}, 1)
 	})
 
-	const flag = Flag()
-		.style('masthead-home-logo')
-
-	const homeLink = Link('/')
-		.ariaLabel.use('home/label')
-		.clearPopover()
-		.append(Component()
-			.and(Button)
-			.style('masthead-home', 'heading')
-			.append(flag)
-			.append(Component('img')
-				.style('masthead-home-logo-wordmark')
-				.ariaHidden()
-				.attributes.set('src', `${Env.URL_ORIGIN}image/logo-wordmark.svg`)))
+	HomeLink()
+		.style('masthead-home-wrapper')
 		.appendTo(left)
-
-	flag.style.bind(homeLink.hoveredOrFocused, 'flag--focused')
-	flag.style.bind(homeLink.active, 'flag--active')
-	homeLink.hoveredOrFocused.subscribe(masthead, focus => flag.wave('home link focus', focus))
 
 	Component()
 		.style('masthead-search')
@@ -96,7 +81,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 	Slot()
 		.style.remove('slot')
 		.style('masthead-user')
-		.if(Session.Auth.loggedIn, () => Component()
+		.if(Session.Auth.loggedIn, slot => slot
 
 			////////////////////////////////////
 			//#region Notifications Button
@@ -113,7 +98,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 				.setPopover('hover', popover => popover
 					.style('masthead-user-notifications-popover')
 					.anchor.add('aligned right', 'off bottom')
-					.anchor.add('aligned left', `.${MASTHEAD_CLASS}`, 'off bottom')
+					.anchor.add('aligned left', `.${MASTHEAD_CLASS}`, 'off top')
 					.append(Slot().use(Notifications.cache, AbortPromise.asyncFunction(async (signal, slot, notifications) => {
 						const list = await NotificationList(true, 5)
 						if (signal.aborted)
@@ -151,6 +136,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 				.ariaLabel.use('masthead/user/profile/alt')
 				.setPopover('hover', popover => popover
 					.anchor.add('aligned right', 'off bottom')
+					.anchor.add('aligned right', 'off top')
 					.ariaRole('navigation')
 					.append(Slot()
 						.style('action-group')
@@ -199,7 +185,37 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 
 	return masthead.extend<MastheadExtensions>(masthead => ({
 		sidebar,
+		flush: MastheadFlush(),
 	}))
 })
 
 export default Masthead
+
+const HomeLink = Component.Builder('a', (component): Link => {
+	const flag = Flag()
+		.style('masthead-home-logo')
+
+	const homeLink = component.and(Link, '/')
+		.ariaLabel.use('home/label')
+		.clearPopover()
+		.append(Component()
+			.and(Button)
+			.style('masthead-home', 'heading')
+			.append(flag)
+			.append(Component('img')
+				.style('masthead-home-logo-wordmark')
+				.ariaHidden()
+				.attributes.set('src', `${Env.URL_ORIGIN}image/logo-wordmark.svg`)))
+
+	flag.style.bind(homeLink.hoveredOrFocused, 'flag--focused')
+	flag.style.bind(homeLink.active, 'flag--active')
+	homeLink.hoveredOrFocused.subscribeManual(focus => flag.wave('home link focus', focus))
+
+	return homeLink
+})
+
+export const MastheadFlush = Component.Builder('header', (masthead) => {
+	return masthead
+		.style('masthead-flush')
+		.append(HomeLink())
+})

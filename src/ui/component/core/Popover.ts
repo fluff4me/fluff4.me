@@ -84,6 +84,8 @@ Component.extend(component => {
 				})
 				.appendTo(document.body)
 
+			popover.style.bind(popover.anchor.state.mapManual(location => location?.preference?.yAnchor.side === 'bottom'), 'popover--anchored-top')
+
 			if (popoverEvent === 'hover' && !component.popover)
 				component.hoveredOrFocused.subscribe(component, updatePopoverState)
 

@@ -46,6 +46,7 @@
 				%border-radius-2
 
 	&-footer:
+		#after: .block-footer
 		%sticky
 		%padding-block-1
 		%padding-inline-3
@@ -55,11 +56,18 @@
 
 		#flush:
 			%unmargin-inline-3
+			%grid
+			grid-template-columns: 1fr 1fr
 
 		&-left:
 			%gap-0
 		&-right:
 			%gap-0
+
+		&-middle:
+			#flush:
+				%row-2
+				%column-1-2
 
 		@before:
 			%absolute
@@ -111,6 +119,10 @@
 			%overflow-visible
 			margin-inline: calc(-1 * $block-padding + -1 * $space-5)
 			%padding-inline-5
+
+			#flush:
+				margin-inline: calc(-1 * $block-padding)
+				%padding-inline-0
 
 	&-page:
 		display: ${paginator-page-display: flex}

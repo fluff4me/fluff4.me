@@ -13,8 +13,7 @@ $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 	%scheme-light-dark
 	%transparent
 	%translate-down-3
-	%margin-inline-0
-	%margin-block-2
+	%margin-0
 	%overflow-hidden
 	$popover-padding: $space-3
 	padding: $popover-padding
@@ -26,6 +25,9 @@ $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 		#{transition("opacity")},
 		#{transition("translate")},
 		#{transition("margin")}
+
+	&--anchored-top:
+		%margin-top-2
 
 	#flush:
 		$popover-padding: $space-1

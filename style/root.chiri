@@ -7,8 +7,6 @@ colour: $light-3
 view-transition-name: unset
 font-size: 1.2rem
 $button-colour: $light-0
-container-name: root
-container-type: inline-size
 $caret-colour: $colour-0
 caret-colour: $caret-colour
 $font-0: calc(0.6rem / $font-scale-factor)
@@ -22,6 +20,9 @@ $font-7: calc(2.4rem / $font-scale-factor)
 $masthead-height: calc(round(up, $font-4 * 1.2, 1px) + $space-1 * 2 + $space-2 * 2)
 $content-width: #{content-width}
 $tablet-width: #{tablet-width}
+
+#flush:
+	font-size: 16pt
 
 .body:
 	%margin-0
