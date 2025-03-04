@@ -20,6 +20,9 @@
 				"masthead"
 				"content"
 
+		#flush:
+			%block
+
 		&-content:
 			%grid
 			%padding-left-4
@@ -40,7 +43,7 @@
 				height: calc($space-5 * 4)
 
 				#flush:
-					%height-3
+					height: calc($space-3 + $masthead-height)
 
 		&-qrcode:
 			%block

@@ -1,19 +1,19 @@
 #macro not-tablet:
 	#body!component content
-	:container root (width >= #{tablet-width}):
+	:media (width >= #{tablet-width}):
 		#include content
 
 #macro tablet:
 	#body!component content
-	:container root (width < #{tablet-width}):
+	:media (width < #{tablet-width}):
 		#include content
 
 #macro not-flush:
 	#body!component content
-	:container root (width >= #{content-width}):
+	:media (width >= #{content-width}):
 		#include content
 
 #macro flush:
 	#body!component content
-	:container root (width < #{content-width}):
+	:media (width < #{content-width}):
 		#include content

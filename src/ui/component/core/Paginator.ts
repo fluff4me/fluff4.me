@@ -62,6 +62,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 
 	block.footer.left.style('paginator-footer-left')
 	block.footer.right.style('paginator-footer-right')
+	block.footer.middle.style('paginator-footer-middle')
 
 	const cursor = State(0)
 	const allData = State<PagedData<T> | undefined>(undefined, false)

@@ -17,6 +17,29 @@
 		#{box-shadow-inset-border-bottom-1},
 		#{box-shadow-bottom-inset-1}
 
+	#flush:
+		%flex
+		%justify-content-space-around
+		%top-auto
+		%bottom-0
+		box-shadow:
+			#{box-shadow-inset-border-top-1},
+			#{box-shadow-top-inset-1}
+
+	&-flush:
+		%hidden
+
+		#flush:
+			%flex
+			%justify-content-centre
+			%width-100
+			%background-dark-a30
+			height: $masthead-height
+			$border-colour: $dark-3
+			box-shadow:
+				#{box-shadow-inset-border-bottom-1},
+				#{box-shadow-bottom-inset-1}
+
 	&-skip-nav:
 		%no-pointer-events
 		%transparent
@@ -29,6 +52,9 @@
 		::hover, ::focus:
 			%opaque
 			%pointer-events
+
+		#flush:
+			%hidden
 
 	&-left:
 		%flex
@@ -43,6 +69,9 @@
 				%hidden
 				#tablet:
 					%inline-block
+
+		#flush:
+			%contents
 
 	&-home:
 		#after: .heading, .heading-1, .button
@@ -67,8 +96,15 @@
 				%no-pointer-events
 				%height-em
 
+		&-wrapper:
+			#flush:
+				%hidden
+
 	&-search:
 		grid-area: mid
+
+		#flush:
+			%hidden
 
 	&-user:
 		%flex
@@ -76,6 +112,9 @@
 		%padding-right-2
 		%justify-content-end
 		grid-area: right
+
+		#flush:
+			%contents
 
 		&-action-login:
 			#after: .button
