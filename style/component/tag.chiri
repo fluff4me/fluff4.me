@@ -2,7 +2,6 @@
 	#after: .button, .link
 	%font-1
 	%grid
-	grid-template-columns: 1fr auto
 	grid-template-rows: auto auto
 	%no-decoration
 	%padding-1-2
@@ -57,3 +56,6 @@
 
 		@before:
 			%hidden
+
+	&--has-delete-button:
+		grid-template-columns: 1fr auto
