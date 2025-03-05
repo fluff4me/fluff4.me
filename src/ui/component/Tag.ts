@@ -56,6 +56,7 @@ const Tag = Object.assign(
 			categoryWrapper,
 			nameWrapper,
 			addDeleteButton (handler) {
+				component.style('tag--has-delete-button')
 				Button()
 					.style('tag-delete-button')
 					.setIcon('xmark')
