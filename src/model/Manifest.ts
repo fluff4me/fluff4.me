@@ -68,7 +68,7 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 			if (result.isFresh(state.value))
 				return
 
-			if (Date.now() - lastAttempt < Time.seconds(30))
+			if (Date.now() - lastAttempt < Time.seconds(60))
 				return
 
 			lastAttempt = Date.now()
