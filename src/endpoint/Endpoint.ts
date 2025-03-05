@@ -169,43 +169,53 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 		const qs = params.size ? '?' + params.toString() : ''
 
 		let error: ErrorResponse<any> | undefined
-		const response = await fetch(`${Env.API_ORIGIN}${url}${qs}`, {
+		let response: globalThis.Response | undefined
+		let shouldRetry = true
 
-			method,
-			headers: {
-				...!Env.API_ORIGIN.includes('ngrok') ? undefined : { 'ngrok-skip-browser-warning': 'true' },
-				'Content-Type': body ? 'application/json' : undefined,
-				'Accept': 'application/json',
-				...headers,
-			} as HeadersInit,
-			credentials: 'include',
-			body,
-			signal: AbortSignal.timeout(Time.seconds(5)),
-		}).catch((e: Error): undefined => {
-			if (e.name === 'AbortError') {
-				error = Object.assign(new Error('Request timed out'), {
-					code: 408,
-					data: null,
-					headers: new Headers(),
-				})
-				return
-			}
+		for (let i = 0; shouldRetry && i < 3; i++) {
+			error = undefined
+			response = undefined
+			shouldRetry = false
 
-			if (e.name === 'TypeError' && /invalid URL|Failed to construct/.test(e.message))
-				throw e
+			response = await fetch(`${Env.API_ORIGIN}${url}${qs}`, {
+				method,
+				headers: {
+					...!Env.API_ORIGIN.includes('ngrok') ? undefined : { 'ngrok-skip-browser-warning': 'true' },
+					'Content-Type': body ? 'application/json' : undefined,
+					'Accept': 'application/json',
+					...headers,
+				} as HeadersInit,
+				credentials: 'include',
+				body,
+				signal: AbortSignal.timeout(Time.seconds(5)),
+			}).catch((e: Error): undefined => {
+				if (e.name === 'AbortError') {
+					shouldRetry = true
+					error = Object.assign(new Error('Request timed out'), {
+						code: 408,
+						data: null,
+						headers: new Headers(),
+					})
+					return
+				}
 
-			if (e.name === 'TypeError' || e.name === 'NetworkError') {
-				error = Object.assign(new Error('Network connection failed'), {
-					code: 503,
-					data: null,
-					headers: new Headers(),
-				})
-				return
-			}
+				if (e.name === 'TypeError' && /invalid URL|Failed to construct/.test(e.message))
+					throw e
 
-			if (!error)
-				throw e
-		})
+				if (e.name === 'TypeError' || e.name === 'NetworkError') {
+					shouldRetry = true
+					error = Object.assign(new Error('Network connection failed'), {
+						code: 503,
+						data: null,
+						headers: new Headers(),
+					})
+					return
+				}
+
+				if (!error)
+					throw e
+			})
+		}
 
 		if (error || !response) // will always mean the same thing, but ts doesn't know that
 			return error
