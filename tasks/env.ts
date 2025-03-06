@@ -20,7 +20,7 @@ export default Task('env', _ => {
 		API_ORIGIN: env('API_ORIGIN'),
 		URL_ORIGIN: env('URL_ORIGIN'),
 		ENVIRONMENT: env('ENVIRONMENT', 'prod'),
-		BUILD_NUMBER: optional('BUILD_NUMBER'),
+		BUILD_NUMBER: env('BUILD_NUMBER', 'dev'),
 		BUILD_SHA: optional('BUILD_SHA'),
 	}
 
