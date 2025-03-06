@@ -1,0 +1,16 @@
+.loading:
+
+	&-flag:
+		#after: .flag
+		%row-2
+		font-size: $space-6
+		$stripe-outer-background: #414552
+		$stripe-inner-background: #717A95
+
+		; @before:
+		; 	%block
+		; 	%absolute
+		; 	%inset-0
+		; 	%background-3
+		; 	%rotate-40
+		; 	translate: calc($space-1 / 3) calc($space-1 / 2)

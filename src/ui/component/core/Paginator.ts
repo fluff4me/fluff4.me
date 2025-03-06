@@ -2,12 +2,16 @@ import type PagedData from 'model/PagedData'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import Loading from 'ui/component/core/Loading'
 import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
+import ViewTransition from 'ui/view/shared/ext/ViewTransition'
 import Async from 'utility/Async'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
+import Strings from 'utility/string/Strings'
 import Style from 'utility/Style'
+import type { PromiseOr } from 'utility/Type'
 
 interface ScrollContext {
 	scrollRect: DOMRect
@@ -206,7 +210,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 
 				const isInitialPage = !pages.length
 
-				const newPage = pages[pageNumber] ??= (await Page(pageNumber))?.appendTo(wrapper)
+				const newPage = pages[pageNumber] ??= Page(pageNumber)?.appendTo(wrapper)
 
 				const direction = Math.sign(pageNumber - (previousPageNumber ?? pageNumber))
 				const previousPage = previousPageNumber === undefined ? undefined : pages[previousPageNumber]
@@ -222,7 +226,9 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				if (!data || !newPage)
 					return
 
-				const hasContent = newPage.content.value === false || hasResults(newPage.content.value)
+				const content = await newPage.content
+
+				const hasContent = content?.value === false || hasResults(content?.value)
 				if (hasContent) {
 					newPage.style.remove('paginator-page--hidden')
 					const newScrollHeight = document.documentElement.scrollHeight
@@ -245,6 +251,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 
 					// empty, play bounce animation
 					pages[previousPageNumber]?.style('paginator-page--bounce')
+					scrollIntoView(-1, true)
 					await Async.sleep(200)
 					bouncedFrom = pageNumber
 					cursor.value = previousPageNumber
@@ -266,44 +273,70 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			})
 
 			interface Page extends Slot {
-				content: State<T | false | null>
+				content: PromiseOr<State<T | false | null>>
 			}
 
-			async function Page (pageNumber: number): Promise<Page | undefined> {
+			function Page (pageNumber: number): Page | undefined {
+				const viewTransitionName = `paginator-page${Strings.uid()}`
 				const page = Slot()
-					.style('paginator-page', 'paginator-page--hidden')
-					.style.bind(isFlush, 'paginator-page--flush')
+					.style('paginator-page')
+
+				function newContent () {
+					page.removeContents()
+					return Slot()
+						.style.remove('slot')
+						.style('paginator-page-content')
+						.style.bind(isFlush, 'paginator-page-content--flush')
+						.subviewTransition(viewTransitionName)
+						.appendTo(page)
+				}
 
 				if (!data)
 					return undefined
 
-				const pageContent = await data.get(pageNumber)
-				pageContent.use(slot, async content => {
-					page.removeContents()
+				LoadingDialog().appendTo(newContent())
 
-					const hasContent = hasResults(content)
-					if (hasContent) {
-						initialiser?.(page, content as T, pageNumber, data, paginator)
-						return
-					}
+				const pageContent = data.get(pageNumber)
+				void Promise.resolve(pageContent).then(pageContent => {
+					pageContent.use(slot, async content => {
+						const hasContent = hasResults(content)
+						if (hasContent) {
+							ViewTransition.perform('subview', viewTransitionName, () => {
+								initialiser?.(newContent(), content as T, pageNumber, data, paginator)
+							})
+							return
+						}
 
-					// no content — either errored or empty
+						page.removeContents()
+						// no content — either errored or empty
 
-					if (content === false) {
-						// errored, show retry dialog, when dialog 
-						await new Promise<void>(resolve => {
-							RetryDialog(resolve).appendTo(page)
-							block.header.element.scrollIntoView()
-						})
-						return await data.get(pageNumber)
-					}
+						while (content === false) {
+							// errored, show retry dialog
+
+							await new Promise<void>(resolve => {
+								ViewTransition.perform('subview', viewTransitionName, () => {
+									RetryDialog(resolve).appendTo(newContent())
+								})
+								block.header.element.scrollIntoView()
+							})
+
+							ViewTransition.perform('subview', viewTransitionName, () => {
+								LoadingDialog().appendTo(newContent())
+							})
+
+							content = (await data.get(pageNumber)).value
+						}
+					})
 				})
 
 				return Object.assign(page, { content: pageContent })
 			}
 
-			function scrollIntoView (direction: number) {
+			function scrollIntoView (direction: number, instant = false) {
 				if (!direction || scrollOption === false)
+					return
+
+				if (component.closest(Popover))
 					return
 
 				const scrollTarget = direction > 0 ? block.element : scrollAnchorBottom.element
@@ -323,7 +356,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				}
 
 				const target = scrollTarget.getBoundingClientRect().top + window.scrollY - mastheadHeight.value - space4.value
-				window.scrollTo({ top: target, behavior: 'smooth' })
+				window.scrollTo({ top: target, behavior: instant ? 'instant' : 'smooth' })
 			}
 		})
 		.appendTo(content)
@@ -342,10 +375,17 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				.text.use('component/paginator/error/retry')
 				.event.subscribe('click', () => retry()))
 	}
+
+	function LoadingDialog () {
+		return Component()
+			.style('paginator-loading')
+			.append(Loading()
+				.style('paginator-loading-flag'))
+	}
 })
 
 function hasResults (result: unknown) {
-	if (result === null || result === undefined)
+	if (result === null || result === undefined || result === false)
 		return false
 
 	if (typeof result !== 'object')

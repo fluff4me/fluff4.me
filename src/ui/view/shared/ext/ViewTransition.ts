@@ -10,6 +10,12 @@ interface ViewTransitionComponentExtensions {
 	subviewTransition (name: string | false): this
 }
 
+function stripName (name: string): string
+function stripName (name?: string): string | undefined
+function stripName (name?: string) {
+	return name?.replace(/[^a-z0-9-]+/g, '-').toLowerCase()
+}
+
 namespace ViewTransition {
 
 	const DATA_VIEW_TRANSITION_NAME = 'data-view-transition-name'
@@ -35,7 +41,7 @@ namespace ViewTransition {
 		},
 		subviewTransition (name) {
 			if (name) {
-				name = name.replace(/[^a-z0-9-]+/g, '-').toLowerCase()
+				name = stripName(name)
 				component.attributes.set(DATA_SUBVIEW_TRANSITION_NAME, name)
 				component.attributes.compute(DATA_ID, () => `${id++}`)
 			}
@@ -60,6 +66,8 @@ namespace ViewTransition {
 			swap = name
 			name = undefined
 		}
+
+		name = stripName(name)
 
 		reapply(type as 'subview', name!)
 		async function doSwap () {

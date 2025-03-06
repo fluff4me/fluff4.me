@@ -51,6 +51,15 @@
 						translate: $space-4 0
 						opacity: 0
 
+		&-loading:
+
+		&--loading:
+			#after: .view-container
+			%flex
+			%justify-content-centre
+			%padding-top-6
+			padding-right: calc($app-column-width + $space-4)
+
 	&--hidden:
 
 	&-breadcrumbs:

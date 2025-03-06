@@ -45,6 +45,9 @@
 				background: $block-background
 				%border-radius-2
 
+		:empty:
+			%hidden
+
 	&-footer:
 		#after: .block-footer
 		%sticky
@@ -125,8 +128,8 @@
 				%padding-inline-0
 
 	&-page:
-		display: ${paginator-page-display: flex}
-		%flex-column
+		#after: .slot
+		%block
 		#transition: #{transition("opacity")}, #{transition("translate")}, #{transition("display")}
 		%transition-discrete
 		%opaque
@@ -142,9 +145,6 @@
 			#after: .paginator-page
 			%no-transition
 
-		&--flush:
-			%gap-3
-
 		&--hidden:
 			#after: .paginator-page
 			%hidden
@@ -154,8 +154,25 @@
 
 		&--bounce:
 			#after: .paginator-page--hidden
-			display: ${paginator-page-display: flex}
+			%block
 			%opaque
+
+		&-content:
+			display: ${paginator-page-display: flex}
+			%flex-column
+
+			&--flush:
+				%gap-3
+
+	&-error, &-loading:
+		%grid
+		%justify-items-centre
+		%gap-3
+		min-height: 12rem
+		grid-template-rows: 1fr auto auto 1fr
+
+	&-loading:
+		&-flag:
 
 	&-error:
 		%grid

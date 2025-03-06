@@ -41,6 +41,7 @@ export type ComponentNameType<PREFIX extends string> = keyof { [KEY in Component
 
 interface StyleManipulatorFunctions<HOST> {
 	get (): ComponentName[]
+	has (name: ComponentName): boolean
 	remove (...names: ComponentName[]): HOST
 	toggle (...names: ComponentName[]): HOST
 	toggle (enabled: boolean, ...names: ComponentName[]): HOST
@@ -85,6 +86,9 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 
 		{
 			get: () => [...styles].sort(),
+			has (name) {
+				return styles.has(name)
+			},
 			remove (...names) {
 				for (const name of names)
 					styles.delete(name)
