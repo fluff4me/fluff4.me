@@ -189,9 +189,9 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 				}) as HeadersInit,
 				credentials: 'include',
 				body,
-				signal: AbortSignal.timeout(Time.seconds(5)),
+				signal: AbortSignal.timeout(Time.seconds(7)),
 			}).catch((e: Error): undefined => {
-				if (e.name === 'AbortError') {
+				if (e.name === 'AbortError' || e.name === 'TimeoutError') {
 					shouldRetry = true
 					error = Object.assign(new Error('Request timed out'), {
 						code: 408,

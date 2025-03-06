@@ -2,7 +2,7 @@ import Component from 'ui/Component'
 import Arrays from 'utility/Arrays'
 
 interface FlagExtensions {
-	wave (reason: string, enabled: boolean): void
+	wave (reason: string, enabled: boolean): this
 }
 
 interface Flag extends Component, FlagExtensions { }
@@ -56,7 +56,10 @@ const Flag = Component.Builder((component): Flag => {
 		.style('flag')
 		.append(...stripes)
 		.extend<FlagExtensions>(flag => ({
-			wave: toggle,
+			wave: (reason, enabled) => {
+				toggle(reason, enabled)
+				return flag
+			},
 		}))
 })
 

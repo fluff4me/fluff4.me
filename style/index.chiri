@@ -50,6 +50,8 @@
 	component/core/block
 	component/core/text-editor
 	component/core/form
+	component/core/flag
+	component/core/loading
 	component/core/paginator
 	component/core/toast
 	component/core/draggable
@@ -59,7 +61,6 @@
 	component/core/tabinator
 	component/core/dropdown
 	component/vanity-input
-	component/flag
 	component/masthead
 	component/sidebar
 	component/author

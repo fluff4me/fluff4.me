@@ -28,11 +28,11 @@ $$subview-transition-classes!*: placeholder-class
 
 	@view-transition-class!group:
 		animation-timing-function: ease-out
-		animation-duration: .3s
+		animation-duration: .2s
 		animation-fill-mode: both
 
 	@view-transition-class!old:
-		animation-duration: .2s
+		animation-duration: .1s
 
 	view-transition-class: subview-transition $subview-transition-classes $view-transition-delay
 

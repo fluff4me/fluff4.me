@@ -1,7 +1,7 @@
 #view type="history":
 
 .history:
-	#after: .paginator-page--flush
+	#after: .paginator-page-content--flush
 	%gap-5
 
 	&-work:

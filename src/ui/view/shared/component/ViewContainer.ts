@@ -3,6 +3,7 @@ import Session from 'model/Session'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Dialog from 'ui/component/core/Dialog'
+import Loading from 'ui/component/core/Loading'
 import AccountView from 'ui/view/AccountView'
 import ErrorView from 'ui/view/ErrorView'
 import RequireLoginView from 'ui/view/RequireLoginView'
@@ -70,6 +71,14 @@ const ViewContainer = (): ViewContainer => {
 					}
 				}
 
+				container.style('view-container--loading')
+
+				let loading: Loading | undefined
+				if (definition.load)
+					loading = Loading()
+						.style('view-container-loading')
+						.appendTo(container)
+
 				let loadError: Error & Partial<ErrorResponse> | undefined
 				try {
 					loadParams = !definition.load ? undefined : await Promise.resolve(definition.load(params))
@@ -78,6 +87,8 @@ const ViewContainer = (): ViewContainer => {
 					loadError = err as never
 				}
 
+				loading?.remove()
+				container.style.remove('view-container--loading')
 				if (globalId !== showingId)
 					return
 
