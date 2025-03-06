@@ -15,7 +15,7 @@ import { AllowYOffscreen } from 'ui/utility/AnchorManipulator'
 import Applicator from 'ui/utility/Applicator'
 import AbortPromise from 'utility/AbortPromise'
 import Mouse from 'utility/Mouse'
-import State from 'utility/State'
+import State, { StateOr } from 'utility/State'
 import Strings from 'utility/string/Strings'
 
 export interface TagsState {
@@ -30,8 +30,8 @@ interface TagsEditorExtensions {
 	readonly maxLengthCustom: State<number | undefined>
 	readonly lengthGlobal: State.Generator<number>
 	readonly lengthCustom: State.Generator<number>
-	setMaxLengthGlobal (maxLength?: number): this
-	setMaxLengthCustom (maxLength?: number): this
+	setMaxLengthGlobal (maxLength?: StateOr<number | undefined>): this
+	setMaxLengthCustom (maxLength?: StateOr<number | undefined>): this
 }
 
 interface TagsEditor extends Component, TagsEditorExtensions, InputExtensions { }
@@ -236,11 +236,17 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 			lengthGlobal: tagsState.mapManual(tags => tags.global_tags.length),
 			lengthCustom: tagsState.mapManual(tags => tags.custom_tags.length),
 			setMaxLengthGlobal (maxLength) {
-				maxLengthGlobal.value = maxLength
+				if (State.is(maxLength))
+					maxLengthGlobal.bind(component, maxLength)
+				else
+					maxLengthGlobal.value = maxLength
 				return editor
 			},
 			setMaxLengthCustom (maxLength) {
-				maxLengthCustom.value = maxLength
+				if (State.is(maxLength))
+					maxLengthCustom.bind(component, maxLength)
+				else
+					maxLengthCustom.value = maxLength
 				return editor
 			},
 		}))

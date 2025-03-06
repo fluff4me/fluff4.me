@@ -4,7 +4,7 @@ import type { ComponentName } from 'ui/utility/StyleManipulator'
 import TextManipulator from 'ui/utility/TextManipulator'
 import Define from 'utility/Define'
 import Maths from 'utility/maths/Maths'
-import State from 'utility/State'
+import State, { StateOr } from 'utility/State'
 
 interface ComponentHeadingExtensions {
 	containsHeading (): boolean
@@ -42,7 +42,7 @@ interface HeadingExtensions {
 	setAestheticLevel (level?: HeadingLevel): this
 	/** Rather than using the default `heading-#` style, instead use a custom heading style */
 	setAestheticStyle (style?: HeadingStylePrefix | false): this
-	setResizeRange (idealLength?: number, maxLength?: number): this
+	setResizeRange (idealLength?: number, maxLength?: StateOr<number | undefined>): this
 	clearResizeRange (): this
 }
 
@@ -117,8 +117,15 @@ const Heading = Component.Builder('h1', (component): Heading => {
 			return heading
 		},
 		setResizeRange (minLength, maxLength) {
-			resizeRange.value = minLength === undefined || maxLength === undefined ? undefined : { minLength, maxLength }
+			if (State.is(maxLength))
+				resizeRange.bind(heading, maxLength.map(heading, getResizeRange))
+			else
+				resizeRange.value = minLength === undefined || maxLength === undefined ? undefined : { minLength, maxLength }
 			return heading
+
+			function getResizeRange (maxLength?: number) {
+				return minLength === undefined || maxLength === undefined ? undefined : { minLength, maxLength }
+			}
 		},
 		clearResizeRange () {
 			resizeRange.value = undefined

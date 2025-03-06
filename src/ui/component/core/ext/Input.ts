@@ -31,7 +31,7 @@ export interface InputExtensions {
 	 * ```
 	 */
 	disableDefaultHintPopoverVisibilityHandling (): this
-	setMaxLength (maxLength?: number): this
+	setMaxLength (maxLength?: StateOr<number | undefined>): this
 	setRequired (required?: boolean): this
 	/**
 	 * - Sets the `[name]` of this component to `label.for`
@@ -164,7 +164,10 @@ const Input = Object.assign(
 			},
 			getPopover: () => popover,
 			setMaxLength (newLength) {
-				maxLength.value = newLength
+				if (State.is(newLength))
+					maxLength.bind(component, newLength)
+				else
+					maxLength.value = newLength
 				return component
 			},
 			setRequired: (required = true) => {

@@ -28,6 +28,11 @@ namespace Session {
 		clearedWithSessionChange.push(...cleared)
 	}
 
+	export function init () {
+		updateState()
+		void refresh()
+	}
+
 	export async function refresh () {
 		const session = await EndpointSessionGet.query()
 		const stateToken = session.headers.get('State-Token')

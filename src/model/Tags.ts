@@ -24,6 +24,7 @@ export interface TagsManifest extends ManifestGlobalTags {
 
 const Tags = Object.assign(
 	Manifest({
+		cacheId: 'tags',
 		valid: Time.minutes(5),
 		async get () {
 			const response = await EndpointTagManifest.query()
