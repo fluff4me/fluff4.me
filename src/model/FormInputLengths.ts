@@ -4,6 +4,7 @@ import Manifest from 'model/Manifest'
 import Time from 'utility/Time'
 
 export default Manifest<ManifestFormInputLengths>({
+	cacheId: 'form-input-lengths',
 	valid: Time.minutes(5),
 	get () {
 		return EndpointFormInputLengths.query()

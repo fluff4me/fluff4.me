@@ -18,11 +18,9 @@ import Mouse from 'ui/utility/Mouse'
 import { QuiltHelper } from 'ui/utility/StringApplicator'
 import Viewport from 'ui/utility/Viewport'
 import ViewContainer from 'ui/view/shared/component/ViewContainer'
-import Async from 'utility/Async'
 import DevServer from 'utility/DevServer'
 import Env from 'utility/Env'
 import Store from 'utility/Store'
-import Time from 'utility/Time'
 
 if (location.href.includes('localhost') && Env.isNgrok)
 	location.href = Env.URL_ORIGIN + location.pathname.slice(1)
@@ -87,7 +85,7 @@ async function App (): Promise<App> {
 
 	Component.allowBuilding()
 
-	await FormInputLengths.getManifest()
+	FormInputLengths.getManifest()
 
 	// const path = URL.path ?? URL.hash;
 	// if (path === AuthView.id) {
@@ -97,10 +95,7 @@ async function App (): Promise<App> {
 
 	// ViewManager.showByHash(URL.path ?? URL.hash);
 
-	await Promise.race([
-		Session.refresh(),
-		Async.sleep(Time.seconds(2)),
-	])
+	Session.init()
 
 	const navigate = Navigator()
 

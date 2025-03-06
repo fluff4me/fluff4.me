@@ -24,6 +24,7 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 
 	let unuseState: UnsubscribeState | undefined = undefined
 	const state = State<T | undefined>(undefined, false)
+	manifestStore()
 	const result: Manifest<T> = Object.assign(
 		state,
 		{

@@ -39,7 +39,7 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 		.setRequired()
 		.default.bind(state.map(component, work => work?.name))
 		.hint.use('view/work-edit/shared/form/name/hint')
-		.setMaxLength(FormInputLengths.value?.work.name)
+		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.work.name))
 	table.label(label => label.text.use('view/work-edit/shared/form/name/label'))
 		.content((content, label) => content.append(nameInput.setLabel(label)))
 
@@ -49,7 +49,7 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 		.default.bind(state.map(component, work => work?.vanity))
 		.filter(FilterVanity)
 		.hint.use('view/work-edit/shared/form/vanity/hint')
-		.setMaxLength(FormInputLengths.value?.work.vanity)
+		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.work.vanity))
 	table.label(label => label.text.use('view/work-edit/shared/form/vanity/label'))
 		.content((content, label) => content.append(vanityInput.setLabel(label)))
 
@@ -57,21 +57,21 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 		.setRequired()
 		.default.bind(state.map(component, work => work?.description))
 		.hint.use('view/work-edit/shared/form/description/hint')
-		.setMaxLength(FormInputLengths.value?.work.description)
+		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.work.description))
 	table.label(label => label.text.use('view/work-edit/shared/form/description/label'))
 		.content((content, label) => content.append(descriptionInput.setLabel(label)))
 
 	const synopsisInput = TextEditor()
 		.default.bind(state.map(component, work => work?.synopsis.body))
 		.hint.use('view/work-edit/shared/form/synopsis/hint')
-		.setMaxLength(FormInputLengths.value?.work.synopsis)
+		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.work.synopsis))
 	table.label(label => label.text.use('view/work-edit/shared/form/synopsis/label'))
 		.content((content, label) => content.append(synopsisInput.setLabel(label)))
 
 	const tagsEditor = TagsEditor()
 		.default.bind(state as State<TagsState>)
-		.setMaxLengthGlobal(FormInputLengths.value?.work_tags.global)
-		.setMaxLengthCustom(FormInputLengths.value?.work_tags.custom)
+		.setMaxLengthGlobal(FormInputLengths.map(table, lengths => lengths?.work_tags.global))
+		.setMaxLengthCustom(FormInputLengths.map(table, lengths => lengths?.work_tags.custom))
 	table.label(label => label.text.use('view/work-edit/shared/form/tags/label'))
 		.content((content, label) => content.append(tagsEditor.setLabel(label)))
 
