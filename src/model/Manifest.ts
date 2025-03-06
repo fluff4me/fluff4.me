@@ -19,17 +19,16 @@ interface Manifest<T> extends State<T | undefined> {
 }
 
 function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
-	let manifestTime: number | undefined
 	let promise: Promise<T> | undefined
+	let hasSaveWatcher = false
 
 	let unuseState: UnsubscribeState | undefined = undefined
 	const state = State<T | undefined>(undefined, false)
-	tryLoad()
 	const result: Manifest<T> = Object.assign(
 		state,
 		{
 			isFresh (manifest?: T): manifest is T {
-				return !!manifest && Date.now() - (manifestTime ?? 0) < definition.valid
+				return !!manifest && Date.now() - (manifestTime() ?? 0) < definition.valid
 			},
 			async getManifest (force?: boolean) {
 				// don't re-request the tag manifest if it was requested less than 5 minutes ago
@@ -45,8 +44,7 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 						if (response instanceof Error)
 							throw response
 						state.value = response.data
-						manifestTime = Date.now()
-						setupSaveWatcher()
+						ensureSaveWatcher()
 					}
 					catch (err) {
 						if (definition.orElse)
@@ -62,33 +60,28 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 		},
 	)
 
-	let lastAttempt = 0
 	if (definition.refresh)
-		setInterval(() => {
+		setInterval(async () => {
 			if (result.isFresh(state.value))
 				return
 
-			if (Date.now() - lastAttempt < Time.seconds(60))
+			const key = `manifest:last-fetch-attempt:${definition.cacheId}`
+			const lastFetchAttempt = +localStorage.getItem(key)! || 0
+			if (Date.now() - lastFetchAttempt < Time.seconds(60))
 				return
 
-			lastAttempt = Date.now()
-			void result.getManifest(true)
+			localStorage.setItem(key, `${Date.now()}`)
+			await result.getManifest(true)
+			localStorage.setItem(key, `${Date.now()}`)
 		}, 100)
 
 	return result
 
-	function setupSaveWatcher () {
-		if (!definition.cacheId)
-			return
-
-		unuseState?.()
-		unuseState = state.useManual(data =>
-			localStorage.setItem(`manifest:${definition.cacheId}`,
-				JSON.stringify({ time: Date.now(), data })
-			))
+	function manifestTime () {
+		return manifestStore()?.time
 	}
 
-	function tryLoad () {
+	function manifestStore () {
 		if (!definition.cacheId)
 			return undefined
 
@@ -101,16 +94,34 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 			if (!result || !('time' in result) || !('data' in result))
 				return undefined
 
-			manifestTime = +result.time || 0
+			const manifestTime = +result.time || 0
 			state.value = result.data
+
+			return {
+				time: manifestTime,
+				data: state.value,
+			}
 		}
 		catch (err) {
 			console.log(err)
 			return undefined
 		}
-
-		setupSaveWatcher()
+		finally {
+			ensureSaveWatcher()
+		}
 	}
+
+	function ensureSaveWatcher () {
+		if (!definition.cacheId || hasSaveWatcher)
+			return
+
+		unuseState?.()
+		unuseState = state.useManual(data =>
+			localStorage.setItem(`manifest:${definition.cacheId}`,
+				JSON.stringify({ time: Date.now(), data })
+			))
+	}
+
 }
 
 export default Manifest

@@ -157,6 +157,8 @@ namespace Notifications {
 			return
 
 		notifications ??= {}
+		notifications.lastCheck = Date.now()
+		Store.items.notifications = notifications
 
 		let resolve!: () => void
 		activeCheck = new Promise(r => resolve = r)
