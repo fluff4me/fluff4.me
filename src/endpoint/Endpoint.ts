@@ -179,12 +179,14 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 
 			response = await fetch(`${Env.API_ORIGIN}${url}${qs}`, {
 				method,
-				headers: {
+				headers: Objects.filterNullish({
 					...!Env.API_ORIGIN.includes('ngrok') ? undefined : { 'ngrok-skip-browser-warning': 'true' },
 					'Content-Type': body ? 'application/json' : undefined,
 					'Accept': 'application/json',
+					'App-Build-Number': Env.BUILD_NUMBER,
+					'App-Build-SHA': Env.BUILD_SHA,
 					...headers,
-				} as HeadersInit,
+				}) as HeadersInit,
 				credentials: 'include',
 				body,
 				signal: AbortSignal.timeout(Time.seconds(5)),
