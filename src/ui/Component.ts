@@ -81,6 +81,7 @@ export interface ComponentEvents extends NativeEvents {
 	ancestorInsert (): any
 	ancestorScroll (): any
 	descendantInsert (): any
+	descendantRemove (): any
 	childrenInsert (nodes: Node[]): any
 	ancestorRectDirty (): any
 	root (): any
@@ -203,6 +204,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 
 	receiveAncestorInsertEvents (): this
 	receiveDescendantInsertEvents (): this
+	receiveDescendantRemoveEvents (): this
 	receiveAncestorScrollEvents (): this
 	emitInsert (): this
 	monitorScrollEvents (): this
@@ -228,6 +230,7 @@ interface Component<ELEMENT extends HTMLElement = HTMLElement> extends BaseCompo
 enum Classes {
 	ReceiveAncestorInsertEvents = '_receieve-ancestor-insert-events',
 	ReceiveDescendantInsertEvents = '_receieve-descendant-insert-events',
+	ReceiveDescendantRemoveEvents = '_receieve-descendant-remove-events',
 	ReceiveAncestorRectDirtyEvents = '_receieve-ancestor-rect-dirty-events',
 	ReceiveScrollEvents = '_receieve-scroll-events',
 }
@@ -492,6 +495,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			component.element.component = undefined
 			component.element.remove()
 
+			emitRemove(component)
 			component.event.emit('unroot')
 			unuseOwnerRemove?.()
 		},
@@ -656,7 +660,11 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return component
 		},
 		receiveDescendantInsertEvents: () => {
-			component.element.classList.add(Classes.ReceiveAncestorInsertEvents)
+			component.element.classList.add(Classes.ReceiveDescendantInsertEvents)
+			return component
+		},
+		receiveDescendantRemoveEvents: () => {
+			component.element.classList.add(Classes.ReceiveDescendantRemoveEvents)
 			return component
 		},
 		receiveAncestorScrollEvents () {
@@ -766,7 +774,9 @@ function emitInsert (component: Component | undefined) {
 
 	let cursor = component.element.parentElement
 	while (cursor) {
-		cursor.component?.event.emit('descendantInsert')
+		if (cursor.classList.contains(Classes.ReceiveDescendantInsertEvents))
+			cursor.component?.event.emit('descendantInsert')
+
 		cursor = cursor.parentElement
 	}
 }
@@ -787,6 +797,19 @@ function updateRooted (component: Component | undefined) {
 				component.event.emit(rooted ? 'root' : 'unroot')
 			}
 		}
+	}
+}
+
+function emitRemove (component: Component | undefined) {
+	if (!component)
+		return
+
+	let cursor = component.element.parentElement
+	while (cursor) {
+		if (cursor.classList.contains(Classes.ReceiveDescendantRemoveEvents))
+			cursor.component?.event.emit('descendantRemove')
+
+		cursor = cursor.parentElement
 	}
 }
 
@@ -941,8 +964,12 @@ namespace Component {
 			setName (newName: string) {
 				this.name = addKebabCase(newName)
 				return this
-			}
+			},
 		} as Extension<any[], Component> | ExtensionAsync<any[], Component>
+	}
+
+	export function Tag () {
+		return Extension(component => component)
 	}
 
 	export function extend (extension: (component: Mutable<Component>) => unknown) {

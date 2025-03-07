@@ -9,6 +9,16 @@ namespace Strings {
 		return `_${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`
 	}
 
+	export function simplify (string: string) {
+		return string.toLowerCase()
+			.replace(/\W+/g, ' ')
+	}
+
+	export function areSameWords (a?: string, b?: string) {
+		return a === undefined || b === undefined ? false
+			: simplify(a) === simplify(b)
+	}
+
 	export type Replace<STRING extends string, MATCH extends string, REPLACE extends string> =
 		STRING extends `${infer A}${MATCH}${infer B}` ? `${Replace<A, MATCH, REPLACE>}${REPLACE}${Replace<B, MATCH, REPLACE>}` : STRING
 

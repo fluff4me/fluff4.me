@@ -20,8 +20,8 @@ Component.extend(component => {
 	}))
 })
 
-export const HandlesKeyboardEvents = Component.Extension(component => component).setName('HandlesKeyboardEvents')
-export const HandlesMouseEvents = Component.Extension(component => component).setName('HandlesMouseEvents')
+export const HandlesKeyboardEvents = Component.Tag().setName('HandlesKeyboardEvents')
+export const HandlesMouseEvents = Component.Tag().setName('HandlesMouseEvents')
 
 type Modifier = 'ctrl' | 'shift' | 'alt'
 

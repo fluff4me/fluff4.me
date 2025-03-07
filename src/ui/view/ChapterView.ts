@@ -30,6 +30,7 @@ import type { TagsState } from 'ui/component/TagsEditor'
 import Work from 'ui/component/Work'
 import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
+import ViewTitle from 'ui/view/shared/ext/ViewTitle'
 import Maths from 'utility/maths/Maths'
 import popup from 'utility/Popup'
 import Settings from 'utility/Settings'
@@ -77,6 +78,11 @@ export default ViewDefinition({
 		delete workData.synopsis
 		delete workData.custom_tags
 
+		view.breadcrumbs.setBackButton(
+			`/work/${params.author}/${params.work}`,
+			button => button.subText.set(workData.name),
+		)
+
 		Link(`/work/${author?.vanity}/${workData.vanity}`)
 			.and(Work, workData, author)
 			.viewTransition('chapter-view-work')
@@ -101,11 +107,13 @@ export default ViewDefinition({
 			.style.bindVariable('chapter-paragraph-gap-multiplier', settings.paragraphGap.value)
 			.style.bindVariable('align-left-preference', settings.justified.value.map(view, justified => justified ? 'justify' : 'left'))
 			.type('flush')
-			.tweak(p => {
-				p.title.style('view-type-chapter-block-title')
+			.tweak(paginator => {
+				paginator.title
+					.and(ViewTitle)
+					.style('view-type-chapter-block-title')
 					.text.bind(chapterState.mapManual(chapter => chapter.name))
 
-				p.primaryActions.style('view-type-chapter-block-actions')
+				paginator.primaryActions.style('view-type-chapter-block-actions')
 
 				const number = chapterState.mapManual(chapter => Maths.parseIntOrUndefined(chapter.url))
 				Slot()
@@ -113,7 +121,7 @@ export default ViewDefinition({
 						.setAestheticStyle(false)
 						.style('view-type-chapter-block-number-label')
 						.text.bind(number.mapManual(number => quilt => quilt['view/chapter/number/label'](number))))
-					.prependTo(p.header)
+					.prependTo(paginator.header)
 			})
 			.appendTo(view.content)
 			.tweak(p => p.page.value = initialChapterResponse.page)
@@ -165,7 +173,6 @@ export default ViewDefinition({
 
 											Slot()
 												.if(Session.Auth.loggedIn, slot => {
-
 													Button()
 														.style('view-type-chapter-block-patreon-header-button')
 														.text.bind(Session.Auth.author.map(slot, author =>
@@ -186,7 +193,6 @@ export default ViewDefinition({
 													.style('view-type-chapter-block-patreon-header-placeholder')
 													.text.use('view/chapter/placeholder/login-for-patreon'))
 												.appendTo(slot)
-
 										}),
 								)))
 						.appendTo(slot)
@@ -271,7 +277,7 @@ export default ViewDefinition({
 })
 
 function authAsPatron (owner: State.Owner) {
-	ConfirmDialog.prompt(owner, {
+	void ConfirmDialog.prompt(owner, {
 		titleTranslation: 'view/chapter/dialog/patron/title',
 		confirmButtonTranslation: 'view/chapter/dialog/patron/done',
 		cancelButtonTranslation: false,
@@ -281,7 +287,7 @@ function authAsPatron (owner: State.Owner) {
 				.appendTo(dialog.content)
 
 			const patron = Session.Auth.author.map(dialog, author => author?.patreon_patron ?? undefined)
-			const services = await OAuthServices(State("none"))
+			const services = await OAuthServices(State('none'))
 
 			OAuthService(services.data.patreon,
 				{
