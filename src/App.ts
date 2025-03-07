@@ -1,10 +1,12 @@
 import quilt from 'lang/en-nz'
 import FormInputLengths from 'model/FormInputLengths'
+import Notifications from 'model/Notifications'
 import Session from 'model/Session'
 import Navigator from 'navigation/Navigate'
 import style from 'style'
 import Component from 'ui/Component'
 import ExternalLink from 'ui/component/core/ExternalLink'
+import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
 import ToastList from 'ui/component/core/toast/ToastList'
 import Masthead from 'ui/component/Masthead'
@@ -20,6 +22,7 @@ import Viewport from 'ui/utility/Viewport'
 import ViewContainer from 'ui/view/shared/component/ViewContainer'
 import DevServer from 'utility/DevServer'
 import Env from 'utility/Env'
+import State from 'utility/State'
 import Store from 'utility/Store'
 
 if (location.href.includes('localhost') && Env.isNgrok)
@@ -85,7 +88,7 @@ async function App (): Promise<App> {
 
 	Component.allowBuilding()
 
-	FormInputLengths.getManifest()
+	void FormInputLengths.getManifest()
 
 	// const path = URL.path ?? URL.hash;
 	// if (path === AuthView.id) {
@@ -113,6 +116,24 @@ async function App (): Promise<App> {
 
 	const view = ViewContainer()
 	const masthead = Masthead(view)
+
+	State.UseManual({
+		viewTitle: view.state.mapManual(view => {
+			const title = view?.breadcrumbs.getTitleIfExists()
+			if (title)
+				return title.text.state
+
+			return view?.getFirstDescendant(Heading)?.text.state
+		}),
+		returnTo: view.state.mapManual(view => view?.breadcrumbs.backButton?.subText.state),
+		notificationCount: Notifications.unreadCount,
+	}).mapManual(({ viewTitle, returnTo, notificationCount }) => {
+		document.title = quilt['fluff4me/title']({
+			NOTIFICATIONS: notificationCount,
+			PAGE: viewTitle,
+			PAGE2: returnTo,
+		}).toString()
+	})
 
 	const related = Component()
 		.style('app-content-related')

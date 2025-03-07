@@ -15,6 +15,7 @@ interface BreadcrumbsExtensions {
 	backButton?: Link & Button
 	setPath (...path: [route: RoutePath, translation: Quilt.SimpleKey | Quilt.Handler][]): this
 	setBackButton (route?: RoutePath, initialiser?: (button: Link & Button) => unknown): this
+	getTitleIfExists (): Heading | undefined
 }
 
 interface Breadcrumbs extends Component, BreadcrumbsExtensions { }
@@ -23,6 +24,8 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 	const pathComponent = Component()
 		.style('breadcrumbs-path', 'breadcrumbs-path--hidden')
 		.viewTransition('breadcrumbs-path')
+
+	let title: Heading | undefined
 
 	const breadcrumbs = component.style('breadcrumbs')
 		.append(pathComponent)
@@ -62,13 +65,16 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 
 				return breadcrumbs
 			},
+			getTitleIfExists () {
+				return title
+			},
 		}))
 		.extendJIT('meta', breadcrumbs => Component()
 			.viewTransition('breadcrumbs-meta')
 			.prependTo(breadcrumbs))
 		.extendJIT('info', breadcrumbs => Component()
 			.prependTo(breadcrumbs.meta))
-		.extendJIT('title', breadcrumbs => Heading()
+		.extendJIT('title', breadcrumbs => title = Heading()
 			.style('breadcrumbs-title')
 			.setAestheticStyle(false)
 			.prependTo(breadcrumbs.info))

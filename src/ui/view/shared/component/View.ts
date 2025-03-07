@@ -3,7 +3,7 @@ import Component from 'ui/Component'
 import Breadcrumbs from 'ui/component/core/Breadcrumbs'
 
 interface ViewExtensions {
-	viewId: ViewId
+	readonly viewId: ViewId
 	params?: object
 	readonly hash: string
 	readonly breadcrumbs: Breadcrumbs
