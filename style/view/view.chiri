@@ -60,6 +60,9 @@
 			%padding-top-6
 			padding-right: calc($app-column-width + $space-4)
 
+			#tablet:
+				%padding-right-0
+
 	&--hidden:
 
 	&-breadcrumbs:
