@@ -4,6 +4,7 @@ import Button from 'ui/component/core/Button'
 import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
 import type { Quilt } from 'ui/utility/StringApplicator'
+import State from 'utility/State'
 
 interface BreadcrumbsExtensions {
 	readonly path: Component
@@ -12,7 +13,7 @@ interface BreadcrumbsExtensions {
 	readonly title: Heading
 	readonly description: Component
 	readonly actions: Component
-	backButton?: Link & Button
+	readonly backButton: State<Link & Button | undefined>
 	setPath (...path: [route: RoutePath, translation: Quilt.SimpleKey | Quilt.Handler][]): this
 	setBackButton (route?: RoutePath, initialiser?: (button: Link & Button) => unknown): this
 	getTitleIfExists (): Heading | undefined
@@ -26,6 +27,7 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 		.viewTransition('breadcrumbs-path')
 
 	let title: Heading | undefined
+	const backButton = State<Link & Button | undefined>(undefined)
 
 	const breadcrumbs = component.style('breadcrumbs')
 		.append(pathComponent)
@@ -36,6 +38,7 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 			description: undefined!,
 			actions: undefined!,
 			path: pathComponent,
+			backButton,
 			setPath (...path) {
 				pathComponent.removeContents()
 					.style.toggle(!path.length, 'breadcrumbs-path--hidden')
@@ -50,11 +53,11 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 				return breadcrumbs
 			},
 			setBackButton (route, initialiser) {
-				breadcrumbs.backButton?.remove()
+				backButton.value?.remove()
 				if (!route)
 					return breadcrumbs
 
-				breadcrumbs.backButton = Link(route)
+				backButton.value = Link(route)
 					.and(Button)
 					.type('flush')
 					.style('breadcrumbs-back-button')

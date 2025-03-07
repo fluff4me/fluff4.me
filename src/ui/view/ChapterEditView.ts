@@ -13,6 +13,7 @@ import Work from 'ui/component/Work'
 import ChapterEditForm from 'ui/view/chapter/ChapterEditForm'
 import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
+import ViewTitle from 'ui/view/shared/ext/ViewTitle'
 import State from 'utility/State'
 import Type from 'utility/Type'
 
@@ -102,6 +103,7 @@ export default ViewDefinition({
 				})
 
 				const form = ChapterEditForm(state, Chapters.work(params))
+					.tweak(form => form.title.and(ViewTitle))
 					.subviewTransition(id)
 					.appendTo(slot)
 

@@ -6,7 +6,6 @@ import Navigator from 'navigation/Navigate'
 import style from 'style'
 import Component from 'ui/Component'
 import ExternalLink from 'ui/component/core/ExternalLink'
-import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
 import ToastList from 'ui/component/core/toast/ToastList'
 import Masthead from 'ui/component/Masthead'
@@ -24,6 +23,7 @@ import DevServer from 'utility/DevServer'
 import Env from 'utility/Env'
 import State from 'utility/State'
 import Store from 'utility/Store'
+import Strings from 'utility/string/Strings'
 
 if (location.href.includes('localhost') && Env.isNgrok)
 	location.href = Env.URL_ORIGIN + location.pathname.slice(1)
@@ -118,20 +118,14 @@ async function App (): Promise<App> {
 	const masthead = Masthead(view)
 
 	State.UseManual({
-		viewTitle: view.state.mapManual(view => {
-			const title = view?.breadcrumbs.getTitleIfExists()
-			if (title)
-				return title.text.state
-
-			return view?.getFirstDescendant(Heading)?.text.state
-		}),
-		returnTo: view.state.mapManual(view => view?.breadcrumbs.backButton?.subText.state),
+		viewTitle: view.state.mapManual(view => view?.titleComponent).mapManual(title => title?.text.state),
+		returnTo: view.state.mapManual(view => view?.breadcrumbs.backButton).mapManual(button => button?.subText.state),
 		notificationCount: Notifications.unreadCount,
 	}).mapManual(({ viewTitle, returnTo, notificationCount }) => {
 		document.title = quilt['fluff4me/title']({
 			NOTIFICATIONS: notificationCount,
 			PAGE: viewTitle,
-			PAGE2: returnTo,
+			PAGE2: Strings.areSameWords(viewTitle ?? undefined, returnTo ?? undefined) ? undefined : returnTo,
 		}).toString()
 	})
 

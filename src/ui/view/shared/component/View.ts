@@ -1,6 +1,9 @@
 import type style from 'style'
 import Component from 'ui/Component'
 import Breadcrumbs from 'ui/component/core/Breadcrumbs'
+import Heading from 'ui/component/core/Heading'
+import ViewTitle from 'ui/view/shared/ext/ViewTitle'
+import State from 'utility/State'
 
 interface ViewExtensions {
 	readonly viewId: ViewId
@@ -8,15 +11,16 @@ interface ViewExtensions {
 	readonly hash: string
 	readonly breadcrumbs: Breadcrumbs
 	readonly content: Component
+	readonly titleComponent: State<Component | undefined>
 }
 
 interface View extends Component, ViewExtensions { }
 
 export type ViewId = keyof { [KEY in keyof typeof style as KEY extends `view-type-${infer ID}` ? ID : never]: string[] }
 
-const View = Component.Builder((_, id: ViewId): View => {
+const View = Component.Builder((component, id: ViewId): View => {
 	const content = Component().style('view-content')
-	return Component()
+	return component
 		.style('view', `view-type-${id}`)
 		.attributes.set('data-view', id)
 		.append(content)
@@ -25,6 +29,7 @@ const View = Component.Builder((_, id: ViewId): View => {
 			hash: '',
 			breadcrumbs: undefined!,
 			content,
+			titleComponent: undefined!,
 		}))
 		.extendJIT('hash', view => `${view.viewId}${view.params ? `_${JSON.stringify(view.params)}` : ''}`
 			.replaceAll(/\W+/g, '-'))
@@ -34,10 +39,10 @@ const View = Component.Builder((_, id: ViewId): View => {
 				breadcrumbs.path.style('view-breadcrumbs-path')
 
 				const originalAddBackButton = breadcrumbs.setBackButton
-				breadcrumbs.backButton?.style('view-breadcrumbs-back-button')
+				breadcrumbs.backButton.value?.style('view-breadcrumbs-back-button')
 				breadcrumbs.setBackButton = (...args) => {
 					originalAddBackButton(...args)
-					breadcrumbs.backButton?.style('view-breadcrumbs-back-button')
+					breadcrumbs.backButton.value?.style('view-breadcrumbs-back-button')
 					return breadcrumbs
 				}
 
@@ -47,6 +52,23 @@ const View = Component.Builder((_, id: ViewId): View => {
 				breadcrumbs.tweakJIT('description', description => description.style('view-breadcrumbs-description'))
 			})
 			.prependTo(view))
+		.extendJIT('titleComponent', view => {
+			const state = State<Component | undefined>(undefined)
+
+			updateTitleComponent()
+			view.receiveDescendantInsertEvents()
+			view.receiveDescendantRemoveEvents()
+			view.event.subscribe(['descendantInsert', 'descendantRemove'], updateTitleComponent)
+
+			return state
+
+			function updateTitleComponent () {
+				state.value = _
+					?? view.breadcrumbs.getTitleIfExists()
+					?? view.getFirstDescendant(ViewTitle)
+					?? view.getFirstDescendant(Heading)
+			}
+		})
 })
 
 export default View
