@@ -10,9 +10,10 @@ import RequireLoginView from 'ui/view/RequireLoginView'
 import type View from 'ui/view/shared/component/View'
 import type ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import ViewTransition from 'ui/view/shared/ext/ViewTransition'
+import State from 'utility/State'
 
 interface ViewContainerExtensions {
-	view?: View
+	readonly state: State<View | undefined>
 	show<VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined> (view: ViewDefinition<VIEW, PARAMS, LOAD_PARAMS>, params: PARAMS): Promise<VIEW | undefined>
 
 	ephemeral?: View
@@ -27,12 +28,15 @@ let globalId = 0
 const ViewContainer = (): ViewContainer => {
 	let cancelLogin: (() => void) | undefined
 
+	const state = State<View | undefined>(undefined)
+
 	const container = Component()
 		.style('view-container')
 		.tabIndex('programmatic')
 		.ariaRole('main')
 		.ariaLabel.use('view/container/alt')
 		.extend<ViewContainerExtensions>(container => ({
+			state,
 			show: async <VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined> (definition: ViewDefinition<VIEW, PARAMS, LOAD_PARAMS>, params: PARAMS) => {
 				const showingId = ++globalId
 
@@ -92,7 +96,7 @@ const ViewContainer = (): ViewContainer => {
 				if (globalId !== showingId)
 					return
 
-				if (container.view || showingId > 1) {
+				if (container.state || showingId > 1) {
 					const transition = ViewTransition.perform('view', swap)
 					await transition.updateCallbackDone
 				}
@@ -108,7 +112,7 @@ const ViewContainer = (): ViewContainer => {
 				}
 
 				function swapRemove () {
-					container.view?.remove()
+					container.state?.value?.remove()
 					hideEphemeral()
 				}
 
@@ -124,7 +128,7 @@ const ViewContainer = (): ViewContainer => {
 						}, {}))
 					if (shownView) {
 						shownView.appendTo(container)
-						container.view = shownView
+						state.value = shownView
 						if (replacementDefinition === definition)
 							shownView.params = params
 					}
