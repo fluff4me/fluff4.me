@@ -1,5 +1,6 @@
 import type { ErrorResponse, Response } from 'api.fluff4.me'
 import Session from 'model/Session'
+import PageListener from 'ui/utility/PageListener'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Time from 'utility/Time'
@@ -20,7 +21,7 @@ interface Manifest<T> extends State<T | undefined> {
 
 function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 	let promise: Promise<T> | undefined
-	let hasSaveWatcher = false
+	const hasSaveWatcher = false
 
 	let unuseState: UnsubscribeState | undefined = undefined
 	const state = State<T | undefined>(undefined, false)
@@ -29,7 +30,12 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 		state,
 		{
 			isFresh (manifest?: T): manifest is T {
-				return !!manifest && Date.now() - (manifestTime() ?? 0) < definition.valid
+				return !!manifest
+					&& (false
+						|| Date.now() - (manifestTime() ?? 0) < definition.valid
+						// pretend like manifests are still valid when the page is hidden
+						|| !PageListener.visible.value
+					)
 			},
 			async getManifest (force?: boolean) {
 				// don't re-request the tag manifest if it was requested less than 5 minutes ago
@@ -62,6 +68,7 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 	)
 
 	if (definition.refresh)
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		setInterval(async () => {
 			if (result.isFresh(state.value))
 				return
@@ -122,7 +129,6 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 				JSON.stringify({ time: Date.now(), data })
 			))
 	}
-
 }
 
 export default Manifest
