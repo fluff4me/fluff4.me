@@ -13,6 +13,7 @@
 		%padding-bottom-2
 		%margin-inline-3
 		%border-top-radius-2
+		%border-bottom-radius-0
 		%overflow-hidden
 		margin-bottom: calc($space-5 * -1 - 1px)
 		width: calc(100% - $space-3 * 2)
