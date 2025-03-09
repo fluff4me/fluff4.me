@@ -74,6 +74,7 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 		}))
 		.extendJIT('meta', breadcrumbs => Component()
 			.viewTransition('breadcrumbs-meta')
+			.style('breadcrumbs-meta')
 			.prependTo(breadcrumbs))
 		.extendJIT('info', breadcrumbs => Component()
 			.prependTo(breadcrumbs.meta))
