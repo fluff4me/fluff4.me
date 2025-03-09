@@ -10,6 +10,7 @@
 
 	&-name:
 		%wrap-words
+		%font-6
 
 	&-author:
 		%relative
