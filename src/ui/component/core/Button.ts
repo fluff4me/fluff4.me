@@ -107,6 +107,12 @@ const Button = Component.Builder('button', (component): Button => {
 	return button
 
 	function setIcon (newIcon?: ButtonIcon) {
+		if (!newIcon) {
+			button.icon?.remove()
+			delete button.icon
+			return
+		}
+
 		button.icon ??= Component()
 			.style('button-icon')
 			.style.bind(hasSubtext, 'button-icon--has-subtext')
