@@ -123,7 +123,7 @@ namespace ViewTransition {
 	}
 
 	export function unapply (type: 'view' | 'subview') {
-		for (const component of getComponents(type)) {
+		for (const component of [...getComponents('view'), ...getComponents('subview')]) {
 			component.classes.remove(VIEW_TRANSITION_CLASS_VIEW)
 			component.classes.remove(VIEW_TRANSITION_CLASS_SUBVIEW)
 			component.style.removeProperties('view-transition-name')

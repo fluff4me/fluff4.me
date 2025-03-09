@@ -54,7 +54,8 @@ saved: Saved {0}
 error-occurred: An error has occurred!
 
 ## form
-dropdown/no-selection: No Selection
+dropdown/selection/none: No Selection
+dropdown/selection/join: {*, }
 dropdown/filter/placeholder: Filter...
 name/label: Name
 vanity/label: Vanity
@@ -75,6 +76,9 @@ visibility/public: Public
 visibility/private: Private
 visibility/patreon: Patreon
 visibility-patreon-tier/label: Patreon Tier
+visibility-patreon-tier/selection/none: {#I:No Tiers Selected}
+visibility-patreon-tier/selection/all: {#I:All Tiers}
+visibility-patreon-tier/selection/tier-and-up: {0} {#I:(And All Higher Tiers)}
 
 invalid/too-long: This text is too long.
 invalid/required: This field is required.
@@ -436,6 +440,9 @@ visibility/public=shared/form/visibility/public
 visibility/private=shared/form/visibility/private
 visibility/patreon=shared/form/visibility/patreon
 visibility-patreon-tier/label=shared/form/visibility-patreon-tier/label
+visibility-patreon-tier/selection/none=shared/form/visibility-patreon-tier/selection/none
+visibility-patreon-tier/selection/all=shared/form/visibility-patreon-tier/selection/all
+visibility-patreon-tier/selection/tier-and-up=shared/form/visibility-patreon-tier/selection/tier-and-up
 type/label: Type
 type/numbered: Numbered
 type/numbered/example: Chapter {0}

@@ -5,7 +5,7 @@ import type { Events } from 'ui/utility/EventManipulator'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
-interface CheckbuttonExtensions {
+export interface CheckbuttonExtensions {
 	readonly input: Component
 	readonly checked: State<boolean>
 	isChecked (): boolean
@@ -14,7 +14,12 @@ interface CheckbuttonExtensions {
 	unuse (): this
 }
 
-interface Checkbutton extends Button, CheckbuttonExtensions {
+const SYMBOL_CHECK_BUTTON_BRAND = Symbol('CheckButton')
+interface CheckbuttonFullExtensions extends CheckbuttonExtensions {
+	readonly [SYMBOL_CHECK_BUTTON_BRAND]: true
+}
+
+interface Checkbutton extends Button, CheckbuttonFullExtensions {
 	readonly event: EventManipulator<this, Events<Button, {
 		setChecked (checked: boolean): any
 		trySetChecked (checked: boolean): any
@@ -37,8 +42,13 @@ const Checkbutton = Component.Builder('label', (component): Checkbutton => {
 		.tabIndex('auto')
 		.ariaChecked(state)
 		.ariaRole('checkbox')
+		.setIcon('check')
+		.tweak(button => button.icon
+			?.style('checkbutton-icon')
+			.style.bind(state, 'checkbutton-icon--checked'))
 		.append(input)
-		.extend<CheckbuttonExtensions>(() => ({
+		.extend<CheckbuttonFullExtensions>(() => ({
+			[SYMBOL_CHECK_BUTTON_BRAND]: true,
 			input,
 			checked: state,
 			isChecked: () => inputElement.checked,

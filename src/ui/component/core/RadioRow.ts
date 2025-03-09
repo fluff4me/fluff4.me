@@ -27,6 +27,7 @@ const RadioRow = Component.Builder((component: Component): RadioRow => {
 				const button = options[id] = RadioButton()
 					.style('radio-row-option')
 					.type('flush')
+					.setIcon()
 					.tweak(initialiser, id)
 					.setId(id)
 					.setName(labelFor)

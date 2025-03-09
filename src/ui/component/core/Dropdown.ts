@@ -1,53 +1,77 @@
-import quilt, { Weave } from "lang/en-nz"
-import Component from "ui/Component"
-import Button from "ui/component/core/Button"
-import Input, { InputExtensions } from "ui/component/core/ext/Input"
-import Popover from "ui/component/core/Popover"
-import RadioButton from "ui/component/core/RadioButton"
-import TextInput from "ui/component/core/TextInput"
-import Applicator from "ui/utility/Applicator"
-import { Quilt } from "ui/utility/StringApplicator"
-import Async from "utility/Async"
-import Functions from "utility/Functions"
-import State from "utility/State"
-import { SupplierOr } from "utility/Type"
+import type { Weave } from 'lang/en-nz'
+import quilt from 'lang/en-nz'
+import Component from 'ui/Component'
+import Button from 'ui/component/core/Button'
+import Checkbutton from 'ui/component/core/Checkbutton'
+import type { InputExtensions } from 'ui/component/core/ext/Input'
+import Input from 'ui/component/core/ext/Input'
+import type Popover from 'ui/component/core/Popover'
+import RadioButton from 'ui/component/core/RadioButton'
+import TextInput from 'ui/component/core/TextInput'
+import Applicator from 'ui/utility/Applicator'
+import { QuiltHelper, type Quilt } from 'ui/utility/StringApplicator'
+import Arrays from 'utility/Arrays'
+import Async from 'utility/Async'
+import Functions from 'utility/Functions'
+import State from 'utility/State'
+import type { SupplierOr } from 'utility/Type'
 
-interface DropdownOptionDefinition<ID extends string> {
+type DropdownButton = RadioButton | Checkbutton
+
+interface DropdownOptionDefinition<ID extends string, BUTTON extends DropdownButton> {
 	translation: SupplierOr<string | Weave | Quilt.Handler, [ID]>
-	tweakButton?(button: RadioButton, id: ID): unknown
+	tweakButton?(button: BUTTON, id: ID): unknown
 }
 
-interface DropdownExtensions<ID extends string> {
-	readonly selection: State<ID | undefined>
-	readonly default: Applicator.Optional<this, ID>
-	add<NEW_ID extends string> (id: NEW_ID, definition: DropdownOptionDefinition<NEW_ID>): Dropdown<ID | NEW_ID>
+interface DropdownOption<ID extends string, BUTTON extends DropdownButton> extends DropdownOptionDefinition<ID, BUTTON> {
+	index: number
+}
+
+interface DropdownExtensions<ID extends string, BUTTON extends DropdownButton> {
+	readonly selection: State.Mutable<(BUTTON extends RadioButton ? ID : ID[]) | undefined>
+	readonly default: Applicator.Optional<this, BUTTON extends RadioButton ? ID : ID[]>
+	readonly options: Record<string, DropdownOption<ID, BUTTON>>
+	add<NEW_ID extends string> (id: NEW_ID, definition: DropdownOptionDefinition<NEW_ID, BUTTON>): Dropdown<ID | NEW_ID>
 	clear (): Dropdown<never>
 }
 
-interface Dropdown<ID extends string = never> extends Input, DropdownExtensions<ID> { }
+interface Dropdown<ID extends string = never, BUTTON extends DropdownButton = DropdownButton> extends Input, DropdownExtensions<ID, BUTTON> { }
 
-const Dropdown = Component.Builder((component): Dropdown => {
+interface DropdownDefinitionBase<BUTTON extends DropdownButton> {
+	createButton (): BUTTON
+	translateSelection?(dropdown: Dropdown<string, BUTTON>, selection: BUTTON extends RadioButton ? string : string[]): string | Weave | Quilt.Handler | undefined
+}
+
+const Dropdown = Component.Builder((component, definition: DropdownDefinitionBase<DropdownButton>): Dropdown => {
 	const dropdown = component.and(Input)
 		.style('dropdown')
 
-	interface DropdownOption extends DropdownOptionDefinition<string> {
+	interface InternalDropdownOption extends DropdownOption<string, DropdownButton> {
 		button: RadioButton
 	}
 
-	const selection = State<string | undefined>(undefined)
-	let options: Record<string, DropdownOption> = {}
+	const selection = State<string | string[] | undefined>(undefined)
+	const options: Record<string, InternalDropdownOption> = {}
+	let optionIndex = 0
 
 	let popover!: Popover
 	Button()
 		.style('dropdown-button')
-		.text.bind(selection.mapManual(state => _
-			?? Functions.resolve(options[state!]?.translation, state!)
-			?? quilt['shared/form/dropdown/no-selection']()
+		.text.bind(selection.mapManual(state => state === undefined
+			? quilt['shared/form/dropdown/selection/none']()
+			: (_
+				?? definition.translateSelection?.(dropdown as Dropdown<string>, state)
+				?? quilt['shared/form/dropdown/selection/join'](...Arrays.resolve(state)
+					.map(id => Functions.resolve(options[id]?.translation, id))
+					.map(translation => Functions.resolve(translation, quilt, QuiltHelper))
+				)
+			)
 		))
 		.setPopover('click', p => popover = p
 			.style('dropdown-popover')
 			.anchor.add('aligned left', 'aligned top')
 			.anchor.add('aligned left', 'aligned bottom')
+			.anchor.orElseHide()
 		)
 		.appendTo(dropdown)
 
@@ -77,35 +101,55 @@ const Dropdown = Component.Builder((component): Dropdown => {
 	let labelFor: State<string | undefined> | undefined
 	dropdown
 		.ariaRole('group')
-		.extend<DropdownExtensions<string> & Partial<InputExtensions>>(dropdown => ({
-			selection,
+		.extend<DropdownExtensions<string, DropdownButton> & Partial<InputExtensions>>(dropdown => ({
+			options,
+			selection: selection as never,
 			default: Applicator(dropdown, (id?: string) => selection.value = id),
-			add (id, definition: DropdownOptionDefinition<string>) {
-				const button = RadioButton()
+			add (id, optionDefinition: DropdownOptionDefinition<string, DropdownButton>) {
+				const button = definition.createButton()
 					.style('dropdown-option')
 					.type('flush')
-					.tweak(definition.tweakButton, id)
+					.tweak(optionDefinition.tweakButton, id)
 					.setId(id)
 					.setName(labelFor)
-					.text.bind(Functions.resolve(definition.translation, id))
-					.use(selection.mapManual(selected => selected === id))
+					.text.bind(Functions.resolve(optionDefinition.translation, id))
+					.use(selection.mapManual(selected => Arrays.resolve(selected).includes(id)))
 					.receiveFocusedClickEvents()
-					.event.subscribe('click', event => {
+					.tweak(button => button.as(Checkbutton)?.event.subscribe('click', event => {
 						input.focus()
-						selection.value = id
 						event.preventDefault()
 						event.stopImmediatePropagation()
-						popover.hide()
-					})
+
+						const isRadio = button.is(RadioButton)
+						if (isRadio)
+							popover.hide()
+
+						if (!selection.value)
+							selection.value = [id]
+						else {
+							const current = Arrays.resolve(selection.value)
+							if (current.includes(id))
+								selection.value = current.filter(value => value !== id)
+							else if (isRadio)
+								selection.value = id
+							else
+								selection.value = [...current, id].sort((a, b) => options[a].index - options[b].index)
+						}
+					}))
 					.appendTo(content)
 
-				options[id] = Object.assign(definition, { button })
+				options[id] = Object.assign(optionDefinition, {
+					button,
+					index: optionIndex++,
+				}) as InternalDropdownOption
 
 				button.style.bind(button.checked, 'dropdown-option--selected')
 				const filteredOut = State.Map(button, [input.state, button.checked], (filter, selected) =>
 					!selected && !!filter && !button.element.textContent?.includes(filter))
 				button.style.bind(filteredOut, 'dropdown-option--filtered-out')
-				button.bindDisabled(button.checked, 'selection')
+
+				if (button.is(RadioButton))
+					button.bindDisabled(button.checked, 'selection')
 
 				return dropdown
 			},
@@ -113,8 +157,10 @@ const Dropdown = Component.Builder((component): Dropdown => {
 				for (const option of Object.values(options))
 					option.button.remove()
 
-				options = {}
-				return dropdown as Dropdown<never>
+				for (const key of Object.keys(options))
+					delete options[key]
+
+				return dropdown as never
 			},
 		}))
 		.extend<Partial<InputExtensions>>(dropdown => ({
@@ -132,4 +178,20 @@ const Dropdown = Component.Builder((component): Dropdown => {
 	return dropdown as Dropdown
 })
 
-export default Dropdown
+interface DropdownDefinition<BUTTON extends DropdownButton> extends Omit<DropdownDefinitionBase<BUTTON>, 'createButton'> { }
+
+export interface RadioDropdown<ID extends string = never> extends Dropdown<ID, RadioButton> { }
+
+export const RadioDropdown = (
+	Component.Builder((component, definition?: DropdownDefinition<RadioButton>): RadioDropdown => {
+		return component.and(Dropdown, { createButton: RadioButton, ...definition }) as RadioDropdown
+	}).setName('RadioDropdown')
+) as never as (<ID extends string> (definition?: DropdownDefinition<RadioButton>) => RadioDropdown<ID>)
+
+export interface CheckDropdown<ID extends string = never> extends Dropdown<ID, Checkbutton> { }
+
+export const CheckDropdown = (
+	Component.Builder((component, definition?: DropdownDefinition<Checkbutton>): CheckDropdown => {
+		return component.and(Dropdown, { createButton: Checkbutton, ...definition }) as CheckDropdown
+	}).setName('CheckDropdown')
+) as never as (<ID extends string> (definition?: DropdownDefinition<Checkbutton>) => CheckDropdown<ID>)

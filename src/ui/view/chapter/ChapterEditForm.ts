@@ -7,7 +7,7 @@ import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
-import Dropdown from 'ui/component/core/Dropdown'
+import { CheckDropdown } from 'ui/component/core/Dropdown'
 import Form from 'ui/component/core/Form'
 import LabelledTable from 'ui/component/core/LabelledTable'
 import Placeholder from 'ui/component/core/Placeholder'
@@ -18,6 +18,9 @@ import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
+import { QuiltHelper } from 'ui/utility/StringApplicator'
+import Arrays, { NonNullish } from 'utility/Arrays'
+import Functions from 'utility/Functions'
 import Objects from 'utility/Objects'
 import State from 'utility/State'
 
@@ -120,11 +123,33 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 		.map(component, ({ campaign, visibilityStateIsPatreon }) =>
 			campaign && visibilityStateIsPatreon ? campaign.tiers : undefined)
 
-	let threshold: Dropdown<string> | undefined
+	let threshold: CheckDropdown<string> | undefined
 	table.label(label => label.text.use('view/chapter-edit/shared/form/visibility-patreon-tier/label'))
 		.if(tiers.truthy, () => threshold = undefined)
 		.content((content, label) => content.append(
-			threshold = (Dropdown() as Dropdown<string>)
+			threshold = CheckDropdown<string>({
+				translateSelection (dropdown, selection) {
+					const selectedTiers = selection
+						.map(id => tiers.value?.find(tier => tier.tier_id === id))
+						.filter(NonNullish)
+						.sort((a, b) => a.amount - b.amount)
+
+					if (!selectedTiers.length)
+						return quilt['view/chapter-edit/shared/form/visibility-patreon-tier/selection/none']()
+
+					if (tiers.value?.length === selectedTiers.length)
+						return quilt['view/chapter-edit/shared/form/visibility-patreon-tier/selection/all']()
+
+					const firstSelectedTier = selectedTiers[0]
+					if (tiers.value?.every(tier => tier.amount <= firstSelectedTier.amount || selection.includes(tier.tier_id))) {
+						const tierTranslation = Functions.resolve(dropdown.options[firstSelectedTier.tier_id].translation, firstSelectedTier.tier_id)
+						const resolvedTranslation = Functions.resolve(tierTranslation, quilt, QuiltHelper)
+						return quilt['view/chapter-edit/shared/form/visibility-patreon-tier/selection/tier-and-up'](resolvedTranslation)
+					}
+
+					return undefined
+				},
+			})
 				.tweak(dropdown => {
 					tiers.use(dropdown, tiers => {
 						dropdown.clear()
@@ -136,8 +161,24 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 								}),
 							})
 					})
+
+					dropdown.selection.subscribeManual((selection, oldSelection) => {
+						if (oldSelection?.length || selection?.length !== 1)
+							return
+
+						const selectedTier = tiers.value?.find(tier => tier.tier_id === selection[0])
+						if (!selectedTier)
+							return
+
+						const higherTiers = tiers.value?.filter(tier => tier.amount > selectedTier.amount).sort((a, b) => a.amount - b.amount)
+						if (higherTiers?.length)
+							dropdown.selection.value = [...selection, ...higherTiers.map(tier => tier.tier_id)]
+					})
 				})
-				.default.bind(state.map(component, chapter => chapter?.patreon?.tier.tier_id))
+				.default.bind(state.map(component, chapter => _
+					?? chapter?.patreon?.tiers.map(tier => tier.tier_id)
+					?? [chapter?.patreon?.tier.tier_id].filter(NonNullish)
+				))
 				.setLabel(label)
 		))
 
@@ -161,7 +202,8 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 			notes_after: notesAfterInput.useMarkdown(),
 			visibility: visibility.selection.value ?? 'Private',
 			is_numbered: type.selection.value === 'numbered',
-			tier_id: threshold?.selection.value,
+			tier_id: Arrays.resolve(threshold?.selection.value)[0],
+			tier_ids: threshold?.selection.value,
 		} satisfies ChapterCreateBody
 	}
 
@@ -171,7 +213,7 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 
 		const data = getFormData()
 
-		const basicFields = Objects.keys(getFormData()).filter(key => key !== 'custom_tags' && key !== 'global_tags' && key !== 'tier_id')
+		const basicFields = Objects.keys(getFormData()).filter(key => key !== 'custom_tags' && key !== 'global_tags' && key !== 'tier_id' && key !== 'tier_ids')
 		for (const field of basicFields) {
 			let dataValue = data[field]
 			let stateValue = state.value[field]
@@ -186,7 +228,15 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 				return true
 		}
 
-		if (data.tier_id !== state.value.patreon?.tier.tier_id)
+		const dataTiers = data.tier_ids ?? [data.tier_id]
+		const stateTiers = _
+			?? state.value.patreon?.tiers.map(tier => tier.tier_id)
+			?? [state.value.patreon?.tier.tier_id].filter(NonNullish)
+
+		if (dataTiers.length !== stateTiers.length)
+			return true
+
+		if (dataTiers.some(tier => !stateTiers.includes(tier)))
 			return true
 
 		if ((data.custom_tags?.length ?? 0) !== (state.value.custom_tags?.length ?? 0))

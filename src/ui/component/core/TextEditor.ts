@@ -964,6 +964,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		return Checkbutton()
 			.style('text-editor-toolbar-button')
 			.style.bind(state, 'text-editor-toolbar-button--enabled')
+			.tweak(button => button.icon?.style.remove('checkbutton-icon'))
 			.use(state)
 			.clearPopover()
 			.receiveFocusedClickEvents()

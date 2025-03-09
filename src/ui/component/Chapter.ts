@@ -22,8 +22,8 @@ function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>
 			&& Component()
 				.style('chapter-patreon-tier', 'patreon-icon-after')
 				.text.set(quilt['shared/term/patreon-tier']({
-					NAME: chapter.patreon.tier.tier_name,
-					PRICE: `$${(chapter.patreon.tier.amount / 100).toFixed(2)}`,
+					NAME: chapter.patreon.tiers[0].tier_name,
+					PRICE: `$${((chapter.patreon.tiers[0].amount ?? 0) / 100).toFixed(2)}`,
 				})))
 
 		.appendAction('edit', Session.Auth.author, (slot, self) => true

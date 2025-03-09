@@ -8,7 +8,7 @@ import type EventManipulator from 'ui/utility/EventManipulator'
 import type { Events } from 'ui/utility/EventManipulator'
 import { mutable } from 'utility/Objects'
 import State from 'utility/State'
-import { PromiseOr } from 'utility/Type'
+import type { PromiseOr } from 'utility/Type'
 
 export interface OAuthServiceEvents {
 	DangerTokenGranted (dangerToken: DangerTokenType): any
@@ -45,6 +45,7 @@ const OAuthService = Component.Builder((component, service: AuthService, definit
 		.style('oauth-service')
 		.ariaRole('button')
 		.attributes.remove('aria-checked')
+		.setIcon()
 		.use(isAuthed)
 		.style.bind(isAuthed, 'oauth-service--authenticated')
 		.style.setVariable('colour', `#${service.colour.toString(16)}`)

@@ -834,20 +834,20 @@ namespace Component {
 		return component
 	}
 
-	const SYMBOL_COMPONENT_TYPE_BRAND = Symbol('COMPONENT_TYPE_BRAND')
+	export const SYMBOL_COMPONENT_TYPE_BRAND = Symbol('COMPONENT_TYPE_BRAND')
 
 	export type BuilderLike<PARAMS extends any[] = any[], COMPONENT extends Component = Component> = Builder<PARAMS, COMPONENT> | Extension<PARAMS, COMPONENT>
 
 	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<Extension<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'setName' | 'builderType' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
-		builderType: 'builder'
-		[SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
+		readonly builderType: 'builder'
+		readonly [SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
 		(...params: PARAMS): BUILD_COMPONENT
 		setName (name: string): this
 	}
 
 	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<ExtensionAsync<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'setName' | 'builderType' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
-		builderType: 'builder'
-		[SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
+		readonly builderType: 'builder'
+		readonly [SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
 		(...params: PARAMS): Promise<BUILD_COMPONENT>
 		setName (name: string): this
 	}
@@ -940,17 +940,17 @@ namespace Component {
 	}
 
 	export interface Extension<PARAMS extends any[], EXT_COMPONENT extends Component> {
-		builderType: 'extension'
-		[SYMBOL_COMPONENT_TYPE_BRAND]: EXT_COMPONENT
-		name: BuilderName
+		readonly builderType: 'extension'
+		readonly [SYMBOL_COMPONENT_TYPE_BRAND]: EXT_COMPONENT
+		readonly name: BuilderName
 		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): COMPONENT & EXT_COMPONENT
 		setName (name: string): this
 	}
 
 	export interface ExtensionAsync<PARAMS extends any[], EXT_COMPONENT extends Component> {
-		builderType: 'extension'
-		[SYMBOL_COMPONENT_TYPE_BRAND]: EXT_COMPONENT
-		name: BuilderName
+		readonly builderType: 'extension'
+		readonly [SYMBOL_COMPONENT_TYPE_BRAND]: EXT_COMPONENT
+		readonly name: BuilderName
 		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): Promise<COMPONENT & EXT_COMPONENT>
 		setName (name: string): this
 	}
@@ -962,7 +962,7 @@ namespace Component {
 			name: getBuilderName(),
 			from: builder,
 			setName (newName: string) {
-				this.name = addKebabCase(newName)
+				mutable(this).name = addKebabCase(newName)
 				return this
 			},
 		} as Extension<any[], Component> | ExtensionAsync<any[], Component>

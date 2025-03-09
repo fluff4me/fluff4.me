@@ -2,4 +2,19 @@
 	&-input:
 		%hidden
 
+	&-icon:
+		#after: .button-icon
+		%background-2-a50
+		%border-radius-1
+		padding: calc($space-1 / 2)
+
+		@before:
+			%hidden
+
+		&--checked:
+			#after: .checkbutton-icon
+
+			@before:
+				%block
+
 	&--checked:
