@@ -3,7 +3,9 @@
 	"private": true,
 	"scripts": {
 		"build": "npx ts-node tasks/utility/TaskRunner.ts clean install build",
+		"compress": "npx ts-node tasks/utility/TaskRunner.ts compress",
 		"watch": "npx ts-node tasks/utility/TaskRunner.ts clean install pre_watch_build -- serve watch",
+		"serve": "npx ts-node tasks/utility/TaskRunner.ts serve",
 		"ci:dev": "npx ts-node tasks/utility/TaskRunner.ts ci_dev"
 	},
 	"devDependencies": {
@@ -29,6 +31,9 @@
 		"@types/express": "4.17.13",
 		"typescript-eslint": "8.26.0",
 		"tsconfig-paths": "4.2.0",
+		"postcss": "8.5.3",
+		"cssnano": "7.0.6",
+		"terser": "5.39.0",
 		"ws": "8.18.0",
 		"@types/ws": "8.5.13",
 		"lint": "github:fluff4me/lint",
