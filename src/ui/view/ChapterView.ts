@@ -107,6 +107,7 @@ export default ViewDefinition({
 			.style.bindVariable('chapter-paragraph-gap-multiplier', settings.paragraphGap.value)
 			.style.bindVariable('align-left-preference', settings.justified.value.map(view, justified => justified ? 'justify' : 'left'))
 			.type('flush')
+			.event.subscribe('PageError', Session.refresh)
 			.tweak(paginator => {
 				paginator.title
 					.and(ViewTitle)

@@ -5,6 +5,8 @@ import Button from 'ui/component/core/Button'
 import Loading from 'ui/component/core/Loading'
 import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
+import type EventManipulator from 'ui/utility/EventManipulator'
+import type { Events } from 'ui/utility/EventManipulator'
 import ViewTransition from 'ui/view/shared/ext/ViewTransition'
 import Async from 'utility/Async'
 import type { UnsubscribeState } from 'utility/State'
@@ -31,7 +33,13 @@ interface PaginatorExtensions<DATA = any> {
 	setScroll (scroll: boolean | ((target: HTMLElement, direction: 'forward' | 'backward', context: ScrollContext) => unknown)): this
 }
 
-interface Paginator<DATA = any> extends Block, PaginatorExtensions<DATA> { }
+interface PaginatorEvents {
+	PageError (page: number): any
+}
+
+interface Paginator<DATA = any> extends Block, PaginatorExtensions<DATA> {
+	readonly event: EventManipulator<this, Events<Block, PaginatorEvents>>
+}
 
 const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => {
 	const block = component.and(Block)
@@ -137,7 +145,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 
 	let scrollOption: boolean | undefined | ((target: HTMLElement, direction: 'forward' | 'backward', context: ScrollContext) => unknown)
 
-	const paginator = block
+	const paginator: Paginator<T> = block
 		.viewTransition('paginator')
 		.style('paginator')
 		.extend<PaginatorExtensions>(component => ({
@@ -312,6 +320,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 
 						while (content === false) {
 							// errored, show retry dialog
+							paginator.event.emit('PageError', pageNumber)
 
 							await new Promise<void>(resolve => {
 								ViewTransition.perform('subview', viewTransitionName, () => {
