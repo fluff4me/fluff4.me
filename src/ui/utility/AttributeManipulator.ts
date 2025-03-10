@@ -2,12 +2,12 @@ import quilt from 'lang/en-nz'
 import type Component from 'ui/Component'
 import type { Quilt } from 'ui/utility/StringApplicator'
 import { QuiltHelper } from 'ui/utility/StringApplicator'
-import type State from 'utility/State'
 import type { UnsubscribeState } from 'utility/State'
+import State from 'utility/State'
 
 interface AttributeManipulator<HOST> {
 	has (attribute: string): boolean
-	get (attribute: string): string | undefined
+	get (attribute: string): State<string | undefined>
 	/** Adds the given attributes with no values */
 	append (...attributes: string[]): HOST
 	/** 
@@ -28,6 +28,7 @@ interface AttributeManipulator<HOST> {
 	/** Sets the attribute to `value`, or removes the attribute if `value` is `undefined` */
 	set (attribute: string, value?: string): HOST
 	bind (state: State<boolean>, attribute: string, value?: string, orElse?: string): HOST
+	bind (attribute: string, state: State<string | undefined>): HOST
 	/**
 	 * If the attribute is already set, does nothing. 
 	 * Otherwise, calls the supplier, and sets the attribute to the result, or removes the attribute if it's `undefined` 
@@ -45,17 +46,20 @@ interface AttributeManipulator<HOST> {
 function AttributeManipulator (component: Component): AttributeManipulator<Component> {
 	let translationHandlers: Record<string, Quilt.SimpleKey | Quilt.Handler> | undefined
 	const unuseAttributeMap = new Map<string, UnsubscribeState>()
+	const attributeStates = new Map<string, State<string | undefined>>()
 	const result: AttributeManipulator<Component> = {
 		has (attribute) {
 			return component.element.hasAttribute(attribute)
 		},
 		get (attribute) {
-			return component.element.getAttribute(attribute) ?? undefined
+			return attributeStates.compute(attribute, () =>
+				State(component.element.getAttribute(attribute) ?? undefined))
 		},
 		append (...attributes) {
 			for (const attribute of attributes) {
 				delete translationHandlers?.[attribute]
 				component.element.setAttribute(attribute, '')
+				attributeStates.get(attribute)?.asMutable?.setValue('')
 			}
 			return component
 		},
@@ -66,8 +70,11 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 				component.element.removeAttribute(attribute.name)
 			}
 
-			for (const attribute of attributes)
-				component.element.setAttribute(attribute, oldAttributes[attribute] ?? '')
+			for (const attribute of attributes) {
+				const value = oldAttributes[attribute] ?? ''
+				component.element.setAttribute(attribute, value)
+				attributeStates.get(attribute)?.asMutable?.setValue(value)
+			}
 
 			for (const name of Object.keys(oldAttributes))
 				component.element.setAttribute(name, oldAttributes[name])
@@ -83,8 +90,11 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 
 			for (const attribute of Object.keys(oldAttributes)) {
 				if (attribute === referenceAttribute)
-					for (const attribute of attributes)
-						component.element.setAttribute(attribute, oldAttributes[attribute] ?? '')
+					for (const attribute of attributes) {
+						const value = oldAttributes[attribute] ?? ''
+						component.element.setAttribute(attribute, value)
+						attributeStates.get(attribute)?.asMutable?.setValue(value)
+					}
 
 				component.element.setAttribute(attribute, oldAttributes[attribute])
 			}
@@ -99,37 +109,71 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 			}
 
 			if (!(referenceAttribute in oldAttributes))
-				for (const attribute of attributes)
-					component.element.setAttribute(attribute, oldAttributes[attribute] ?? '')
+				for (const attribute of attributes) {
+					const value = oldAttributes[attribute] ?? ''
+					component.element.setAttribute(attribute, value)
+					attributeStates.get(attribute)?.asMutable?.setValue(value)
+				}
 
 			for (const attribute of Object.keys(oldAttributes)) {
 				component.element.setAttribute(attribute, oldAttributes[attribute])
 
 				if (attribute === referenceAttribute)
-					for (const attribute of attributes)
-						component.element.setAttribute(attribute, oldAttributes[attribute] ?? '')
+					for (const attribute of attributes) {
+						const value = oldAttributes[attribute] ?? ''
+						component.element.setAttribute(attribute, value)
+						attributeStates.get(attribute)?.asMutable?.setValue(value)
+					}
 			}
 
 			return component
 		},
 		set (attribute, value) {
 			delete translationHandlers?.[attribute]
-			if (value === undefined)
+			if (value === undefined) {
 				component.element.removeAttribute(attribute)
-			else
+				attributeStates.get(attribute)?.asMutable?.setValue(undefined)
+			}
+			else {
 				component.element.setAttribute(attribute, value)
+				attributeStates.get(attribute)?.asMutable?.setValue(value)
+			}
 			return component
 		},
-		bind (state, attribute, value, orElse) {
-			unuseAttributeMap.get(attribute)?.()
-			unuseAttributeMap.set(attribute, state.use(component, active => {
-				if (active)
-					component.element.setAttribute(attribute, value ?? '')
-				else if (orElse !== undefined)
-					component.element.setAttribute(attribute, orElse)
-				else
-					component.element.removeAttribute(attribute)
-			}))
+		bind (...args) {
+			if (typeof args[0] === 'string') {
+				const [attribute, state] = args as [string, State<string | undefined>]
+				unuseAttributeMap.get(attribute)?.()
+				unuseAttributeMap.set(attribute, state.use(component, value => {
+					if (value === undefined) {
+						component.element.removeAttribute(attribute)
+						attributeStates.get(attribute)?.asMutable?.setValue(undefined)
+					}
+					else {
+						component.element.setAttribute(attribute, value)
+						attributeStates.get(attribute)?.asMutable?.setValue(value)
+					}
+				}))
+			}
+			else {
+				let [state, attribute, value, orElse] = args as [State<boolean>, string, string?, string?]
+				unuseAttributeMap.get(attribute)?.()
+				unuseAttributeMap.set(attribute, state.use(component, active => {
+					if (active) {
+						value ??= ''
+						component.element.setAttribute(attribute, value)
+						attributeStates.get(attribute)?.asMutable?.setValue(value)
+					}
+					else if (orElse !== undefined) {
+						component.element.setAttribute(attribute, orElse)
+						attributeStates.get(attribute)?.asMutable?.setValue(orElse)
+					}
+					else {
+						component.element.removeAttribute(attribute)
+						attributeStates.get(attribute)?.asMutable?.setValue(undefined)
+					}
+				}))
+			}
 			return component
 		},
 		compute (attribute, supplier) {
@@ -138,10 +182,14 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 
 			delete translationHandlers?.[attribute]
 			const value = supplier(component)
-			if (value === undefined)
+			if (value === undefined) {
 				component.element.removeAttribute(attribute)
-			else
+				attributeStates.get(attribute)?.asMutable?.setValue(undefined)
+			}
+			else {
 				component.element.setAttribute(attribute, value)
+				attributeStates.get(attribute)?.asMutable?.setValue(value)
+			}
 			return component
 		},
 		getUsing (attribute) {
@@ -160,13 +208,16 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 			for (const attribute in translationHandlers) {
 				const translationHandler = translationHandlers[attribute]
 				const weave = typeof translationHandler === 'string' ? quilt[translationHandler]() : translationHandler(quilt, QuiltHelper)
-				component.element.setAttribute(attribute, weave.toString())
+				const value = weave.toString()
+				component.element.setAttribute(attribute, value)
+				attributeStates.get(attribute)?.asMutable?.setValue(value)
 			}
 		},
 		remove (...attributes) {
 			for (const attribute of attributes) {
 				delete translationHandlers?.[attribute]
 				component.element.removeAttribute(attribute)
+				attributeStates.get(attribute)?.asMutable?.setValue(undefined)
 			}
 			return component
 		},
@@ -177,9 +228,10 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 			if ('element' in element)
 				element = element.element
 
-			for (const attribute of element.attributes)
+			for (const attribute of element.attributes) {
 				component.element.setAttribute(attribute.name, attribute.value)
-
+				attributeStates.get(attribute.name)?.asMutable?.setValue(attribute.value)
+			}
 			return component
 		},
 	}

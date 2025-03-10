@@ -160,6 +160,16 @@ async function App (): Promise<App> {
 			})
 			.appendTo(document.body)
 
+	ExternalLink(undefined)
+		.style('app-version')
+		.attributes.bind('href', Env.state.mapManual(env => !env?.BUILD_SHA ? undefined : `https://github.com/fluff4me/fluff4.me/commit/${env.BUILD_SHA}`))
+		.text.bind(Env.state.mapManual(env => !env ? ''
+			: !env.BUILD_SHA
+				? 'dev'
+				: `v${env.BUILD_NUMBER} (${env.BUILD_SHA?.slice(0, 7)})`
+		))
+		.appendTo(document.body)
+
 	await app.navigate.fromURL()
 
 	Object.assign(window, { app })

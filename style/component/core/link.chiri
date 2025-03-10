@@ -11,10 +11,17 @@
 		$transition-duration: $transition-focus
 
 	&-external:
+		::hover, ::focus:
+			text-decoration-color: transparent
 
-		@after:
-			%font-font-awesome
-			%vertical-align-super
-			%weight-bold
-			content: " #{get-icon("up-right-from-square")}"
-			font-size: .5em
+		&--has:
+			#after: .link-external
+			::hover, ::focus:
+				text-decoration-color: currentcolor
+
+			@after:
+				%font-font-awesome
+				%vertical-align-super
+				%weight-bold
+				content: " #{get-icon("up-right-from-square")}"
+				font-size: .5em
