@@ -8,18 +8,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-beta:
-    uses: ./.github/workflows/build-beta.yml
-    with:
-      rebase: true
-    secrets: inherit
-
   build:
     uses: ./.github/workflows/build.yml
     secrets: inherit
 
   deploy:
-    needs: [build, build-beta]
+    needs: [build]
     if: always() && needs.build.result == 'success'
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
