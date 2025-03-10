@@ -1,4 +1,5 @@
 import State from 'utility/State'
+import Strings from 'utility/string/Strings'
 
 export interface IEnvironment {
 	ENVIRONMENT: 'dev' | 'beta' | 'prod'
@@ -27,7 +28,10 @@ class Env {
 	public async load () {
 		const origin = location.origin
 		const root = location.pathname.startsWith('/beta/') ? '/beta/' : '/'
-		Object.assign(this, await fetch(origin + root + 'env.json').then(response => response.json()))
+		Object.assign(this, _
+			?? Strings.optionalParseJSON(document.getElementById('env-json')?.textContent)
+			?? await fetch(origin + root + 'env.json').then(response => response.json())
+		)
 		document.documentElement.classList.add(`environment-${this.ENVIRONMENT}`)
 
 		this.state.value = this

@@ -9,6 +9,18 @@ namespace Strings {
 		return `_${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`
 	}
 
+	export function optionalParseJSON (string?: string | null): unknown {
+		if (!string)
+			return undefined
+
+		try {
+			return JSON.parse(string)
+		}
+		catch {
+			return undefined
+		}
+	}
+
 	export function simplify (string: string) {
 		return string.toLowerCase()
 			.replace(/\W+/g, ' ')
