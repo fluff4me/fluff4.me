@@ -14,6 +14,7 @@ const ExternalLink = Component.Builder('a', (component, href: string | undefined
 	component
 		.and(HandlesMouseEvents)
 		.style('link', 'link-external')
+		.style.bind(component.attributes.get('href').mapManual(href => !!href), 'link-external--has')
 
 	if (href !== undefined)
 		component.attributes.set('href', href)

@@ -57,6 +57,17 @@
 			#tablet:
 				%hidden
 
+		&-version:
+			%block
+			%fixed
+			%right-1
+			%bottom-1
+			%font-0
+			%colour-8
+
+			#tablet:
+				%hidden
+
 	.masthead:
 		grid-area: masthead
 		grid-template-columns: 1fr auto 1fr

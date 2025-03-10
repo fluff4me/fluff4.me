@@ -1,3 +1,5 @@
+import State from 'utility/State'
+
 export interface IEnvironment {
 	ENVIRONMENT: 'dev' | 'beta' | 'prod'
 	API_ORIGIN: string
@@ -11,6 +13,8 @@ class Env {
 
 	#loaded = false
 	#onLoad: (() => void)[] = []
+
+	public readonly state = State<this | undefined>(undefined)
 
 	public get isDev () {
 		return this.ENVIRONMENT === 'dev'
@@ -26,6 +30,7 @@ class Env {
 		Object.assign(this, await fetch(origin + root + 'env.json').then(response => response.json()))
 		document.documentElement.classList.add(`environment-${this.ENVIRONMENT}`)
 
+		this.state.value = this
 		this.#loaded = true
 		for (const handler of this.#onLoad)
 			handler()
