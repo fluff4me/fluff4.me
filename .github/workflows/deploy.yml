@@ -19,16 +19,9 @@ jobs:
         with:
           ref: build
 
-      - name: Checkout build-beta
-        uses: actions/checkout@v4
-        with:
-          ref: build-beta
-          path: beta
-
       - name: Clear .git folders (no submodules here!)
         run: |
           rm -rf .git
-          rm -rf beta/.git
       
       - name: Prepare for GitHub Pages
         if: success()
