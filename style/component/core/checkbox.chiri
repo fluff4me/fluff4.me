@@ -1,0 +1,6 @@
+.checkbox:
+
+	&-input:
+		%hidden
+
+	&--checked:

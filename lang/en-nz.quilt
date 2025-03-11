@@ -244,6 +244,7 @@ empty: And all was quiet...
 
 
 # settings
+title=shared/term/settings
 chapter/name: Chapter
 chapter/font-size/name: Font Size
 chapter/font-size/description: A multiplier for the default chapter text font size.
@@ -251,12 +252,13 @@ chapter/line-height/name: Line Height
 chapter/line-height/description: The height of a line of text, relative to the font size.
 chapter/paragraph-gap/name: Paragraph Gap
 chapter/paragraph-gap/description: A multiplier for the default distance between paragraphs.
-chapter/justified/name: Justified
+chapter/text-align/name: Text Align
+chapter/text-align/description: Justified
 chapter/font-family/name: Font Family
 chapter/font-family/option/author/name: Set by Author
 chapter/font-family/option/author/description: Use the font family set by the author.
 chapter/font-family/option/default/name: Default
-chapter/font-family/option/default/description: Use fluff4.me's default font family.\
+chapter/font-family/option/default/description: Use fluff4.me's default font family.
 chapter/font-family/option/custom/name: Custom
 chapter/font-family/option/custom/description: Use a custom font family.
 
@@ -467,6 +469,7 @@ patreon/label: Patrons Only
 action/become-patron=shared/action/become-patron
 action/auth-to-patreon=shared/action/auth
 action/unlink-patreon: Unlink ({0})
+action/settings: Display Settings
 placeholder/login-for-patreon: Log in to authenticate with Patreon.
 
 ### dialog/patron

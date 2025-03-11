@@ -2513,12 +2513,16 @@
 #macro icon:
 	#string name
 	#string rotate?
+	#bool mirror?
 
 	@before:
 		content: "#{get-icon(name)}"
 		#if exists rotate:
 			%block
 			rotate: #{rotate}
+		#if exists mirror:
+			%block
+			scale: -1 1
 
 #macro dual-icon:
 	#string a

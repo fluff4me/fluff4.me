@@ -10,19 +10,29 @@ namespace Viewport {
 
 	export const size = State.JIT<Size>(() => ({ w: window.innerWidth, h: window.innerHeight }))
 	export const mobile = State.JIT(owner => {
-		const result = State.Use(owner, {
-			contentWidth: Style.measure('--content-width'),
-			viewport: size,
-		}).map(owner, ({ contentWidth, viewport }) => viewport.w < contentWidth)
-		result.subscribe(owner, mobile.markDirty)
+		const contentWidth = Style.measure('--content-width')
+		const result = size.value.w < contentWidth.value
+		contentWidth.subscribe(owner, mobile.markDirty)
+		size.subscribe(owner, mobile.markDirty)
 		return result
 	})
 	export const tablet = State.JIT(owner => {
-		const result = State.Use(owner, {
-			tabletWidth: Style.measure('--tablet-width'),
-			viewport: size,
-		}).map(owner, ({ tabletWidth, viewport }) => viewport.w < tabletWidth)
-		result.subscribe(owner, tablet.markDirty)
+		const tabletWidth = Style.measure('--tablet-width')
+		const result = size.value.w < tabletWidth.value
+		tabletWidth.subscribe(owner, tablet.markDirty)
+		size.subscribe(owner, tablet.markDirty)
+		return result
+	})
+
+	export type State =
+		| 'desktop'
+		| 'tablet'
+		| 'mobile'
+
+	export const state = State.JIT(owner => {
+		const result = mobile.value ? 'mobile' : tablet.value ? 'tablet' : 'desktop'
+		mobile.subscribe(owner, state.markDirty)
+		tablet.subscribe(owner, state.markDirty)
 		return result
 	})
 

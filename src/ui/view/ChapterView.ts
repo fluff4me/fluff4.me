@@ -18,6 +18,7 @@ import Chapter from 'ui/component/Chapter'
 import Comments from 'ui/component/Comments'
 import Button from 'ui/component/core/Button'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
+import Dialog from 'ui/component/core/Dialog'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
@@ -25,9 +26,11 @@ import Paragraph from 'ui/component/core/Paragraph'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import Reaction from 'ui/component/Reaction'
+import SettingsDialog from 'ui/component/SettingsDialog'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
 import Work from 'ui/component/Work'
+import Viewport from 'ui/utility/Viewport'
 import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import ViewTitle from 'ui/view/shared/ext/ViewTitle'
@@ -37,24 +40,40 @@ import Settings from 'utility/Settings'
 import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
 
+const tag = () => Viewport.state.value
+const tweakState = (state: State.Generator<number | boolean>) => state.observeManual(Viewport.state)
 const settings = Settings.registerGroup('settings/chapter/name', {
 	fontSize: Settings.number({
+		tag, tweakState,
 		name: 'settings/chapter/font-size/name',
 		description: 'settings/chapter/font-size/description',
 		default: 1,
+		min: 0.5,
+		max: 3,
+		step: 0.1,
 	}),
 	lineHeight: Settings.number({
+		tag, tweakState,
 		name: 'settings/chapter/line-height/name',
 		description: 'settings/chapter/line-height/description',
-		default: 1.2,
+		default: 1.4,
+		min: 1,
+		max: 3,
+		step: 0.1,
 	}),
 	paragraphGap: Settings.number({
+		tag, tweakState,
 		name: 'settings/chapter/paragraph-gap/name',
 		description: 'settings/chapter/paragraph-gap/description',
 		default: 1,
+		min: 0,
+		max: 10,
+		step: 0.5,
 	}),
 	justified: Settings.boolean({
-		name: 'settings/chapter/justified/name',
+		tag, tweakState,
+		name: 'settings/chapter/text-align/name',
+		description: 'settings/chapter/text-align/description',
 		default: false,
 	}),
 })
@@ -83,6 +102,14 @@ export default ViewDefinition({
 			button => button.subText.set(workData.name),
 		)
 
+		Button()
+			.type('flush')
+			.setIcon('gear')
+			.style('breadcrumbs-actions-action')
+			.text.use('view/chapter/action/settings')
+			.event.subscribe('click', () => SettingsDialog().tweak(Dialog.await))
+			.appendTo(view.breadcrumbs.actions)
+
 		Link(`/work/${author?.vanity}/${workData.vanity}`)
 			.and(Work, workData, author)
 			.viewTransition('chapter-view-work')
@@ -102,12 +129,12 @@ export default ViewDefinition({
 		const paginator = view.paginator()
 			.viewTransition('chapter-view-chapter')
 			.style('view-type-chapter-block')
-			.style.bindVariable('chapter-font-size-multiplier', settings.fontSize.value)
-			.style.bindVariable('chapter-line-height', settings.lineHeight.value)
-			.style.bindVariable('chapter-paragraph-gap-multiplier', settings.paragraphGap.value)
-			.style.bindVariable('align-left-preference', settings.justified.value.map(view, justified => justified ? 'justify' : 'left'))
+			.style.bindVariable('chapter-font-size-multiplier', settings.fontSize.state)
+			.style.bindVariable('chapter-line-height', settings.lineHeight.state)
+			.style.bindVariable('chapter-paragraph-gap-multiplier', settings.paragraphGap.state)
+			.style.bindVariable('align-left-preference', settings.justified.state.map(view, justified => justified ? 'justify' : 'left'))
 			.type('flush')
-			.event.subscribe('PageError', Session.refresh)
+			.event.subscribe('PageError', () => Session.refresh())
 			.tweak(paginator => {
 				paginator.title
 					.and(ViewTitle)

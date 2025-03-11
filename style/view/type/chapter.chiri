@@ -176,6 +176,14 @@
 			%padding-bottom-4
 			$paginator-page-display: block
 			%z-index-fg
+			font-size: calc(1em * $chapter-font-size-multiplier)
+			line-height: calc(1em * $chapter-line-height)
+			text-align: ${align-left-preference: left}
+
+			& p:
+				margin-block:
+					calc(var(--markdown-paragraph-padding-top) * $chapter-paragraph-gap-multiplier) 
+					calc(var(--markdown-paragraph-padding-bottom) * $chapter-paragraph-gap-multiplier)
 
 		&-paginator-actions:
 			#after: .paginator-footer--hidden, .paginator-footer--flush, .block--type-flush-footer

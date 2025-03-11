@@ -1,14 +1,18 @@
-import EndpointAuthorUpdateSettings from "endpoint/author/EndpointAuthorUpdateSettings"
-import Session from "model/Session"
-import { Quilt } from "ui/utility/StringApplicator"
-import Define from "utility/Define"
-import State from "utility/State"
+import EndpointAuthorUpdateSettings from 'endpoint/author/EndpointAuthorUpdateSettings'
+import Session from 'model/Session'
+import type { Quilt } from 'ui/utility/StringApplicator'
+import Define from 'utility/Define'
+import Functions from 'utility/Functions'
+import State from 'utility/State'
+import type { SupplierOr } from 'utility/Type'
 
 interface SettingBaseDefinition<ID extends string, TYPE> {
+	tag?: SupplierOr<string>
 	name: Quilt.SimpleKey
 	description?: Quilt.SimpleKey
 	type: ID
 	default: TYPE
+	tweakState?(state: State.Generator<TYPE>): unknown
 }
 
 type SettingBooleanDefinition = SettingBaseDefinition<'boolean', boolean>
@@ -30,7 +34,7 @@ export type SettingDefinition =
 	| SettingNumberDefinition
 
 interface SettingValue<TYPE> {
-	value: State.MutableSetOnly<TYPE>
+	state: State.MutableSetOnly<TYPE | undefined>
 }
 
 type Setting = {
@@ -58,6 +62,7 @@ namespace Settings {
 			if (!settings)
 				return {}
 
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return JSON.parse(settings)
 		})
 		.observe(Session.Auth.author)
@@ -81,26 +86,33 @@ namespace Settings {
 	export function registerGroup<const SETTINGS extends Record<string, SettingDefinition>> (name: Quilt.SimpleKey, settings: SETTINGS) {
 		DEFS.push({
 			name,
-			settings: Object.values(settings).map((setting) => {
-				const state = SETTINGS.mapManual((settings) => settings[setting.name] ?? setting.default)
+			settings: Object.values(settings).map(setting => {
+				const id = () => `${setting.tag ? `${Functions.resolve(setting.tag)}:` : ''}${setting.name}`
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+				const state = SETTINGS.mapManual(settings => settings[id()] ?? setting.default)
+				setting.tweakState?.(state as never)
 				Define.magic(state, 'value', {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 					get: () => State.getInternalValue(state),
 					set: (value: any) => {
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 						const settings = SETTINGS.value
-						if (value === settings[setting.name])
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+						if (value === settings[id()])
 							return
 
-						settings[setting.name] = value ?? null
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+						settings[id()] = value ?? null
 
 						const author = Session.Auth.author.value
 						if (author) {
 							author.settings = JSON.stringify(settings)
 							Session.Auth.author.emit()
-							EndpointAuthorUpdateSettings.query({ body: { settings: author.settings } })
+							void EndpointAuthorUpdateSettings.query({ body: { settings: author.settings } })
 						}
 					},
 				})
-				return Object.assign(setting, { value: state }) as Setting
+				return Object.assign(setting, { state }) as Setting
 			}),
 		})
 
