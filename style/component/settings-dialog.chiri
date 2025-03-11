@@ -1,0 +1,18 @@
+.settings-dialog:
+
+	&-group:
+
+		&-heading:
+
+		&-content:
+
+	&-setting:
+		&-content:
+			#after: .labelled-row-content
+			%grid
+			grid-template-columns: 1fr auto
+			%gap-3
+
+		&-button:
+			%width-100
+			%border-box

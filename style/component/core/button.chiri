@@ -265,3 +265,7 @@ $$button-background-highlight!colour
 			%inset-0
 			%border-radius-100
 			border: .16em solid
+
+	&-icon-rotate-reverse:
+		#after: .button-icon
+		#icon name="rotate" mirror

@@ -9,7 +9,15 @@
 	&-description:
 
 	&-actions:
+		%relative
 		%unmargin-left-3
+		%flex
+		%flex-column
+		%width-100
+
+		&-action:
+			#after: .button
+			%font-2
 
 	&-back-button:
 

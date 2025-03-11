@@ -132,7 +132,7 @@ export namespace QuiltHelper {
 interface StringApplicator<HOST> {
 	readonly state: State<string>
 	set (value: string | Weave): HOST
-	use (translation: Quilt.SimpleKey | Quilt.Handler): HOST
+	use (translation?: Quilt.SimpleKey | Quilt.Handler): HOST
 	bind (state: State<string | Weave>): HOST
 	unbind (): HOST
 	refresh (): void

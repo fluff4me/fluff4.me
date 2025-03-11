@@ -1,5 +1,6 @@
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
+import Input from 'ui/component/core/ext/Input'
 import type EventManipulator from 'ui/utility/EventManipulator'
 import type { Events } from 'ui/utility/EventManipulator'
 import type { UnsubscribeState } from 'utility/State'
@@ -19,10 +20,10 @@ interface CheckbuttonFullExtensions extends CheckbuttonExtensions {
 	readonly [SYMBOL_CHECK_BUTTON_BRAND]: true
 }
 
-interface Checkbutton extends Button, CheckbuttonFullExtensions {
+interface Checkbutton extends Button, Input, CheckbuttonFullExtensions {
 	readonly event: EventManipulator<this, Events<Button, {
-		setChecked (checked: boolean): any
-		trySetChecked (checked: boolean): any
+		SetChecked (checked: boolean): any
+		TrySetChecked (checked: boolean): any
 	}>>
 }
 
@@ -38,6 +39,7 @@ const Checkbutton = Component.Builder('label', (component): Checkbutton => {
 	let unuse: UnsubscribeState | undefined
 	const checkbutton: Checkbutton = component
 		.and(Button)
+		.and(Input)
 		.style('checkbutton')
 		.tabIndex('auto')
 		.ariaChecked(state)
@@ -57,7 +59,7 @@ const Checkbutton = Component.Builder('label', (component): Checkbutton => {
 					return checkbutton
 
 				if (unuse) {
-					checkbutton.event.emit('trySetChecked', checked)
+					checkbutton.event.emit('TrySetChecked', checked)
 					return checkbutton
 				}
 
@@ -86,7 +88,7 @@ const Checkbutton = Component.Builder('label', (component): Checkbutton => {
 		if (unuse) {
 			const checked = inputElement.checked
 			inputElement.checked = !checked // undo because it's managed by a State.Mutable<boolean>
-			checkbutton.event.emit('trySetChecked', checked)
+			checkbutton.event.emit('TrySetChecked', checked)
 			return
 		}
 
@@ -96,7 +98,7 @@ const Checkbutton = Component.Builder('label', (component): Checkbutton => {
 	function onChange () {
 		state.value = inputElement.checked
 		checkbutton.style.toggle(inputElement.checked, 'checkbutton--checked')
-		checkbutton.event.emit('setChecked', inputElement.checked)
+		checkbutton.event.emit('SetChecked', inputElement.checked)
 	}
 
 	return checkbutton

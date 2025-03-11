@@ -1,0 +1,70 @@
+.range-input:
+	%grid
+	grid-template-columns: 1fr auto
+	%border-1
+	%border-radius-1
+	$border-colour: $colour-border-input
+	background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
+	%box-shadow-inset-1
+	#transition: #{transition("background")}, #{transition("border")}
+
+	::active:
+		background: light-dark(#{alpha(0.15, $dark-0)}, #{alpha(0.25, $dark-0)})
+		$transition-duration: calc($transition-focus / 2)
+
+	&-input:
+		appearance: none
+		%background-none
+		%margin-0
+		%font-inherit
+		%font-family-inherit
+		%border-box
+		%width-100
+		%padding-0-1
+		#string height = "calc(1lh + $space-2 * 2)
+		height: #{height}
+
+		@range-thumb:
+			appearance: none
+			%borderless
+			%box-shadow-1
+			%border-1
+			%padding-0
+			%border-box
+			border-radius: calc($space-1 / 3 * 2)
+			width: calc($space-2 + $space-1) !important
+			height: min(#{height} - $space-1 * 2, 100%) !important
+			background: $colour-11
+			$border-colour: $colour-10
+			#transition: #{transition("background")}, #{transition("border")}, #{transition("translate")}
+
+		@range-track:
+			height: #{height}
+			%padding-1-0
+			%border-box
+			%overflow-hidden
+
+		:hover, :focus:
+			@range-thumb:
+				translate: 0 calc($space-1 / -2)
+				background: $colour-10
+				$border-colour: $colour-9
+				$transition-duration: calc($transition-focus / 2)
+
+		:active:
+			@range-thumb:
+				translate: 0 0
+				background: $colour-10
+				$border-colour: $colour-9
+				$transition-duration: calc($transition-focus / 2)
+
+	&-display:
+		%flex
+		%justify-content-centre
+		%align-items-centre
+		%font-kanit
+		%font-3
+		%width-5
+		%border-left-1
+		%background-3-a50
+		$border-colour: $colour-border-input

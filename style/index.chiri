@@ -60,6 +60,8 @@
 	component/core/radio-row
 	component/core/tabinator
 	component/core/dropdown
+	component/core/checkbox
+	component/core/range-input
 	component/vanity-input
 	component/masthead
 	component/sidebar
@@ -75,6 +77,7 @@
 	component/mention
 	component/tag-block
 	component/primary-nav
+	component/settings-dialog
 
 #import:
 	view/view

@@ -46,7 +46,7 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 			query.value = EndpointCommentGetAllUnder.prep({ params: { under } }).query
 
 			Comment({ comments, authors }, comment, { isRootComment, noSiblings: true })
-				.appendTo(block.content)
+				.appendTo(slot)
 
 			await loadMore()
 			if (signal.aborted)
