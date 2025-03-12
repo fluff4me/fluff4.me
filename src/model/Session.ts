@@ -98,12 +98,10 @@ namespace Session {
 		export const authorisations = State<Authorisation[]>([])
 		export const author = State<AuthorSelf | undefined>(undefined, false)
 
-		export function getAll () {
-			return Store.items.session?.authorisations ?? []
-		}
-
 		export function get (service: string) {
-			return Store.items.session?.authorisations?.find(auth => auth.service === service)
+			return _
+				?? Session.Auth.author.value?.authorisations?.find(auth => auth.service === service)
+				?? Session.Auth.authorisations.value.find(auth => auth.service === service)
 		}
 
 		export function loggedInAs (owner: State.Owner, authorVanity: string): State.Generator<boolean> {
@@ -111,7 +109,9 @@ namespace Session {
 		}
 
 		export function isAuthed (service: AuthService) {
-			return Session.Auth.authorisations.value.some(auth => auth.service === service.name)
+			return false
+				|| Session.Auth.author.value?.authorisations?.some(auth => auth.service === service.name)
+				|| Session.Auth.authorisations.value.some(auth => auth.service === service.name)
 		}
 
 		export async function unauth (authOrId: Authorisation | string) {
