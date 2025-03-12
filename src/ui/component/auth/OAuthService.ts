@@ -4,6 +4,7 @@ import type { DangerTokenType } from 'model/Session'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Checkbutton from 'ui/component/core/Checkbutton'
+import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import type EventManipulator from 'ui/utility/EventManipulator'
 import type { Events } from 'ui/utility/EventManipulator'
 import { mutable } from 'utility/Objects'
@@ -99,8 +100,15 @@ const OAuthService = Component.Builder((component, service: AuthService, definit
 				return
 
 			const auth = Session.Auth.get(service.name)
-			if (auth)
+			if (auth) {
+				if (Session.Auth.loggedIn.value) {
+					const result = await ConfirmDialog.prompt(button, { dangerToken: 'remove-auth-service' })
+					if (!result)
+						return false
+				}
+
 				await Session.Auth.unauth(auth.id)
+			}
 			else
 				await Session.Auth.auth(service)
 		})

@@ -6,6 +6,7 @@ import Component from 'ui/Component'
 import type { OAuthServiceEvents } from 'ui/component/auth/OAuthService'
 import AccountViewOAuthService from 'ui/component/auth/OAuthService'
 import Block from 'ui/component/core/Block'
+import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import type EventManipulator from 'ui/utility/EventManipulator'
@@ -101,4 +102,5 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 	return block
 })
 
+ConfirmDialog.setOauthServicesComponent(OAuthServices)
 export default OAuthServices
