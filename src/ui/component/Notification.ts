@@ -11,6 +11,7 @@ import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
 import Timestamp from 'ui/component/core/Timestamp'
+import AuthorPopover from 'ui/component/popover/AuthorPopover'
 import State from 'utility/State'
 
 type NotificationType = keyof ManifestNotificationTypes
@@ -54,9 +55,15 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 		.style.bind(read, 'notification--read')
 
 	const triggeredBy = Authors.resolve(data.triggered_by, Notifications.authors.value)
-	const TRIGGERED_BY = !triggeredBy ? undefined : Link(`/author/${triggeredBy.vanity}`).text.set(triggeredBy.name)
+	const TRIGGERED_BY = !triggeredBy ? undefined : Link(`/author/${triggeredBy.vanity}`)
+		.text.set(triggeredBy.name)
+		.setPopover('hover', popover => popover.and(AuthorPopover, triggeredBy))
+
 	const author = Authors.resolve(data.author, Notifications.authors.value)
-	const AUTHOR = !author ? undefined : Link(`/author/${author.vanity}`).text.set(author.name)
+	const AUTHOR = !author ? undefined : Link(`/author/${author.vanity}`)
+		.text.set(author.name)
+		.setPopover('hover', popover => popover.and(AuthorPopover, author))
+
 	const work = Works.resolve(data.work, Notifications.works.value)
 	const WORK = !work ? undefined : Link(`/work/${work.author}/${work.vanity}`).text.set(work.name)
 	const chapter = Chapters.resolve(data.chapter, Notifications.chapters.value)

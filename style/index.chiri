@@ -48,6 +48,7 @@
 	component/core/action-row
 	component/core/action-heading
 	component/core/block
+	component/core/popover-block
 	component/core/text-editor
 	component/core/form
 	component/core/flag

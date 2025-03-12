@@ -1,4 +1,4 @@
-import type { Author, Work as WorkData, WorkFull } from 'api.fluff4.me'
+import type { Author as AuthorData, Work as WorkData, WorkFull } from 'api.fluff4.me'
 import quilt from 'lang/en-nz'
 import Follows from 'model/Follows'
 import FormInputLengths from 'model/FormInputLengths'
@@ -8,9 +8,11 @@ import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
+import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
 import TextLabel from 'ui/component/core/TextLabel'
 import Timestamp from 'ui/component/core/Timestamp'
+import AuthorPopover from 'ui/component/popover/AuthorPopover'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
 
@@ -20,7 +22,7 @@ interface WorkExtensions {
 
 interface Work extends Block, WorkExtensions { }
 
-const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, author?: Author, notFullOverride?: true): Work => {
+const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, author?: AuthorData, notFullOverride?: true): Work => {
 	author = author ?? work.synopsis?.mentions[0]
 
 	component
@@ -43,7 +45,8 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 			.style.bind(isFlush, 'work-author-list--flush')
 			.append(Link(`/author/${author.vanity}`)
 				.style('work-author')
-				.text.set(author.name))
+				.text.set(author.name)
+				.setPopover('hover', popover => popover.and(AuthorPopover, author)))
 
 	block.content.style('work-content')
 
@@ -105,55 +108,56 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 	else if (work.time_last_update)
 		block.footer.right.append(Timestamp(work.time_last_update).style('work-timestamp'))
 
-	block.setActionsMenu((popover, button) => {
-		if (author && author.vanity === Session.Auth.author.value?.vanity) {
-			Button()
-				.type('flush')
-				.setIcon('pencil')
-				.text.use('work/action/label/edit')
-				.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/edit`))
-				.appendTo(popover)
+	if (!component.is(Popover))
+		block.setActionsMenu((popover, button) => {
+			if (author && author.vanity === Session.Auth.author.value?.vanity) {
+				Button()
+					.type('flush')
+					.setIcon('pencil')
+					.text.use('work/action/label/edit')
+					.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/edit`))
+					.appendTo(popover)
 
-			Button()
-				.type('flush')
-				.setIcon('plus')
-				.text.use('work/action/label/new-chapter')
-				.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/new`))
-				.appendTo(popover)
+				Button()
+					.type('flush')
+					.setIcon('plus')
+					.text.use('work/action/label/new-chapter')
+					.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/new`))
+					.appendTo(popover)
 
-			Button()
-				.type('flush')
-				.setIcon('trash')
-				.text.use('work/action/label/delete')
-				.event.subscribe('click', () => Works.delete(work, popover))
-				.appendTo(popover)
-		}
-		else if (Session.Auth.loggedIn.value) {
-			Button()
-				.type('flush')
-				.bindIcon(Follows.map(popover, () => Follows.followingWork(work)
-					? 'circle-check'
-					: 'circle'))
-				.text.bind(Follows.map(popover, () => Follows.followingWork(work)
-					? quilt['work/action/label/unfollow']()
-					: quilt['work/action/label/follow']()
-				))
-				.event.subscribe('click', () => Follows.toggleFollowingWork(work))
-				.appendTo(popover)
+				Button()
+					.type('flush')
+					.setIcon('trash')
+					.text.use('work/action/label/delete')
+					.event.subscribe('click', () => Works.delete(work, popover))
+					.appendTo(popover)
+			}
+			else if (Session.Auth.loggedIn.value) {
+				Button()
+					.type('flush')
+					.bindIcon(Follows.map(popover, () => Follows.followingWork(work)
+						? 'circle-check'
+						: 'circle'))
+					.text.bind(Follows.map(popover, () => Follows.followingWork(work)
+						? quilt['work/action/label/unfollow']()
+						: quilt['work/action/label/follow']()
+					))
+					.event.subscribe('click', () => Follows.toggleFollowingWork(work))
+					.appendTo(popover)
 
-			Button()
-				.type('flush')
-				.bindIcon(Follows.map(popover, () => Follows.ignoringWork(work)
-					? 'ban'
-					: 'circle'))
-				.text.bind(Follows.map(popover, () => Follows.ignoringWork(work)
-					? quilt['work/action/label/unignore']()
-					: quilt['work/action/label/ignore']()
-				))
-				.event.subscribe('click', () => Follows.toggleIgnoringWork(work))
-				.appendTo(popover)
-		}
-	})
+				Button()
+					.type('flush')
+					.bindIcon(Follows.map(popover, () => Follows.ignoringWork(work)
+						? 'ban'
+						: 'circle'))
+					.text.bind(Follows.map(popover, () => Follows.ignoringWork(work)
+						? quilt['work/action/label/unignore']()
+						: quilt['work/action/label/ignore']()
+					))
+					.event.subscribe('click', () => Follows.toggleIgnoringWork(work))
+					.appendTo(popover)
+			}
+		})
 
 	return block.extend<WorkExtensions>(component => ({ work }))
 })

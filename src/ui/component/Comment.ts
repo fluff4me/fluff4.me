@@ -14,6 +14,7 @@ import Link from 'ui/component/core/Link'
 import Slot from 'ui/component/core/Slot'
 import TextEditor from 'ui/component/core/TextEditor'
 import Timestamp from 'ui/component/core/Timestamp'
+import AuthorPopover from 'ui/component/popover/AuthorPopover'
 import Reaction from 'ui/component/Reaction'
 import type State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
@@ -78,6 +79,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 			Link(!author?.vanity ? undefined : `/author/${author.vanity}`)
 				.style('comment-header-author')
 				.text.set(author?.name ?? quilt['comment/deleted/author']().toString())
+				.setPopover('hover', popover => author && popover.and(AuthorPopover, author))
 				.appendTo(header)
 
 			const time = commentData.edited_time ?? commentData.created_time

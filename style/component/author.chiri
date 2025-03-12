@@ -7,6 +7,7 @@
 	&-pronouns:
 
 	&-description:
+		margin-top: calc($markdown-paragraph-padding-top * -1)
 
 	&-support-link:
 		%block

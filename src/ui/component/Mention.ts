@@ -2,6 +2,7 @@ import type { Author } from 'api.fluff4.me'
 import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
 import Link from 'ui/component/core/Link'
+import AuthorPopover from 'ui/component/popover/AuthorPopover'
 import MarkdownContent from 'ui/utility/MarkdownContent'
 
 interface MentionExtensions {
@@ -15,6 +16,7 @@ const Mention = Component.Builder('a', (component, author?: Author): Mention => 
 		.and(Link, author && `/author/${author.vanity}`)
 		.append(Component().style('mention-punctuation').text.set('@'))
 		.append(Component().style('mention-author-name').text.set(author?.name ?? quilt['shared/mention/unresolved']()))
+		.setPopover('hover', popover => author && popover.and(AuthorPopover, author))
 		.style('mention')
 })
 
