@@ -2,7 +2,9 @@
 
 	&-flag:
 		#after: .flag
+		%block
 		%row-2
+		%align-self-centre
 		font-size: $space-6
 		$stripe-outer-background: #414552
 		$stripe-inner-background: #717A95
@@ -14,3 +16,7 @@
 		; 	%background-3
 		; 	%rotate-40
 		; 	translate: calc($space-1 / 3) calc($space-1 / 2)
+
+		&--hidden:
+			#after: .loading-flag
+			%hidden

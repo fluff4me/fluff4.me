@@ -35,7 +35,7 @@
 		%grid
 		%border-bottom-1
 		%padding-block-2
-		%margin-bottom-4
+		margin-bottom: $block-padding
 		%border-top-radius-2
 		%relative
 		grid-template-columns: 1fr auto
@@ -68,7 +68,9 @@
 				:not ::focus: %transparent
 
 	&-description:
+		#after: .paragraph
 		%column-1
+		%margin-0
 
 	&-content:
 		%relative
