@@ -1,13 +1,15 @@
 import type { DangerTokenType } from 'model/Session'
 import Session from 'model/Session'
 import Component from 'ui/Component'
-import OAuthServices from 'ui/component/auth/OAuthServices'
+import type OAuthServicesType from 'ui/component/auth/OAuthServices'
 import BlockDialog from 'ui/component/core/BlockDialog'
 import Button from 'ui/component/core/Button'
 import Paragraph from 'ui/component/core/Paragraph'
 import { QuiltHelper, type Quilt } from 'ui/utility/StringApplicator'
 import Errors from 'utility/Errors'
 import State from 'utility/State'
+
+let OAuthServices: typeof OAuthServicesType
 
 interface ConfirmDialogExtensions {
 	readonly state: State<boolean | undefined>
@@ -107,6 +109,9 @@ const ConfirmDialog = Object.assign(
 					event.host.event.subscribe('transitionend', event =>
 						event.host.remove()))
 				.await(owner),
+		setOauthServicesComponent (component: typeof OAuthServicesType) {
+			OAuthServices = component
+		},
 	},
 )
 
