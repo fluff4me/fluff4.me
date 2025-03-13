@@ -200,6 +200,8 @@ $$button-background-highlight!colour
 		"book
 		"circle-question
 		"rotate
+		"tag
+		"tags
 
 	#each in icons as var icon:
 		&-icon-#{icon}:

@@ -99,5 +99,6 @@
 	view/type/notifications
 	view/type/following
 	view/type/ignoring
+	view/type/manage-tags
 
 #import: app

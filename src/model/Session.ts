@@ -1,4 +1,4 @@
-import type { AuthorFull, AuthorSelf, Paths } from 'api.fluff4.me'
+import type { AuthorFull, AuthorSelf, Paths, Privilege } from 'api.fluff4.me'
 import { type Authorisation, type AuthService, type Session } from 'api.fluff4.me'
 import EndpointAuthRemove from 'endpoint/auth/EndpointAuthDelete'
 import EndpointSessionGet from 'endpoint/session/EndpointSessionGet'
@@ -112,6 +112,10 @@ namespace Session {
 			return false
 				|| Session.Auth.author.value?.authorisations?.some(auth => auth.service === service.name)
 				|| Session.Auth.authorisations.value.some(auth => auth.service === service.name)
+		}
+
+		export function hasPrivilege (privilege: Privilege) {
+			return !!Session.Auth.author.value?.roles?.some(role => role.privileges.includes(privilege))
 		}
 
 		export async function unauth (authOrId: Authorisation | string) {
