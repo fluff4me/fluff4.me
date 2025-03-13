@@ -177,6 +177,9 @@ link/history=view/history/main/title
 section/create: Create
 link/create-work: Create Work
 
+section/manage: Manage
+link/tags: Tags
+
 section/profile=shared/term/profile
 link/login: Log In/Sign up
 link/profile=shared/action/view-profile
@@ -476,3 +479,8 @@ placeholder/login-for-patreon: Log in to authenticate with Patreon.
 title: Authenticate as Patron
 description: In order to view this content, please sign in to the Patreon account that you pledge with.
 done=shared/action/done
+
+
+## manage-tags
+title: Manage Tags
+description: Time to clean stuff up!

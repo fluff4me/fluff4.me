@@ -104,6 +104,13 @@ export default Component.Builder(nav => {
 		)
 		.appendTo(top)
 
+	Slot()
+		.use(Session.Auth.author, (slot, author) => author
+			&& Group('top', 'sidebar/section/manage')
+				.add('/manage/tags', 'sidebar/link/tags', button => button.setIcon('tag'))
+		)
+		.appendTo(top)
+
 	Group('bottom', 'sidebar/section/profile')
 		.using(Session.Auth.author, (group, author) => {
 			if (author) group

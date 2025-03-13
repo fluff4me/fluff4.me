@@ -9,6 +9,7 @@ import FeedView from 'ui/view/FeedView'
 import FollowingView from 'ui/view/FollowingView'
 import HistoryView from 'ui/view/HistoryView'
 import IgnoringView from 'ui/view/IgnoringView'
+import ManageTagsView from 'ui/view/ManageTagsView'
 import NewView from 'ui/view/NewView'
 import NotificationsView from 'ui/view/NotificationsView'
 import TagView from 'ui/view/TagView'
@@ -39,6 +40,8 @@ const Routes = [
 
 	Route('/tag/$category/$name', TagView.navigate),
 	// Route('/tag/$custom_name', TagView.navigate),
+
+	Route('/manage/tags', ManageTagsView.navigate),
 ]
 
 RoutePath.setRoutes(Routes)
