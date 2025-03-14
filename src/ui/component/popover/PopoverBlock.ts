@@ -11,6 +11,7 @@ export default Component.Builder((component): Popover => {
 		.anchor.add('aligned right', 'off bottom')
 		.anchor.add('aligned right', 'off top')
 		.anchor.orElseHide()
+		.viewTransition(false)
 
 	popover.header.style('popover-block-header')
 	popover.content.style('popover-block-content')

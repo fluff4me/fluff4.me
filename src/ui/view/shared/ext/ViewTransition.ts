@@ -108,15 +108,15 @@ namespace ViewTransition {
 		if (type === 'view')
 			for (const component of components) {
 				component.classes.add(VIEW_TRANSITION_CLASS_VIEW)
-				const name = component.attributes.get(DATA_VIEW_TRANSITION_NAME)
+				const name = component.attributes.get(DATA_VIEW_TRANSITION_NAME).value
 				component.style.setVariable('view-transition-delay', `${VIEW_TRANSITION_CLASS_DELAY}-${i}`)
 				component.style.setProperty('view-transition-name', `${VIEW_TRANSITION_CLASS_VIEW}-${name}-${i++}`)
 			}
 		else
 			for (const component of components) {
 				component.classes.add(VIEW_TRANSITION_CLASS_SUBVIEW)
-				const name = component.attributes.get(DATA_SUBVIEW_TRANSITION_NAME)
-				const id = +component.attributes.get(DATA_ID)! || 0
+				const name = component.attributes.get(DATA_SUBVIEW_TRANSITION_NAME).value
+				const id = +component.attributes.get(DATA_ID).value! || 0
 				component.style.setProperty('view-transition-name', `${VIEW_TRANSITION_CLASS_SUBVIEW}-${name}-${id}`)
 				component.style.setVariable('view-transition-delay', `${VIEW_TRANSITION_CLASS_DELAY}-${i++}`)
 			}
