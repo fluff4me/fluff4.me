@@ -63,9 +63,11 @@
 
 		&-hamburger:
 			&-sidebar:
+				#after: .button
 				#tablet:
 					%hidden
 			&-popover:
+				#after: .button
 				%hidden
 				#tablet:
 					%inline-block

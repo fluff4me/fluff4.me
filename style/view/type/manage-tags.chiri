@@ -1,1 +1,32 @@
 #view type="manage-tags":
+
+	&-custom-tag-block:
+		%flex
+		%flex-column
+		%gap-4
+
+	&-custom-tag-list:
+		%flex
+		%flex-wrap
+		%gap-3
+		%justify-content-centre
+		%padding-block-2
+		%unmargin-block-2
+		%max-height-7
+		%overflow-auto
+
+	&-custom-tag:
+		#after: .tag
+
+		::hover:
+			%colour-pink
+			$button-background: transparent
+
+		&--filtered-out:
+			#after: .button, .tag
+			%hidden
+
+		&--selected:
+			#after: .tag, .view-type-manage-tags-custom-tag
+			%colour-0
+			$button-background: $colour-pink

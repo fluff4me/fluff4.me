@@ -50,8 +50,10 @@ export const Tab = Component.Builder((component): Tab => {
 
 interface TabinatorExtensions<TAB extends Tab> {
 	readonly tab: State<TAB | undefined>
+	allowNoneVisible (): this
 	showTab (tab: TAB): this
 	addTab<NEW_TAB extends Tab> (tab: NEW_TAB): Tabinator<TAB | NEW_TAB>
+	addTabWhen<NEW_TAB extends Tab> (state: State<boolean>, tab: NEW_TAB): Tabinator<TAB | NEW_TAB>
 	removeTab (tab: Tab): this
 }
 
@@ -60,6 +62,7 @@ interface Tabinator<TAB extends Tab> extends Block, TabinatorExtensions<TAB> { }
 const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 	const activeTab = State<Tab | undefined>(undefined)
 
+	let shouldForceSelect = true
 	const tabs = State<Tab[]>([])
 	const tabinator: Tabinator<Tab> = component
 		.and(Block)
@@ -68,8 +71,12 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 		.ariaRole('tablist')
 		.extend<TabinatorExtensions<Tab>>(tabinator => ({
 			tab: activeTab,
+			allowNoneVisible () {
+				shouldForceSelect = false
+				return tabinator
+			},
 			showTab (newTab) {
-				if (tabs.value.includes(newTab))
+				if (tabs.value.includes(newTab) && !newTab.style.has('tabinator-tab--hidden'))
 					activeTab.value = newTab
 
 				return tabinator
@@ -94,9 +101,14 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 
 				tabs.value.push(newTab)
 				tabs.emit()
-				if (tabinator.tab.value === undefined)
+				if (tabinator.tab.value === undefined && shouldForceSelect)
 					activeTab.value = newTab
 
+				return tabinator
+			},
+			addTabWhen (state, tab) {
+				tabinator.addTab(tab)
+				tab.style.bind(state.falsy, 'tabinator-tab--hidden')
 				return tabinator
 			},
 			removeTab (removeTab) {
@@ -109,7 +121,7 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 				tabs.value.filterInPlace(tab => tab !== removeTab)
 				tabs.emit()
 				if (activeTab.value === removeTab)
-					activeTab.value = undefined
+					activeTab.value = shouldForceSelect ? tabs.value[0] : undefined
 
 				return tabinator
 			},

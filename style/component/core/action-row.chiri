@@ -13,6 +13,7 @@
 		%flex-grow
 		%gap-3
 		%align-items-centre
+		%max-width-100
 
 		#flush:
 			%gap-0

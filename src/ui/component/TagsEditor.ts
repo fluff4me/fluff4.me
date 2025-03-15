@@ -15,7 +15,8 @@ import { AllowYOffscreen } from 'ui/utility/AnchorManipulator'
 import Applicator from 'ui/utility/Applicator'
 import AbortPromise from 'utility/AbortPromise'
 import Mouse from 'utility/Mouse'
-import State, { StateOr } from 'utility/State'
+import type { StateOr } from 'utility/State'
+import State from 'utility/State'
 import Strings from 'utility/string/Strings'
 
 export interface TagsState {
@@ -300,9 +301,9 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 //#region Input Filter
 
 const TagsFilter = FilterFunction((before, selected, after) => {
-	before = filterSegment(before)
-	selected = filterSegment(selected)
-	after = filterSegment(after)
+	before = filterTagSegment(before)
+	selected = filterTagSegment(selected)
+	after = filterTagSegment(after)
 
 	if (before.includes(':')) {
 		selected = selected.replaceAll(':', ' ')
@@ -334,7 +335,7 @@ const TagsFilter = FilterFunction((before, selected, after) => {
 	return [before, selected, after]
 })
 
-function filterSegment (text: string) {
+export function filterTagSegment (text: string) {
 	return text.toLowerCase()
 		.replace(/[^\w/!?&$'.,: -]/g, ' ')
 		.replace(/(?<=:.*?):/g, ' ')
