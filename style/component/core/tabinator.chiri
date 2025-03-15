@@ -1,6 +1,7 @@
 .tabinator:
 	#after: .block
 	$block-padding: 0
+	%max-width-100
 
 	&-tab-list:
 		#after: .block-header
@@ -12,6 +13,7 @@
 		%background-none
 		%gap-3
 		%scheme-dark
+		%align-items-centre
 
 	&-tab:
 		%width-fit
@@ -19,13 +21,21 @@
 		&--active:
 			$button-background: $background-interact-5
 
+		&--hidden:
+			#after: .button
+			%hidden
+
 	&-content:
 		%grid
 		%stack
+		grid-template-columns: 100%
 
 	&-panel:
+		%block
 		#block
+		%relative
 		%stack-self
+		%max-width-100
 		%background-none
 		%opaque
 		#transition: #{transition("opacity")}, #{transition("translate")}, #{transition("display")}

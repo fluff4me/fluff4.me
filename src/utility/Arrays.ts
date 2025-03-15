@@ -181,16 +181,18 @@ namespace Arrays {
 	 * Adds the given value to the given array if not present.
 	 * @returns `true` if added, `false` otherwise
 	 */
-	export function add (array: any[] | undefined, value: any) {
+	export function add (array: any[] | undefined, ...values: any) {
 		if (!array)
 			return false
 
-		const index = array.indexOf(value)
-		if (index !== -1)
-			return false
+		let addedAny = false
+		for (const value of values)
+			if (!array.includes(value)) {
+				addedAny = true
+				array.push(value)
+			}
 
-		array.push(value)
-		return true
+		return addedAny
 	}
 
 	export function tuple<VALUES extends any[]> (...values: VALUES): VALUES {

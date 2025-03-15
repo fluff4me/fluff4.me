@@ -47,6 +47,8 @@ continue: Continue
 new-chapter: New Chapter
 become-patron: Become a Patron
 done: Done
+filter: Filter...
+rename: Rename
 
 ## toast
 failed-to-save: Failed to save {0}
@@ -56,7 +58,8 @@ error-occurred: An error has occurred!
 ## form
 dropdown/selection/none: No Selection
 dropdown/selection/join: {*, }
-dropdown/filter/placeholder: Filter...
+dropdown/filter/placeholder=shared/action/filter
+category/label: Category
 name/label: Name
 vanity/label: Vanity
 description/label: Description
@@ -484,3 +487,25 @@ done=shared/action/done
 ## manage-tags
 title: Manage Tags
 description: Time to clean stuff up!
+
+### global-tag-form
+category/label=shared/form/category/label
+name/label=shared/form/name/label
+description/label=shared/form/description/label
+
+### custom-tags
+title: Custom Tags
+
+hint/filter=shared/action/filter
+hint/select-tags: Select tags to manage them...
+
+action/rename=shared/action/rename
+hint/rename: replacement tag name
+
+action/delete=shared/action/delete
+hint/delete-tags: Are you sure you want to delete these tag(s)? This is permanent. All stories with these tags will lose them.
+
+action/promote: Promote
+action/promote/new-tag: New Tag
+action/promote/existing-tag: Existing Tag
+hint/promote/into: Promote Into:

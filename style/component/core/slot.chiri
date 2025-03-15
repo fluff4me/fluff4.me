@@ -1,2 +1,6 @@
 .slot:
 	%contents
+
+	&--hidden:
+		#after: .slot
+		%hidden
