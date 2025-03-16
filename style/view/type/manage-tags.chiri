@@ -30,3 +30,9 @@
 			#after: .tag, .view-type-manage-tags-custom-tag
 			%colour-0
 			$button-background: $colour-pink
+
+	&-custom-tag-action:
+
+		&-rename-row:
+			#after: .action-row
+			grid-template-columns: 1fr auto

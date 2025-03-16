@@ -127,7 +127,9 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 			},
 		}))
 
-	tabinator.header.style('tabinator-tab-list')
+	tabinator.header
+		.style('tabinator-tab-list')
+		.style.bind(activeTab.mapManual(tab => !tab), 'tabinator-tab-list--no-tab-shown')
 	tabinator.content.style('tabinator-content')
 
 	activeTab.useManual((tab, oldTab) => {
