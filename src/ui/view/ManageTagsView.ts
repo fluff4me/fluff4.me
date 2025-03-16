@@ -1,10 +1,12 @@
 import EndpointTagCustomGetAll from 'endpoint/tag/EndpointTagCustomGetAll'
+import EndpointTagCustomRename from 'endpoint/tag/EndpointTagCustomRename'
 import Session from 'model/Session'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import Placeholder from 'ui/component/core/Placeholder'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import TextInput from 'ui/component/core/TextInput'
@@ -33,7 +35,7 @@ export default ViewDefinition({
 			manifest,
 		}
 	},
-	create: (params, { customTags, manifest }) => {
+	create: (params, { customTags: customTagsIn, manifest }) => {
 		const view = View('manage-tags')
 
 		view.breadcrumbs.title.text.use('view/manage-tags/title')
@@ -57,49 +59,54 @@ export default ViewDefinition({
 		let lastAdded: string | undefined
 		let lastRemoved: string | undefined
 
-		for (const tag of customTags.sort((a, b) => a.localeCompare(b))) {
-			const selected = selectedTags.mapManual(tags => tags.includes(tag))
-			const filteredOut = State.MapManual([filter.state, selected],
-				(text, selected) => !selected && !filteredIn(tag))
+		const customTags = State(customTagsIn)
+		customTags.use(tagList, customTags => {
+			tagList.removeContents()
 
-			Tag(tag)
-				.style('view-type-manage-tags-custom-tag')
-				.style.bind(filteredOut, 'view-type-manage-tags-custom-tag--filtered-out')
-				.style.bind(selected, 'view-type-manage-tags-custom-tag--selected')
-				.event.subscribe('click', event => {
-					if (selectedTags.value.includes(tag)) {
-						if (event.shiftKey && event.altKey && lastRemoved && lastRemoved !== tag) {
-							const otherIndex = customTags.indexOf(lastRemoved)
-							const thisIndex = customTags.indexOf(tag)
-							const start = Math.min(otherIndex, thisIndex)
-							const end = Math.max(otherIndex, thisIndex)
-							Arrays.remove(selectedTags.value, ...customTags.slice(start, end + 1).filter(filteredIn))
+			for (const tag of customTags.sort((a, b) => a.localeCompare(b))) {
+				const selected = selectedTags.mapManual(tags => tags.includes(tag))
+				const filteredOut = State.MapManual([filter.state, selected],
+					(text, selected) => !selected && !filteredIn(tag))
+
+				Tag(tag)
+					.style('view-type-manage-tags-custom-tag')
+					.style.bind(filteredOut, 'view-type-manage-tags-custom-tag--filtered-out')
+					.style.bind(selected, 'view-type-manage-tags-custom-tag--selected')
+					.event.subscribe('click', event => {
+						if (selectedTags.value.includes(tag)) {
+							if (event.shiftKey && event.altKey && lastRemoved && lastRemoved !== tag) {
+								const otherIndex = customTags.indexOf(lastRemoved)
+								const thisIndex = customTags.indexOf(tag)
+								const start = Math.min(otherIndex, thisIndex)
+								const end = Math.max(otherIndex, thisIndex)
+								Arrays.remove(selectedTags.value, ...customTags.slice(start, end + 1).filter(filteredIn))
+								selectedTags.emit()
+								return
+							}
+
+							lastRemoved = tag
+							Arrays.remove(selectedTags.value, tag)
 							selectedTags.emit()
 							return
 						}
 
-						lastRemoved = tag
-						Arrays.remove(selectedTags.value, tag)
-						selectedTags.emit()
-						return
-					}
+						if (event.shiftKey && lastAdded && lastAdded !== tag) {
+							const otherIndex = customTags.indexOf(lastAdded)
+							const thisIndex = customTags.indexOf(tag)
+							const start = Math.min(otherIndex, thisIndex)
+							const end = Math.max(otherIndex, thisIndex)
+							Arrays.add(selectedTags.value, ...customTags.slice(start, end + 1).filter(filteredIn))
+							selectedTags.emit()
+							return
+						}
 
-					if (event.shiftKey && lastAdded && lastAdded !== tag) {
-						const otherIndex = customTags.indexOf(lastAdded)
-						const thisIndex = customTags.indexOf(tag)
-						const start = Math.min(otherIndex, thisIndex)
-						const end = Math.max(otherIndex, thisIndex)
-						Arrays.add(selectedTags.value, ...customTags.slice(start, end + 1).filter(filteredIn))
+						lastAdded = tag
+						Arrays.add(selectedTags.value, tag)
 						selectedTags.emit()
-						return
-					}
-
-					lastAdded = tag
-					Arrays.add(selectedTags.value, tag)
-					selectedTags.emit()
-				})
-				.appendTo(tagList)
-		}
+					})
+					.appendTo(tagList)
+			}
+		})
 
 		Placeholder()
 			.text.use('view/manage-tags/custom-tags/hint/select-tags')
@@ -111,18 +118,37 @@ export default ViewDefinition({
 		const renameTab = Tab()
 			.text.use('view/manage-tags/custom-tags/action/rename')
 
-		const renameRow = ActionRow().appendTo(renameTab.content)
+		const renameRow = ActionRow()
+			.style('view-type-manage-tags-custom-tag-action-rename-row')
+			.appendTo(renameTab.content)
 		const renameInput = TextInput()
 			.placeholder.use('view/manage-tags/custom-tags/hint/rename')
 			.appendTo(renameRow.left)
 
-		Button()
+		const renameButton = Button()
 			.type('primary')
 			.text.use('view/manage-tags/custom-tags/action/rename')
 			.event.subscribe('click', async () => {
+				const oldName = selectedTags.value[0]
 				const newName = filterTagSegment(renameInput.state.value)
-				if (!newName || newName === selectedTags.value[0])
+				if (!newName || newName === oldName)
 					return
+
+				const confirmed = await ConfirmDialog.prompt(renameButton, { dangerToken: 'tag-modify' })
+				if (!confirmed)
+					return
+
+				const response = await EndpointTagCustomRename.query({ params: { vanity: oldName }, body: { name: newName } })
+				if (toast.handleError(response))
+					return
+
+				Arrays.remove(selectedTags.value, oldName)
+				Arrays.remove(customTags.value, oldName)
+				Arrays.add(customTags.value, newName)
+				selectedTags.emit()
+				customTags.emit()
+
+				renameInput.value = ''
 			})
 			.appendTo(renameRow.right)
 

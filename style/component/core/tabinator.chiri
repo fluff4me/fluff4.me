@@ -15,6 +15,11 @@
 		%scheme-dark
 		%align-items-centre
 
+		&--no-tab-shown:
+			#after: .tabinator-tab-list
+			%margin-bottom-0
+			%padding-bottom-0
+
 	&-tab:
 		%width-fit
 
