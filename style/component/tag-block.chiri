@@ -1,6 +1,8 @@
 .tag-block:
 	#after: .block
 	$block-border-colour: $colour-pink-2
+	$block-background-light: color-mix(in lch, $colour-pink-2, $light-1 30%)
+	$block-background-dark: color-mix(in lch, $colour-pink-2, transparent 60%)
 
 	@before:
 		%inset-border-2
