@@ -26,6 +26,8 @@ settings: Settings
 account-settings: Account Settings
 notes: Notes
 patreon-tier: {NAME}: {#B:{PRICE}}
+relationships-to: Relates To
+relationships-from: Related From
 
 ## action
 auth: Authenticate
@@ -214,6 +216,9 @@ action/label/ignore=shared/action/ignore
 action/label/unignore=shared/action/unignore
 
 # tag
+label/aliases: Aliases
+label/relationships-to=shared/term/relationships-to
+label/relationships-from=shared/term/relationships-from
 action/label/follow=shared/action/follow
 action/label/unfollow=shared/action/unfollow
 action/label/ignore=shared/action/ignore
@@ -493,8 +498,8 @@ category/label=shared/form/category/label
 name/label=shared/form/name/label
 description/label=shared/form/description/label
 aliases/label: Aliases
-relationships-to/label: Relates To
-relationships-from/label: Related From
+relationships-to/label=shared/term/relationships-to
+relationships-from/label=shared/term/relationships-from
 
 ### custom-tags
 title: Custom Tags
