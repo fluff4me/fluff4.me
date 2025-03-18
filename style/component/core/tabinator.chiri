@@ -2,9 +2,10 @@
 	#after: .block
 	$block-padding: 0
 	%max-width-100
+	%border-none
 
 	&-tab-list:
-		#after: .block-header
+		#after: .block-header, .block--type-flush-header
 		%flex
 		%flex-wrap
 		%justify-content-start
@@ -14,11 +15,16 @@
 		%gap-3
 		%scheme-dark
 		%align-items-centre
+		%border-bottom-1
+		%box-shadow-1
+		$box-shadow-intensity: 30%
 
 		&--no-tab-shown:
 			#after: .tabinator-tab-list
 			%margin-bottom-0
 			%padding-bottom-0
+			%border-bottom-none
+			%box-shadow-none
 
 	&-tab:
 		%width-fit

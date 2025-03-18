@@ -1,6 +1,14 @@
 .dropdown:
+	%grid
+	%stack
 
 	&-button:
+		%stack-self
+
+	&-validity-pipe-input:
+		%stack-self
+		%transparent
+		%pointer-events-none
 
 	&-popover:
 		%unmargin-top-3

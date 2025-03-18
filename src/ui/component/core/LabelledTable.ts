@@ -3,7 +3,7 @@ import type Label from 'ui/component/core/Label'
 import type { AutoLabel } from 'ui/component/core/Label'
 import LabelledRow from 'ui/component/core/LabelledRow'
 import Slot from 'ui/component/core/Slot'
-import State from 'utility/State'
+import type State from 'utility/State'
 
 interface LabelledRowFactory<HOST extends LabelledTable> {
 	if (state: State<boolean>, orElse?: () => unknown): this

@@ -79,6 +79,7 @@
 	component/tag-block
 	component/primary-nav
 	component/settings-dialog
+	component/tag-edit-form
 
 #import:
 	view/view

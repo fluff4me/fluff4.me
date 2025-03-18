@@ -33,12 +33,16 @@ interface TagsEditorExtensions {
 	readonly lengthCustom: State.Generator<number>
 	setMaxLengthGlobal (maxLength?: StateOr<number | undefined>): this
 	setMaxLengthCustom (maxLength?: StateOr<number | undefined>): this
+	setCustomTagsOnly (): this
+	setGlobalTagsOnly (): this
 }
 
 interface TagsEditor extends Component, TagsEditorExtensions, InputExtensions { }
 
 const TagsEditor = Component.Builder((component): TagsEditor => {
 	const tagsState = State<TagsState>({ global_tags: [], custom_tags: [] })
+
+	const tagTypeFilter = State<undefined | 'global' | 'custom'>(undefined)
 
 	////////////////////////////////////
 	//#region Current
@@ -131,67 +135,71 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 
 				category = category.trim(), name = name.trim()
 
-				const categorySuggestions = category ? []
-					: Object.values(manifest.categories)
-						.filter(category => category.nameLowercase.startsWith(name))
-						// only include categories that have tags that haven't been added yet
-						.filter(category => Object.entries(manifest.tags)
-							.some(([tagId, tag]) => tag.category === category.name && !tags.global_tags.some(added => tagId === added)))
-						.sort(
-							category => -Object.values(manifest.tags).filter(tag => tag.category === category.name).length,
-							(a, b) => a.name.localeCompare(b.name),
-						)
-						.map(category => Tag.Category(category)
-							.event.subscribe('click', () => input.value = `${category.name}: `))
+				if (tagTypeFilter.value !== 'custom') {
+					const categorySuggestions = category ? []
+						: Object.values(manifest.categories)
+							.filter(category => category.nameLowercase.startsWith(name))
+							// only include categories that have tags that haven't been added yet
+							.filter(category => Object.entries(manifest.tags)
+								.some(([tagId, tag]) => tag.category === category.name && !tags.global_tags.some(added => tagId === added)))
+							.sort(
+								category => -Object.values(manifest.tags).filter(tag => tag.category === category.name).length,
+								(a, b) => a.name.localeCompare(b.name),
+							)
+							.map(category => Tag.Category(category)
+								.event.subscribe('click', () => input.value = `${category.name}: `))
 
-				if (categorySuggestions.length)
-					Component()
-						.style('tags-editor-suggestions-type')
-						.append(...categorySuggestions)
-						.appendTo(slot)
+					if (categorySuggestions.length)
+						Component()
+							.style('tags-editor-suggestions-type')
+							.append(...categorySuggestions)
+							.appendTo(slot)
 
-				const tagSuggestions = category
-					? Object.entries(manifest.tags)
-						.filter(([, tag]) => tag.categoryLowercase.startsWith(category) && tag.nameLowercase.startsWith(name))
-					: name
+					const tagSuggestions = category
 						? Object.entries(manifest.tags)
-							.filter(([, tag]) => tag.wordsLowercase.some(word => word.startsWith(name)))
-						: []
+							.filter(([, tag]) => tag.categoryLowercase.startsWith(category) && tag.nameLowercase.startsWith(name))
+						: name
+							? Object.entries(manifest.tags)
+								.filter(([, tag]) => tag.wordsLowercase.some(word => word.startsWith(name)))
+							: []
 
-				tagSuggestions.filterInPlace(([tagId]) => !tags.global_tags.some(added => added === tagId))
-				if (tagSuggestions.length)
-					Component()
-						.style('tags-editor-suggestions-type')
-						.append(...tagSuggestions.map(([, tag]) => Tag(tag)
-							.setNavigationDisabled(true)
-							.event.subscribe('click', () => {
-								tags.global_tags.push(`${tag.category}: ${tag.name}`)
-								tagsState.emit()
-								input.value = ''
-							})
-						))
-						.appendTo(slot)
+					tagSuggestions.filterInPlace(([tagId]) => !tags.global_tags.some(added => added === tagId))
+					if (tagSuggestions.length)
+						Component()
+							.style('tags-editor-suggestions-type')
+							.append(...tagSuggestions.map(([, tag]) => Tag(tag)
+								.setNavigationDisabled(true)
+								.event.subscribe('click', () => {
+									tags.global_tags.push(`${tag.category}: ${tag.name}`)
+									tagsState.emit()
+									input.value = ''
+								})
+							))
+							.appendTo(slot)
+				}
 
-				const customTagSuggestions = select(() => {
-					if (!name) return []
-					if (!category) return [Tag(name)]
-					return [Tag(`${name} ${category}`), Tag(`${category} ${name}`)]
-				})
-				if (customTagSuggestions.length)
-					Component()
-						.style('tags-editor-suggestions-type')
-						.append(Component()
-							.style('tags-editor-suggestions-type-label')
-							.text.use('shared/form/tags/suggestion/add-as-custom'))
-						.append(...customTagSuggestions.map(tag => tag
-							.setNavigationDisabled(true)
-							.event.subscribe('click', () => {
-								tags.custom_tags.push(tag.tag as string)
-								tagsState.emit()
-								input.value = ''
-							})
-						))
-						.appendTo(slot)
+				if (tagTypeFilter.value !== 'global') {
+					const customTagSuggestions = select(() => {
+						if (!name) return []
+						if (!category) return [Tag(name)]
+						return [Tag(`${name} ${category}`), Tag(`${category} ${name}`)]
+					})
+					if (customTagSuggestions.length)
+						Component()
+							.style('tags-editor-suggestions-type')
+							.append(Component()
+								.style('tags-editor-suggestions-type-label')
+								.text.use('shared/form/tags/suggestion/add-as-custom'))
+							.append(...customTagSuggestions.map(tag => tag
+								.setNavigationDisabled(true)
+								.event.subscribe('click', () => {
+									tags.custom_tags.push(tag.tag as string)
+									tagsState.emit()
+									input.value = ''
+								})
+							))
+							.appendTo(slot)
+				}
 
 				if (slot.size)
 					Component()
@@ -250,12 +258,20 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 					maxLengthCustom.value = maxLength
 				return editor
 			},
+			setCustomTagsOnly () {
+				tagTypeFilter.value = 'custom'
+				return editor
+			},
+			setGlobalTagsOnly () {
+				tagTypeFilter.value = 'global'
+				return editor
+			},
 		}))
 
 	editor.disableDefaultHintPopoverVisibilityHandling()
 	hasOrHadFocus.subscribeManual(focus => editor.getPopover()?.toggle(focus).anchor.apply())
 	editor.setCustomHintPopover(popover => popover
-		.append(
+		.appendWhen(tagTypeFilter.falsy,
 			Input.createHintText(quilt['shared/form/tags/hint/main']()),
 			Input.createHintText(quilt['shared/form/tags/hint/global']()),
 			ProgressWheel.Length(editor.lengthGlobal, editor.maxLengthGlobal),
