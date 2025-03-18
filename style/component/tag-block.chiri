@@ -40,7 +40,25 @@
 		grid-template-columns: auto 1fr
 		%gap-4
 
+	&-content:
+		%flex
+		%flex-column
+		%gap-3
+
 	&-description:
 		%unmargin-top-3
 		%italic
-		%align-self-centre
+
+	&-section-heading:
+		%flex-basis-100
+		%uppercase
+		%font-1
+		%colour-2
+		%margin-0
+		%unmargin-bottom-2
+		letter-spacing: 0.1em
+
+	&-aliases, &-relationships:
+		%flex
+		%flex-wrap
+		%gap-2
