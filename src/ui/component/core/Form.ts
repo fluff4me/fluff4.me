@@ -5,18 +5,19 @@ import Button from 'ui/component/core/Button'
 import State from 'utility/State'
 
 interface FormExtensions {
-	content: Component
-	footer: ActionRow
-	submit: Button
+	readonly content: Component
+	readonly footer: ActionRow
+	readonly submit: Button
+	refreshValidity (): this
 }
 
 interface Form extends Component, FormExtensions { }
 
-const Form = Component.Builder((component, label: Component): Form => {
+const Form = Component.Builder((component, label: Component | null): Form => {
 	const form = (component.replaceElement('form')
 		.style('form')
 		.ariaRole('form')
-		.ariaLabelledBy(label)
+		.ariaLabelledBy(label ?? undefined)
 	) as Component<HTMLFormElement>
 
 	form.receiveDescendantInsertEvents()
@@ -37,6 +38,10 @@ const Form = Component.Builder((component, label: Component): Form => {
 		.extend<FormExtensions>(() => ({
 			content, footer,
 			submit: undefined!,
+			refreshValidity () {
+				valid.refresh()
+				return this
+			},
 		}))
 		.extendJIT('submit', () => Button()
 			.type('primary')

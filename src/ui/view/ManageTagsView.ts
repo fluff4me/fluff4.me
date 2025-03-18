@@ -1,4 +1,6 @@
+import EndpointTagCustomDelete from 'endpoint/tag/EndpointTagCustomDelete'
 import EndpointTagCustomGetAll from 'endpoint/tag/EndpointTagCustomGetAll'
+import EndpointTagCustomPromote from 'endpoint/tag/EndpointTagCustomPromote'
 import EndpointTagCustomRename from 'endpoint/tag/EndpointTagCustomRename'
 import Session from 'model/Session'
 import Tags from 'model/Tags'
@@ -8,13 +10,16 @@ import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import Placeholder from 'ui/component/core/Placeholder'
+import Slot from 'ui/component/core/Slot'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import TextInput from 'ui/component/core/TextInput'
 import Tag from 'ui/component/Tag'
-import NewTagForm from 'ui/component/tag/NewTagForm'
-import { filterTagSegment } from 'ui/component/TagsEditor'
+import TagEditForm from 'ui/component/tag/TagEditForm'
+import TagBlock from 'ui/component/TagBlock'
+import TagsEditor, { filterTagSegment } from 'ui/component/TagsEditor'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
+import AbortPromise from 'utility/AbortPromise'
 import Arrays from 'utility/Arrays'
 import Errors from 'utility/Errors'
 import State from 'utility/State'
@@ -161,14 +166,115 @@ export default ViewDefinition({
 		const promoteTab = Tab()
 			.text.use('view/manage-tags/custom-tags/action/promote')
 
+		////////////////////////////////////
+		//#region Into New Tag
+
 		const promoteNewTag = Tab()
 			.text.use('view/manage-tags/custom-tags/action/promote/new-tag')
 
-		NewTagForm(manifest)
+		const newTagForm = TagEditForm(manifest)
 			.appendTo(promoteNewTag.content)
+
+		newTagForm.submit
+			.text.use('view/manage-tags/custom-tags/action/promote')
+			.event.subscribe('click', async () => {
+				const promotedTags = selectedTags.value.slice()
+				if (!promotedTags.length)
+					return
+
+				const newTag = newTagForm.getFormData()
+				if (!newTag)
+					return
+
+				const response = await EndpointTagCustomPromote.query({
+					body: {
+						into_new_tag: newTag,
+						promoted_from_tags: promotedTags,
+					},
+				})
+				if (toast.handleError(response))
+					return
+
+				Arrays.remove(customTags.value, ...promotedTags)
+				Arrays.remove(selectedTags.value, ...promotedTags)
+				customTags.emit()
+				selectedTags.emit()
+			})
+
+		//#endregion
+		////////////////////////////////////
+
+		////////////////////////////////////
+		//#region Into Existing Tag
 
 		const promoteExistingTag = Tab()
 			.text.use('view/manage-tags/custom-tags/action/promote/existing-tag')
+
+		const existingTagSelector = TagsEditor()
+			.setGlobalTagsOnly()
+			.setMaxLengthGlobal(1)
+
+		const existingTagToPromoteInto = existingTagSelector.state.mapManual(tags => tags.global_tags.at(0))
+		existingTagSelector.appendToWhen(existingTagToPromoteInto.falsy, promoteExistingTag.content)
+
+		Slot().appendTo(promoteExistingTag.content).use(existingTagToPromoteInto, AbortPromise.asyncFunction(async (signal, slot, tagString) => {
+			if (!tagString)
+				return
+
+			const tag = await Tags.resolve(tagString)
+			if (!tag) {
+				existingTagSelector.state.value.global_tags = []
+				existingTagSelector.state.emit()
+				return
+			}
+
+			TagBlock(tag)
+				.style('view-type-manage-tags-custom-tag-action-promote-existing-tag')
+				.appendTo(slot)
+		}))
+
+		const promoteIntoExistingActionRow = ActionRow()
+			.style('view-type-manage-tags-custom-tag-action-promote-row')
+			.appendToWhen(existingTagToPromoteInto.truthy, promoteExistingTag.content)
+
+		Button()
+			.text.use('view/manage-tags/custom-tags/action/promote/existing-tag-change')
+			.event.subscribe('click', () => {
+				existingTagSelector.state.value.global_tags = []
+				existingTagSelector.state.emit()
+			})
+			.appendTo(promoteIntoExistingActionRow.right)
+
+		Button()
+			.type('primary')
+			.text.use('view/manage-tags/custom-tags/action/promote')
+			.event.subscribe('click', async () => {
+				const promotedTags = selectedTags.value.slice()
+				if (!promotedTags.length)
+					return
+
+				const [tag] = existingTagSelector.state.value.global_tags
+				if (!tag)
+					return
+
+				const response = await EndpointTagCustomPromote.query({
+					body: {
+						into_existing_tag: { id: tag },
+						promoted_from_tags: promotedTags,
+					},
+				})
+				if (toast.handleError(response))
+					return
+
+				Arrays.remove(customTags.value, ...promotedTags)
+				Arrays.remove(selectedTags.value, ...promotedTags)
+				customTags.emit()
+				selectedTags.emit()
+			})
+			.appendTo(promoteIntoExistingActionRow.right)
+
+		//#endregion
+		////////////////////////////////////
 
 		const promoteTabinator = Tabinator()
 			.allowNoneVisible()
@@ -199,7 +305,18 @@ export default ViewDefinition({
 			.type('primary')
 			.text.use('view/manage-tags/custom-tags/action/delete')
 			.event.subscribe('click', async () => {
+				const tagsToDelete = selectedTags.value.slice()
+				if (!tagsToDelete.length)
+					return
 
+				const response = await EndpointTagCustomDelete.query({ body: { tags: tagsToDelete } })
+				if (toast.handleError(response))
+					return
+
+				Arrays.remove(customTags.value, ...tagsToDelete)
+				Arrays.remove(selectedTags.value, ...tagsToDelete)
+				customTags.emit()
+				selectedTags.emit()
 			})
 			.appendTo(row.right)
 

@@ -1,0 +1,5 @@
+.tag-edit-form:
+
+	&-footer:
+		#after: .block-footer
+		%margin-top-3

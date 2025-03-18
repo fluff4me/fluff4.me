@@ -35,4 +35,15 @@
 
 		&-rename-row:
 			#after: .action-row
+			%grid
 			grid-template-columns: 1fr auto
+
+		&-promote:
+
+			&-existing-tag:
+				#after: .tag-block, .block
+				%max-width-100
+
+			&-row:
+				#after: .action-row
+				%margin-top-3

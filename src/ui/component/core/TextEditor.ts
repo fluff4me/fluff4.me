@@ -855,6 +855,7 @@ interface TextEditorExtensions {
 	readonly toolbar: Component
 	readonly default: StringApplicator.Optional<this>
 	readonly content: State<string>
+	readonly touched: State<boolean>
 	document?: Input
 	mirror?: EditorView
 	useMarkdown (): string
@@ -870,6 +871,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	const isMarkdown = State<boolean>(false)
 	const content = State<string>('')
 	const isFullscreen = State<boolean>(false)
+	const touched = State(false)
 
 	const minimal = State<boolean>(false)
 	const isMinimal = State.MapManual([minimal, content], (minimal, content) => minimal && !content.trim())
@@ -1290,6 +1292,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.pipeValidity(hiddenInput)
 		.extend<TextEditorExtensions & Partial<InputExtensions>>(editor => ({
 			content,
+			touched,
 			default: StringApplicator(editor, value => loadFromMarkdown(value)),
 			toolbar,
 			setRequired (required = true) {
@@ -1307,6 +1310,8 @@ const TextEditor = Component.Builder((component): TextEditor => {
 				unuseLabelRemoved = label?.removed.use(editor, removed => removed && stopUsingLabel())
 				// the moment a name is assigned to the editor, attempt to replace the doc with a local draft (if it exists)
 				unsubscribeLabelFor = label?.for.use(editor, loadLocal)
+
+				label?.setInput(editor)
 
 				return editor
 			},
@@ -1376,6 +1381,17 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	////////////////////////////////////
 
 	return editor
+
+	function updateValidity () {
+		let invalid: InvalidMessageText
+		if ((editor.length.value ?? 0) > (editor.maxLength.value ?? Infinity))
+			invalid = quilt['shared/form/invalid/too-long']()
+
+		if (!editor.length.value && editor.required.value)
+			invalid = quilt['shared/form/invalid/required']()
+
+		editor.setCustomInvalidMessage(invalid)
+	}
 
 	////////////////////////////////////
 	//#region ProseMirror Init
@@ -1548,11 +1564,13 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			.event.subscribe('scroll', () =>
 				scrollbarProxy.element.scrollTo({ left: editor.document?.element.scrollLeft ?? 0, behavior: 'instant' }))
 
+		Object.assign(editor.document, { required: editor.required, invalid: editor.invalid, touched: editor.touched })
+
 		toolbar.ariaControls(editor.document)
 		refresh()
 
 		return () => {
-			content.value = markdownSerializer.serialize(view.state.doc)
+			content.value = MarkdownContent.trim(markdownSerializer.serialize(view.state.doc))
 			editor.mirror = undefined
 			editor.document = undefined
 			refresh()
@@ -1574,6 +1592,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		toolbar.ariaLabelledBy(label)
 		editor.document?.ariaLabelledBy(label)
 		editor.document?.attributes.toggle(editor.required.value, 'aria-required', 'true')
+		updateValidity()
 	}
 
 	function toggleFullscreen () {
@@ -1601,6 +1620,10 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			plugins: editor.mirror.state.plugins.slice(),
 			doc: markdownParser.parse(markdown),
 		}))
+
+		content.value = markdown
+		editor.length.asMutable?.setValue(markdown.length)
+		updateValidity()
 	}
 
 	function loadLocal (name = editor.document?.name.value) {
@@ -1615,9 +1638,11 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	}
 
 	function saveLocal (name = editor.document?.name.value, doc?: Node) {
-		const body = !doc ? '' : markdownSerializer.serialize(doc)
+		const body = !doc ? '' : MarkdownContent.trim(markdownSerializer.serialize(doc))
 		content.value = body
 		editor.length.asMutable?.setValue(body.length)
+		touched.value ||= !!body
+		updateValidity()
 
 		if (!name)
 			return

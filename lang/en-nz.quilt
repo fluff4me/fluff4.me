@@ -492,6 +492,9 @@ description: Time to clean stuff up!
 category/label=shared/form/category/label
 name/label=shared/form/name/label
 description/label=shared/form/description/label
+aliases/label: Aliases
+relationships-to/label: Relates To
+relationships-from/label: Related From
 
 ### custom-tags
 title: Custom Tags
@@ -508,4 +511,5 @@ hint/delete-tags: Are you sure you want to delete these tag(s)? This is permanen
 action/promote: Promote
 action/promote/new-tag: New Tag
 action/promote/existing-tag: Existing Tag
+action/promote/existing-tag-change: Select a Different Tag
 hint/promote/into: Promote Into:

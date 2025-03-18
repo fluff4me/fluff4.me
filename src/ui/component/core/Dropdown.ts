@@ -3,8 +3,9 @@ import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Checkbutton from 'ui/component/core/Checkbutton'
-import type { InputExtensions } from 'ui/component/core/ext/Input'
+import type { InputExtensions, InvalidMessageText } from 'ui/component/core/ext/Input'
 import Input from 'ui/component/core/ext/Input'
+import Form from 'ui/component/core/Form'
 import type Popover from 'ui/component/core/Popover'
 import RadioButton from 'ui/component/core/RadioButton'
 import TextInput from 'ui/component/core/TextInput'
@@ -29,6 +30,7 @@ interface DropdownOption<ID extends string, BUTTON extends DropdownButton> exten
 
 interface DropdownExtensions<ID extends string, BUTTON extends DropdownButton> {
 	readonly selection: State.Mutable<(BUTTON extends RadioButton ? ID : ID[]) | undefined>
+	readonly touched: State<boolean>
 	readonly default: Applicator.Optional<this, BUTTON extends RadioButton ? ID : ID[]>
 	readonly options: Record<string, DropdownOption<ID, BUTTON>>
 	add<NEW_ID extends string> (id: NEW_ID, definition: DropdownOptionDefinition<NEW_ID, BUTTON>): Dropdown<ID | NEW_ID>
@@ -51,6 +53,7 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 	}
 
 	const selection = State<string | string[] | undefined>(undefined)
+	const touched = State(false)
 	const options: Record<string, InternalDropdownOption> = {}
 	let optionIndex = 0
 
@@ -73,6 +76,13 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 			.anchor.add('aligned left', 'aligned bottom')
 			.anchor.orElseHide()
 		)
+		.appendTo(dropdown)
+
+	const hiddenInput = Component('input')
+		.style('dropdown-validity-pipe-input')
+		.tabIndex('programmatic')
+		.attributes.set('type', 'text')
+		.setName(`dropdown-validity-pipe-input-${Math.random().toString(36).slice(2)}`)
 		.appendTo(dropdown)
 
 	popover.appendTo(dropdown)
@@ -100,14 +110,17 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 
 	let labelFor: State<string | undefined> | undefined
 	dropdown
+		.pipeValidity(hiddenInput)
 		.ariaRole('group')
 		.extend<DropdownExtensions<string, DropdownButton> & Partial<InputExtensions>>(dropdown => ({
 			options,
 			selection: selection as never,
+			touched,
 			default: Applicator(dropdown, (id?: string) => selection.value = id),
 			add (id, optionDefinition: DropdownOptionDefinition<string, DropdownButton>) {
 				const button = definition.createButton()
 					.style('dropdown-option')
+					.tweak(button => button.is(RadioButton) && button.setIcon(undefined))
 					.type('flush')
 					.tweak(optionDefinition.tweakButton, id)
 					.setId(id)
@@ -135,6 +148,9 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 							else
 								selection.value = [...current, id].sort((a, b) => options[a].index - options[b].index)
 						}
+
+						touched.value = true
+						updateValidity()
 					}))
 					.appendTo(content)
 
@@ -175,7 +191,18 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 			},
 		}))
 
+	dropdown.onRooted(updateValidity)
+	dropdown.required.useManual(updateValidity)
 	return dropdown as Dropdown
+
+	function updateValidity () {
+		let invalid: InvalidMessageText
+		if (!selection.value && dropdown.required.value)
+			invalid = quilt['shared/form/invalid/required']()
+
+		dropdown.setCustomInvalidMessage(invalid)
+		dropdown.closest(Form)?.refreshValidity()
+	}
 })
 
 interface DropdownDefinition<BUTTON extends DropdownButton> extends Omit<DropdownDefinitionBase<BUTTON>, 'createButton'> { }

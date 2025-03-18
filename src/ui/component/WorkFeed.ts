@@ -1,4 +1,4 @@
-import type { Author, Feed, Work as WorkData } from 'api.fluff4.me'
+import type { Author, FeedResponse, Work as WorkData } from 'api.fluff4.me'
 import type { PreparedPaginatedQueryReturning } from 'endpoint/Endpoint'
 import PagedListData from 'model/PagedListData'
 import Component from 'ui/Component'
@@ -8,7 +8,7 @@ import Work from 'ui/component/Work'
 import State from 'utility/State'
 
 interface WorkFeedExtensions {
-	setFromEndpoint (endpoint: PreparedPaginatedQueryReturning<Feed>): this
+	setFromEndpoint (endpoint: PreparedPaginatedQueryReturning<FeedResponse>): this
 	setFromWorks (pagedData: PagedListData<WorkData>, authors: Author[]): this
 }
 
