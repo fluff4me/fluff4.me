@@ -1,21 +1,35 @@
 #view type="manage-tags":
 
-	&-custom-tag-block:
+	&-tag-block:
 		%flex
 		%flex-column
 		%gap-4
 
-	&-custom-tag-list:
+	&-tag-list:
 		%flex
 		%flex-wrap
 		%gap-2
-		%justify-content-centre
+		; %justify-content-centre
 		%padding-block-2
 		%unmargin-block-2
 		%max-height-7
 		%overflow-auto
 
-	&-custom-tag:
+	&-section-heading:
+		%flex-basis-100
+		%uppercase
+		%font-3
+		%weight-bold
+		%margin-0
+		%unmargin-bottom-2
+		letter-spacing: 0.1em
+
+	&-category:
+
+		&--has-description:
+			%flex-basis-100
+
+	&-tag:
 		#after: .tag
 
 		::hover:
@@ -27,7 +41,7 @@
 			%hidden
 
 		&--selected:
-			#after: .tag, .view-type-manage-tags-custom-tag
+			#after: .tag, .view-type-manage-tags-tag
 			%colour-0
 			$button-background: $colour-pink
 

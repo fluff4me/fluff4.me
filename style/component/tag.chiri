@@ -15,7 +15,8 @@
 		%colour-0
 		$button-background: $colour-pink
 
-	&--dragging:
+	&--dragging, &--selected:
+		#after: .tag
 		%colour-0
 		$button-background: $colour-pink
 
@@ -24,6 +25,14 @@
 		%uppercase
 		%opacity-70
 		scale: 1 0.9
+
+		&--standalone:
+			#after: .tag-category
+			%opaque
+			%font-2
+
+		&-description:
+			%opacity-70
 
 	&-name:
 		%unmargin-top-1
