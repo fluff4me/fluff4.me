@@ -860,6 +860,8 @@ interface TextEditorExtensions {
 	mirror?: EditorView
 	useMarkdown (): string
 	setMinimalByDefault (minimal?: boolean): this
+	/** Prevents this text editor's contents persisting, ie disables save/load */
+	disablePersistence (): this
 }
 
 interface TextEditor extends Input, TextEditorExtensions { }
@@ -1283,6 +1285,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		.append(hiddenInput)
 		.append(toolbar)
 
+	let saveLoadDisabled = false
 	editor = component
 		.and(Slot)
 		.and(Input)
@@ -1321,6 +1324,11 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			},
 			setMinimalByDefault (value = true) {
 				minimal.value = value
+				return editor
+			},
+			disablePersistence () {
+				clearLocal()
+				saveLoadDisabled = true
 				return editor
 			},
 		}))
@@ -1612,7 +1620,6 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 	function loadFromMarkdown (markdown = '') {
 		// hack to fix it not redrawing when calling updateState now?
-
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		((editor.mirror as any)?.docView as NodeViewDesc).dirty = 2 // CONTENT_DIRTY
 
@@ -1630,6 +1637,9 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		if (!name)
 			return
 
+		if (saveLoadDisabled)
+			return
+
 		const draft = Store.items.textEditorDrafts?.find(draft => draft.name === name)
 		if (!draft)
 			return
@@ -1645,6 +1655,9 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		updateValidity()
 
 		if (!name)
+			return
+
+		if (saveLoadDisabled)
 			return
 
 		if (body === editor.default.state.value)
