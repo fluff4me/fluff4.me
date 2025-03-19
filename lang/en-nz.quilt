@@ -517,4 +517,5 @@ action/promote: Promote
 action/promote/new-tag: New Tag
 action/promote/existing-tag: Existing Tag
 action/promote/existing-tag-change: Select a Different Tag
+label/promote/existing-tag/new-aliases: New Aliases
 hint/promote/into: Promote Into:

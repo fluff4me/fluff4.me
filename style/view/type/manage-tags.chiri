@@ -44,6 +44,22 @@
 				#after: .tag-block, .block
 				%max-width-100
 
+				&-new-aliases:
+					%relative
+					%grid
+					%margin-top-3
+					%row-gap-2
+
+					&-label:
+						%row-1
+
+					&-content, &-editor:
+						%contents
+
+					&-editor:
+						&-input-wrapper:
+							%column-2
+
 			&-row:
 				#after: .action-row
 				%margin-top-3

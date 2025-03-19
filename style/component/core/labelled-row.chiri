@@ -1,10 +1,11 @@
 .labelled-row:
-	; %flex
+	%grid
 	%gap-3
 	%align-items-centre
+	grid-template-columns: auto 1fr
 
 	&--in-labelled-table:
-		; #after: .labelled-row
+		#after: .labelled-row
 
 		%grid
 		%columns-subgrid

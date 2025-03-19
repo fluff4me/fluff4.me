@@ -11,6 +11,12 @@ import TagsEditor from 'ui/component/TagsEditor'
 import { Quilt } from 'ui/utility/StringApplicator'
 
 interface TagEditFormExtensions {
+	readonly categoryDropdown: RadioDropdown<string>
+	readonly nameInput: TextInput
+	readonly descriptionEditor: TextEditor
+	readonly aliasesEditor: TagsEditor
+	readonly relationshipsToEditor: TagsEditor
+	readonly relationshipsFromEditor: TagsEditor
 	getFormData (): TagCreateGlobalBody | undefined
 }
 
@@ -76,6 +82,12 @@ export default Component.Builder((component, manifest: TagsManifest): TagEditFor
 
 	return form
 		.extend<TagEditFormExtensions>(extensions => ({
+			categoryDropdown,
+			nameInput,
+			descriptionEditor,
+			aliasesEditor,
+			relationshipsToEditor,
+			relationshipsFromEditor,
 			getFormData () {
 				const category = categoryDropdown.selection.value
 				if (!category)
