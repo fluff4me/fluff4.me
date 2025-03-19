@@ -31,6 +31,9 @@ interface TagsEditorExtensions {
 	readonly maxLengthCustom: State<number | undefined>
 	readonly lengthGlobal: State.Generator<number>
 	readonly lengthCustom: State.Generator<number>
+	readonly touched: State<boolean>
+	readonly input: TextInput
+	readonly inputWrapper: Component
 	setMaxLengthGlobal (maxLength?: StateOr<number | undefined>): this
 	setMaxLengthCustom (maxLength?: StateOr<number | undefined>): this
 	setCustomTagsOnly (): this
@@ -41,6 +44,7 @@ interface TagsEditor extends Component, TagsEditorExtensions, InputExtensions { 
 
 const TagsEditor = Component.Builder((component): TagsEditor => {
 	const tagsState = State<TagsState>({ global_tags: [], custom_tags: [] })
+	const touched = State(false)
 
 	const tagTypeFilter = State<undefined | 'global' | 'custom'>(undefined)
 
@@ -173,6 +177,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 									tags.global_tags.push(`${tag.category}: ${tag.name}`)
 									tagsState.emit()
 									input.value = ''
+									touched.value = true
 								})
 							))
 							.appendTo(slot)
@@ -196,6 +201,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 									tags.custom_tags.push(tag.tag as string)
 									tagsState.emit()
 									input.value = ''
+									touched.value = true
 								})
 							))
 							.appendTo(slot)
@@ -240,6 +246,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 				global_tags: value?.global_tags?.slice() ?? [],
 				custom_tags: value?.custom_tags?.slice() ?? [],
 			}),
+			touched,
 
 			maxLengthGlobal, maxLengthCustom,
 			lengthGlobal: tagsState.mapManual(tags => tags.global_tags.length),
@@ -258,6 +265,9 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 					maxLengthCustom.value = maxLength
 				return editor
 			},
+
+			input,
+			inputWrapper,
 			setCustomTagsOnly () {
 				tagTypeFilter.value = 'custom'
 				return editor
@@ -297,6 +307,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 		if (event.key === 'Enter') {
 			event.preventDefault()
 			suggestions.getFirstDescendant(Tag)?.element.click()
+			touched.value = true
 		}
 	})
 
@@ -310,6 +321,7 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 			tagsState.value.global_tags.filterInPlace(tag => tag !== tagString)
 
 		tagsState.emit()
+		touched.value = true
 	}
 })
 

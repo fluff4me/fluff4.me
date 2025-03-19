@@ -9,6 +9,7 @@ import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
+import LabelledRow from 'ui/component/core/LabelledRow'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
@@ -78,6 +79,8 @@ export default ViewDefinition({
 					.style.bind(filteredOut, 'view-type-manage-tags-custom-tag--filtered-out')
 					.style.bind(selected, 'view-type-manage-tags-custom-tag--selected')
 					.event.subscribe('click', event => {
+						const previousSelectedTags = selectedTags.value.slice()
+
 						if (selectedTags.value.includes(tag)) {
 							if (event.shiftKey && event.altKey && lastRemoved && lastRemoved !== tag) {
 								const otherIndex = customTags.indexOf(lastRemoved)
@@ -85,13 +88,13 @@ export default ViewDefinition({
 								const start = Math.min(otherIndex, thisIndex)
 								const end = Math.max(otherIndex, thisIndex)
 								Arrays.remove(selectedTags.value, ...customTags.slice(start, end + 1).filter(filteredIn))
-								selectedTags.emit()
+								selectedTags.emit(previousSelectedTags)
 								return
 							}
 
 							lastRemoved = tag
 							Arrays.remove(selectedTags.value, tag)
-							selectedTags.emit()
+							selectedTags.emit(previousSelectedTags)
 							return
 						}
 
@@ -101,13 +104,13 @@ export default ViewDefinition({
 							const start = Math.min(otherIndex, thisIndex)
 							const end = Math.max(otherIndex, thisIndex)
 							Arrays.add(selectedTags.value, ...customTags.slice(start, end + 1).filter(filteredIn))
-							selectedTags.emit()
+							selectedTags.emit(previousSelectedTags)
 							return
 						}
 
 						lastAdded = tag
 						Arrays.add(selectedTags.value, tag)
-						selectedTags.emit()
+						selectedTags.emit(previousSelectedTags)
 					})
 					.appendTo(tagList)
 			}
@@ -147,10 +150,11 @@ export default ViewDefinition({
 				if (toast.handleError(response))
 					return
 
+				const previousSelectedTags = selectedTags.value.slice()
 				Arrays.remove(selectedTags.value, oldName)
 				Arrays.remove(customTags.value, oldName)
 				Arrays.add(customTags.value, newName)
-				selectedTags.emit()
+				selectedTags.emit(previousSelectedTags)
 				customTags.emit()
 
 				renameInput.value = ''
@@ -175,6 +179,14 @@ export default ViewDefinition({
 		const newTagForm = TagEditForm(manifest)
 			.appendTo(promoteNewTag.content)
 
+		selectedTags.subscribeManual((newTags, oldTags) => {
+			const addedTags = newTags.filter(tag => !oldTags?.includes(tag))
+			const removedTags = oldTags?.filter(tag => !newTags.includes(tag))
+			Arrays.add(newTagForm.aliasesEditor.state.value.custom_tags, ...addedTags)
+			Arrays.remove(newTagForm.aliasesEditor.state.value.custom_tags, ...removedTags ?? [])
+			newTagForm.aliasesEditor.state.emit()
+		})
+
 		newTagForm.submit
 			.text.use('view/manage-tags/custom-tags/action/promote')
 			.event.subscribe('click', async () => {
@@ -195,10 +207,11 @@ export default ViewDefinition({
 				if (toast.handleError(response))
 					return
 
+				const previousSelectedTags = selectedTags.value.slice()
 				Arrays.remove(customTags.value, ...promotedTags)
 				Arrays.remove(selectedTags.value, ...promotedTags)
 				customTags.emit()
-				selectedTags.emit()
+				selectedTags.emit(previousSelectedTags)
 			})
 
 		//#endregion
@@ -233,6 +246,28 @@ export default ViewDefinition({
 				.appendTo(slot)
 		}))
 
+		const addNewAliasesContainer = LabelledRow()
+			.style('view-type-manage-tags-custom-tag-action-promote-existing-tag-new-aliases')
+			.tweak(row => row.label
+				.style('view-type-manage-tags-custom-tag-action-promote-existing-tag-new-aliases-label')
+				.text.use('view/manage-tags/custom-tags/label/promote/existing-tag/new-aliases'))
+			.appendToWhen(existingTagToPromoteInto.truthy, promoteExistingTag.content)
+
+		const addNewAliasesEditor = TagsEditor()
+			.style('view-type-manage-tags-custom-tag-action-promote-existing-tag-new-aliases-editor')
+			.setCustomTagsOnly()
+			.tweak(editor => editor.inputWrapper.style('view-type-manage-tags-custom-tag-action-promote-existing-tag-new-aliases-editor-input-wrapper'))
+			.appendTo(addNewAliasesContainer.content
+				.style('view-type-manage-tags-custom-tag-action-promote-existing-tag-new-aliases-content'))
+
+		selectedTags.subscribeManual((newTags, oldTags) => {
+			const addedTags = newTags.filter(tag => !oldTags?.includes(tag))
+			const removedTags = oldTags?.filter(tag => !newTags.includes(tag))
+			Arrays.add(addNewAliasesEditor.state.value.custom_tags, ...addedTags)
+			Arrays.remove(addNewAliasesEditor.state.value.custom_tags, ...removedTags ?? [])
+			addNewAliasesEditor.state.emit()
+		})
+
 		const promoteIntoExistingActionRow = ActionRow()
 			.style('view-type-manage-tags-custom-tag-action-promote-row')
 			.appendToWhen(existingTagToPromoteInto.truthy, promoteExistingTag.content)
@@ -259,17 +294,21 @@ export default ViewDefinition({
 
 				const response = await EndpointTagCustomPromote.query({
 					body: {
-						into_existing_tag: { id: tag },
+						into_existing_tag: {
+							id: tag,
+							aliases: addNewAliasesEditor.state.value.custom_tags,
+						},
 						promoted_from_tags: promotedTags,
 					},
 				})
 				if (toast.handleError(response))
 					return
 
+				const previousSelectedTags = selectedTags.value.slice()
 				Arrays.remove(customTags.value, ...promotedTags)
 				Arrays.remove(selectedTags.value, ...promotedTags)
 				customTags.emit()
-				selectedTags.emit()
+				selectedTags.emit(previousSelectedTags)
 			})
 			.appendTo(promoteIntoExistingActionRow.right)
 
@@ -313,10 +352,11 @@ export default ViewDefinition({
 				if (toast.handleError(response))
 					return
 
+				const previousSelectedTags = selectedTags.value.slice()
 				Arrays.remove(customTags.value, ...tagsToDelete)
 				Arrays.remove(selectedTags.value, ...tagsToDelete)
 				customTags.emit()
-				selectedTags.emit()
+				selectedTags.emit(previousSelectedTags)
 			})
 			.appendTo(row.right)
 
