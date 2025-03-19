@@ -8,6 +8,7 @@ import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
+import Heading from 'ui/component/core/Heading'
 import LabelledRow from 'ui/component/core/LabelledRow'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
@@ -23,16 +24,16 @@ import State from 'utility/State'
 
 export default Component.Builder((component, manifest: State<TagsManifest | undefined>, customTags: State<string[]>) => {
 	const block = component.and(Block)
-	block.content.style('view-type-manage-tags-custom-tag-block')
+	block.content.style('view-type-manage-tags-tag-block')
 
 	const filter = TextInput()
-		.placeholder.use('view/manage-tags/custom-tags/hint/filter')
+		.placeholder.use('view/manage-tags/shared/hint/filter')
 		.appendTo(block.content)
 
 	const filteredIn = (tag: string) => !filter.state.value.length || tag.includes(filter.state.value)
 
 	const tagList = Component()
-		.style('view-type-manage-tags-custom-tag-list')
+		.style('view-type-manage-tags-tag-list')
 		.appendTo(block.content)
 
 	const selectedTags = State<string[]>([])
@@ -48,9 +49,9 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				(text, selected) => !selected && !filteredIn(tag))
 
 			Tag(tag)
-				.style('view-type-manage-tags-custom-tag')
-				.style.bind(filteredOut, 'view-type-manage-tags-custom-tag--filtered-out')
-				.style.bind(selected, 'view-type-manage-tags-custom-tag--selected')
+				.style('view-type-manage-tags-tag')
+				.style.bind(filteredOut, 'view-type-manage-tags-tag--filtered-out')
+				.style.bind(selected, 'tag--selected', 'view-type-manage-tags-tag--selected')
 				.event.subscribe('click', event => {
 					const previousSelectedTags = selectedTags.value.slice()
 
@@ -89,8 +90,28 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 		}
 	})
 
+	Component()
+		.style('view-type-manage-tags-tag-list')
+		.append(Heading()
+			.setAestheticStyle(false)
+			.style('view-type-manage-tags-section-heading')
+			.text.use('view/manage-tags/shared/label/selected-tags'))
+		.append(Slot().use(selectedTags, (slot, tags) => {
+			for (const tag of tags) {
+				Tag(tag)
+					.style('view-type-manage-tags-tag', 'tag--selected', 'view-type-manage-tags-tag--selected')
+					.event.subscribe('click', () => {
+						const previousSelectedTags = selectedTags.value.slice()
+						Arrays.remove(selectedTags.value, tag)
+						selectedTags.emit(previousSelectedTags)
+					})
+					.appendTo(slot)
+			}
+		}))
+		.appendToWhen(selectedTags.mapManual(tags => !!tags.length), block.content)
+
 	Placeholder()
-		.text.use('view/manage-tags/custom-tags/hint/select-tags')
+		.text.use('view/manage-tags/shared/hint/select-tags')
 		.appendToWhen(selectedTags.mapManual(tags => !tags.length), block.footer.left)
 
 	////////////////////////////////////

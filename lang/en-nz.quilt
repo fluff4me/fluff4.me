@@ -501,11 +501,13 @@ aliases/label: Aliases
 relationships-to/label=shared/term/relationships-to
 relationships-from/label=shared/term/relationships-from
 
-### custom-tags
-title: Custom Tags
-
+### shared
 hint/filter=shared/action/filter
 hint/select-tags: Select tags to manage them...
+label/selected-tags: Selected Tags
+
+### custom-tags
+title: Custom Tags
 
 action/rename=shared/action/rename
 hint/rename: replacement tag name
@@ -519,3 +521,10 @@ action/promote/existing-tag: Existing Tag
 action/promote/existing-tag-change: Select a Different Tag
 label/promote/existing-tag/new-aliases: New Aliases
 hint/promote/into: Promote Into:
+
+### categories
+title: Categories
+label/selected: Selected Category
+
+### global-tags
+title: Global Tags

@@ -14,6 +14,7 @@ interface EventManipulator<HOST, EVENTS extends Record<string, any>> {
 	emit<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean, stoppedPropagation: boolean | 'immediate' }
 	bubble<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean, stoppedPropagation: boolean | 'immediate' }
 	subscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
+	subscribeCapture<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 	subscribePassive<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 	unsubscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 }
@@ -111,6 +112,9 @@ function EventManipulator<T extends object> (host: T): EventManipulator<T, Nativ
 		},
 		subscribePassive (events, handler) {
 			return subscribe(handler, events, { passive: true })
+		},
+		subscribeCapture (events, handler) {
+			return subscribe(handler, events, { capture: true })
 		},
 		unsubscribe (events, handler) {
 			const realHandler = (handler as EventHandlerRegistered)[SYMBOL_REGISTERED_FUNCTION]
