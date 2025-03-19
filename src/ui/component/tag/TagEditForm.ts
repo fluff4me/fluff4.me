@@ -9,6 +9,7 @@ import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
 import TagsEditor from 'ui/component/TagsEditor'
 import { Quilt } from 'ui/utility/StringApplicator'
+import type State from 'utility/State'
 
 interface TagEditFormExtensions {
 	readonly categoryDropdown: RadioDropdown<string>
@@ -22,7 +23,7 @@ interface TagEditFormExtensions {
 
 interface TagEditForm extends Form, TagEditFormExtensions { }
 
-export default Component.Builder((component, manifest: TagsManifest): TagEditForm => {
+export default Component.Builder((component, manifest: State<TagsManifest | undefined>): TagEditForm => {
 	let categoryDropdown!: RadioDropdown<string>
 	let nameInput!: TextInput
 	let descriptionEditor!: TextEditor
@@ -39,10 +40,16 @@ export default Component.Builder((component, manifest: TagsManifest): TagEditFor
 			.setLabel(label)
 			.setRequired()
 			.tweak(dropdown => {
-				for (const category of Object.values(manifest.categories))
-					dropdown.add(category.nameLowercase, {
-						translation: Quilt.fake(category.name),
-					})
+				manifest.use(dropdown, manifest => {
+					dropdown.clear()
+					if (!manifest)
+						return
+
+					for (const category of Object.values(manifest.categories))
+						dropdown.add(category.nameLowercase, {
+							translation: Quilt.fake(category.name),
+						})
+				})
 			})
 		))
 
@@ -57,6 +64,7 @@ export default Component.Builder((component, manifest: TagsManifest): TagEditFor
 		.content((content, label) => content.append(descriptionEditor = TextEditor()
 			.setLabel(label)
 			.setRequired()
+			.disablePersistence()
 			.setMaxLength(FormInputLengths.map(content, lengths => lengths?.global_tag.description))
 		))
 
