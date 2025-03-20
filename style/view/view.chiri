@@ -15,7 +15,26 @@
 		%padding-0
 
 	&-container:
-		%contents
+		%grid
+		%padding-left-4
+		grid-area: content
+
+		#tablet:
+			%block
+			%padding-left-0
+
+		&-related:
+			width: $app-column-width
+
+			#tablet:
+				%hidden
+
+		@after:
+			%block
+			height: calc($space-5 * 4)
+
+			#flush:
+				height: calc($space-3 + $masthead-height)
 
 		&-ephemeral:
 			%flex-column
