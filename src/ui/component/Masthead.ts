@@ -214,7 +214,7 @@ const HomeLink = Component.Builder('a', (component): Link => {
 	return homeLink
 })
 
-export const MastheadFlush = Component.Builder('header', (masthead) => {
+export const MastheadFlush = Component.Builder('header', masthead => {
 	return masthead
 		.style('masthead-flush')
 		.append(HomeLink())

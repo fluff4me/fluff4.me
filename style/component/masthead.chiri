@@ -44,7 +44,8 @@
 		%no-pointer-events
 		%transparent
 		grid-area: left
-		%z-index-fg
+		%width-fit
+		%z-index-fg-2
 		$transitions:
 			#{transition("opacity")},
 			$button-transition

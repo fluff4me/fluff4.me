@@ -1,79 +1,57 @@
-#do:
-	#string w = "calc($space-5 * 4 + $space-4)
+.app:
+	%width-100
+	%grid
+	grid-template-areas:
+		"masthead masthead masthead"
+		"sidebar content content"
+	grid-template-rows:
+		$masthead-height
+		1fr
+	$app-column-width: calc($space-5 * 4 + $space-4)
+	grid-template-columns:
+		$app-column-width 1fr $app-column-width
 
-	.app:
-		%width-100
-		%grid
+	#tablet:
+		grid-template-columns: 1fr
 		grid-template-areas:
-			"masthead masthead masthead"
-			"sidebar content content"
-		grid-template-rows:
-			$masthead-height
-			1fr
-		$app-column-width: #{w}
-		grid-template-columns:
-			#{w} 1fr #{w}
+			"masthead"
+			"content"
 
-		#tablet:
-			grid-template-columns: 1fr
-			grid-template-areas:
-				"masthead"
-				"content"
+	#flush:
+		%block
 
-		#flush:
-			%block
+	&-content:
+		%contents
 
-		&-content:
-			%grid
-			%padding-left-4
-			grid-area: content
+	&-qrcode:
+		%block
+		%fixed
+		%right-3
+		%bottom-3
+		%width-6
+		%height-6
+		%background-size-contain
 
-			#tablet:
-				%block
-				%padding-left-0
-
-			&-related:
-				width: #{w}
-
-				#tablet:
-					%hidden
-
-			@after:
-				%block
-				height: calc($space-5 * 4)
-
-				#flush:
-					height: calc($space-3 + $masthead-height)
-
-		&-qrcode:
-			%block
-			%fixed
-			%right-3
-			%bottom-3
-			%width-6
-			%height-6
-			%background-size-contain
-
-			#tablet:
-				%hidden
-
-		&-version:
-			%block
-			%fixed
-			%right-1
-			%bottom-1
-			%font-0
-			%colour-8
-
-			#tablet:
-				%hidden
-
-	.masthead:
-		grid-area: masthead
-		grid-template-columns: 1fr auto 1fr
-		grid-template-areas: "left mid right"
-
-	.sidebar:
-		grid-area: sidebar
 		#tablet:
 			%hidden
+
+	&-version:
+		%block
+		%fixed
+		%right-1
+		%bottom-1
+		%font-0
+		%colour-8
+
+		#tablet:
+			%hidden
+
+.masthead:
+	grid-area: masthead
+	grid-template-columns: 1fr auto 1fr
+	grid-template-areas: "left mid right"
+
+.sidebar:
+	grid-area: sidebar
+	#tablet:
+		%hidden
