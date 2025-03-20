@@ -23,12 +23,6 @@
 			%block
 			%padding-left-0
 
-		&-related:
-			width: $app-column-width
-
-			#tablet:
-				%hidden
-
 		@after:
 			%block
 			height: calc($space-5 * 4)

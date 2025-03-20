@@ -23,6 +23,12 @@
 	&-content:
 		%contents
 
+		&-related:
+			width: $app-column-width
+
+			#tablet:
+				%hidden
+
 	&-qrcode:
 		%block
 		%fixed
