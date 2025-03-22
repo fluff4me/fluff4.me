@@ -40,8 +40,8 @@ jobs:
           curl -H "Content-Type: application/json" -X POST ${{ secrets.BUILD_WEBHOOK }} \
             -d "{
               \"embeds\": [{
-                \"title\": \"Deployed fluff4.me@v${{ github.run_number }} ($SHORT_SHA)\",
-                \"url\": \"${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}\",
+                \"author\": { \"name\": \"fluff4.me\" },
+                \"description\": \"Deployed [v${{ github.run_number }} ($SHORT_SHA)](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\",
                 \"color\": 65280
               }]
             }"
