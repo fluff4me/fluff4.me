@@ -78,7 +78,7 @@ const Util = {
 		if (Util.followingAuthor(vanity))
 			return // already following
 
-		const response = await EndpointFollowAdd.Author.query({ params: { vanity } })
+		const response = await EndpointFollowAdd.Author.query({ params: { id: vanity } })
 		if (toast.handleError(response))
 			return
 
@@ -98,7 +98,7 @@ const Util = {
 		if (!Util.followingAuthor(vanity))
 			return // not following
 
-		const response = await EndpointFollowRemove.Author.query({ params: { vanity } })
+		const response = await EndpointFollowRemove.Author.query({ params: { id: vanity } })
 		if (toast.handleError(response))
 			return
 
@@ -120,7 +120,7 @@ const Util = {
 		if (Util.ignoringAuthor(vanity))
 			return // already following
 
-		const response = await EndpointIgnoreAdd.Author.query({ params: { vanity } })
+		const response = await EndpointIgnoreAdd.Author.query({ params: { id: vanity } })
 		if (toast.handleError(response))
 			return
 
@@ -140,7 +140,7 @@ const Util = {
 		if (!Util.ignoringAuthor(vanity))
 			return // not ignoring
 
-		const response = await EndpointIgnoreRemove.Author.query({ params: { vanity } })
+		const response = await EndpointIgnoreRemove.Author.query({ params: { id: vanity } })
 		if (toast.handleError(response))
 			return
 
@@ -268,7 +268,7 @@ const Util = {
 		if (Util.followingTag(tag))
 			return // already following
 
-		const response = await EndpointFollowAdd.Tag.query({ params: { vanity: tag } })
+		const response = await EndpointFollowAdd.Tag.query({ params: { id: tag } })
 		if (toast.handleError(response))
 			return
 
@@ -288,7 +288,7 @@ const Util = {
 		if (!Util.followingTag(tag))
 			return // not following
 
-		const response = await EndpointFollowRemove.Tag.query({ params: { vanity: tag } })
+		const response = await EndpointFollowRemove.Tag.query({ params: { id: tag } })
 		if (toast.handleError(response))
 			return
 
@@ -310,7 +310,7 @@ const Util = {
 		if (Util.ignoringTag(tag))
 			return // already following
 
-		const response = await EndpointIgnoreAdd.Tag.query({ params: { vanity: tag } })
+		const response = await EndpointIgnoreAdd.Tag.query({ params: { id: tag } })
 		if (toast.handleError(response))
 			return
 
@@ -330,7 +330,7 @@ const Util = {
 		if (!Util.ignoringTag(tag))
 			return // not ignoring
 
-		const response = await EndpointIgnoreRemove.Tag.query({ params: { vanity: tag } })
+		const response = await EndpointIgnoreRemove.Tag.query({ params: { id: tag } })
 		if (toast.handleError(response))
 			return
 
@@ -363,7 +363,7 @@ const Util = {
 		if (Util.followingCategory(category))
 			return // already following
 
-		const response = await EndpointFollowAdd.Category.query({ params: { vanity: category } })
+		const response = await EndpointFollowAdd.Category.query({ params: { id: category } })
 		if (toast.handleError(response))
 			return
 
@@ -383,7 +383,7 @@ const Util = {
 		if (!Util.followingCategory(category))
 			return // not following
 
-		const response = await EndpointFollowRemove.Category.query({ params: { vanity: category } })
+		const response = await EndpointFollowRemove.Category.query({ params: { id: category } })
 		if (toast.handleError(response))
 			return
 
@@ -405,7 +405,7 @@ const Util = {
 		if (Util.ignoringCategory(category))
 			return // already following
 
-		const response = await EndpointIgnoreAdd.Category.query({ params: { vanity: category } })
+		const response = await EndpointIgnoreAdd.Category.query({ params: { id: category } })
 		if (toast.handleError(response))
 			return
 
@@ -425,7 +425,7 @@ const Util = {
 		if (!Util.ignoringCategory(category))
 			return // not ignoring
 
-		const response = await EndpointIgnoreRemove.Category.query({ params: { vanity: category } })
+		const response = await EndpointIgnoreRemove.Category.query({ params: { id: category } })
 		if (toast.handleError(response))
 			return
 

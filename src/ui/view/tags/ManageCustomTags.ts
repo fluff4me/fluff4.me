@@ -15,9 +15,9 @@ import Slot from 'ui/component/core/Slot'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import TextInput from 'ui/component/core/TextInput'
 import Tag from 'ui/component/Tag'
-import TagEditForm from 'ui/component/tag/TagEditForm'
 import TagBlock from 'ui/component/TagBlock'
 import TagsEditor, { filterTagSegment } from 'ui/component/TagsEditor'
+import TagEditForm from 'ui/view/tags/TagEditForm'
 import AbortPromise from 'utility/AbortPromise'
 import Arrays from 'utility/Arrays'
 import State from 'utility/State'
@@ -140,7 +140,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!confirmed)
 				return
 
-			const response = await EndpointTagCustomRename.query({ params: { vanity: oldName }, body: { name: newName } })
+			const response = await EndpointTagCustomRename.query({ params: { name: oldName }, body: { name: newName } })
 			if (toast.handleError(response))
 				return
 

@@ -15,8 +15,8 @@ import Slot from 'ui/component/core/Slot'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import TextInput from 'ui/component/core/TextInput'
 import Tag from 'ui/component/Tag'
-import TagEditForm from 'ui/component/tag/TagEditForm'
 import { Quilt } from 'ui/utility/StringApplicator'
+import TagEditForm from 'ui/view/tags/TagEditForm'
 import Arrays from 'utility/Arrays'
 import State from 'utility/State'
 
@@ -228,11 +228,11 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 	const deleteTab = Tab()
 		.text.use('view/manage-tags/global-tags/action/delete')
 
-	const row = ActionRow().appendTo(deleteTab.content)
+	const deleteRow = ActionRow().appendTo(deleteTab.content)
 
 	Placeholder()
 		.text.use('view/manage-tags/shared/hint/delete-tags')
-		.appendTo(row.left)
+		.appendTo(deleteRow.left)
 
 	Button()
 		.type('primary')
@@ -251,7 +251,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			Arrays.remove(selectedTags.value, ...tagsToDelete)
 			selectedTags.emit(previousSelectedTags)
 		})
-		.appendTo(row.right)
+		.appendTo(deleteRow.right)
 
 	//#endregion
 	////////////////////////////////////

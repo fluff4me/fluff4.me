@@ -40,7 +40,7 @@ unfollow: Unfollow
 unignore: Unignore
 delete: Delete{ 0??}
 save: Save
-create: Create!
+create: Create
 cancel: Cancel
 confirm: Confirm
 return: Return
@@ -51,6 +51,7 @@ become-patron: Become a Patron
 done: Done
 filter: Filter...
 rename: Rename
+modify: Modify
 
 ## toast
 failed-to-save: Failed to save {0}
@@ -527,11 +528,18 @@ title: Categories
 label/selected: Selected Category
 hint/select-category: Select a category to manage it...
 
+action/create=shared/action/create
+action/modify=shared/action/modify
+action/save=shared/action/save
+action/delete=shared/action/delete
+hint/no-delete: This category cannot be deleted until its tags have been deleted.
+hint/delete: Are you sure you want to delete this category?
+
 ### global-tags
 title: Global Tags
 
-action/create: Create
-action/modify: Modify
+action/create=shared/action/create
+action/modify=shared/action/modify
+action/save=shared/action/save
 action/recategorise: Recategorise
 action/delete=shared/action/delete
-action/save=shared/action/save
