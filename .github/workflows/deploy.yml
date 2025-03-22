@@ -36,10 +36,11 @@ jobs:
       - name: Notify Discord
         if: success()
         run: |
+          SHORT_SHA=${GITHUB_SHA::7}
           curl -H "Content-Type: application/json" -X POST ${{ secrets.BUILD_WEBHOOK }} \
             -d '{
               "embeds": [{
-                "title": "Deployed fluff4.me@v${{ github.run_id }} (${GITHUB_SHA::7})",
+                "title": "Deployed fluff4.me@v${{ github.run_number }} ($SHORT_SHA)",
                 "url": "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}",
                 "color": 65280
               }]

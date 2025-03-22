@@ -45,13 +45,14 @@ jobs:
       - name: Notify Discord on failure
         if: failure()
         run: |
+          SHORT_SHA=${GITHUB_SHA::7}
           curl -H "Content-Type: application/json" -X POST ${{ secrets.BUILD_WEBHOOK }} \
             -d '{
               "embeds": [{
                 "title": "Build Failed",
                 "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
                 "color": 16711680,
-                "description": "Build failed for commit [`${GITHUB_SHA::7}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
+                "description": "Build failed for commit [`$SHORT_SHA`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
               }]
             }'
 
