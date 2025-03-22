@@ -49,9 +49,9 @@ jobs:
           curl -H "Content-Type: application/json" -X POST ${{ secrets.BUILD_WEBHOOK }} \
             -d "{
               \"embeds\": [{
-                \"author\": { \"name\": \"fluff4.me\" },
                 \"color\": 16711680,
-                \"description\": \"[Build failed](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for commit [`$SHORT_SHA`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\"
+                \"description\": \"[Build failed](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for commit [`$SHORT_SHA`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\",
+                \"footer\": { \"text\": \"fluff4.me\" }
               }]
             }"
 
