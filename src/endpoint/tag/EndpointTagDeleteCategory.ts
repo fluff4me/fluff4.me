@@ -1,3 +1,3 @@
 import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint('/tag/delete/category/{vanity}', 'post')
+export default Endpoint('/tag/delete/category/{name}', 'post')

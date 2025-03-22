@@ -32,11 +32,8 @@ const Tags = Object.assign(
 				return response as ErrorResponse<Response<TagsManifest>>
 
 			const rawManifest = response.data
-			for (const rawCategory of Object.values(rawManifest.categories)) {
-				const category = rawCategory as TagsManifestCategory
-				category.nameLowercase = category.name.toLowerCase()
-				category.wordsLowercase = category.nameLowercase.split(' ')
-			}
+			for (const category of Object.values(rawManifest.categories))
+				fillCategory(category)
 
 			for (const tag of Object.values(rawManifest.tags))
 				fillTag(tag)
@@ -63,6 +60,20 @@ const Tags = Object.assign(
 
 			Tags.emit()
 		},
+		addCategory (category: TagCategory) {
+			if (!Tags.value)
+				return
+
+			Tags.value.categories[category.name] = fillCategory(category)
+			Tags.emit()
+		},
+		removeCategory (category: string) {
+			if (!Tags.value)
+				return
+
+			delete Tags.value.categories[category]
+			Tags.emit()
+		},
 	},
 )
 
@@ -75,6 +86,13 @@ function fillTag (rawTag: Tag): TagsManifestTag {
 	tag.categoryLowercase = tag.category.toLowerCase()
 	tag.categoryWordsLowercase = tag.categoryLowercase.split(' ')
 	return tag
+}
+
+function fillCategory (rawCategory: TagCategory): TagsManifestCategory {
+	const category = rawCategory as TagsManifestCategory
+	category.nameLowercase = category.name.toLowerCase()
+	category.wordsLowercase = category.nameLowercase.split(' ')
+	return category
 }
 
 function toId (tag: Tag): string
