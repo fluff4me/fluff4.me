@@ -38,13 +38,8 @@ const Tags = Object.assign(
 				category.wordsLowercase = category.nameLowercase.split(' ')
 			}
 
-			for (const rawTag of Object.values(rawManifest.tags)) {
-				const tag = rawTag as TagsManifestTag
-				tag.nameLowercase = tag.name.toLowerCase()
-				tag.wordsLowercase = tag.nameLowercase.split(' ')
-				tag.categoryLowercase = tag.category.toLowerCase()
-				tag.categoryWordsLowercase = tag.categoryLowercase.split(' ')
-			}
+			for (const tag of Object.values(rawManifest.tags))
+				fillTag(tag)
 
 			return response as Response<TagsManifest>
 		},
@@ -52,10 +47,35 @@ const Tags = Object.assign(
 	{
 		resolve,
 		toId,
+		addTag (tag: Tag) {
+			if (!Tags.value)
+				return
+
+			Tags.value.tags[`${tag.category}: ${tag.name}`] = fillTag(tag)
+			Tags.emit()
+		},
+		removeTags (...tags: TagId[]) {
+			if (!Tags.value)
+				return
+
+			for (const tag of tags)
+				delete Tags.value.tags[tag]
+
+			Tags.emit()
+		},
 	},
 )
 
 export default Tags
+
+function fillTag (rawTag: Tag): TagsManifestTag {
+	const tag = rawTag as TagsManifestTag
+	tag.nameLowercase = tag.name.toLowerCase()
+	tag.wordsLowercase = tag.nameLowercase.split(' ')
+	tag.categoryLowercase = tag.category.toLowerCase()
+	tag.categoryWordsLowercase = tag.categoryLowercase.split(' ')
+	return tag
+}
 
 function toId (tag: Tag): string
 function toId (category: string, name: string): string

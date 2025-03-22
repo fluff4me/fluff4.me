@@ -77,5 +77,9 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 		}))
 		.appendToWhen(selectedCategory.mapManual(c => !!c), block.content)
 
+	Placeholder()
+		.text.use('view/manage-tags/categories/hint/select-category')
+		.appendToWhen(selectedCategory.mapManual(category => !category), block.footer.left)
+
 	return block
 })

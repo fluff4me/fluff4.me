@@ -25,6 +25,7 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 
 	let unuseState: UnsubscribeState | undefined = undefined
 	const state = State<T | undefined>(undefined, false)
+	let currentlyAssigning = false
 	manifestStore()
 	const result: Manifest<T> = Object.assign(
 		state,
@@ -39,8 +40,8 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 			},
 			async getManifest (force?: boolean) {
 				// don't re-request the tag manifest if it was requested less than 5 minutes ago
-				if (!force && result.isFresh(state.value))
-					return state.value
+				if (currentlyAssigning || (!force && result.isFresh(state.value)))
+					return state.value!
 
 				if (definition.requiresAuthor && !Session.Auth.loggedIn.value)
 					return undefined!
@@ -102,6 +103,7 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 			if (!result || !('time' in result) || !('data' in result))
 				return undefined
 
+			currentlyAssigning = true
 			const manifestTime = +result.time || 0
 			state.value = result.data
 
@@ -115,6 +117,7 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 			return undefined
 		}
 		finally {
+			currentlyAssigning = false
 			ensureSaveWatcher()
 		}
 	}

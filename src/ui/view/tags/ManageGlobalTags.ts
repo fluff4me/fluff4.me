@@ -1,10 +1,22 @@
+import EndpointTagCreateGlobal from 'endpoint/tag/EndpointTagCreateGlobal'
+import EndpointTagDeleteGlobal from 'endpoint/tag/EndpointTagDeleteGlobal'
 import type { TagId, TagsManifest, TagsManifestTag } from 'model/Tags'
+import Tags from 'model/Tags'
 import Component from 'ui/Component'
+import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
+import Button from 'ui/component/core/Button'
+import { RadioDropdown } from 'ui/component/core/Dropdown'
+import Form from 'ui/component/core/Form'
 import Heading from 'ui/component/core/Heading'
+import LabelledRow from 'ui/component/core/LabelledRow'
+import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
+import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import TextInput from 'ui/component/core/TextInput'
 import Tag from 'ui/component/Tag'
+import TagEditForm from 'ui/component/tag/TagEditForm'
+import { Quilt } from 'ui/utility/StringApplicator'
 import Arrays from 'utility/Arrays'
 import State from 'utility/State'
 
@@ -107,6 +119,158 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 					.appendTo(slot)
 		}))
 		.appendToWhen(selectedTags.mapManual(c => !!c.length), block.content)
+
+	////////////////////////////////////
+	//#region Create Tag
+
+	const createTab = Tab()
+		.text.use('view/manage-tags/global-tags/action/create')
+
+	const createTagForm = TagEditForm(manifest)
+		.appendTo(createTab.content)
+
+	createTagForm.submit
+		.text.use('view/manage-tags/global-tags/action/create')
+		.event.subscribe('click', async () => {
+			const body = createTagForm.getFormData()
+			if (!body)
+				return
+
+			const response = await EndpointTagCreateGlobal.query({ body })
+			if (toast.handleError(response))
+				return
+
+			if (!manifest.value)
+				return
+
+			Tags.addTag(response.data)
+		})
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Recategorise
+
+	const recategoriseTab = Tab()
+		.text.use('view/manage-tags/global-tags/action/recategorise')
+
+	const recategoriseForm = Form(null).appendTo(recategoriseTab.content)
+
+	LabelledRow()
+		.tweak(row => row.label.text.use('view/manage-tags/global-tag-form/category/label'))
+		.tweak(row => row.content.append(RadioDropdown()
+			.setLabel(row.label)
+			.setRequired()
+			.tweak(dropdown => {
+				manifest.use(dropdown, manifest => {
+					dropdown.clear()
+					if (!manifest)
+						return
+
+					for (const category of Object.values(manifest.categories))
+						dropdown.add(category.nameLowercase, {
+							translation: Quilt.fake(category.name),
+						})
+				})
+			})
+		))
+		.appendTo(recategoriseForm.content)
+
+	recategoriseForm.submit
+		.text.use('view/manage-tags/global-tags/action/recategorise')
+		.event.subscribe('click', () => {
+			// TODO
+		})
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Modify Tag
+
+	const modifyTab = Tab()
+		.text.use('view/manage-tags/global-tags/action/modify')
+
+	Slot().appendTo(modifyTab.content).use(selectedTags, (slot, tagIds) => {
+		if (!tagIds.length || tagIds.length > 1)
+			return
+
+		const tagId = tagIds[0]
+		const modifyForm = TagEditForm(manifest, tagId)
+			.appendTo(slot)
+
+		modifyForm.submit
+			.text.use('view/manage-tags/global-tags/action/save')
+			.event.subscribe('click', async () => {
+				const body = modifyForm.getFormData()
+				if (!body)
+					return
+
+				const response = await EndpointTagCreateGlobal.query({ body })
+				if (toast.handleError(response))
+					return
+
+				if (!manifest.value)
+					return
+
+				Tags.removeTags(tagId)
+				Tags.addTag(response.data)
+			})
+	})
+
+	//#endregion
+	////////////////////////////////////
+
+	////////////////////////////////////
+	//#region Delete Tag
+
+	const deleteTab = Tab()
+		.text.use('view/manage-tags/global-tags/action/delete')
+
+	const row = ActionRow().appendTo(deleteTab.content)
+
+	Placeholder()
+		.text.use('view/manage-tags/shared/hint/delete-tags')
+		.appendTo(row.left)
+
+	Button()
+		.type('primary')
+		.text.use('view/manage-tags/custom-tags/action/delete')
+		.event.subscribe('click', async () => {
+			const tagsToDelete = selectedTags.value.slice()
+			if (!tagsToDelete.length)
+				return
+
+			const response = await EndpointTagDeleteGlobal.query({ body: { tags: tagsToDelete } })
+			if (toast.handleError(response))
+				return
+
+			Tags.removeTags(...tagsToDelete)
+			const previousSelectedTags = selectedTags.value.slice()
+			Arrays.remove(selectedTags.value, ...tagsToDelete)
+			selectedTags.emit(previousSelectedTags)
+		})
+		.appendTo(row.right)
+
+	//#endregion
+	////////////////////////////////////
+
+	const hasNoSelectedTags = selectedTags.mapManual(tags => !tags.length)
+	const hasSelectedTags = selectedTags.mapManual(tags => !!tags.length)
+	const hasSingleTagSelected = selectedTags.mapManual(tags => tags.length === 1)
+
+	const tabinator = Tabinator()
+		.allowNoneVisible()
+		.addTabWhen(hasNoSelectedTags, createTab)
+		.addTabWhen(hasSingleTagSelected, modifyTab)
+		.addTabWhen(hasSelectedTags, recategoriseTab)
+		.addTabWhen(hasSelectedTags, deleteTab)
+		.appendTo(block.footer.left)
+
+	Placeholder()
+		.text.use('view/manage-tags/shared/hint/select-tags')
+		.appendToWhen(selectedTags.mapManual(tags => !tags.length), tabinator.header)
 
 	return block
 })

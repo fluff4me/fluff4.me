@@ -331,7 +331,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 	const row = ActionRow().appendTo(deleteTab.content)
 
 	Placeholder()
-		.text.use('view/manage-tags/custom-tags/hint/delete-tags')
+		.text.use('view/manage-tags/shared/hint/delete-tags')
 		.appendTo(row.left)
 
 	Button()
