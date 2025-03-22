@@ -41,6 +41,6 @@ jobs:
             -d "{
               \"embeds\": [{
                 \"description\": \"Deployed [v${{ github.run_number }} ($SHORT_SHA)](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\",
-                \"color\": 65280,
+                \"color\": 65280
               }]
             }"
