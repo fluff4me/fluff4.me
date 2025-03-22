@@ -48,7 +48,7 @@ jobs:
           SHORT_SHA=${GITHUB_SHA::7}
           curl -H "Content-Type: application/json" -X POST ${{ secrets.BUILD_WEBHOOK }} \
             -d "{
-              \"embeds": [{
+              \"embeds\": [{
                 \"title\": \"Build Failed\",
                 \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
                 \"color\": 16711680,
