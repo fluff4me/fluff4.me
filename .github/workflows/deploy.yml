@@ -32,3 +32,15 @@ jobs:
           jekyll: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify Discord
+        if: success()
+        run: |
+          curl -H "Content-Type: application/json" -X POST ${{ secrets.BUILD_WEBHOOK }} \
+            -d '{
+              "embeds": [{
+                "title": "Deployed fluff4.me@v${{ github.run_id }} (${GITHUB_SHA::7})",
+                "url": "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}",
+                "color": 65280,
+              }]
+            }'
