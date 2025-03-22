@@ -64,6 +64,9 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 
 	let shouldForceSelect = true
 	const tabs = State<Tab[]>([])
+
+	const getFirstAvailableTab = () => tabs.value.find(tab => !tab.style.has('tabinator-tab--hidden'))
+
 	const tabinator: Tabinator<Tab> = component
 		.and(Block)
 		.type('flush')
@@ -109,6 +112,10 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 			addTabWhen (state, tab) {
 				tabinator.addTab(tab)
 				tab.style.bind(state.falsy, 'tabinator-tab--hidden')
+				state.falsy.subscribe(tab, hidden => {
+					if (hidden && activeTab.value === tab)
+						activeTab.value = shouldForceSelect ? getFirstAvailableTab() : undefined
+				})
 				return tabinator
 			},
 			removeTab (removeTab) {
@@ -121,7 +128,7 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 				tabs.value.filterInPlace(tab => tab !== removeTab)
 				tabs.emit()
 				if (activeTab.value === removeTab)
-					activeTab.value = shouldForceSelect ? tabs.value[0] : undefined
+					activeTab.value = shouldForceSelect ? getFirstAvailableTab() : undefined
 
 				return tabinator
 			},

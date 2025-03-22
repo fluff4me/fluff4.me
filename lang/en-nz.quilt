@@ -505,6 +505,7 @@ relationships-from/label=shared/term/relationships-from
 hint/filter=shared/action/filter
 hint/select-tags: Select tags to manage them...
 label/selected-tags: Selected Tags
+hint/delete-tags: Are you sure you want to delete these tag(s)? This is permanent. All stories with these tags will lose them.
 
 ### custom-tags
 title: Custom Tags
@@ -513,7 +514,6 @@ action/rename=shared/action/rename
 hint/rename: replacement tag name
 
 action/delete=shared/action/delete
-hint/delete-tags: Are you sure you want to delete these tag(s)? This is permanent. All stories with these tags will lose them.
 
 action/promote: Promote
 action/promote/new-tag: New Tag
@@ -525,6 +525,13 @@ hint/promote/into: Promote Into:
 ### categories
 title: Categories
 label/selected: Selected Category
+hint/select-category: Select a category to manage it...
 
 ### global-tags
 title: Global Tags
+
+action/create: Create
+action/modify: Modify
+action/recategorise: Recategorise
+action/delete=shared/action/delete
+action/save=shared/action/save

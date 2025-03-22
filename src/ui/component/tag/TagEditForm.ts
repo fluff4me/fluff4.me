@@ -1,6 +1,6 @@
 import type { TagCreateGlobalBody } from 'api.fluff4.me'
 import FormInputLengths from 'model/FormInputLengths'
-import type { TagsManifest } from 'model/Tags'
+import type { TagId, TagsManifest } from 'model/Tags'
 import Component from 'ui/Component'
 import { RadioDropdown } from 'ui/component/core/Dropdown'
 import Form from 'ui/component/core/Form'
@@ -9,7 +9,7 @@ import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
 import TagsEditor from 'ui/component/TagsEditor'
 import { Quilt } from 'ui/utility/StringApplicator'
-import type State from 'utility/State'
+import State from 'utility/State'
 
 interface TagEditFormExtensions {
 	readonly categoryDropdown: RadioDropdown<string>
@@ -23,7 +23,9 @@ interface TagEditFormExtensions {
 
 interface TagEditForm extends Form, TagEditFormExtensions { }
 
-export default Component.Builder((component, manifest: State<TagsManifest | undefined>): TagEditForm => {
+export default Component.Builder((component, manifest: State<TagsManifest | undefined>, tagId?: TagId): TagEditForm => {
+	const tag = manifest.map(component, manifest => manifest?.tags[tagId!])
+
 	let categoryDropdown!: RadioDropdown<string>
 	let nameInput!: TextInput
 	let descriptionEditor!: TextEditor
@@ -49,6 +51,8 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 						dropdown.add(category.nameLowercase, {
 							translation: Quilt.fake(category.name),
 						})
+
+					dropdown.selection.value = tag.value?.categoryLowercase
 				})
 			})
 		))
@@ -58,6 +62,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			.setLabel(label)
 			.setRequired()
 			.setMaxLength(FormInputLengths.map(content, lengths => lengths?.global_tag.name))
+			.default.bind(tag.mapManual(tag => tag?.name))
 		))
 
 		.label(label => label.text.use('view/manage-tags/global-tag-form/description/label'))
@@ -66,24 +71,46 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			.setRequired()
 			.disablePersistence()
 			.setMaxLength(FormInputLengths.map(content, lengths => lengths?.global_tag.description))
+			.default.bind(tag.mapManual(tag => tag?.description.body))
 		))
 
 		.label(label => label.text.use('view/manage-tags/global-tag-form/aliases/label'))
 		.content((content, label) => content.append(aliasesEditor = TagsEditor()
 			.setLabel(label)
 			.setCustomTagsOnly()
+			.default.bind(tag.mapManual(tag => ({ custom_tags: tag?.aliases || [] })))
 		))
 
 		.label(label => label.text.use('view/manage-tags/global-tag-form/relationships-to/label'))
 		.content((content, label) => content.append(relationshipsToEditor = TagsEditor()
 			.setLabel(label)
 			.setGlobalTagsOnly()
+			.default.bind(State.Use(label, { tag, manifest }).map(label, ({ tag, manifest }) => {
+				if (!tag || !manifest)
+					return undefined
+
+				const tagId = `${tag.category}: ${tag.name}`
+				return {
+					global_tags: manifest.relationships[tagId] as TagId[] || [],
+				}
+			}))
 		))
 
 		.label(label => label.text.use('view/manage-tags/global-tag-form/relationships-from/label'))
 		.content((content, label) => content.append(relationshipsFromEditor = TagsEditor()
 			.setLabel(label)
 			.setGlobalTagsOnly()
+			.default.bind(State.Use(label, { tag, manifest }).map(label, ({ tag, manifest }) => {
+				if (!tag || !manifest)
+					return undefined
+
+				const tagId = `${tag.category}: ${tag.name}`
+				return {
+					global_tags: Object.entries(manifest.relationships)
+						.filter(([fromId, toIds]) => toIds.includes(tagId))
+						.map(([fromId]) => fromId as TagId),
+				}
+			}))
 		))
 
 	form.footer.style('tag-edit-form-footer')
