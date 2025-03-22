@@ -51,7 +51,6 @@ jobs:
               \"embeds\": [{
                 \"color\": 16711680,
                 \"description\": \"[Build failed](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for commit [`$SHORT_SHA`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\",
-                \"footer\": { \"text\": \"fluff4.me\" }
               }]
             }"
 
