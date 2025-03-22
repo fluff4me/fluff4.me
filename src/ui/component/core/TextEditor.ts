@@ -862,6 +862,7 @@ interface TextEditorExtensions {
 	setMinimalByDefault (minimal?: boolean): this
 	/** Prevents this text editor's contents persisting, ie disables save/load */
 	disablePersistence (): this
+	importMarkdown (markdown: string): this
 }
 
 interface TextEditor extends Input, TextEditorExtensions { }
@@ -1329,6 +1330,10 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			disablePersistence () {
 				clearLocal()
 				saveLoadDisabled = true
+				return editor
+			},
+			importMarkdown (markdown) {
+				loadFromMarkdown(markdown)
 				return editor
 			},
 		}))
