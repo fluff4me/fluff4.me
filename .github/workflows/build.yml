@@ -42,6 +42,19 @@ jobs:
       # - name: Cleanup
       #   run: rm -rf docs/testiny
 
+      - name: Notify Discord on failure
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" -X POST ${{ secrets.BUILD_WEBHOOK }} \
+            -d '{
+              "embeds": [{
+                "title": "Build Failed",
+                "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                "color": 16711680,
+                "description": "Build failed for commit [`${GITHUB_SHA::7}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
+              }]
+            }'
+
       - name: Prepare for GitHub Pages
         if: success()
         uses: crazy-max/ghaction-github-pages@v4
