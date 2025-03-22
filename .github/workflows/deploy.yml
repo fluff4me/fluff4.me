@@ -41,6 +41,6 @@ jobs:
               "embeds": [{
                 "title": "Deployed fluff4.me@v${{ github.run_id }} (${GITHUB_SHA::7})",
                 "url": "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}",
-                "color": 65280,
+                "color": 65280
               }]
             }'
