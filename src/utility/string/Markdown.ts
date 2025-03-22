@@ -72,7 +72,10 @@ function createMarkdownInstance () {
 				postProcess(state, delimiters)
 		}
 
-		state.delimiters = state.delimiters.filter(delim => delim.marker !== 0x5F/* _ */)
+		for (const delim of state.delimiters)
+			if (delim.marker === 0x5F) // prevent this being used for evil
+				delim.marker = -999999
+
 		return true
 
 		function postProcess (state: StateInline, delimiters: StateInline.Delimiter[]) {
