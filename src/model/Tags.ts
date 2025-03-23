@@ -60,6 +60,24 @@ const Tags = Object.assign(
 
 			Tags.emit()
 		},
+		recategoriseTags (category: string, ...tags: TagId[]) {
+			if (!Tags.value)
+				return
+
+			if (!tags.length)
+				return
+
+			for (const oldId of tags) {
+				const tag = Tags.value.tags[oldId]
+				if (!tag)
+					continue
+
+				Tags.value.tags[`${category}: ${tag.name}`] = tag
+				delete Tags.value.tags[oldId]
+			}
+
+			Tags.emit()
+		},
 		addCategory (category: TagCategory) {
 			if (!Tags.value)
 				return

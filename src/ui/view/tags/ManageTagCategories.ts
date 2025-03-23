@@ -7,6 +7,7 @@ import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import Heading from 'ui/component/core/Heading'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
@@ -140,6 +141,10 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				if (!body)
 					return
 
+				const confirmed = await ConfirmDialog.prompt(modifyForm, { dangerToken: 'tag-modify' })
+				if (!confirmed)
+					return
+
 				const response = await EndpointTagUpdateCategory.query({ params: { name: category }, body })
 				if (toast.handleError(response))
 					return
@@ -182,6 +187,10 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 		.event.subscribe('click', async () => {
 			const category = selectedCategory.value
 			if (!category)
+				return
+
+			const confirmed = await ConfirmDialog.prompt(deleteRow, { dangerToken: 'tag-modify' })
+			if (!confirmed)
 				return
 
 			const response = await EndpointTagDeleteCategory.query({ params: { name: category } })
