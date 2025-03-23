@@ -21,6 +21,7 @@ const Form = Component.Builder((component, label: Component | null): Form => {
 	) as Component<HTMLFormElement>
 
 	form.receiveDescendantInsertEvents()
+	form.event.subscribe('submit', event => event.preventDefault())
 
 	const valid = State.Generator(() => (form.element).checkValidity())
 	form.event.subscribe(['input', 'change', 'descendantInsert'], () => valid.refresh())
