@@ -115,7 +115,7 @@ namespace Session {
 		}
 
 		export function hasPrivilege (privilege: Privilege) {
-			return !!Session.Auth.author.value?.roles?.some(role => role.privileges.includes(privilege))
+			return !!Session.Auth.author.value?.roles?.some(role => role.privileges?.includes(privilege))
 		}
 
 		export async function unauth (authOrId: Authorisation | string) {
