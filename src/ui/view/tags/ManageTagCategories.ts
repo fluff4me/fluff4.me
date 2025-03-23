@@ -100,8 +100,6 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 	createForm.submit
 		.text.use('view/manage-tags/categories/action/create')
 		.event.subscribe('click', async event => {
-			event.preventDefault()
-
 			const body = createForm.getFormData()
 			if (!body)
 				return
@@ -135,8 +133,6 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 		modifyForm.submit
 			.text.use('view/manage-tags/categories/action/create')
 			.event.subscribe('click', async event => {
-				event.preventDefault()
-
 				const body = modifyForm.getFormData()
 				if (!body)
 					return
