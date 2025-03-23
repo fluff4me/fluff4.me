@@ -138,7 +138,7 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 							popover.hide()
 
 						if (!selection.value)
-							selection.value = [id]
+							selection.value = isRadio ? id : [id]
 						else {
 							const current = Arrays.resolve(selection.value)
 							if (current.includes(id))
