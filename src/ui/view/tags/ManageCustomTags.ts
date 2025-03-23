@@ -192,6 +192,10 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!newTag)
 				return
 
+			const confirmed = await ConfirmDialog.prompt(newTagForm, { dangerToken: 'tag-modify' })
+			if (!confirmed)
+				return
+
 			const response = await EndpointTagCustomPromote.query({
 				body: {
 					into_new_tag: newTag,
@@ -286,6 +290,10 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!tag)
 				return
 
+			const confirmed = await ConfirmDialog.prompt(existingTagSelector, { dangerToken: 'tag-modify' })
+			if (!confirmed)
+				return
+
 			const response = await EndpointTagCustomPromote.query({
 				body: {
 					into_existing_tag: {
@@ -328,11 +336,11 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 	const deleteTab = Tab()
 		.text.use('view/manage-tags/custom-tags/action/delete')
 
-	const row = ActionRow().appendTo(deleteTab.content)
+	const deleteRow = ActionRow().appendTo(deleteTab.content)
 
 	Placeholder()
 		.text.use('view/manage-tags/shared/hint/delete-tags')
-		.appendTo(row.left)
+		.appendTo(deleteRow.left)
 
 	Button()
 		.type('primary')
@@ -340,6 +348,10 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 		.event.subscribe('click', async () => {
 			const tagsToDelete = selectedTags.value.slice()
 			if (!tagsToDelete.length)
+				return
+
+			const confirmed = await ConfirmDialog.prompt(deleteRow, { dangerToken: 'tag-modify' })
+			if (!confirmed)
 				return
 
 			const response = await EndpointTagCustomDelete.query({ body: { tags: tagsToDelete } })
@@ -352,7 +364,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			customTags.emit()
 			selectedTags.emit(previousSelectedTags)
 		})
-		.appendTo(row.right)
+		.appendTo(deleteRow.right)
 
 	//#endregion
 	////////////////////////////////////

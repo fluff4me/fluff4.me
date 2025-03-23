@@ -1,11 +1,13 @@
 import EndpointTagCreateGlobal from 'endpoint/tag/EndpointTagCreateGlobal'
 import EndpointTagDeleteGlobal from 'endpoint/tag/EndpointTagDeleteGlobal'
+import EndpointTagGlobalRecategorise from 'endpoint/tag/EndpointTagGlobalRecategorise'
 import type { TagId, TagsManifest, TagsManifestTag } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import { RadioDropdown } from 'ui/component/core/Dropdown'
 import Form from 'ui/component/core/Form'
 import Heading from 'ui/component/core/Heading'
@@ -156,10 +158,11 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 		.text.use('view/manage-tags/global-tags/action/recategorise')
 
 	const recategoriseForm = Form(null).appendTo(recategoriseTab.content)
+	let recategoriseFormCategory!: RadioDropdown<string>
 
 	LabelledRow()
 		.tweak(row => row.label.text.use('view/manage-tags/global-tag-form/category/label'))
-		.tweak(row => row.content.append(RadioDropdown()
+		.tweak(row => row.content.append(recategoriseFormCategory = RadioDropdown()
 			.setLabel(row.label)
 			.setRequired()
 			.tweak(dropdown => {
@@ -179,8 +182,24 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 
 	recategoriseForm.submit
 		.text.use('view/manage-tags/global-tags/action/recategorise')
-		.event.subscribe('click', () => {
-			// TODO
+		.event.subscribe('click', async () => {
+			const tags = selectedTags.value.slice()
+			if (!tags.length)
+				return
+
+			const category = recategoriseFormCategory.selection.value
+			if (!category)
+				return
+
+			const confirmed = await ConfirmDialog.prompt(recategoriseFormCategory, { dangerToken: 'tag-modify' })
+			if (!confirmed)
+				return
+
+			const response = await EndpointTagGlobalRecategorise.query({ body: { tags, category } })
+			if (toast.handleError(response))
+				return
+
+			Tags.recategoriseTags(category, ...tags)
 		})
 
 	//#endregion
@@ -205,6 +224,10 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			.event.subscribe('click', async () => {
 				const body = modifyForm.getFormData()
 				if (!body)
+					return
+
+				const confirmed = await ConfirmDialog.prompt(modifyForm, { dangerToken: 'tag-modify' })
+				if (!confirmed)
 					return
 
 				const response = await EndpointTagCreateGlobal.query({ body })
@@ -240,6 +263,10 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 		.event.subscribe('click', async () => {
 			const tagsToDelete = selectedTags.value.slice()
 			if (!tagsToDelete.length)
+				return
+
+			const confirmed = await ConfirmDialog.prompt(deleteRow, { dangerToken: 'tag-modify' })
+			if (!confirmed)
 				return
 
 			const response = await EndpointTagDeleteGlobal.query({ body: { tags: tagsToDelete } })
