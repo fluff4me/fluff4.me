@@ -1,6 +1,7 @@
 import EndpointTagCreateGlobal from 'endpoint/tag/EndpointTagCreateGlobal'
 import EndpointTagDeleteGlobal from 'endpoint/tag/EndpointTagDeleteGlobal'
 import EndpointTagGlobalRecategorise from 'endpoint/tag/EndpointTagGlobalRecategorise'
+import EndpointTagUpdateGlobal from 'endpoint/tag/EndpointTagUpdateGlobal'
 import type { TagId, TagsManifest, TagsManifestTag } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
@@ -230,7 +231,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				if (!confirmed)
 					return
 
-				const response = await EndpointTagCreateGlobal.query({ body })
+				const response = await EndpointTagUpdateGlobal.query({ params: { id: tagId }, body })
 				if (toast.handleError(response))
 					return
 
