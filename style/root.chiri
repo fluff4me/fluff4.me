@@ -2,7 +2,7 @@
 %gutter-stable
 colour-scheme: dark
 #string background-highlight = "color-mix(in lch, $dark-2, #fff 5%)
-background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $dark-2)
+background: #2a2733
 colour: $light-3
 view-transition-name: unset
 font-size: 1.2rem
@@ -28,4 +28,26 @@ $tablet-width: #{tablet-width}
 			%fixed
 			%inset-0
 			%z-index-bg
-			background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $dark-2)
+			; background: radial-gradient(ellipse at left 20% top 20%, #{background-highlight}, $dark-2)
+			; background:
+			; 	linear-gradient(105deg, 
+			; 	#785bbd, 
+			; 	#30417e 15%, 
+			; 	#4bbff2 40%, 
+			; 	#228a22 80%, 
+			; 	#7a6a12
+			; 	)
+			background:
+				linear-gradient(105deg, 
+					$colour-blue-4, 
+					$colour-blue-4 15%, 
+					$colour-pink-3 25%, 
+					$colour-pink-3 30%, 
+					#aaa 40%, 
+					#aaa 60%, 
+					$colour-pink-3 70%, 
+					$colour-pink-3 75%, 
+					$colour-blue-4 85%,
+					$colour-blue-4
+				)
+			%opacity-04
