@@ -131,7 +131,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			.appendTo(slot)
 
 		modifyForm.submit
-			.text.use('view/manage-tags/categories/action/create')
+			.text.use('view/manage-tags/categories/action/save')
 			.event.subscribe('click', async event => {
 				const body = modifyForm.getFormData()
 				if (!body)
