@@ -98,6 +98,7 @@
 		%no-pointer-events
 
 	&-button--hidden:
+		#after: .button, .paginator-button
 		%hidden
 
 	&-content:
