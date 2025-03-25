@@ -1,3 +1,4 @@
+import type { CustomTagData } from 'api.fluff4.me'
 import EndpointTagCustomDelete from 'endpoint/tag/EndpointTagCustomDelete'
 import EndpointTagCustomPromote from 'endpoint/tag/EndpointTagCustomPromote'
 import EndpointTagCustomRename from 'endpoint/tag/EndpointTagCustomRename'
@@ -22,7 +23,7 @@ import AbortPromise from 'utility/AbortPromise'
 import Arrays from 'utility/Arrays'
 import State from 'utility/State'
 
-export default Component.Builder((component, manifest: State<TagsManifest | undefined>, customTags: State<string[]>) => {
+export default Component.Builder((component, manifest: State<TagsManifest | undefined>, customTags: State<CustomTagData[]>) => {
 	const block = component.and(Block)
 	block.content.style('view-type-manage-tags-tag-block')
 
@@ -30,7 +31,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 		.placeholder.use('view/manage-tags/shared/hint/filter')
 		.appendTo(block.content)
 
-	const filteredIn = (tag: string) => !filter.state.value.length || tag.includes(filter.state.value)
+	const filteredIn = (tag: CustomTagData) => !filter.state.value.length || tag.name.includes(filter.state.value)
 
 	const tagList = Component()
 		.style('view-type-manage-tags-tag-list')
@@ -43,21 +44,21 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 	customTags.use(tagList, customTags => {
 		tagList.removeContents()
 
-		for (const tag of customTags.sort((a, b) => a.localeCompare(b))) {
-			const selected = selectedTags.mapManual(tags => tags.includes(tag))
+		for (const tag of customTags.sort((a, b) => a.name.localeCompare(b.name))) {
+			const selected = selectedTags.mapManual(tags => tags.includes(tag.name))
 			const filteredOut = State.MapManual([filter.state, selected],
 				(text, selected) => !selected && !filteredIn(tag))
 
-			Tag(tag)
+			Tag(tag.name)
 				.style('view-type-manage-tags-tag')
 				.style.bind(filteredOut, 'view-type-manage-tags-tag--filtered-out')
 				.style.bind(selected, 'tag--selected', 'view-type-manage-tags-tag--selected')
 				.event.subscribe('click', event => {
 					const previousSelectedTags = selectedTags.value.slice()
 
-					if (selectedTags.value.includes(tag)) {
-						if (event.shiftKey && event.altKey && lastRemoved && lastRemoved !== tag) {
-							const otherIndex = customTags.indexOf(lastRemoved)
+					if (selectedTags.value.includes(tag.name)) {
+						if (event.shiftKey && event.altKey && lastRemoved && lastRemoved !== tag.name) {
+							const otherIndex = customTags.findIndex(tag => tag.name === lastRemoved)
 							const thisIndex = customTags.indexOf(tag)
 							const start = Math.min(otherIndex, thisIndex)
 							const end = Math.max(otherIndex, thisIndex)
@@ -66,24 +67,24 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 							return
 						}
 
-						lastRemoved = tag
+						lastRemoved = tag.name
 						Arrays.remove(selectedTags.value, tag)
 						selectedTags.emit(previousSelectedTags)
 						return
 					}
 
-					if (event.shiftKey && lastAdded && lastAdded !== tag) {
-						const otherIndex = customTags.indexOf(lastAdded)
+					if (event.shiftKey && lastAdded && lastAdded !== tag.name) {
+						const otherIndex = customTags.findIndex(tag => tag.name === lastAdded)
 						const thisIndex = customTags.indexOf(tag)
 						const start = Math.min(otherIndex, thisIndex)
 						const end = Math.max(otherIndex, thisIndex)
-						Arrays.add(selectedTags.value, ...customTags.slice(start, end + 1).filter(filteredIn))
+						Arrays.add(selectedTags.value, ...customTags.slice(start, end + 1).filterInPlace(filteredIn).mapInPlace(tag => tag.name))
 						selectedTags.emit(previousSelectedTags)
 						return
 					}
 
-					lastAdded = tag
-					Arrays.add(selectedTags.value, tag)
+					lastAdded = tag.name
+					Arrays.add(selectedTags.value, tag.name)
 					selectedTags.emit(previousSelectedTags)
 				})
 				.appendTo(tagList)
@@ -144,10 +145,12 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (toast.handleError(response))
 				return
 
+			const oldTag = customTags.value.find(tag => tag.name === oldName)
+			if (oldTag)
+				oldTag.name = newName
+
 			const previousSelectedTags = selectedTags.value.slice()
 			Arrays.remove(selectedTags.value, oldName)
-			Arrays.remove(customTags.value, oldName)
-			Arrays.add(customTags.value, newName)
 			selectedTags.emit(previousSelectedTags)
 			customTags.emit()
 
