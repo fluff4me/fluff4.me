@@ -40,7 +40,7 @@
 		%relative
 		grid-template-columns: 1fr auto
 		$border-colour: $block-border-colour
-		background: light-dark(#{alpha(0.2, $light-0)}, #{alpha(0.02, $colour-0)})
+		background: light-dark(#{alpha(0.12, $light-0)}, #{alpha(0.04, $colour-0)})
 
 		#flush:
 			%border-radius-0
@@ -88,7 +88,7 @@
 		%border-box
 		width: calc(100% + $block-padding * 2)
 		$border-colour: $block-border-colour
-		background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
+		background: light-dark(#{alpha(0.08, $dark-1)}, #{alpha(0.15, $dark-0)})
 		%background-unclip
 		%z-index-fg
 

@@ -7,7 +7,7 @@
 	max-width: min(100vw - $space-3, $space-6 * 4)
 	box-shadow: 0 $space-1 $space-2 light-dark(#0004, #0007)
 	; $block-background-light: #{alpha(0.99, $light-5)}
-	$block-background-dark: $dark-2
+	$block-background-dark: $dark-3
 
 	:popover:
 		%block
