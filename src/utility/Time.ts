@@ -89,25 +89,25 @@ namespace Time {
 
 		let value = ms
 
-		value = Math.floor(ms / years(1))
+		value = Math.trunc(ms / years(1))
 		if (value) return rtf.format(value, 'year')
 
-		value = Math.floor(ms / months(1))
+		value = Math.trunc(ms / months(1))
 		if (value) return rtf.format(value, 'month')
 
-		value = Math.floor(ms / weeks(1))
+		value = Math.trunc(ms / weeks(1))
 		if (value) return rtf.format(value, 'week')
 
-		value = Math.floor(ms / days(1))
+		value = Math.trunc(ms / days(1))
 		if (value) return rtf.format(value, 'day')
 
-		value = Math.floor(ms / hours(1))
+		value = Math.trunc(ms / hours(1))
 		if (value) return rtf.format(value, 'hour')
 
-		value = Math.floor(ms / minutes(1))
+		value = Math.trunc(ms / minutes(1))
 		if (value) return rtf.format(value, 'minute')
 
-		value = Math.floor(ms / seconds(1))
+		value = Math.trunc(ms / seconds(1))
 		return rtf.format(value, 'second')
 	}
 
