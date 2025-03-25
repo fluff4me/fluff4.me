@@ -34,6 +34,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
+      - name: Checkout main
+        if: success()
+        uses: actions/checkout@v4
+
       - name: Setup Node.js environment
         if: success()
         uses: actions/setup-node@v4
