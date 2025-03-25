@@ -6,6 +6,7 @@
 		"compress": "npx ts-node tasks/utility/TaskRunner.ts compress",
 		"watch": "npx ts-node tasks/utility/TaskRunner.ts clean install pre_watch_build -- serve watch",
 		"serve": "npx ts-node tasks/utility/TaskRunner.ts serve",
+		"notify": "npx ts-node tasks/utility/TaskRunner.ts notify",
 		"ci:dev": "npx ts-node tasks/utility/TaskRunner.ts ci_dev"
 	},
 	"devDependencies": {

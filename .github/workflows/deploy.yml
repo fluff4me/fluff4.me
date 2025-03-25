@@ -33,14 +33,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+
+      - name: Setup Node.js environment
+        if: success()
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        if: success()
+        run: npm ci --force
+
       - name: Notify Discord
         if: success()
-        run: |
-          SHORT_SHA=${GITHUB_SHA::7}
-          curl -H "Content-Type: application/json" -X POST ${{ secrets.BUILD_WEBHOOK }} \
-            -d "{
-              \"embeds\": [{
-                \"description\": \"Deployed [v${{ github.run_number }} (\`$SHORT_SHA\`)](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\\n-# "'${{ github.event.head_commit.message }}'"\",
-                \"color\": 65280
-              }]
-            }"
+        run: npm run notify
+        env:
+          BUILD_WEBHOOK: ${{ secrets.BUILD_WEBHOOK }}
+          NOTIFY_TYPE: success
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}

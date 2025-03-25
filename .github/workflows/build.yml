@@ -39,20 +39,18 @@ jobs:
           BUILD_SHA: ${{ github.sha }}
         run: npm run build
 
-      # - name: Cleanup
-      #   run: rm -rf docs/testiny
-
       - name: Notify Discord on failure
         if: failure()
-        run: |
-          SHORT_SHA=${GITHUB_SHA::7}
-          curl -H "Content-Type: application/json" -X POST ${{ secrets.BUILD_WEBHOOK }} \
-            -d "{
-              \"embeds\": [{
-                \"color\": 16711680,
-                \"description\": \"[Build failed](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for commit [\`$SHORT_SHA\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\\n-# "'${{ github.event.head_commit.message }}'"\"
-              }]
-            }"
+        run: npm run notify
+        env:
+          BUILD_WEBHOOK: ${{ secrets.BUILD_WEBHOOK }}
+          NOTIFY_TYPE: failure
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 
       - name: Prepare for GitHub Pages
         if: success()
