@@ -71,7 +71,7 @@ declare global {
 		groupBy<GROUP> (grouper: (value: T, index: number, obj: T[]) => GROUP): [GROUP, T[]][]
 
 		filterInPlace: Array<T>['filter']
-		mapInPlace: Array<T>['filter']
+		mapInPlace: Array<T>['map']
 	}
 }
 
@@ -181,7 +181,7 @@ namespace Arrays {
 	 * Adds the given value to the given array if not present.
 	 * @returns `true` if added, `false` otherwise
 	 */
-	export function add (array: any[] | undefined, ...values: any) {
+	export function add<T> (array: T[] | undefined, ...values: T[]) {
 		if (!array)
 			return false
 
