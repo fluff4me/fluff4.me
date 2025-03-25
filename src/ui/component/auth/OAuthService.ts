@@ -1,6 +1,6 @@
 import type { Authorisation } from 'api.fluff4.me'
 import { type AuthService } from 'api.fluff4.me'
-import type { DangerTokenType } from 'model/Session'
+import type { DangerTokenType } from 'model/DangerToken'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Checkbutton from 'ui/component/core/Checkbutton'
@@ -102,7 +102,10 @@ const OAuthService = Component.Builder((component, service: AuthService, definit
 			const auth = Session.Auth.get(service.name)
 			if (auth) {
 				if (Session.Auth.loggedIn.value) {
-					const result = await ConfirmDialog.prompt(button, { dangerToken: 'remove-auth-service' })
+					const result = await ConfirmDialog.prompt(button, {
+						dangerToken: 'remove-auth-service',
+						bodyTranslation: quilt => quilt['view/account/auth/service/disconnect/confirm'](service.name, auth.display_name),
+					})
 					if (!result)
 						return false
 				}

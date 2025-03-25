@@ -22,7 +22,6 @@ import Dialog from 'ui/component/core/Dialog'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
-import Paragraph from 'ui/component/core/Paragraph'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import Reaction from 'ui/component/Reaction'
@@ -307,13 +306,10 @@ export default ViewDefinition({
 function authAsPatron (owner: State.Owner) {
 	void ConfirmDialog.prompt(owner, {
 		titleTranslation: 'view/chapter/dialog/patron/title',
+		bodyTranslation: 'view/chapter/dialog/patron/description',
 		confirmButtonTranslation: 'view/chapter/dialog/patron/done',
 		cancelButtonTranslation: false,
 		async tweak (dialog) {
-			Paragraph()
-				.text.use('view/chapter/dialog/patron/description')
-				.appendTo(dialog.content)
-
 			const patron = Session.Auth.author.map(dialog, author => author?.patreon_patron ?? undefined)
 			const services = await OAuthServices(State('none'))
 

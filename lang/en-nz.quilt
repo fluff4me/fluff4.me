@@ -206,6 +206,7 @@ action/label/unfollow=shared/action/unfollow
 action/label/ignore=shared/action/ignore
 action/label/unignore=shared/action/unignore
 action/label/delete=shared/action/delete
+action/delete/confirm: This will delete your work "**{0}**", and there's no undoing it!
 
 # author
 description/empty: This author prefers to remain elusive and mysterious...
@@ -244,6 +245,7 @@ action/label/edit=shared/action/edit
 action/label/delete=shared/action/delete
 action/label/reorder: Reorder
 action/label/reorder-cancel: Cancel Reordering
+action/delete/confirm: This will delete the chapter "**{0}**", and it will be gone for good!
 
 # notification
 comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}
@@ -345,6 +347,7 @@ pronouns/hint: The pronouns that others should refer to you with. These will app
 
 action/logout: Log Out
 action/delete: Delete Account
+action/delete/confirm: This will permanently delete your account and all your content. There's no going back!
 
 toast/failed-to-save=shared/toast/failed-to-save | account data
 toast/saved=shared/toast/saved | account data
@@ -362,6 +365,7 @@ confirm: Unlink
 ## account/auth
 service/accessibility/connect: connect {0}
 service/accessibility/disconnect: disconnect {0} account {1}
+service/disconnect/confirm: This will disconnect your {0} account "**{1}**".
 
 ### none
 title: Log in or sign up
@@ -515,6 +519,7 @@ action/rename=shared/action/rename
 hint/rename: replacement tag name
 
 action/delete=shared/action/delete
+action/delete/confirm: This will permanently delete the following custom tags:
 
 action/promote: Promote
 action/promote/new-tag: New Tag
@@ -532,6 +537,7 @@ action/create=shared/action/create
 action/modify=shared/action/modify
 action/save=shared/action/save
 action/delete=shared/action/delete
+action/delete/confirm: This will permanently delete the following category:
 hint/no-delete: This category cannot be deleted until its tags have been deleted.
 hint/delete: Are you sure you want to delete this category?
 
@@ -543,3 +549,4 @@ action/modify=shared/action/modify
 action/save=shared/action/save
 action/recategorise: Recategorise
 action/delete=shared/action/delete
+action/delete/confirm: This will permanently delete the following global tags:

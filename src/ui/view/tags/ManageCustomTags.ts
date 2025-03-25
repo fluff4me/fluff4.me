@@ -137,7 +137,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!newName || newName === oldName)
 				return
 
-			const confirmed = await ConfirmDialog.prompt(renameButton, { dangerToken: 'tag-modify' })
+			const confirmed = await ConfirmDialog.ensureDangerToken(renameButton, { dangerToken: 'tag-modify' })
 			if (!confirmed)
 				return
 
@@ -195,7 +195,15 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!newTag)
 				return
 
-			const confirmed = await ConfirmDialog.prompt(newTagForm, { dangerToken: 'tag-modify' })
+			const confirmed = await ConfirmDialog.prompt(newTagForm, {
+				dangerToken: 'tag-modify',
+				bodyTranslation: 'view/manage-tags/custom-tags/action/delete/confirm',
+				tweak: dialog => dialog.content.insert('after', dialog.body, Component()
+					.style('view-type-manage-tags-tag-list', 'view-type-manage-tags-tag-list--confirm-dialog')
+					.append(...promotedTags
+						.map(tag => Tag(tag).style('tag--selected'))
+					)),
+			})
 			if (!confirmed)
 				return
 
@@ -293,7 +301,15 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!tag)
 				return
 
-			const confirmed = await ConfirmDialog.prompt(existingTagSelector, { dangerToken: 'tag-modify' })
+			const confirmed = await ConfirmDialog.prompt(existingTagSelector, {
+				dangerToken: 'tag-modify',
+				bodyTranslation: 'view/manage-tags/custom-tags/action/delete/confirm',
+				tweak: dialog => dialog.content.insert('after', dialog.body, Component()
+					.style('view-type-manage-tags-tag-list', 'view-type-manage-tags-tag-list--confirm-dialog')
+					.append(...promotedTags
+						.map(tag => Tag(tag).style('tag--selected'))
+					)),
+			})
 			if (!confirmed)
 				return
 
@@ -353,7 +369,15 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!tagsToDelete.length)
 				return
 
-			const confirmed = await ConfirmDialog.prompt(deleteRow, { dangerToken: 'tag-modify' })
+			const confirmed = await ConfirmDialog.prompt(deleteRow, {
+				dangerToken: 'tag-modify',
+				bodyTranslation: 'view/manage-tags/custom-tags/action/delete/confirm',
+				tweak: dialog => dialog.content.insert('after', dialog.body, Component()
+					.style('view-type-manage-tags-tag-list', 'view-type-manage-tags-tag-list--confirm-dialog')
+					.append(...tagsToDelete
+						.map(tag => Tag(tag).style('tag--selected'))
+					)),
+			})
 			if (!confirmed)
 				return
 

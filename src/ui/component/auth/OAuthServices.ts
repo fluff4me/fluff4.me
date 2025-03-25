@@ -1,6 +1,7 @@
 import type { AuthServices } from 'api.fluff4.me'
 import EndpointAuthServices from 'endpoint/auth/EndpointAuthServices'
-import type { DangerTokenType } from 'model/Session'
+import type { DangerTokenType } from 'model/DangerToken'
+import DangerToken from 'model/DangerToken'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import type { OAuthServiceEvents } from 'ui/component/auth/OAuthService'
@@ -71,10 +72,10 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 									if (!reauthDangerToken)
 										return false
 
-									if (!Session.Auth.canRequestDangerToken())
+									if (!DangerToken.canRequest())
 										return true
 
-									const granted = await Session.Auth.requestDangerToken(reauthDangerToken, service)
+									const granted = await DangerToken.request(reauthDangerToken, service)
 									if (granted)
 										button.event.bubble('DangerTokenGranted', reauthDangerToken)
 									else;
