@@ -1,16 +1,13 @@
-import type { AuthorFull, AuthorSelf, Paths, Privilege } from 'api.fluff4.me'
+import type { AuthorFull, AuthorSelf, Privilege } from 'api.fluff4.me'
 import { type Authorisation, type AuthService, type Session } from 'api.fluff4.me'
 import EndpointAuthRemove from 'endpoint/auth/EndpointAuthDelete'
 import EndpointSessionGet from 'endpoint/session/EndpointSessionGet'
 import EndpointSessionReset from 'endpoint/session/EndpointSessionReset'
 import type Component from 'ui/Component'
-import Env from 'utility/Env'
 import popup from 'utility/Popup'
 import State from 'utility/State'
 import type { ILocalStorage } from 'utility/Store'
 import Store from 'utility/Store'
-
-export type DangerTokenType = keyof { [KEY in keyof Paths as KEY extends `/danger-token/request/${infer TOKEN}/{service}/begin` ? TOKEN : never]: true }
 
 declare module 'utility/Store' {
 	interface ILocalStorage {
@@ -141,22 +138,6 @@ namespace Session {
 			await popup(`Login Using ${service.name}`, service.url_begin, 600, 900)
 				.then(() => true).catch(err => { console.warn(err); return false })
 			await Session.refresh()
-		}
-
-		let isRequestingDangerToken = false
-		export function canRequestDangerToken () {
-			return !isRequestingDangerToken
-		}
-
-		export async function requestDangerToken (type: DangerTokenType, service: AuthService) {
-			if (isRequestingDangerToken)
-				return false
-
-			isRequestingDangerToken = true
-			const result = await popup(`Re-authenticate Using ${service.name}`, `${Env.API_ORIGIN}danger-token/request/${type}/${service.id}/begin`, 600, 900)
-				.then(() => true).catch(err => { console.warn(err); return false })
-			isRequestingDangerToken = false
-			return result
 		}
 
 		export async function await (owner: Component) {

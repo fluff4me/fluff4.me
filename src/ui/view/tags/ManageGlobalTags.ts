@@ -20,7 +20,7 @@ import TextInput from 'ui/component/core/TextInput'
 import Tag from 'ui/component/Tag'
 import { Quilt } from 'ui/utility/StringApplicator'
 import TagEditForm from 'ui/view/tags/TagEditForm'
-import Arrays from 'utility/Arrays'
+import Arrays, { NonNullish } from 'utility/Arrays'
 import State from 'utility/State'
 
 export default Component.Builder((component, manifest: State<TagsManifest | undefined>) => {
@@ -192,7 +192,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!category)
 				return
 
-			const confirmed = await ConfirmDialog.prompt(recategoriseFormCategory, { dangerToken: 'tag-modify' })
+			const confirmed = await ConfirmDialog.ensureDangerToken(recategoriseFormCategory, { dangerToken: 'tag-modify' })
 			if (!confirmed)
 				return
 
@@ -227,7 +227,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				if (!body)
 					return
 
-				const confirmed = await ConfirmDialog.prompt(modifyForm, { dangerToken: 'tag-modify' })
+				const confirmed = await ConfirmDialog.ensureDangerToken(modifyForm, { dangerToken: 'tag-modify' })
 				if (!confirmed)
 					return
 
@@ -260,13 +260,23 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 
 	Button()
 		.type('primary')
-		.text.use('view/manage-tags/custom-tags/action/delete')
+		.text.use('view/manage-tags/global-tags/action/delete')
 		.event.subscribe('click', async () => {
 			const tagsToDelete = selectedTags.value.slice()
 			if (!tagsToDelete.length)
 				return
 
-			const confirmed = await ConfirmDialog.prompt(deleteRow, { dangerToken: 'tag-modify' })
+			const confirmed = await ConfirmDialog.prompt(deleteRow, {
+				dangerToken: 'tag-modify',
+				bodyTranslation: 'view/manage-tags/global-tags/action/delete/confirm',
+				tweak: dialog => dialog.content.insert('after', dialog.body, Component()
+					.style('view-type-manage-tags-tag-list', 'view-type-manage-tags-tag-list--confirm-dialog')
+					.append(...tagsToDelete
+						.map(tagId => manifest.value?.tags[tagId])
+						.filterInPlace(NonNullish)
+						.map(tag => Tag(tag).style('tag--selected'))
+					)),
+			})
 			if (!confirmed)
 				return
 

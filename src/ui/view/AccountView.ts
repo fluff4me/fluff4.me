@@ -76,7 +76,10 @@ export default ViewDefinition({
 							.append(Button()
 								.text.use('view/account/action/delete')
 								.event.subscribe('click', async () => {
-									const result = await ConfirmDialog.prompt(view, { dangerToken: 'delete-account' })
+									const result = await ConfirmDialog.prompt(view, {
+										dangerToken: 'delete-account',
+										bodyTranslation: 'view/account/action/delete/confirm',
+									})
 									if (!result)
 										return
 

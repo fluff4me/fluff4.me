@@ -137,7 +137,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				if (!body)
 					return
 
-				const confirmed = await ConfirmDialog.prompt(modifyForm, { dangerToken: 'tag-modify' })
+				const confirmed = await ConfirmDialog.ensureDangerToken(modifyForm, { dangerToken: 'tag-modify' })
 				if (!confirmed)
 					return
 
@@ -185,7 +185,20 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!category)
 				return
 
-			const confirmed = await ConfirmDialog.prompt(deleteRow, { dangerToken: 'tag-modify' })
+			const catDef = manifest.value?.categories[category]
+			if (!catDef)
+				return
+
+			const confirmed = await ConfirmDialog.prompt(deleteRow, {
+				dangerToken: 'tag-modify',
+				bodyTranslation: 'view/manage-tags/categories/action/delete/confirm',
+				tweak: dialog => dialog.content.insert('after', dialog.body, Component()
+					.style('view-type-manage-tags-tag-list', 'view-type-manage-tags-tag-list--confirm-dialog')
+					.append(Category(catDef)
+						.style('tag--selected', 'view-type-manage-tags-tag--selected')
+						.insertTo(dialog.content, 'after', dialog.body)
+					)),
+			})
 			if (!confirmed)
 				return
 

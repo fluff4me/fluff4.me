@@ -24,11 +24,14 @@ namespace Chapters {
 export default Object.assign(
 	Chapters,
 	{
-		async delete (chapter?: ChapterReference, owner?: Component): Promise<boolean> {
+		async delete (chapter?: ChapterLite, owner?: Component): Promise<boolean> {
 			if (!chapter)
 				return true
 
-			const result = await ConfirmDialog.prompt(owner ?? null, { dangerToken: 'delete-chapter' })
+			const result = await ConfirmDialog.prompt(owner ?? null, {
+				dangerToken: 'delete-chapter',
+				bodyTranslation: quilt => quilt['chapter/action/delete/confirm'](chapter.name),
+			})
 			if (!result)
 				return false
 

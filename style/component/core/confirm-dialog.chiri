@@ -1,0 +1,12 @@
+.confirm-dialog:
+
+	&-body:
+		#after: .markdown
+
+		@after:
+			%margin-bottom-0
+
+	&-danger-token:
+
+		&-hint:
+			%font-2

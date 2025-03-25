@@ -1,4 +1,5 @@
 import quilt from 'lang/en-nz'
+import DangerToken from 'model/DangerToken'
 import FormInputLengths from 'model/FormInputLengths'
 import Notifications from 'model/Notifications'
 import Session from 'model/Session'
@@ -56,15 +57,27 @@ interface App extends Component, AppExtensions { }
 
 async function App (): Promise<App> {
 	if (location.pathname.startsWith('/auth/')) {
+		// eslint-disable-next-line no-debugger
+		debugger
+
 		if (location.pathname.endsWith('/error')) {
 			const params = new URLSearchParams(location.search)
-			// eslint-disable-next-line no-debugger
-			debugger
 			Store.items.popupError = {
 				code: +(params.get('code') ?? '500'),
 				message: params.get('message') ?? 'Internal Server Error',
 			}
 		}
+		else if (location.pathname.endsWith('/ok')) {
+			const params = new URLSearchParams(location.search)
+			DangerToken.handleAuthParams(params)
+		}
+		else {
+			Store.items.popupError = {
+				code: 600,
+				message: `Unsupported auth url '${location.pathname}'`,
+			}
+		}
+
 		window.close()
 	}
 

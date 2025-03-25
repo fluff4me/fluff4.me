@@ -22,11 +22,14 @@ namespace Works {
 export default Object.assign(
 	Works,
 	{
-		async delete (work?: WorkReference, owner?: Component): Promise<boolean> {
+		async delete (work?: Work, owner?: Component): Promise<boolean> {
 			if (!work)
 				return true
 
-			const result = await ConfirmDialog.prompt(owner ?? null, { dangerToken: 'delete-work' })
+			const result = await ConfirmDialog.prompt(owner ?? null, {
+				dangerToken: 'delete-work',
+				bodyTranslation: quilt => quilt['work/action/delete/confirm'](work.name),
+			})
 			if (!result)
 				return false
 
