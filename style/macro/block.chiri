@@ -3,7 +3,7 @@
 	#string background-dark ??= alpha(0.99, $dark-4)
 	#string border-light ??= alpha(0.2, $dark-0)
 	#string border-dark ??= alpha(0.05, $light-0)
-	#string colour ??= $colour-3
+	#string colour ??= $colour-2
 	#string button-colour ??= $colour-0
 
 	$block-background-light: #{background-light}
