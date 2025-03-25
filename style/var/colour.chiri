@@ -1,17 +1,16 @@
 #do:
 	#each in 0...15 as var i:
-		$dark-#{i}: ##{hex(i)}8#{hex(i) x 2}#{hex(i)}f
+		$dark-#{i}: hsl(272deg #{100 * (1 - (curve2(0.7, 0.9, i / 15, 3)))}% #{100 * curve4(0, 1, i / 15, 1.1)}%)
 
 	#each in 0...15 as var i:
-		#set i = 15 - i
-		$light-#{15 - i}: ##{hex(i)}8#{hex(i) x 2}#{hex(i)}f
+		$light-#{i}: $dark-#{15 - i}
 
 	#record!string colours = {
 		blue: "light-dark(#487aa3, #69b3e2)
 		blue-2: "#499FD5
 		blue-3: "#0173ba
 		blue-4: "#004680
-		pink: "light-dark(#a35390, #d94e8f)
+		pink: "light-dark(#96277c, #d94e8f)
 		pink-2: "#94236b
 		pink-3: "#661448
 		success: "#56d37a
