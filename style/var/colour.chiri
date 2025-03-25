@@ -1,4 +1,11 @@
 #do:
+	#each in 0...15 as var i:
+		$dark-#{i}: ##{hex(i)}8#{hex(i) x 2}#{hex(i)}f
+
+	#each in 0...15 as var i:
+		#set i = 15 - i
+		$light-#{15 - i}: ##{hex(i)}8#{hex(i) x 2}#{hex(i)}f
+
 	#record!string colours = {
 		blue: "light-dark(#487aa3, #69b3e2)
 		blue-2: "#499FD5
