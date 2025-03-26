@@ -140,6 +140,17 @@ async function App (): Promise<App> {
 			PAGE: viewTitle,
 			PAGE2: Strings.areSameWords(viewTitle ?? undefined, returnTo ?? undefined) ? undefined : returnTo,
 		}).toString()
+
+		// document.querySelector('link[rel="shortcut icon"]')?.remove()
+
+		// const logoIconPath = 'image/flag/logo'
+		// 	+ (!notificationCount ? '' : '-unread')
+		// 	+ '.png'
+
+		// Component('link')
+		// 	.attributes.set('rel', 'shortcut icon')
+		// 	.attributes.set('href', `${Env.URL_ORIGIN}${logoIconPath}`)
+		// 	.appendTo(document.head)
 	})
 
 	const related = Component()
