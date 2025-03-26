@@ -45,6 +45,6 @@
 		%background-dark-#{i}-a#{o}: background: #{dark}
 		%background-#{i}-a#{o}: background: light-dark(#{light}, #{dark})
 
-$colour-border-input: $colour-11
+$colour-border-input: $colour-10
 
 $colour-unread-badge: light-dark(#a00, #f00)
