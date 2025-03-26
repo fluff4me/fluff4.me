@@ -26,12 +26,16 @@ namespace HoverListener {
 
 	export function listen () {
 		Mouse.onMove(() => {
-			const allHovered = document.querySelectorAll(':hover')
+			const allHovered = [...document.querySelectorAll(':hover')]
 			const hovered = allHovered[allHovered.length - 1]
+
+			if (hovered.clientWidth === 0 || hovered.clientHeight === 0)
+				allHovered.filterInPlace(element => element.computedStyleMap().get('display')?.toString() !== 'none')
+
 			if (hovered === lastHovered[lastHovered.length - 1])
 				return
 
-			const newHovered = [...allHovered]
+			const newHovered = allHovered
 			for (const element of lastHovered)
 				if (element.component && !newHovered.includes(element))
 					element.component.hovered.asMutable?.setValue(false)
