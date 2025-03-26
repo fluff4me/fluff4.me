@@ -23,6 +23,7 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 	let promise: Promise<T> | undefined
 	const hasSaveWatcher = false
 
+	let lastTime: number | undefined
 	let unuseState: UnsubscribeState | undefined = undefined
 	const state = State<T | undefined>(undefined, false)
 	let currentlyAssigning = false
@@ -103,12 +104,19 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 			if (!result || !('time' in result) || !('data' in result))
 				return undefined
 
+			const newTime = +result.time || 0
+			if (lastTime === newTime)
+				return {
+					time: lastTime,
+					data: state.value,
+				}
+
 			currentlyAssigning = true
-			const manifestTime = +result.time || 0
 			state.value = result.data
+			lastTime = newTime
 
 			return {
-				time: manifestTime,
+				time: newTime,
 				data: state.value,
 			}
 		}
@@ -127,10 +135,14 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 			return
 
 		unuseState?.()
-		unuseState = state.useManual(data =>
+		unuseState = state.useManual(data => {
+			if (currentlyAssigning)
+				return
+
 			localStorage.setItem(`manifest:${definition.cacheId}`,
 				JSON.stringify({ time: Date.now(), data })
-			))
+			)
+		})
 	}
 }
 

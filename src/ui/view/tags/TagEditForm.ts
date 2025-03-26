@@ -43,6 +43,8 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			.setRequired()
 			.tweak(dropdown => {
 				manifest.use(dropdown, manifest => {
+					const selectionValue = dropdown.selection.value
+
 					dropdown.clear()
 					if (!manifest)
 						return
@@ -52,7 +54,10 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 							translation: Quilt.fake(category.name),
 						})
 
-					dropdown.selection.value = tag.value?.categoryLowercase
+					if (selectionValue && selectionValue in dropdown.options)
+						dropdown.selection.value = selectionValue
+					else
+						dropdown.selection.value = tag.value?.categoryLowercase
 				})
 			})
 		))
