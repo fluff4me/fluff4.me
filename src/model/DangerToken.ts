@@ -64,7 +64,9 @@ namespace DangerToken {
 		const metadata = Store.items.dangerTokenMetadataTransfer
 		if (metadata) {
 			delete Store.items.dangerTokenMetadataTransfer
-			activeDangerTokens.set(type, { type, uses: metadata.uses, expiryTime: new Date(metadata.expiryTime) })
+			const uses = metadata.uses - 1
+			if (uses)
+				activeDangerTokens.set(type, { type, uses, expiryTime: new Date(metadata.expiryTime) })
 		}
 
 		return result
