@@ -1027,11 +1027,11 @@ namespace Component {
 	export function closest (builder: BuilderLike, element?: HTMLElement | Component | null) {
 		let cursor: HTMLElement | null = is(element) ? element.element : element ?? null
 		while (cursor) {
-			cursor = cursor.parentElement
 			const component = cursor?.component
-
 			if (component?.is(builder))
 				return component
+
+			cursor = cursor.parentElement
 		}
 	}
 
