@@ -2,7 +2,6 @@ import type { CustomTagData } from 'api.fluff4.me'
 import EndpointTagCustomDelete from 'endpoint/tag/EndpointTagCustomDelete'
 import EndpointTagCustomPromote from 'endpoint/tag/EndpointTagCustomPromote'
 import EndpointTagCustomRename from 'endpoint/tag/EndpointTagCustomRename'
-import type { TagsManifest } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
@@ -23,7 +22,7 @@ import AbortPromise from 'utility/AbortPromise'
 import Arrays from 'utility/Arrays'
 import State from 'utility/State'
 
-export default Component.Builder((component, manifest: State<TagsManifest | undefined>, customTags: State<CustomTagData[]>) => {
+export default Component.Builder((component, manifest: Tags, customTags: State<CustomTagData[]>) => {
 	const block = component.and(Block)
 	block.content.style('view-type-manage-tags-tag-block')
 
@@ -62,13 +61,13 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 							const thisIndex = customTags.indexOf(tag)
 							const start = Math.min(otherIndex, thisIndex)
 							const end = Math.max(otherIndex, thisIndex)
-							Arrays.remove(selectedTags.value, ...customTags.slice(start, end + 1).filter(filteredIn))
+							Arrays.remove(selectedTags.value, ...customTags.slice(start, end + 1).filterInPlace(filteredIn).mapInPlace(tag => tag.name))
 							selectedTags.emit(previousSelectedTags)
 							return
 						}
 
 						lastRemoved = tag.name
-						Arrays.remove(selectedTags.value, tag)
+						Arrays.remove(selectedTags.value, tag.name)
 						selectedTags.emit(previousSelectedTags)
 						return
 					}
@@ -217,10 +216,17 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				return
 
 			const previousSelectedTags = selectedTags.value.slice()
-			Arrays.remove(customTags.value, ...promotedTags)
+			customTags.value.filterInPlace(tag => !promotedTags.includes(tag.name))
 			Arrays.remove(selectedTags.value, ...promotedTags)
 			customTags.emit()
 			selectedTags.emit(previousSelectedTags)
+
+			manifest.addTag({
+				category: newTag.category,
+				name: newTag.name,
+				description: { body: newTag.description },
+				aliases: newTag.aliases,
+			})
 		})
 
 	//#endregion
@@ -297,8 +303,8 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!promotedTags.length)
 				return
 
-			const [tag] = existingTagSelector.state.value.global_tags
-			if (!tag)
+			const [tagId] = existingTagSelector.state.value.global_tags
+			if (!tagId)
 				return
 
 			const confirmed = await ConfirmDialog.prompt(existingTagSelector, {
@@ -316,7 +322,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			const response = await EndpointTagCustomPromote.query({
 				body: {
 					into_existing_tag: {
-						id: tag,
+						id: tagId,
 						aliases: addNewAliasesEditor.state.value.custom_tags,
 					},
 					promoted_from_tags: promotedTags,
@@ -326,10 +332,17 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				return
 
 			const previousSelectedTags = selectedTags.value.slice()
-			Arrays.remove(customTags.value, ...promotedTags)
+			customTags.value.filterInPlace(tag => !promotedTags.includes(tag.name))
 			Arrays.remove(selectedTags.value, ...promotedTags)
 			customTags.emit()
 			selectedTags.emit(previousSelectedTags)
+
+			const tag = manifest.value?.tags[tagId]
+			if (tag && addNewAliasesEditor.state.value.custom_tags.length) {
+				tag.aliases ??= []
+				tag.aliases.push(...addNewAliasesEditor.state.value.custom_tags)
+				manifest.emit()
+			}
 		})
 		.appendTo(promoteIntoExistingActionRow.right)
 
@@ -386,7 +399,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				return
 
 			const previousSelectedTags = selectedTags.value.slice()
-			Arrays.remove(customTags.value, ...tagsToDelete)
+			customTags.value.filterInPlace(tag => !tagsToDelete.includes(tag.name))
 			Arrays.remove(selectedTags.value, ...tagsToDelete)
 			customTags.emit()
 			selectedTags.emit(previousSelectedTags)

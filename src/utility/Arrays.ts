@@ -105,7 +105,7 @@ namespace Arrays {
 	 * Removes one instance of the given value from the given array.
 	 * @returns `true` if removed, `false` otherwise
 	 */
-	export function remove (array: any[] | undefined, ...values: any[]) {
+	export function remove<T> (array: T[] | undefined, ...values: T[]) {
 		if (!array)
 			return false
 

@@ -95,6 +95,8 @@ const Tags = Object.assign(
 	},
 )
 
+type Tags = typeof Tags
+
 export default Tags
 
 function fillTag (rawTag: Tag): TagsManifestTag {
