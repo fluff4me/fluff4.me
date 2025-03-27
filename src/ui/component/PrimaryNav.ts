@@ -106,6 +106,7 @@ export default Component.Builder(nav => {
 
 	Slot()
 		.use(Session.Auth.author, (slot, author) => author
+			&& Session.Auth.hasPrivilege('TagGlobalDelete')
 			&& Group('top', 'sidebar/section/manage')
 				.add('/manage/tags', 'sidebar/link/tags', button => button.setIcon('tag'))
 		)
