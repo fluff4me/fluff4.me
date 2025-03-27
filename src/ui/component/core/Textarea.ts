@@ -39,6 +39,23 @@ const Textarea = Component.Builder((component): Textarea => {
 			if (hasChanged)
 				contenteditable.event.emit('change')
 		})
+		.event.subscribe('keydown', event => {
+			if (event.key === 'Enter') {
+				event.stopPropagation()
+				const selection = window.getSelection()
+				if (!selection)
+					return
+
+				if (!contenteditable.element.contains(selection.anchorNode) || !contenteditable.element.contains(selection.focusNode))
+					return
+
+				const secondNewlineNode = document.createTextNode('\n')
+				selection.getRangeAt(0).replaceContents(document.createTextNode('\n'), secondNewlineNode)
+				selection.empty()
+				selection.collapse(secondNewlineNode)
+				contenteditable.event.emit('input')
+			}
+		})
 
 	const hiddenInput = Component('input')
 		.style('text-area-validity-pipe-input')
