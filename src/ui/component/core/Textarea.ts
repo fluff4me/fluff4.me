@@ -28,12 +28,17 @@ interface Textarea extends Component, TextareaExtensions, InputExtensions { }
 const Textarea = Component.Builder((component): Textarea => {
 	let shouldIgnoreInputEvent = false
 	let filterFunction: FilterFunction | undefined
+	let hasChanged = false
 
 	const contenteditable = Component()
 		.style('text-input', 'text-area')
 		.attributes.set('contenteditable', 'plaintext-only')
 		.ariaRole('textbox')
 		.attributes.set('aria-multiline', 'true')
+		.event.subscribe('blur', () => {
+			if (hasChanged)
+				contenteditable.event.emit('change')
+		})
 
 	const hiddenInput = Component('input')
 		.style('text-area-validity-pipe-input')
@@ -101,8 +106,8 @@ const Textarea = Component.Builder((component): Textarea => {
 
 			if (shouldIgnoreInputEvent) return
 
-			state.value = input.value
-			input.length.asMutable?.setValue(input.value.length)
+			state.value = input.value.trim()
+			input.length.asMutable?.setValue(input.value.trim().length)
 			touched.value = true
 			updateValidity()
 		})
@@ -127,14 +132,24 @@ const Textarea = Component.Builder((component): Textarea => {
 			return null
 
 		const containsAnchor = contenteditable.element.contains(selection.anchorNode)
-		const selectionStart = containsAnchor ? selection.anchorOffset : 0
+		const selectionStart = containsAnchor ? selection.anchorOffset + getLengthBefore(selection.anchorNode) : 0
 		if (selection.isCollapsed && containsAnchor)
-			return { selectionStart: selection.anchorOffset, selectionEnd: selection.anchorOffset }
+			return { selectionStart, selectionEnd: selectionStart }
 
 		const containsFocus = contenteditable.element.contains(selection.focusNode)
-		const selectionEnd = containsFocus ? selection.focusOffset : contenteditable.element.textContent?.length ?? 0
+		const selectionEnd = containsFocus ? selection.focusOffset + getLengthBefore(selection.focusNode) : contenteditable.element.textContent?.length ?? 0
 
 		return { selectionStart, selectionEnd }
+	}
+
+	function getLengthBefore (node: Node | null) {
+		if (!node)
+			return 0
+
+		let length = 0
+		while ((node = node.previousSibling))
+			length += node.textContent?.length ?? 0
+		return length
 	}
 
 	function applyFilter (type: 'input' | 'change') {
@@ -150,27 +165,27 @@ const Textarea = Component.Builder((component): Textarea => {
 			return
 		}
 
+		hasChanged = true
+
 		let { selectionStart = null, selectionEnd = null } = getSelection() ?? {}
 		const hasSelection = selectionStart !== null || selectionEnd !== null
 
 		selectionStart ??= value.length
 		selectionEnd ??= value.length
 
-		let beforeSelectionRaw = value.slice(0, selectionStart).trimStart()
+		const beforeSelectionRaw = value.slice(0, selectionStart).trimStart()
 		let afterSelectionRaw = value.slice(selectionEnd).trimEnd()
 		let inSelectionRaw = value.slice(selectionStart, selectionEnd)
 		if (!beforeSelectionRaw.length)
 			inSelectionRaw = inSelectionRaw.trimStart()
 		if (!afterSelectionRaw.length)
 			inSelectionRaw = inSelectionRaw.trimEnd()
-		if (!inSelectionRaw.length && !afterSelectionRaw.length)
-			beforeSelectionRaw = beforeSelectionRaw.trimEnd()
 		if (!inSelectionRaw.length && !beforeSelectionRaw.length)
 			afterSelectionRaw = afterSelectionRaw.trimStart()
 
 		const [beforeSelection, inSelection, afterSelection] = filter(beforeSelectionRaw, inSelectionRaw, afterSelectionRaw)
 
-		element.textContent = beforeSelection + inSelection + afterSelection
+		element.textContent = beforeSelection + inSelection + afterSelection + '\n'
 
 		if (hasSelection) {
 			const textNode = element.childNodes[0]
