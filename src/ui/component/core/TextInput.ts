@@ -55,9 +55,10 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 			state,
 			default: StringApplicator(input, value => {
 				if (input.value === '') {
-					input.value = value ?? ''
-					state.value = value ?? ''
-					input.length.asMutable?.setValue(value?.length ?? 0)
+					value = (value ?? '').trim()
+					input.value = value
+					state.value = value
+					input.length.asMutable?.setValue(value.length)
 					updateValidity()
 				}
 			}),
@@ -92,8 +93,8 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 		applyFilter(event.type as 'input' | 'change')
 
 		if (shouldIgnoreInputEvent) return
-		state.value = input.value
-		input.length.asMutable?.setValue(input.value.length)
+		state.value = input.value.trim()
+		input.length.asMutable?.setValue(input.value.trim().length)
 		updateValidity()
 	})
 
@@ -125,15 +126,13 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 		selectionStart ??= value.length
 		selectionEnd ??= value.length
 
-		let beforeSelectionRaw = value.slice(0, selectionStart).trimStart()
+		const beforeSelectionRaw = value.slice(0, selectionStart).trimStart()
 		let afterSelectionRaw = value.slice(selectionEnd).trimEnd()
 		let inSelectionRaw = value.slice(selectionStart, selectionEnd)
 		if (!beforeSelectionRaw.length)
 			inSelectionRaw = inSelectionRaw.trimStart()
 		if (!afterSelectionRaw.length)
 			inSelectionRaw = inSelectionRaw.trimEnd()
-		if (!inSelectionRaw.length && !afterSelectionRaw.length)
-			beforeSelectionRaw = beforeSelectionRaw.trimEnd()
 		if (!inSelectionRaw.length && !beforeSelectionRaw.length)
 			afterSelectionRaw = afterSelectionRaw.trimStart()
 
