@@ -2,6 +2,7 @@ import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
 import type { InputExtensions, InvalidMessageText } from 'ui/component/core/ext/Input'
 import Input from 'ui/component/core/ext/Input'
+import { FilterFunction } from 'ui/component/core/TextInput'
 import StringApplicator from 'ui/utility/StringApplicator'
 import State from 'utility/State'
 
@@ -16,12 +17,17 @@ interface TextareaExtensions {
 	 * Useful if you want to handle the `"input"` event yourself to set the state to something else.
 	 */
 	ignoreInputEvent (ignore?: boolean): this
+	/**
+	 * Prevent the user from entering invalid characters in this input via a filter function.
+	 */
+	filter (filterFn?: FilterFunction): this
 }
 
 interface Textarea extends Component, TextareaExtensions, InputExtensions { }
 
 const Textarea = Component.Builder((component): Textarea => {
 	let shouldIgnoreInputEvent = false
+	let filterFunction: FilterFunction | undefined
 
 	const contenteditable = Component()
 		.style('text-input', 'text-area')
@@ -70,11 +76,16 @@ const Textarea = Component.Builder((component): Textarea => {
 				contenteditable.ariaLabelledBy(label)
 				return input
 			},
+			filter: filter => {
+				filterFunction = filter
+				return input
+			},
 		}))
 		.extendMagic('value', input => ({
 			get: () => contenteditable.element.textContent || '',
 			set: (value: string) => {
 				contenteditable.element.textContent = value
+				applyFilter('change')
 				state.value = value
 				input.length.asMutable?.setValue(value.length)
 				updateValidity()
@@ -86,7 +97,10 @@ const Textarea = Component.Builder((component): Textarea => {
 	input.onRooted(input => {
 		updateValidity()
 		contenteditable.event.subscribe(['input', 'change'], event => {
+			applyFilter(event.type as 'input' | 'change')
+
 			if (shouldIgnoreInputEvent) return
+
 			state.value = input.value
 			input.length.asMutable?.setValue(input.value.length)
 			touched.value = true
@@ -105,6 +119,70 @@ const Textarea = Component.Builder((component): Textarea => {
 			invalid = quilt['shared/form/invalid/required']()
 
 		input.setCustomInvalidMessage(invalid)
+	}
+
+	function getSelection () {
+		const selection = window.getSelection()
+		if (!selection?.anchorNode && !selection?.focusNode)
+			return null
+
+		const containsAnchor = contenteditable.element.contains(selection.anchorNode)
+		const selectionStart = containsAnchor ? selection.anchorOffset : 0
+		if (selection.isCollapsed && containsAnchor)
+			return { selectionStart: selection.anchorOffset, selectionEnd: selection.anchorOffset }
+
+		const containsFocus = contenteditable.element.contains(selection.focusNode)
+		const selectionEnd = containsFocus ? selection.focusOffset : contenteditable.element.textContent?.length ?? 0
+
+		return { selectionStart, selectionEnd }
+	}
+
+	function applyFilter (type: 'input' | 'change') {
+		const element = contenteditable.element
+		if (!element)
+			return
+
+		const filter = filterFunction ?? FilterFunction.DEFAULT
+
+		const value = input.value
+		if (type === 'change') {
+			element.textContent = filter(value.trim(), '', '').join('').trim()
+			return
+		}
+
+		let { selectionStart = null, selectionEnd = null } = getSelection() ?? {}
+		const hasSelection = selectionStart !== null || selectionEnd !== null
+
+		selectionStart ??= value.length
+		selectionEnd ??= value.length
+
+		let beforeSelectionRaw = value.slice(0, selectionStart).trimStart()
+		let afterSelectionRaw = value.slice(selectionEnd).trimEnd()
+		let inSelectionRaw = value.slice(selectionStart, selectionEnd)
+		if (!beforeSelectionRaw.length)
+			inSelectionRaw = inSelectionRaw.trimStart()
+		if (!afterSelectionRaw.length)
+			inSelectionRaw = inSelectionRaw.trimEnd()
+		if (!inSelectionRaw.length && !afterSelectionRaw.length)
+			beforeSelectionRaw = beforeSelectionRaw.trimEnd()
+		if (!inSelectionRaw.length && !beforeSelectionRaw.length)
+			afterSelectionRaw = afterSelectionRaw.trimStart()
+
+		const [beforeSelection, inSelection, afterSelection] = filter(beforeSelectionRaw, inSelectionRaw, afterSelectionRaw)
+
+		element.textContent = beforeSelection + inSelection + afterSelection
+
+		if (hasSelection) {
+			const textNode = element.childNodes[0]
+			if (textNode) {
+				const selection = window.getSelection()
+				selection?.empty()
+				const range = document.createRange()
+				range.setStart(textNode, beforeSelection.length)
+				range.setEnd(textNode, beforeSelection.length + inSelection.length)
+				selection?.addRange(range)
+			}
+		}
 	}
 })
 

@@ -18,6 +18,10 @@ export function FilterFunction (fn: FilterFunction): FilterFunctionFull {
 	) as FilterFunctionFull
 }
 
+export namespace FilterFunction {
+	export const DEFAULT = FilterFunction((...segments) => segments)
+}
+
 export interface TextInputExtensions {
 	readonly state: State<string>
 	value: string
@@ -105,26 +109,40 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 
 	function applyFilter (type: 'input' | 'change') {
 		const element = input.element.asType('input')
-		if (filterFunction && element) {
-			if (type === 'change') {
-				element.value = filterFunction('', input.value, '').join('')
-			}
-			else {
-				let { selectionStart, selectionEnd, value } = element
-				const hasSelection = selectionStart !== null || selectionEnd !== null
+		if (!element)
+			return
 
-				selectionStart ??= value.length
-				selectionEnd ??= value.length
+		const filter = filterFunction ?? FilterFunction.DEFAULT
 
-				const [beforeSelection, selection, afterSelection]
-					= filterFunction(value.slice(0, selectionStart), value.slice(selectionStart, selectionEnd), value.slice(selectionEnd))
-
-				element.value = beforeSelection + selection + afterSelection
-
-				if (hasSelection)
-					element.setSelectionRange(beforeSelection.length, beforeSelection.length + selection.length)
-			}
+		if (type === 'change') {
+			element.value = filter(input.value.trim(), '', '').join('').trim()
+			return
 		}
+
+		let { selectionStart, selectionEnd, value } = element
+		const hasSelection = selectionStart !== null || selectionEnd !== null
+
+		selectionStart ??= value.length
+		selectionEnd ??= value.length
+
+		let beforeSelectionRaw = value.slice(0, selectionStart).trimStart()
+		let afterSelectionRaw = value.slice(selectionEnd).trimEnd()
+		let inSelectionRaw = value.slice(selectionStart, selectionEnd)
+		if (!beforeSelectionRaw.length)
+			inSelectionRaw = inSelectionRaw.trimStart()
+		if (!afterSelectionRaw.length)
+			inSelectionRaw = inSelectionRaw.trimEnd()
+		if (!inSelectionRaw.length && !afterSelectionRaw.length)
+			beforeSelectionRaw = beforeSelectionRaw.trimEnd()
+		if (!inSelectionRaw.length && !beforeSelectionRaw.length)
+			afterSelectionRaw = afterSelectionRaw.trimStart()
+
+		const [beforeSelection, inSelection, afterSelection] = filter(beforeSelectionRaw, inSelectionRaw, afterSelectionRaw)
+
+		element.value = beforeSelection + inSelection + afterSelection
+
+		if (hasSelection)
+			element.setSelectionRange(beforeSelection.length, beforeSelection.length + inSelection.length)
 	}
 })
 
