@@ -29,6 +29,9 @@
 		#flush:
 			%border-radius-0
 
+		:scheme light:
+			$border-colour: $background-3
+
 	&-header:
 		margin: calc(-1 * $block-padding)
 		padding-inline: $block-padding
