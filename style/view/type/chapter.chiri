@@ -4,13 +4,15 @@
 	&-block:
 		#after: .paginator--flush, .block--type-flush
 		%scheme-light-dark
-		%padding-4-5
+		%padding-5
+		%padding-top-4
+		%padding-bottom-3
 		%border-radius-2
-		%unmargin-inline-5
+		%unmargin-inline-4
 		%max-width-none
 		%backdrop-blur
 		$block-padding: 0
-		width: calc(#{content-width} + $space-5 * 2)
+		width: calc(#{content-width} + $space-4 * 2)
 		max-width: 100vw
 
 		#flush:
@@ -27,7 +29,8 @@
 			%box-shadow-none
 			%relative
 			%padding-inline-0
-			%margin-bottom-3
+			%margin-bottom-0
+			%top-auto
 
 			@before:
 				%background-none
@@ -54,7 +57,7 @@
 		&-content:
 			#after: .paginator-content, .paginator-content--has-header
 			%padding-0
-			%padding-top-4
+			%padding-top-2
 
 		&-notes:
 			%padding-3
