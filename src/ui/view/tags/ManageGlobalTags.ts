@@ -146,7 +146,10 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!manifest.value)
 				return
 
+			const tagId: TagId = `${response.data.category}: ${response.data.name}`
 			Tags.addTag(response.data)
+			Tags.addRelationships(tagId, body.relationships_to as TagId[])
+			Tags.addRelationships(body.relationships_from as TagId[], tagId)
 		})
 
 	//#endregion
@@ -238,8 +241,11 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				if (!manifest.value)
 					return
 
+				const newTagId: TagId = `${response.data.category}: ${response.data.name}`
 				Tags.removeTags(tagId)
 				Tags.addTag(response.data)
+				Tags.addRelationships(newTagId, body.relationships_to as TagId[])
+				Tags.addRelationships(body.relationships_from as TagId[], newTagId)
 			})
 	})
 

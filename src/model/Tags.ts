@@ -1,6 +1,7 @@
 import type { ErrorResponse, ManifestGlobalTags, Response, Tag, TagCategory } from 'api.fluff4.me'
 import EndpointTagManifest from 'endpoint/tag/EndpointTagManifest'
 import Manifest from 'model/Manifest'
+import Arrays from 'utility/Arrays'
 import Time from 'utility/Time'
 
 export type TagId = `${string}: ${string}`
@@ -55,8 +56,10 @@ const Tags = Object.assign(
 			if (!Tags.value)
 				return
 
-			for (const tag of tags)
+			for (const tag of tags) {
 				delete Tags.value.tags[tag]
+				delete Tags.value.relationships[tag]
+			}
 
 			Tags.emit()
 		},
@@ -68,12 +71,15 @@ const Tags = Object.assign(
 				return
 
 			for (const oldId of tags) {
-				const tag = Tags.value.tags[oldId]
+				const tag: TagsManifestTag = Tags.value.tags[oldId]
 				if (!tag)
 					continue
 
-				Tags.value.tags[`${category}: ${tag.name}`] = tag
+				const newTagId: TagId = `${category}: ${tag.name}`
+				Tags.value.tags[newTagId] = tag
 				delete Tags.value.tags[oldId]
+				Tags.value.relationships[newTagId] = Tags.value.relationships[oldId]
+				delete Tags.value.relationships[oldId]
 			}
 
 			Tags.emit()
@@ -90,6 +96,56 @@ const Tags = Object.assign(
 				return
 
 			delete Tags.value.categories[category]
+			Tags.emit()
+		},
+		setAliases (tag: TagId, ...aliases: string[]) {
+			if (!Tags.value)
+				return
+
+			const tagData = Tags.value.tags[tag]
+			if (!tagData)
+				return
+
+			tagData.aliases = aliases
+			Tags.emit()
+		},
+		addAliases (tag: TagId, ...aliases: string[]) {
+			if (!Tags.value)
+				return
+
+			if (!aliases.length)
+				return
+
+			const tagData = Tags.value.tags[tag]
+			if (!tagData)
+				return
+
+			(tagData.aliases ??= []).push(...aliases)
+			Tags.emit()
+		},
+		addRelationships (from?: TagId | TagId[] | null, to?: TagId | TagId[] | null) {
+			if (!Tags.value)
+				return
+
+			if (!from || !to)
+				return
+
+			from = Arrays.resolve(from)
+			to = Arrays.resolve(to)
+			for (const fromId of from) {
+				const fromTag = Tags.value.tags[fromId]
+				if (!fromTag)
+					continue
+
+				for (const toId of to) {
+					const toTag = Tags.value.tags[toId]
+					if (!toTag)
+						continue
+
+					(Tags.value.relationships[fromId] ??= []).push(toId)
+				}
+			}
+
 			Tags.emit()
 		},
 	},
