@@ -18,6 +18,7 @@ import Mouse from 'utility/Mouse'
 import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 import Strings from 'utility/string/Strings'
+import Task from 'utility/Task'
 
 export interface TagsState {
 	global_tags: TagId[]
@@ -173,11 +174,13 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 							.style('tags-editor-suggestions-type')
 							.append(...tagSuggestions.map(([, tag]) => Tag(tag)
 								.setNavigationDisabled(true)
-								.event.subscribe('click', () => {
+								.event.subscribe('click', (event: MouseEvent & Partial<PointerEvent>) => {
 									tags.global_tags.push(`${tag.category}: ${tag.name}`)
 									tagsState.emit()
 									input.value = ''
 									touched.value = true
+									if (event.pointerType === '')
+										input.focus()
 								})
 							))
 							.appendTo(slot)
@@ -197,11 +200,13 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 								.text.use('shared/form/tags/suggestion/add-as-custom'))
 							.append(...customTagSuggestions.map(tag => tag
 								.setNavigationDisabled(true)
-								.event.subscribe('click', () => {
+								.event.subscribe('click', (event: MouseEvent & Partial<PointerEvent>) => {
 									tags.custom_tags.push(tag.tag as string)
 									tagsState.emit()
 									input.value = ''
 									touched.value = true
+									if (event.pointerType === '')
+										input.focus()
 								})
 							))
 							.appendTo(slot)
@@ -303,11 +308,13 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 		editor.setCustomInvalidMessage(invalid)
 	})
 
-	input.event.subscribe('keydown', event => {
+	input.event.subscribe('keydown', async event => {
 		if (event.key === 'Enter') {
 			event.preventDefault()
 			suggestions.getFirstDescendant(Tag)?.element.click()
 			touched.value = true
+			await Task.yield()
+			input.focus()
 		}
 	})
 
