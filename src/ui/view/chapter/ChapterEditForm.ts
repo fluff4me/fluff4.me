@@ -237,7 +237,7 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 				return true
 		}
 
-		const dataTiers = data.tier_ids ?? [data.tier_id]
+		const dataTiers = data.tier_ids ?? [data.tier_id].filter(NonNullish)
 		const stateTiers = _
 			?? state.value.patreon?.tiers.map(tier => tier.tier_id)
 			?? [state.value.patreon?.tier.tier_id].filter(NonNullish)
