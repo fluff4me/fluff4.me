@@ -10,9 +10,8 @@
 		%scheme-light-dark
 		%padding-3-4
 		%border-radius-2
-		%unmargin-inline-4
 		%max-width-none
-		width: calc(#{content-width} + $space-4 * 2)
+		width: calc(#{content-width})
 		max-width: 100vw
 
 		#flush:
