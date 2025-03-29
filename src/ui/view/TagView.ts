@@ -23,7 +23,7 @@ interface TagViewGlobalParams {
 type TagViewParams = TagViewGlobalParams // | TagViewCustomParams
 
 const fromURLRegex = /(-|^)(.)/g
-const fromURL = (name: string) => name.replaceAll(fromURLRegex, (_, dash: string, char: string) => `${dash ? ' ' : ''}${char.toUpperCase()}`)
+const fromURL = (name: string) => name.replaceAll(fromURLRegex, (_, dash: string, char: string) => `${dash ? ' ' : ''}${char}`)
 export default ViewDefinition({
 	async load (params: TagViewParams) {
 		const tag = params.custom_name ?? await Tags.resolve(fromURL(params.category), fromURL(params.name))
