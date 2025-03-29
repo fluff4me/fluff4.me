@@ -209,11 +209,12 @@ async function resolveInternal (tags: string[]) {
 	function resolveTags () {
 		result.splice(0, Infinity)
 		for (const tagString of tags) {
-			const tag = manifest.tags[tagString as TagId]
-			if (!tag)
-				continue
-
-			result.push(tag)
+			for (const [tagId, tag] of Object.entries(manifest.tags)) {
+				if (tagId.toLowerCase() === tagString.toLowerCase()) {
+					result.push(tag)
+					continue
+				}
+			}
 		}
 	}
 }
