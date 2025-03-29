@@ -27,7 +27,7 @@ interface PagedData<T> {
 }
 
 export interface PagedDataDefinition<T> {
-	get (page: number): PromiseOr<StateOr<T | false | null>>
+	get (page: number, pagedData: PagedData<T>): PromiseOr<StateOr<T | false | null>>
 }
 
 const PagedData = Object.assign(
@@ -47,7 +47,7 @@ const PagedData = Object.assign(
 
 				const existing = pages.value[page]?.value
 				if (existing === undefined || existing === false) {
-					pages.value[page] = Promise.resolve(definition.get(page))
+					pages.value[page] = Promise.resolve(definition.get(page, result))
 						.then(data => {
 							if (!State.is(pages.value[page])) { // if it's already a State, it's been updated before this, don't overwrite
 								let newState: State.Mutable<T | false | null>

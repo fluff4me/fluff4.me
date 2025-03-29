@@ -146,13 +146,15 @@ function fromEndpoint (pageSize: number, endpoint: PreparedPaginatedQueryReturni
 
 	const aux: Record<string, State<any[]>> = {}
 	const result = PagedListData(pageSize, {
-		async get (page) {
+		async get (page, pagedData) {
 			const response = await e.query(undefined, { page })
 			if (response.code === 404)
 				return null
 
 			if (toast.handleError(response))
 				return false
+
+			pagedData.setPageCount(response.page_count)
 
 			if (dismantler) {
 				const { content, auxiliary } = dismantler(response.data)
