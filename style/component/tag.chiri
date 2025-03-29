@@ -13,12 +13,14 @@
 
 	::hover:
 		%colour-0
-		$button-background: $colour-pink
+		$button-background: $colour-pink-0
+		$border-colour: $colour-pink-0
 
 	&--dragging, &--selected:
 		#after: .tag
 		%colour-0
-		$button-background: $colour-pink
+		$button-background: $colour-pink-0
+		$border-colour: $colour-pink-0
 
 	&-category:
 		%font-0

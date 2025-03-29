@@ -9,6 +9,9 @@
 	margin-left: -0.05em
 	min-width: 3em
 
+	:scheme light:
+		%text-shadow-none
+
 	::focus:
 		%outline-none
 		%box-shadow-border-outline
