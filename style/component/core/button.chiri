@@ -98,8 +98,9 @@ $$button-background-highlight!colour
 		$transition-duration: $transition-action
 
 	&--disabled:
-		#after: .button
+		#after: .button, .button-type-primary
 		$button-background: $background-interact-4
+		colour: $button-colour
 		%box-shadow-none
 		%opacity-30
 		%cursor-default
