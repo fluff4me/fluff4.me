@@ -39,6 +39,13 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 		.text.set(work.name)
 		.setResizeRange(32, Math.min(FormInputLengths.value?.work.name ?? Infinity, 128))
 
+	const following = Follows.map(block, () => Follows.followingWork(work))
+	Slot().appendTo(block.header).if(following, slot => {
+		Component()
+			.style('work-following-bookmark')
+			.appendTo(slot)
+	})
+
 	if (author)
 		block.description
 			.style('work-author-list')

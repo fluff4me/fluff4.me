@@ -153,10 +153,10 @@ const Util = {
 	////////////////////////////////////
 	//#region Works
 	followingWork (work: WorkReference) {
-		return manifest.value?.following.work?.some(follow => Works.equals(follow.work, work))
+		return !!manifest.value?.following.work?.some(follow => Works.equals(follow.work, work))
 	},
 	ignoringWork (work: WorkReference) {
-		return manifest.value?.ignoring.work?.some(ignore => Works.equals(ignore.work, work))
+		return !!manifest.value?.ignoring.work?.some(ignore => Works.equals(ignore.work, work))
 	},
 	async toggleFollowingWork (work: WorkReference) {
 		if (Util.followingWork(work))
