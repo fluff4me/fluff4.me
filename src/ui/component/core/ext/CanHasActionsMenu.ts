@@ -91,8 +91,16 @@ export interface CanHasActionsMenuExtensions {
 interface CanHasActionsMenu extends Component, CanHasActionsMenuExtensions { }
 
 const CanHasActionsMenu = Component.Extension((component, popoverInitialiser?: ActionsMenuInitialiser<never, Component, unknown>): CanHasActionsMenu => {
+	let actionsMenu: ActionsMenu<never> | undefined
 	let hasActionsMenu = false
 	let actionsMenuButtonInserter: true | ((button: Button) => unknown) | undefined
+	let actionsMenuInitHandlers: ((popover: ActionsMenu<never>) => unknown)[] | undefined
+	const onActionsMenu = (initialiser: (popover: ActionsMenu<never>) => unknown) => {
+		if (actionsMenu)
+			initialiser(actionsMenu)
+		else
+			(actionsMenuInitHandlers ??= []).push(initialiser)
+	}
 	return (component as Component & PopoverComponentRegisteredExtensions)
 		.extend<CanHasActionsMenuExtensions & HasActionsMenuExtensions>(component => ({
 			actionsMenu: undefined!,
@@ -103,29 +111,32 @@ const CanHasActionsMenu = Component.Extension((component, popoverInitialiser?: A
 					addActionsMenuButton(component)
 
 				component.clearPopover().setPopover('hover', (popover, button) => {
-					const actionsMenu = mutable(component).actionsMenu = popover
+					actionsMenu = mutable(component).actionsMenu = popover
 						.and(ActionsMenu)
 						.style('actions-menu-popover')
 						.append(Slot().style.remove('slot').style('actions-menu-popover-arrow'))
 						.tweak(popoverInitialiser, button)
 						.tweak(initialiser, button)
 
+					for (const onActionMenu of actionsMenuInitHandlers ?? [])
+						onActionMenu(actionsMenu)
+
 					Viewport.tablet.use(actionsMenu, isTablet => {
 						const tablet = isTablet()
-						actionsMenu.anchor.reset()
-						if (tablet) actionsMenu
+						actionsMenu!.anchor.reset()
+						if (tablet) actionsMenu!
 							.type.remove('flush')
 							.anchor.add('aligned right', 'off bottom')
 							.anchor.add('aligned right', 'off top')
 							.anchor.orElseHide()
-						else actionsMenu
+						else actionsMenu!
 							.type('flush')
 							.anchor.add('off right', 'centre')
 							.anchor.orElseHide()
 
 						const { anchorTweakers } = actionsMenu as any as { anchorTweakers: Set<ReanchorTweaker<ActionsMenu<never>>> }
 						for (const tweaker of anchorTweakers)
-							tweaker(actionsMenu, tablet)
+							tweaker(actionsMenu!, tablet)
 					})
 				})
 
@@ -139,15 +150,15 @@ const CanHasActionsMenu = Component.Extension((component, popoverInitialiser?: A
 				return component
 			},
 			tweakActions (tweaker) {
-				component.actionsMenu.tweak(tweaker, component)
+				onActionsMenu(menu => menu.tweak(tweaker, component))
 				return component as never
 			},
 			tweakActionsAnchor (tweaker) {
-				component.actionsMenu.subscribeReanchor(tweaker)
+				onActionsMenu(menu => menu.subscribeReanchor(tweaker))
 				return component
 			},
 			untweakActionsAnchor (tweaker) {
-				component.actionsMenu.unsubscribeReanchor(tweaker)
+				onActionsMenu(menu => menu.unsubscribeReanchor(tweaker))
 				return component
 			},
 		}))
