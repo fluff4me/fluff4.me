@@ -139,11 +139,21 @@
 				%align-items-centre
 				%gap-4
 
+				#flush:
+					%block
+
 			&-actions:
 				%flex
 				%flex-wrap
 				%gap-3
-				%justify-content-centre
+				%row-gap-2
+				%justify-content-end
+				margin-top: calc(($space-1 + $space-2) * -1)
+
+				#flush:
+					%margin-top-3
+					%unmargin-bottom-4
+					%justify-content-start
 
 			&-button:
 				%font-3
@@ -152,7 +162,6 @@
 				%height-fit
 				%weight-bold
 				$button-background: $colour-patreon-3
-				margin-top: calc(($space-1 + $space-2) * -1)
 				line-height: 1em
 				%nowrap
 
