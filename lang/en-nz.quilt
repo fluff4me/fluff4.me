@@ -81,7 +81,7 @@ visibility/label: Visibility
 visibility/public: Public
 visibility/private: Private
 visibility/patreon: Patreon
-visibility-patreon-tier/label: Patreon Tier
+visibility-patreon-tier/label: Tier
 visibility-patreon-tier/selection/none: {#I:No Tiers Selected}
 visibility-patreon-tier/selection/all: {#I:All Tiers}
 visibility-patreon-tier/selection/tier-and-up: {0} {#I:(And All Higher Tiers)}
