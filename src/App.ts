@@ -11,6 +11,7 @@ import Link from 'ui/component/core/Link'
 import ToastList from 'ui/component/core/toast/ToastList'
 import Masthead from 'ui/component/Masthead'
 import { registerMarkdownMentionHandler } from 'ui/component/Mention'
+import TagPopover from 'ui/component/popover/TagPopover'
 import InputBus from 'ui/InputBus'
 import ActiveListener from 'ui/utility/ActiveListener'
 import FocusListener from 'ui/utility/FocusListener'
@@ -47,6 +48,8 @@ QuiltHelper.init({
 })
 
 registerMarkdownMentionHandler()
+
+TagPopover.register()
 
 interface AppExtensions {
 	navigate: Navigator

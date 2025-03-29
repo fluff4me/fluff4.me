@@ -15,7 +15,10 @@ export default Component.Builder((component): Popover => {
 
 	popover.header.style('popover-block-header')
 	popover.content.style('popover-block-content')
-	popover.title.setAestheticLevel(3).style('popover-block-title')
+	popover.tweakJIT('title', title => title
+		.setAestheticLevel(3)
+		.style('popover-block-title')
+	)
 
 	return popover
 })
