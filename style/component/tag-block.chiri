@@ -64,3 +64,8 @@
 		%flex
 		%flex-wrap
 		%gap-2
+
+	&-relationship:
+		#after: .tag
+		%colour-0
+		border-colour: currentcolor

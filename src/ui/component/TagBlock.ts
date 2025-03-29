@@ -7,6 +7,7 @@ import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import Heading from 'ui/component/core/Heading'
+import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
 import type { TagData } from 'ui/component/Tag'
 import Tag from 'ui/component/Tag'
@@ -83,6 +84,8 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 		.setMarkdownContent(tag.description)
 		.appendTo(block.content)
 
+	const RelationshipTag = (tag: TagData | string) => Tag(tag).style('tag-block-relationship')
+
 	if (tag.aliases?.length)
 		Component()
 			.style('tag-block-aliases')
@@ -90,8 +93,27 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 				.style('tag-block-section-heading')
 				.setAestheticStyle(false)
 				.text.use('tag/label/aliases'))
-			.append(...!tag.aliases ? [] : tag.aliases.map(Tag))
+			.append(...!tag.aliases ? [] : tag.aliases.map(RelationshipTag))
 			.appendTo(block.content)
+
+	const closestPopover = component.getStateForClosest(Popover)
+	async function getTagList (tagIds: string[]) {
+		const tags = await Tags.resolve(tagIds)
+		if (!tags.length)
+			return []
+
+		const toAppend: Component[] = []
+		const MAX_TAGS_IN_POPOVER = 4
+		toAppend.push(...tags.slice(0, MAX_TAGS_IN_POPOVER).map(RelationshipTag))
+
+		const remaining = tags.slice(MAX_TAGS_IN_POPOVER)
+		if (remaining.length)
+			toAppend.push(Slot()
+				.if(closestPopover.falsy, slot => slot
+					.append(...remaining.map(RelationshipTag))))
+
+		return toAppend
+	}
 
 	const tagId: TagId = `${tag.category}: ${tag.name}`
 
@@ -103,7 +125,7 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 				.style('tag-block-section-heading')
 				.setAestheticStyle(false)
 				.text.use('tag/label/relationships-to'))
-			.append(...(await Tags.resolve(relationships)).map(Tag))
+			.append(...await getTagList(relationships))
 	))
 
 	const relationshipsFrom = manifest.mapManual(manifest => !manifest ? []
@@ -118,7 +140,7 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 				.style('tag-block-section-heading')
 				.setAestheticStyle(false)
 				.text.use('tag/label/relationships-from'))
-			.append(...(await Tags.resolve(relationships)).map(Tag))
+			.append(...await getTagList(relationships))
 	))
 
 	return block

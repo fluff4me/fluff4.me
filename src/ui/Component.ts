@@ -100,6 +100,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	readonly text: TextManipulator<this>
 	readonly style: StyleManipulator<this>
 	readonly anchor: AnchorManipulator<this>
+	readonly nojit: Partial<this>
 
 	readonly hovered: State<boolean>
 	readonly focused: State<boolean>
@@ -253,6 +254,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 	let descendantsListeningForScroll: HTMLCollection | undefined
 
 	const jitTweaks = new Map<string, true | Set<(value: any, component: Component) => unknown>>()
+	const nojit: Record<string, any> = {}
 
 	let component = ({
 		supers: State([]),
@@ -261,6 +263,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		element: document.createElement(type),
 		removed: State(false),
 		rooted: State(false),
+		nojit: nojit as Component,
 
 		get tagName () {
 			return component.element.tagName as Uppercase<keyof HTMLElementTagNameMap>
@@ -344,6 +347,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 				},
 				set: value => {
 					Define.set(component, property, value)
+					nojit[property] = value
 				},
 			})
 			return component
@@ -838,18 +842,20 @@ namespace Component {
 
 	export type BuilderLike<PARAMS extends any[] = any[], COMPONENT extends Component = Component> = Builder<PARAMS, COMPONENT> | Extension<PARAMS, COMPONENT>
 
-	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<Extension<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'setName' | 'builderType' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
+	export interface Builder<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<Extension<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'setName' | 'builderType' | 'extend' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
 		readonly builderType: 'builder'
 		readonly [SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
 		(...params: PARAMS): BUILD_COMPONENT
 		setName (name: string): this
+		extend<T> (extensionProvider: (component: BUILD_COMPONENT & T) => Omit<T, typeof SYMBOL_COMPONENT_BRAND>): BUILD_COMPONENT & T
 	}
 
-	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<ExtensionAsync<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'setName' | 'builderType' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
+	export interface BuilderAsync<PARAMS extends any[], BUILD_COMPONENT extends Component | undefined> extends Omit<ExtensionAsync<PARAMS, Exclude<BUILD_COMPONENT, undefined>>, 'setName' | 'builderType' | 'extend' | typeof SYMBOL_COMPONENT_TYPE_BRAND> {
 		readonly builderType: 'builder'
 		readonly [SYMBOL_COMPONENT_TYPE_BRAND]: BUILD_COMPONENT
 		(...params: PARAMS): Promise<BUILD_COMPONENT>
 		setName (name: string): this
+		extend<T> (extensionProvider: (component: BUILD_COMPONENT & T) => Omit<T, typeof SYMBOL_COMPONENT_BRAND>): BUILD_COMPONENT & T
 	}
 
 	const defaultBuilder = (type?: keyof HTMLElementTagNameMap) => Component(type)
@@ -893,11 +899,17 @@ namespace Component {
 
 		Object.defineProperty(simpleBuilder, 'name', { value: name, configurable: true })
 
+		const extensions: ((component: Component) => unknown)[] = []
+
 		const resultBuilder = Object.assign(simpleBuilder, {
 			from: realBuilder,
 			setName (newName: string) {
 				name = addKebabCase(newName)
 				Object.defineProperty(simpleBuilder, 'name', { value: name })
+				return resultBuilder
+			},
+			extend (extensionProvider: (component: Component) => unknown) {
+				extensions.push(extensionProvider)
 				return resultBuilder
 			},
 		})
@@ -906,6 +918,9 @@ namespace Component {
 		function completeComponent (component: Component) {
 			if (!component)
 				return component
+
+			for (const extension of extensions)
+				Object.assign(component, extension(component))
 
 			if (name && Env.isDev) {
 				(component as Component & { [Symbol.toStringTag]?: string })[Symbol.toStringTag] ??= name.toString()
@@ -945,6 +960,7 @@ namespace Component {
 		readonly name: BuilderName
 		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): COMPONENT & EXT_COMPONENT
 		setName (name: string): this
+		extend<T> (extensionProvider: (component: EXT_COMPONENT & T) => Omit<T, typeof SYMBOL_COMPONENT_BRAND>): EXT_COMPONENT & T
 	}
 
 	export interface ExtensionAsync<PARAMS extends any[], EXT_COMPONENT extends Component> {
@@ -953,6 +969,7 @@ namespace Component {
 		readonly name: BuilderName
 		from<COMPONENT extends Component> (component?: COMPONENT, ...params: PARAMS): Promise<COMPONENT & EXT_COMPONENT>
 		setName (name: string): this
+		extend<T> (extensionProvider: (component: EXT_COMPONENT & T) => Omit<T, typeof SYMBOL_COMPONENT_BRAND>): EXT_COMPONENT & T
 	}
 
 	export function Extension<PARAMS extends any[], COMPONENT extends Component> (builder: (component: Component, ...params: PARAMS) => COMPONENT): Extension<PARAMS, COMPONENT>
