@@ -60,8 +60,8 @@
 			%padding-3
 			%padding-top-0
 			border-left: .3em solid $border-colour
-			$border-colour: $background-3
-			%background-2
+			$border-colour: $background-4
+			%background-3
 			%z-index-fg
 
 			&-before:
