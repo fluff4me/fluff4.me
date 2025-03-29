@@ -61,7 +61,16 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 			.text.use('view/chapter-edit/shared/form/type/numbered')
 			.append(Placeholder()
 				.style('view-type-chapter-edit-type-example')
-				.text.use(quilt => quilt['view/chapter-edit/shared/form/type/numbered/example'](state.value?.index ?? 'N')))
+				.text.use(quilt => quilt['view/chapter-edit/shared/form/type/numbered/example'](Functions.resolve(() => {
+					if (!state.value)
+						return 'N'
+
+					const url = state.value.url
+					if (url.includes('.'))
+						return parseInt(url) + 1
+
+					return parseInt(url)
+				}))))
 		)
 		.add('other', radio => radio
 			.text.use('view/chapter-edit/shared/form/type/other')
