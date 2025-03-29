@@ -94,6 +94,9 @@ export default ViewDefinition({
 				const state = State(pageData === NEW_CHAPTER ? undefined : pageData)
 				state.subscribe(owner, chapter => source.set(page, chapter ?? NEW_CHAPTER))
 				state.use(owner, chapter => {
+					if (paginator.page.value !== page)
+						return
+
 					paginator.setURL(!chapter
 						? `/work/${params.author}/${params.work}/chapter/new`
 						: `/work/${params.author}/${params.work}/chapter/${chapter.url}/edit`)
