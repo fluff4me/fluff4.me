@@ -79,8 +79,10 @@ namespace ViewTransition {
 		const id = queuedUnapply = i++
 		transition.finished
 			.catch(async err => {
-				if (!String(err as Error).includes('AbortError'))
+				if (!String(err as Error).includes('AbortError')) {
+					console.error('Error during view transition:', err)
 					return
+				}
 
 				await doSwap()
 			})
