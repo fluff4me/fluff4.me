@@ -2,6 +2,7 @@ import type { CustomTagData } from 'api.fluff4.me'
 import EndpointTagCustomDelete from 'endpoint/tag/EndpointTagCustomDelete'
 import EndpointTagCustomPromote from 'endpoint/tag/EndpointTagCustomPromote'
 import EndpointTagCustomRename from 'endpoint/tag/EndpointTagCustomRename'
+import type { TagId } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
@@ -221,12 +222,10 @@ export default Component.Builder((component, manifest: Tags, customTags: State<C
 			customTags.emit()
 			selectedTags.emit(previousSelectedTags)
 
-			manifest.addTag({
-				category: newTag.category,
-				name: newTag.name,
-				description: { body: newTag.description },
-				aliases: newTag.aliases,
-			})
+			const tagId: TagId = `${newTag.category}: ${newTag.name}`
+			manifest.addTag(response.data)
+			manifest.addRelationships(tagId, newTag.relationships_to as TagId[])
+			manifest.addRelationships(newTag.relationships_from as TagId[], tagId)
 		})
 
 	//#endregion
@@ -337,12 +336,7 @@ export default Component.Builder((component, manifest: Tags, customTags: State<C
 			customTags.emit()
 			selectedTags.emit(previousSelectedTags)
 
-			const tag = manifest.value?.tags[tagId]
-			if (tag && addNewAliasesEditor.state.value.custom_tags.length) {
-				tag.aliases ??= []
-				tag.aliases.push(...addNewAliasesEditor.state.value.custom_tags)
-				manifest.emit()
-			}
+			manifest.addAliases(tagId, ...addNewAliasesEditor.state.value.custom_tags)
 		})
 		.appendTo(promoteIntoExistingActionRow.right)
 
