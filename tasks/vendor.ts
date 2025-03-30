@@ -49,15 +49,16 @@ const VENDOR_SCRIPTS: (string | VendorScript)[] = [
 		file: `lib/${file}.js`,
 	})),
 
+	{
+		name: 'qrcode',
+		file: 'build/qrcode.js',
+		noUMD: true,
+	},
+
 	...Env.ENVIRONMENT !== 'dev' ? [] : [
 		{
 			name: 'source-map-support',
 			file: 'browser-source-map-support.js',
-			noUMD: true,
-		},
-		{
-			name: 'qrcode',
-			file: 'build/qrcode.js',
 			noUMD: true,
 		},
 	] satisfies VendorScript[],
