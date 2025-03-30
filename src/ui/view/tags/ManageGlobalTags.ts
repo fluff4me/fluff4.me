@@ -146,7 +146,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!manifest.value)
 				return
 
-			const tagId: TagId = `${response.data.category}: ${response.data.name}`
+			const tagId = Tags.toId(response.data)
 			Tags.addTag(response.data)
 			Tags.addRelationships(tagId, body.relationships_to as TagId[])
 			Tags.addRelationships(body.relationships_from as TagId[], tagId)
@@ -241,7 +241,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				if (!manifest.value)
 					return
 
-				const newTagId: TagId = `${response.data.category}: ${response.data.name}`
+				const newTagId = Tags.toId(response.data)
 				Tags.removeTags(tagId)
 				Tags.addTag(response.data)
 				Tags.addRelationships(newTagId, body.relationships_to as TagId[])

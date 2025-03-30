@@ -58,10 +58,10 @@ const Util = {
 	////////////////////////////////////
 	//#region Authors
 	followingAuthor (vanity: string) {
-		return manifest.value?.following.author?.some(follow => follow.author === vanity)
+		return !!manifest.value?.following.author?.some(follow => follow.author === vanity)
 	},
 	ignoringAuthor (vanity: string) {
-		return manifest.value?.ignoring.author?.some(ignore => ignore.author === vanity)
+		return !!manifest.value?.ignoring.author?.some(ignore => ignore.author === vanity)
 	},
 	async toggleFollowingAuthor (vanity: string) {
 		if (Util.followingAuthor(vanity))
@@ -248,10 +248,10 @@ const Util = {
 	////////////////////////////////////
 	//#region Tags
 	followingTag (tag: string) {
-		return manifest.value?.following.tag?.some(follow => follow.tag === tag)
+		return !!manifest.value?.following.tag?.some(follow => follow.tag === tag)
 	},
 	ignoringTag (tag: string) {
-		return manifest.value?.ignoring.tag?.some(ignore => ignore.tag === tag)
+		return !!manifest.value?.ignoring.tag?.some(ignore => ignore.tag === tag)
 	},
 	async toggleFollowingTag (tag: string) {
 		if (Util.followingTag(tag))

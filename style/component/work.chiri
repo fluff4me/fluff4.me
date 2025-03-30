@@ -20,31 +20,6 @@
 			&--flush:
 				%margin-bottom-0
 
-	&-following-bookmark:
-		%absolute
-		%right-3
-		%untop-1
-		$bookmark-width: calc($space-3 + $space-2)
-		width: $bookmark-width
-		%height-5
-		%z-index-fg
-		background: radial-gradient(at calc($bookmark-width / 4) $space-2, $colour-blue, $colour-blue-2 80%)
-		filter: drop-shadow(calc($space-1 / 2) calc($space-1 / 2) calc($space-1 / 2) #0003)
-
-		@before:
-			%absolute
-			%top-100
-			%left-0
-			border-left: calc($bookmark-width / 2) solid $colour-blue-2
-			border-bottom: calc($bookmark-width / 3) solid transparent
-
-		@after:
-			%absolute
-			%top-100
-			%right-0
-			border-right: calc($bookmark-width / 2) solid $colour-blue-2
-			border-bottom: calc($bookmark-width / 3) solid transparent
-
 	&-tags:
 		%flex
 		%flex-wrap

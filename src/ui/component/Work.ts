@@ -12,6 +12,7 @@ import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
 import TextLabel from 'ui/component/core/TextLabel'
 import Timestamp from 'ui/component/core/Timestamp'
+import FollowingBookmark from 'ui/component/FollowingBookmark'
 import AuthorPopover from 'ui/component/popover/AuthorPopover'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
@@ -39,12 +40,8 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 		.text.set(work.name)
 		.setResizeRange(32, Math.min(FormInputLengths.value?.work.name ?? Infinity, 128))
 
-	const following = Follows.map(block, () => Follows.followingWork(work))
-	Slot().appendTo(block.header).if(following, slot => {
-		Component()
-			.style('work-following-bookmark')
-			.appendTo(slot)
-	})
+	FollowingBookmark(follows => follows.followingWork(work))
+		.appendTo(block.header)
 
 	if (author)
 		block.description

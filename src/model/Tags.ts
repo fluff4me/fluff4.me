@@ -75,7 +75,7 @@ const Tags = Object.assign(
 				if (!tag)
 					continue
 
-				const newTagId: TagId = `${category}: ${tag.name}`
+				const newTagId = Tags.toId(category, tag.name)
 				Tags.value.tags[newTagId] = tag
 				delete Tags.value.tags[oldId]
 				Tags.value.relationships[newTagId] = Tags.value.relationships[oldId]
@@ -171,9 +171,9 @@ function fillCategory (rawCategory: TagCategory): TagsManifestCategory {
 	return category
 }
 
-function toId (tag: Tag): string
-function toId (category: string, name: string): string
-function toId (category: string | Tag, name?: string): string {
+function toId (tag: Pick<Tag, 'category' | 'name'>): TagId
+function toId (category: string, name: string): TagId
+function toId (category: string | Pick<Tag, 'category' | 'name'>, name?: string): TagId {
 	return typeof category === 'string'
 		? `${category}: ${name}`
 		: `${category.category}: ${category.name}`

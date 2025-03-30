@@ -11,6 +11,7 @@ import Loading from 'ui/component/core/Loading'
 import Placeholder from 'ui/component/core/Placeholder'
 import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
+import FollowingBookmark from 'ui/component/FollowingBookmark'
 import Async from 'utility/Async'
 import State from 'utility/State'
 
@@ -40,6 +41,9 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 			.append(Component()
 				.style('author-pronouns')
 				.text.set(author.value.pronouns)))
+
+	FollowingBookmark(follows => follows.followingAuthor(author.value.vanity))
+		.appendTo(block.header)
 
 	const loading = Loading()
 		.appendTo(block.content)

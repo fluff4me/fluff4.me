@@ -222,7 +222,7 @@ export default Component.Builder((component, manifest: Tags, customTags: State<C
 			customTags.emit()
 			selectedTags.emit(previousSelectedTags)
 
-			const tagId: TagId = `${newTag.category}: ${newTag.name}`
+			const tagId = Tags.toId(newTag)
 			manifest.addTag(response.data)
 			manifest.addRelationships(tagId, newTag.relationships_to as TagId[])
 			manifest.addRelationships(newTag.relationships_from as TagId[], tagId)

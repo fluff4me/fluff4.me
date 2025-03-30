@@ -1,0 +1,31 @@
+$$bookmark-colour-1!colour: #{colours["blue-0"]}
+$$bookmark-colour-2!colour: #{colours["blue-2"]}
+.following-bookmark:
+	%absolute
+	%right-3
+	%untop-1
+	%z-index-fg
+	$bookmark-width: calc($space-3 + $space-2)
+	$bookmark-height: calc($space-4 + $space-3)
+	width: $bookmark-width
+	height: $bookmark-height
+	background: radial-gradient(at calc($bookmark-width / 4) calc($bookmark-height / 8), $bookmark-colour-1, $bookmark-colour-2 80%)
+	filter: drop-shadow(calc($space-1 / 2) calc($space-1 / 2) calc($space-1 / 2) #0003)
+
+	@before:
+		%absolute
+		%top-100
+		%left-0
+		border-left: calc($bookmark-width / 2) solid $bookmark-colour-2
+		border-bottom: calc($bookmark-width / 3) solid transparent
+
+	@after:
+		%absolute
+		%top-100
+		%right-0
+		border-right: calc($bookmark-width / 2) solid $bookmark-colour-2
+		border-bottom: calc($bookmark-width / 3) solid transparent
+
+	&--hidden:
+		#after: .following-bookmark
+		%hidden

@@ -67,6 +67,7 @@
 	component/vanity-input
 	component/masthead
 	component/sidebar
+	component/following-bookmark
 	component/author
 	component/work
 	component/tag
