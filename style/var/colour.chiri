@@ -1,26 +1,27 @@
+#record!string colours = {
+	blue-0: "#69b3e2
+	blue: "light-dark(#487aa3, #69b3e2)
+	blue-2: "#499FD5
+	blue-3: "#0173ba
+	blue-4: "#004680
+	pink-0: "#d94e8f
+	pink: "light-dark(#96277c, #d94e8f)
+	pink-2: "#94236b
+	pink-3: "#661448
+	success: "#56d37a
+	success-bg: "#204731
+	warning: "#a8403e
+	warning-bg: "#4f2322
+	patreon: "#FF5900
+	patreon-2: "light-dark(#9c3903, #FF6E20)
+	patreon-3: "#a84c1a
+
 #do:
 	#each in 0...15 as var i:
 		$dark-#{i}: hsl(272deg #{100 * (1 - (curve2(0.7, 0.9, i / 15, 3)))}% #{100 * curve4(0, 1, i / 15, 1.1)}%)
 
 	#each in 0...15 as var i:
 		$light-#{i}: $dark-#{15 - i}
-
-	#record!string colours = {
-		blue: "light-dark(#487aa3, #69b3e2)
-		blue-2: "#499FD5
-		blue-3: "#0173ba
-		blue-4: "#004680
-		pink-0: "#d94e8f
-		pink: "light-dark(#96277c, #d94e8f)
-		pink-2: "#94236b
-		pink-3: "#661448
-		success: "#56d37a
-		success-bg: "#204731
-		warning: "#a8403e
-		warning-bg: "#4f2322
-		patreon: "#FF5900
-		patreon-2: "light-dark(#9c3903, #FF6E20)
-		patreon-3: "#a84c1a
 
 	#each colours as var name, var colour:
 		$colour-#{name}: #{colour}

@@ -1,7 +1,7 @@
 import quilt from 'lang/en-nz'
 import Follows from 'model/Follows'
 import Session from 'model/Session'
-import type { TagId, TagsManifest } from 'model/Tags'
+import type { TagsManifest } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
@@ -9,6 +9,7 @@ import Button from 'ui/component/core/Button'
 import Heading from 'ui/component/core/Heading'
 import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
+import FollowingBookmark from 'ui/component/FollowingBookmark'
 import type { TagData } from 'ui/component/Tag'
 import Tag from 'ui/component/Tag'
 import AbortPromise from 'utility/AbortPromise'
@@ -33,6 +34,10 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 	const id = Tags.toId(tag)
 
 	block.header.style('tag-block-header')
+
+	FollowingBookmark(follows => follows.followingTag(id))
+		.style('tag-block-following-bookmark')
+		.appendTo(block.header)
 
 	block.setActionsMenu(popover => {
 		Session.Auth.loggedIn.use(popover, loggedIn => {
@@ -72,6 +77,7 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 	const tagComponent = Tag(tag)
 		.replaceElement(document.createElement('span'))
 		.style('tag-block-tag')
+		.tweak(tag => tag.followingBookmark?.remove())
 		.appendTo(info)
 
 	tagComponent.categoryWrapper?.style('tag-block-tag-category')
@@ -115,7 +121,7 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 		return toAppend
 	}
 
-	const tagId: TagId = `${tag.category}: ${tag.name}`
+	const tagId = Tags.toId(tag)
 
 	const relationshipsTo = manifest.mapManual(manifest => manifest?.relationships[tagId] ?? [])
 	Slot().appendTo(block.content).use(relationshipsTo, AbortPromise.asyncFunction(async (signal, slot, relationships) => !relationships.length ? undefined

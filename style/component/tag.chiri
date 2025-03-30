@@ -1,6 +1,7 @@
 .tag:
 	#after: .button, .link
 	%font-1
+	%relative
 	%grid
 	grid-template-rows: auto auto
 	%no-decoration
@@ -45,6 +46,44 @@
 
 	&-global:
 	&-custom:
+
+	&-following-bookmark:
+		#after: .following-bookmark
+		$bookmark-width: $space-2
+		$bookmark-height: $space-3
+		$bookmark-colour-1: $colour-pink-0
+		$bookmark-colour-2: $colour-pink-2
+		%right-1
+		#transition: #{transition($$bookmark-colour-1)}, #{transition($$bookmark-colour-2)}
+
+		@before, @after:
+			$bookmark-colour-2: $colour-pink-2
+			#transition: #{transition($$bookmark-colour-1)}, #{transition($$bookmark-colour-2)}
+
+		&--webkit:
+			#after: .tag-following-bookmark
+			%transition-none
+
+			@before, @after:
+				%transition-none
+
+		&--has-delete-button:
+			#after: .following-bookmark
+			%hidden
+
+		&--active:
+			#after: .tag-following-bookmark
+			$bookmark-colour-1: $colour-0
+			$bookmark-colour-2: $colour-1
+			$transition-duration: $transition-focus
+
+			@before, @after:
+				$bookmark-colour-2: $colour-1
+				$transition-duration: $transition-focus
+
+	&--has-following-bookmark:
+		#after: .tag
+		%padding-right-3
 
 	&-delete-button:
 		@before:

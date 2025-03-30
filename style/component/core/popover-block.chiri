@@ -1,5 +1,5 @@
 .popover-block:
-	#after: .block
+	#after: .block, .popover
 	%hidden
 	$block-padding: calc($space-3 + $space-2)
 	%fixed
@@ -8,6 +8,10 @@
 	box-shadow: 0 $space-1 $space-2 light-dark(#0004, #0007)
 	; $block-background-light: #{alpha(0.99, $light-5)}
 	$block-background-dark: $dark-3
+	%overflow-visible
+
+	#flush:
+		%overflow-auto
 
 	:popover:
 		%block

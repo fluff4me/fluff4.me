@@ -69,3 +69,12 @@
 		#after: .tag
 		%colour-0
 		border-colour: currentcolor
+
+	&-following-bookmark:
+		#after: .following-bookmark
+		$bookmark-colour-1: $colour-0
+		$bookmark-colour-2: $colour-1
+
+		@before, @after:
+			$bookmark-colour-1: $colour-0
+			$bookmark-colour-2: $colour-1
