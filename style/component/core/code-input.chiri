@@ -1,0 +1,12 @@
+.code-input:
+	%flex
+	%gap-2
+
+	&-input:
+		#after: .text-input
+		%width-auto
+		%padding-inline-0
+		%padding-block-1
+		%text-align-centre
+		%weight-bold
+		%font-kanit

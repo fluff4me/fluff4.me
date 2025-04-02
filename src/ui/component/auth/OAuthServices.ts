@@ -39,7 +39,7 @@ const OAuthServices = Component.Builder(async (component, state: State<Session.A
 	else {
 		state.use(component, state => {
 			block.title.text.use(`view/account/auth/${state}/title`)
-			block.description.text.use(`view/account/auth/${state}/description`)
+			block.description.text.use(state === 'partial-login' ? undefined : `view/account/auth/${state}/description`)
 		})
 	}
 

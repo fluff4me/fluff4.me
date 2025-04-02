@@ -54,6 +54,13 @@ $$button-background-highlight!colour
 		#after: .button
 		%font-inherit
 
+	&-type-inline:
+		#after: .button
+		%font-inherit
+		%padding-block-0
+		%padding-inline-2
+		%margin-inline-2
+
 	&-type-primary:
 		$colour: $colour-blue-3
 		$button-background: $colour

@@ -1,13 +1,19 @@
+import EndpointTOTPVerify from 'endpoint/auth/EndpointTOTPVerify'
 import EndpointAuthorDelete from 'endpoint/author/EndpointAuthorDelete'
 import Session from 'model/Session'
+import Component from 'ui/Component'
 import OAuthServices from 'ui/component/auth/OAuthServices'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
+import CodeInput from 'ui/component/core/CodeInput'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import type Form from 'ui/component/core/Form'
+import Paragraph from 'ui/component/core/Paragraph'
+import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import AccountViewForm from 'ui/view/account/AccountViewForm'
 import AccountViewPatreonCampaign from 'ui/view/account/AccountViewPatreonCampaign'
+import AccountViewTOTP from 'ui/view/account/AccountViewTOTP'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import ViewTransition from 'ui/view/shared/ext/ViewTransition'
@@ -39,6 +45,37 @@ export default ViewDefinition({
 
 		services.subviewTransition(id)
 		services.appendTo(view.content)
+
+
+		const needsTOTP = Session.state.map(view, session => !!session?.partial_login?.totp_required)
+		const totpCodeInput = CodeInput()
+			.event.subscribe('Enter', () => loginButton.element.click())
+
+		Component()
+			.style('view-type-account-totp-login-wrapper')
+			.append(Paragraph()
+				.append(Placeholder()
+					.text.use('view/account/totp/login/description')))
+			.append(totpCodeInput)
+			.appendToWhen(needsTOTP, services.content)
+
+		const loginButton = Button()
+			.type('primary')
+			.text.use('view/account/totp/login/action/login')
+			.event.subscribe('click', async () => {
+				const response = await EndpointTOTPVerify.query({ body: { token: totpCodeInput.state.value } })
+				if (toast.handleError(response))
+					return
+
+				Session.refresh()
+			})
+			.appendToWhen(needsTOTP, services.footer.right)
+
+		services.footer.appendToWhen(needsTOTP, services)
+
+		AccountViewTOTP(Session.state)
+			.subviewTransition(id)
+			.appendToWhen(Session.Auth.loggedIn, view.content)
 
 		Slot()
 			.use(state, () => createActionRow()?.subviewTransition(id))

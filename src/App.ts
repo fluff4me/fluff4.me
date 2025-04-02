@@ -37,8 +37,10 @@ interface QRCodeOptions {
 	}
 }
 
-declare namespace QRCode {
-	export function toDataURL (text: string, options?: QRCodeOptions): Promise<string>
+declare global {
+	namespace QRCode {
+		export function toDataURL (text: string, options?: QRCodeOptions): Promise<string>
+	}
 }
 
 QuiltHelper.init({

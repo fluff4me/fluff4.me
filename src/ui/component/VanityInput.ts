@@ -85,6 +85,10 @@ const VanityInput = Component.Builder((component): VanityInput => {
 				input.filter(filter)
 				return component
 			},
+			setReadonly () {
+				input.setReadonly()
+				return component
+			}
 		}))
 		.extendMagic('value', component => ({
 			get () { return input.value },

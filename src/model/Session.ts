@@ -18,7 +18,9 @@ declare module 'utility/Store' {
 
 namespace Session {
 
-	export const has = State(false)
+	const _state = State<Session | undefined>(undefined)
+	export const state = _state as State<Session | undefined>
+	export const has = _state.mapManual(session => !!session)
 
 	const clearedWithSessionChange: (keyof ILocalStorage | (() => unknown))[] = []
 	export function setClearedWithSessionChange (...cleared: (keyof ILocalStorage | (() => unknown))[]) {
@@ -26,7 +28,7 @@ namespace Session {
 	}
 
 	export function init () {
-		updateState()
+		_state.value = Store.items.session
 		void refresh()
 	}
 
@@ -36,25 +38,27 @@ namespace Session {
 		if (stateToken)
 			Store.items.stateToken = stateToken
 
-		if (Store.items.session?.created !== session.data?.created)
+		const sessionData = session?.data ?? undefined
+		if (Store.items.session?.created !== sessionData?.created)
 			for (const keyOrHandler of clearedWithSessionChange)
 				if (typeof keyOrHandler === 'function')
 					keyOrHandler()
 				else
 					Store.delete(keyOrHandler)
 
-		Store.items.session = session?.data ?? undefined
-		updateState()
+		Store.items.session = sessionData
+		_state.value = sessionData
 	}
 
 	export async function reset (skipRefresh = false) {
 		await EndpointSessionReset.query()
 		delete Store.items.session
+		_state.value = undefined
 
 		if (skipRefresh)
-			updateState()
-		else
-			await refresh()
+			return
+
+		await refresh()
 	}
 
 	export function setAuthor (author: AuthorFull & Partial<AuthorSelf>) {
@@ -62,7 +66,7 @@ namespace Session {
 		if (!session)
 			return void refresh()
 
-		Store.items.session = {
+		const sessionData = {
 			...session,
 			author: {
 				...author,
@@ -70,14 +74,8 @@ namespace Session {
 			} as AuthorFull,
 			authorisations: author.authorisations ?? session.authorisations,
 		}
-		updateState()
-	}
-
-	function updateState () {
-		Session.has.value = !!Store.items.session
-		Auth.state.value = Store.items.session?.author ? 'logged-in' : Store.items.session?.authorisations?.length ? 'has-authorisations' : 'none'
-		Auth.authorisations.value = Store.items.session?.author?.authorisations ?? Store.items.session?.authorisations ?? []
-		Auth.author.value = Store.items.session?.author ?? undefined
+		Store.items.session = sessionData
+		_state.value = sessionData
 	}
 
 	export function getStateToken () {
@@ -88,12 +86,19 @@ namespace Session {
 		export type State =
 			| 'none'
 			| 'has-authorisations'
+			| 'partial-login'
 			| 'logged-in'
 
-		export const state = State<State>('none')
-		export const loggedIn = State.Generator(() => state.value === 'logged-in').observeManual(state)
-		export const authorisations = State<Authorisation[]>([])
-		export const author = State<AuthorSelf | undefined>(undefined, false)
+		export const state = Session.state.mapManual((session): State =>
+			session?.author ? 'logged-in'
+				: session?.partial_login ? 'partial-login'
+					: Store.items.session?.authorisations?.length ? 'has-authorisations'
+						: 'none'
+		)
+		export const loggedIn = state.mapManual(state => state === 'logged-in')
+		export const authorisations = Session.state.mapManual(session => session?.author?.authorisations ?? session?.authorisations ?? [], false)
+		export const author = Session.state.mapManual(session => session?.author, false)
+		export const partialLogin = Session.state.mapManual(session => session?.partial_login)
 
 		export function get (service: string) {
 			return _
@@ -122,16 +127,19 @@ namespace Session {
 			const session = Store.items.session
 			if (session?.authorisations) {
 				let authorisations: Authorisation[] | null = session.authorisations.filter(auth => auth.id !== id)
-				if (!authorisations.length)
+				if (!authorisations.length) {
 					authorisations = null
+					delete session?.partial_login
+				}
 
-				Store.items.session = {
+				const sessionData = {
 					...session,
 					authorisations,
 				}
-			}
+				Store.items.session = sessionData
+				Session.state.asMutable?.setValue(sessionData)
 
-			updateState()
+			}
 		}
 
 		export async function auth (service: AuthService) {
