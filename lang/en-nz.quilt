@@ -383,6 +383,12 @@ title: Log in
 title: Authorisations
 description: These third party service accounts are linked to your fluff4.me account and may be used to log in.
 
+#### mfa
+title: Multi-factor authentication
+description: Change the number of auth services you need to reauth with to log in. The more you require, the more secure your account.
+label/required-count: Required to Log In
+action/save=shared/action/save
+
 ## account/totp
 title: TOTP
 
