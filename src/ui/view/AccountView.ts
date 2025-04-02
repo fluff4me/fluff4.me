@@ -107,7 +107,7 @@ export default ViewDefinition({
 		////////////////////////////////////
 		//#region TOTP Login
 
-		const needsTOTP = Session.state.map(view, session => !!session?.partial_login?.totp_required)
+		const needsTOTP = Session.state.map(view, session => !!session?.partial_login?.totp_required && !session.partial_login.additional_auth_services_required)
 		const totpCodeInput = CodeInput()
 			.event.subscribe('Enter', () => loginButton.element.click())
 
