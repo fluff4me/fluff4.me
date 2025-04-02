@@ -14,7 +14,7 @@ import { QuiltHelper, type Quilt } from 'ui/utility/StringApplicator'
 import Arrays from 'utility/Arrays'
 import Async from 'utility/Async'
 import Functions from 'utility/Functions'
-import State from 'utility/State'
+import State, { UnsubscribeState } from 'utility/State'
 import type { SupplierOr } from 'utility/Type'
 
 type DropdownButton = RadioButton | Checkbutton
@@ -57,7 +57,14 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 	const options: Record<string, InternalDropdownOption> = {}
 	let optionIndex = 0
 
-	let popover!: Popover
+	const input = TextInput()
+		.placeholder.use('shared/form/dropdown/filter/placeholder')
+		.style('dropdown-popover-input')
+
+	const content = Component()
+		.style('dropdown-popover-content')
+
+	const popover = State<Popover | undefined>(undefined)
 	Button()
 		.style('dropdown-button')
 		.text.bind(selection.mapManual(state => state === undefined
@@ -70,12 +77,33 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 				)
 			)
 		))
-		.setPopover('click', p => popover = p
-			.style('dropdown-popover')
-			.anchor.add('aligned left', 'aligned top')
-			.anchor.add('aligned left', 'aligned bottom')
-			.anchor.orElseHide()
-		)
+		.setPopover('click', p => {
+			popover.value = p
+				.style('dropdown-popover')
+				.anchor.add('aligned left', 'aligned top')
+				.anchor.add('aligned left', 'aligned bottom')
+				.anchor.orElseHide()
+
+			popover.value.appendTo(dropdown)
+			popover.value.visible.subscribeManual(async visible => {
+				await Async.sleep(20)
+				if (visible) input.focus()
+			})
+
+			content.appendTo(popover.value)
+
+			popover.value.anchor.state.useManual(location => {
+				if (!popover.value)
+					return
+
+				const isBottom = location?.preference?.yAnchor.side === 'bottom'
+				popover.value.style.toggle(isBottom, 'dropdown-popover--is-bottom')
+				if (isBottom)
+					input.appendTo(popover.value)
+				else
+					input.prependTo(popover.value)
+			})
+		})
 		.appendTo(dropdown)
 
 	const hiddenInput = Component('input')
@@ -85,30 +113,9 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 		.setName(`dropdown-validity-pipe-input-${Math.random().toString(36).slice(2)}`)
 		.appendTo(dropdown)
 
-	popover.appendTo(dropdown)
-	popover.visible.subscribeManual(async visible => {
-		await Async.sleep(20)
-		if (visible) input.focus()
-	})
-
-	const input = TextInput()
-		.placeholder.use('shared/form/dropdown/filter/placeholder')
-		.style('dropdown-popover-input')
-
-	const content = Component()
-		.style('dropdown-popover-content')
-		.appendTo(popover)
-
-	popover.anchor.state.useManual(location => {
-		const isBottom = location?.preference?.yAnchor.side === 'bottom'
-		popover.style.toggle(isBottom, 'dropdown-popover--is-bottom')
-		if (isBottom)
-			input.appendTo(popover)
-		else
-			input.prependTo(popover)
-	})
 
 	let labelFor: State<string | undefined> | undefined
+	let unusePopoverForInput: UnsubscribeState | undefined
 	dropdown
 		.pipeValidity(hiddenInput)
 		.ariaRole('group')
@@ -135,7 +142,7 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 
 						const isRadio = button.is(RadioButton)
 						if (isRadio)
-							popover.hide()
+							popover.value?.hide()
 
 						if (!selection.value)
 							selection.value = isRadio ? id : [id]
@@ -181,8 +188,10 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 		}))
 		.extend<Partial<InputExtensions>>(dropdown => ({
 			setLabel (label) {
+				unusePopoverForInput?.()
+				unusePopoverForInput = popover.useManual(popover => popover?.ariaLabel.bind(label?.text.state))
+
 				labelFor = label?.for
-				popover.ariaLabel.bind(label?.text.state)
 				for (const option of Object.values(options))
 					option.button.setName(labelFor)
 
