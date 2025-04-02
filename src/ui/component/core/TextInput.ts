@@ -36,6 +36,7 @@ export interface TextInputExtensions {
 	 * Prevent the user from entering invalid characters in this input via a filter function.
 	 */
 	filter (filterFn?: FilterFunction): this
+	setReadonly (): this
 }
 
 interface TextInput extends Component, TextInputExtensions, InputExtensions { }
@@ -71,6 +72,10 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 			},
 			filter: filter => {
 				filterFunction = filter
+				return input
+			},
+			setReadonly () {
+				input.attributes.append('readonly')
 				return input
 			},
 		}))

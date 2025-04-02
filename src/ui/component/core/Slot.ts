@@ -35,27 +35,72 @@ Component.extend(component => {
 			return false
 		},
 		appendWhen (state, ...contents) {
-			Slot().preserveContents().if(state, slot => slot.append(...contents)).appendTo(component)
+			let temporaryHolder: Component | undefined = Component().append(...contents)
+			Slot().appendTo(component).preserveContents().if(state, slot => {
+				slot.append(...contents)
+				temporaryHolder?.remove()
+				temporaryHolder = undefined
+			})
 			return component
 		},
 		prependWhen (state, ...contents) {
-			Slot().preserveContents().if(state, slot => slot.append(...contents)).prependTo(component)
+			let temporaryHolder: Component | undefined = Component().append(...contents)
+			Slot().prependTo(component).preserveContents().if(state, slot => {
+				slot.append(...contents)
+				temporaryHolder?.remove()
+				temporaryHolder = undefined
+			})
 			return component
 		},
 		insertWhen (state, direction, sibling, ...contents) {
-			Slot().preserveContents().if(state, slot => slot.append(...contents)).insertTo(component, direction, sibling)
+			let temporaryHolder: Component | undefined = Component().append(...contents)
+			Slot().insertTo(component, direction, sibling).preserveContents().if(state, slot => {
+				slot.append(...contents)
+				temporaryHolder?.remove()
+				temporaryHolder = undefined
+			})
 			return component
 		},
 		appendToWhen (state, destination) {
-			Slot().preserveContents().if(state, slot => slot.append(component)).appendTo(destination)
+			let temporaryHolder: Component | undefined
+			if (component.parent) {
+				temporaryHolder = Component()
+				component.appendTo(temporaryHolder)
+			}
+
+			Slot().appendTo(destination).preserveContents().if(state, slot => {
+				slot.append(component)
+				temporaryHolder?.remove()
+				temporaryHolder = undefined
+			})
 			return component
 		},
 		prependToWhen (state, destination) {
-			Slot().preserveContents().if(state, slot => slot.append(component)).prependTo(destination)
+			let temporaryHolder: Component | undefined
+			if (component.parent) {
+				temporaryHolder = Component()
+				component.appendTo(temporaryHolder)
+			}
+
+			Slot().prependTo(destination).preserveContents().if(state, slot => {
+				slot.append(component)
+				temporaryHolder?.remove()
+				temporaryHolder = undefined
+			})
 			return component
 		},
 		insertToWhen (state, destination, direction, sibling) {
-			Slot().preserveContents().if(state, slot => slot.append(component)).insertTo(destination, direction, sibling)
+			let temporaryHolder: Component | undefined
+			if (component.parent) {
+				temporaryHolder = Component()
+				component.appendTo(temporaryHolder)
+			}
+
+			Slot().insertTo(destination, direction, sibling).preserveContents().if(state, slot => {
+				slot.append(component)
+				temporaryHolder?.remove()
+				temporaryHolder = undefined
+			})
 			return component
 		},
 	}))

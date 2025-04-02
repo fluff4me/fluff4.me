@@ -64,6 +64,7 @@
 	component/core/checkbox
 	component/core/range-input
 	component/core/confirm-dialog
+	component/core/code-input
 	component/vanity-input
 	component/masthead
 	component/sidebar

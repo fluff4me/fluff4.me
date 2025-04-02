@@ -38,3 +38,39 @@
 				%colour-1
 
 			&-amount:
+
+	&-totp:
+
+		&-content:
+			%flex
+			%gap-3
+			%relative
+
+			&-guide:
+				%column-2
+
+			&--state-none:
+			&--state-starting:
+				%grid
+				grid-template-columns: auto 1fr
+				%align-content-centre
+				%align-items-centre
+			&--state-enter:
+			&--state-secured:
+			&--state-login:
+
+		&-qrcode:
+			%column-1
+			%row-1
+
+		&-key:
+			&--disabled:
+				colour: transparent
+
+				@placeholder:
+					%colour-7
+					%italic
+
+		&-login-wrapper:
+			%block
+			%margin-top-4

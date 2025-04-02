@@ -10,13 +10,13 @@ export type StateOr<T> = State<T> | T
 export type MutableStateOr<T> = MutableState<T> | T
 
 export type UnsubscribeState = () => void
-export type EqualsFunction<T> = false | ((a: T, b: T) => boolean)
+export type ComparatorFunction<T> = false | ((a: T, b: T) => boolean)
 
 interface State<T, E = T> {
 	readonly isState: true
 	readonly value: T
 
-	readonly equals: <V extends T>(value: V) => boolean
+	readonly comparator: <V extends T>(value: V) => boolean
 
 	id?: string
 	setId (id: string): this
@@ -32,12 +32,13 @@ interface State<T, E = T> {
 	await<R extends Arrays.Or<T>> (owner: State.Owner, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
 	awaitManual<R extends Arrays.Or<T>> (value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
 
-	map<R> (owner: State.Owner, mapper: (value: T) => StateOr<R>, equals?: EqualsFunction<R>): State.Generator<R>
-	mapManual<R> (mapper: (value: T) => StateOr<R>, equals?: EqualsFunction<R>): State.Generator<R>
+	map<R> (owner: State.Owner, mapper: (value: T) => StateOr<R>, equals?: ComparatorFunction<R>): State.Generator<R>
+	mapManual<R> (mapper: (value: T) => StateOr<R>, equals?: ComparatorFunction<R>): State.Generator<R>
 	nonNullish: State.Generator<boolean>
 	truthy: State.Generator<boolean>
 	falsy: State.Generator<boolean>
 	not: State.Generator<boolean>
+	equals (value: T): State.Generator<boolean>
 
 	asMutable?: MutableState<T>
 }
@@ -65,8 +66,9 @@ interface InternalState<T> {
 	[SYMBOL_SUBSCRIBERS]: ((value: unknown, oldValue: unknown) => unknown)[]
 }
 
-function State<T> (defaultValue: T, equals?: EqualsFunction<T>): MutableState<T> {
+function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): MutableState<T> {
 	let unuseBoundState: UnsubscribeState | undefined
+	let equalsMap: Map<T, State.Generator<boolean>> | undefined
 	const result: MakeMutable<MutableState<T>> & InternalState<T> = {
 		isState: true,
 		setId (id) {
@@ -87,8 +89,8 @@ function State<T> (defaultValue: T, equals?: EqualsFunction<T>): MutableState<T>
 			setValue(value)
 			return result
 		},
-		equals: value => equals === false ? false
-			: result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value) || false,
+		comparator: value => comparator === false ? false
+			: result[SYMBOL_VALUE] === value || comparator?.(result[SYMBOL_VALUE], value) || false,
 		emit: oldValue => {
 			if (result.id !== undefined)
 				console.log('emit', result.id)
@@ -188,12 +190,17 @@ function State<T> (defaultValue: T, equals?: EqualsFunction<T>): MutableState<T>
 		get falsy () {
 			return getNot()
 		},
+		equals (value) {
+			equalsMap ??= new Map()
+			return equalsMap.compute(value, () => State.Generator(() => result.value === value)
+				.observeManual(result))
+		},
 	}
 	result.asMutable = result
 	return result
 
 	function setValue (value: T) {
-		if (equals !== false && (result[SYMBOL_VALUE] === value || equals?.(result[SYMBOL_VALUE], value)))
+		if (comparator !== false && (result[SYMBOL_VALUE] === value || comparator?.(result[SYMBOL_VALUE], value)))
 			return
 
 		const oldValue = result[SYMBOL_VALUE]
@@ -276,7 +283,7 @@ namespace State {
 		unobserve (...states: (State<any> | undefined)[]): this
 	}
 
-	export function Generator<T> (generate: () => StateOr<T>, equals?: EqualsFunction<T>): Generator<T> {
+	export function Generator<T> (generate: () => StateOr<T>, equals?: ComparatorFunction<T>): Generator<T> {
 		const result = State(undefined as T, equals) as State<T> as MakeMutable<Generator<T>> & InternalState<T>
 		delete result.asMutable
 
@@ -292,7 +299,7 @@ namespace State {
 			const value = generate()
 			if (State.is(value)) {
 				unuseInternalState = value.useManual(value => {
-					if (result.equals(value))
+					if (result.comparator(value))
 						return result
 
 					const oldValue = result[SYMBOL_VALUE]
@@ -302,7 +309,7 @@ namespace State {
 				return result
 			}
 
-			if (result.equals(value) && !initial)
+			if (result.comparator(value) && !initial)
 				return result
 
 			initial = false
@@ -452,12 +459,12 @@ namespace State {
 			.observe(owner, ...anyOfStates)
 	}
 
-	export function Map<const INPUT extends (State<unknown> | undefined)[], OUTPUT> (owner: Owner, inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: INPUT[I] extends State<infer INPUT> ? INPUT : undefined }>) => StateOr<OUTPUT>, equals?: EqualsFunction<NoInfer<OUTPUT>>): Generator<OUTPUT> {
+	export function Map<const INPUT extends (State<unknown> | undefined)[], OUTPUT> (owner: Owner, inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: INPUT[I] extends State<infer INPUT> ? INPUT : undefined }>) => StateOr<OUTPUT>, equals?: ComparatorFunction<NoInfer<OUTPUT>>): Generator<OUTPUT> {
 		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never), equals)
 			.observe(owner, ...inputs.filter(FilterNonNullish))
 	}
 
-	export function MapManual<const INPUT extends (State<unknown> | undefined)[], OUTPUT> (inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: Exclude<INPUT[I], undefined> extends State<infer INPUT> ? INPUT : undefined }>) => StateOr<OUTPUT>, equals?: EqualsFunction<NoInfer<OUTPUT>>): Generator<OUTPUT> {
+	export function MapManual<const INPUT extends (State<unknown> | undefined)[], OUTPUT> (inputs: INPUT, outputGenerator: (...inputs: NoInfer<{ [I in keyof INPUT]: Exclude<INPUT[I], undefined> extends State<infer INPUT> ? INPUT : undefined }>) => StateOr<OUTPUT>, equals?: ComparatorFunction<NoInfer<OUTPUT>>): Generator<OUTPUT> {
 		return Generator(() => outputGenerator(...inputs.map(input => input?.value) as never), equals)
 			.observeManual(...inputs.filter(FilterNonNullish))
 	}

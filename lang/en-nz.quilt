@@ -374,11 +374,43 @@ needs-session: You must have a session in order to log in. Try refreshing the pa
 
 ### has-authorisations
 title: Authorisations
-description: Your authorisation(s) are not currently associated with a fluff4.me account. You may authenticate with additional third party services to log in or sign up.
+description: Your authorisation(s) are not currently associated with a fluff4.me account. You may authenticate with additional third-party services to log in or sign up.
+
+### partial-login
+title: Log in
 
 ### logged-in
 title: Authorisations
 description: These third party service accounts are linked to your fluff4.me account and may be used to log in.
+
+## account/totp
+title: TOTP
+
+### none
+description: Secure your account with a Time-based One-Time Passcode.
+action/setup: Setup TOTP
+
+### starting
+description: Scan this QR code with your authenticator app.
+or-enter-key: ...Or enter the key manually.
+key-placeholder: (Key Hidden)
+action/reveal-key: Reveal Key
+action/hide-key: Hide Key
+action/continue=shared/action/continue
+action/cancel=shared/action/cancel
+
+### enter
+description: Enter the 6 digit code shown in your authenticator app to finish setup.
+action/enable: Enable TOTP
+action/cancel=shared/action/cancel
+
+### secured
+description: Your account is secured with a Time-based One-Time Passcode.
+action/disable: Disable TOTP
+
+### login
+description: Log in by entering your Time-based One-Time Passcode.
+action/login: Log In
 
 ## account/create
 title: Create account
