@@ -1,5 +1,17 @@
 #view type="account":
 
+	&-oauth-services:
+		&-mfa:
+			&-heading:
+				%margin-top-4
+
+			&-required-count-row:
+				&-content:
+					#after: .labelled-row-content
+					%grid
+					%gap-2
+					grid-template-columns: 1fr auto
+
 	&-patreon-campaign:
 
 		&-oauth-row:

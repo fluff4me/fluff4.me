@@ -1,3 +1,4 @@
+import EndpointAuthSetRequiredCount from 'endpoint/auth/EndpointAuthSetRequiredCount'
 import EndpointTOTPVerify from 'endpoint/auth/EndpointTOTPVerify'
 import EndpointAuthorDelete from 'endpoint/author/EndpointAuthorDelete'
 import Session from 'model/Session'
@@ -8,8 +9,11 @@ import Button from 'ui/component/core/Button'
 import CodeInput from 'ui/component/core/CodeInput'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import type Form from 'ui/component/core/Form'
+import Heading from 'ui/component/core/Heading'
+import LabelledRow from 'ui/component/core/LabelledRow'
 import Paragraph from 'ui/component/core/Paragraph'
 import Placeholder from 'ui/component/core/Placeholder'
+import RangeInput from 'ui/component/core/RangeInput'
 import Slot from 'ui/component/core/Slot'
 import AccountViewForm from 'ui/view/account/AccountViewForm'
 import AccountViewPatreonCampaign from 'ui/view/account/AccountViewPatreonCampaign'
@@ -46,6 +50,62 @@ export default ViewDefinition({
 		services.subviewTransition(id)
 		services.appendTo(view.content)
 
+		////////////////////////////////////
+		//#region Edit Required Count
+
+		const availableCount = Session.state.map(services, session => session?.author?.authorisations?.length ?? 1)
+		const requiredCount = Session.state.map(services, session => session?.author?.auth_services_required ?? 1)
+		Slot().appendTo(services.content).use(State.UseManual({ availableCount, requiredCount }), (slot, { availableCount, requiredCount }) => {
+			if (availableCount <= 1)
+				return
+
+			Heading()
+				.style('view-type-account-oauth-services-mfa-heading')
+				.text.use('view/account/auth/logged-in/mfa/title')
+				.appendTo(slot)
+
+			Placeholder()
+				.text.use('view/account/auth/logged-in/mfa/description')
+				.appendTo(Paragraph().appendTo(slot))
+
+			const row = LabelledRow()
+				.style('view-type-account-oauth-services-mfa-required-count-row')
+				.appendTo(slot)
+			row.label.text.use('view/account/auth/logged-in/mfa/label/required-count')
+			const requiredRange = RangeInput(1, availableCount)
+				.default.set(requiredCount)
+				.appendTo(row.content.style('view-type-account-oauth-services-mfa-required-count-row-content'))
+
+			Button()
+				.type('primary')
+				.text.use('view/account/auth/logged-in/mfa/action/save')
+				.bindDisabled(requiredRange.state.mapManual(newRequired => !newRequired || newRequired === requiredCount), 'no change')
+				.event.subscribe('click', async () => {
+					const newRequiredCount = requiredRange.state.value ?? 1
+					if (newRequiredCount < requiredCount)
+						if (!await ConfirmDialog.ensureDangerToken(row, { dangerToken: 'decrease-auth-service-count-required' }))
+							return
+
+					const response = await EndpointAuthSetRequiredCount.query({ body: { required_count: requiredRange.state.value ?? 1 } })
+					if (toast.handleError(response))
+						return
+
+					if (Session.state.value?.author) {
+						Session.state.value.author.auth_services_required = newRequiredCount
+						Session.state.emit()
+					}
+
+					// queue a full session refresh just in case
+					Session.refresh()
+				})
+				.appendTo(row.content)
+		})
+
+		//#endregion
+		////////////////////////////////////
+
+		////////////////////////////////////
+		//#region TOTP Login
 
 		const needsTOTP = Session.state.map(view, session => !!session?.partial_login?.totp_required)
 		const totpCodeInput = CodeInput()
@@ -72,6 +132,9 @@ export default ViewDefinition({
 			.appendToWhen(needsTOTP, services.footer.right)
 
 		services.footer.appendToWhen(needsTOTP, services)
+
+		//#endregion
+		////////////////////////////////////
 
 		AccountViewTOTP(Session.state)
 			.subviewTransition(id)
