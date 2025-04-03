@@ -853,6 +853,7 @@ type BlockType = (typeof BLOCK_TYPES)[number]
 
 interface TextEditorExtensions {
 	readonly toolbar: Component
+	readonly editor: Component
 	readonly default: StringApplicator.Optional<this>
 	readonly content: State<string>
 	readonly touched: State<boolean>
@@ -1300,6 +1301,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 			touched,
 			default: StringApplicator(editor, value => loadFromMarkdown(value)),
 			toolbar,
+			editor: actualEditor,
 			setRequired (required = true) {
 				editor.style.toggle(required, 'text-editor--required')
 				editor.required.asMutable?.setValue(required)

@@ -22,10 +22,14 @@
 			%background-0-a80
 
 	&-content:
-		; %block
+		%block
 		; %sticky
 		; %background-2
 		; %top-0
+
+		&--has-editor:
+			#flush:
+				%unmargin-inline-3
 
 	&-header:
 		%unmargin-bottom-2
@@ -86,3 +90,9 @@
 
 		:last:
 			%margin-bottom-3
+
+	&-editor:
+
+		#flush:
+			%border-radius-0
+			%border-inline-none

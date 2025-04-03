@@ -67,6 +67,9 @@
 			%background-3
 			%z-index-fg
 
+			#flush:
+				%unmargin-inline-3
+
 			&-before:
 				%margin-top-2
 
@@ -199,6 +202,7 @@
 
 		&-paginator-actions:
 			#after: .paginator-footer--hidden, .paginator-footer--flush, .block--type-flush-footer
+			%flex
 			%padding-inline-0
 			%scheme-light-dark
 			%box-shadow-none
