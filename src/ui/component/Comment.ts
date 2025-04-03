@@ -66,6 +66,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 		const content = Component()
 			.style('comment-content')
+			.style.toggle(!!commentData.edit, 'comment-content--has-editor')
 			.style.setProperty('z-index', `${100 - (meta?.depth ?? 0)}`)
 			.appendTo(slot)
 
@@ -99,6 +100,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 					.hint.use('comment/hint')
 					.appendTo(content)
 
+				textEditor.editor.style('comment-editor')
 				textEditor.content.use(header, markdown => commentData.body = { body: markdown })
 
 				const footer = Component('footer').and(ActionRow)
