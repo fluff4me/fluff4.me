@@ -11,11 +11,14 @@ import Loading from 'ui/component/core/Loading'
 import Placeholder from 'ui/component/core/Placeholder'
 import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
+import TextLabel from 'ui/component/core/TextLabel'
+import Timestamp from 'ui/component/core/Timestamp'
 import FollowingBookmark from 'ui/component/FollowingBookmark'
 import Async from 'utility/Async'
 import State from 'utility/State'
 
 interface AuthorExtensions {
+	readonly bio: Component
 	loadFull (): Promise<void>
 }
 
@@ -45,24 +48,45 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 	FollowingBookmark(follows => follows.followingAuthor(author.value.vanity))
 		.appendTo(block.header)
 
+	if (author.value.work_count)
+		TextLabel()
+			.tweak(textLabel => textLabel.label.text.use('work/work-count/label'))
+			.tweak(textLabel => textLabel.content.text.bind(author.map(textLabel, author => `${author.work_count}`)))
+			.appendTo(block.footer.left)
+
+	if (author.value.word_count)
+		TextLabel()
+			.tweak(textLabel => textLabel.label.text.use('work/word-count/label'))
+			.tweak(textLabel => textLabel.content.text.bind(author.map(textLabel, author => `${author.word_count}`)))
+			.appendTo(block.footer.left)
+
+	TextLabel()
+		.tweak(textLabel => textLabel.label.text.use('author/time-join/label'))
+		.tweak(textLabel => Timestamp(author.value.time_join)
+			.style('author-timestamp')
+			.appendTo(textLabel.content))
+		.appendTo(block.footer.right)
+
 	const loading = Loading()
 		.appendTo(block.content)
 
 	loading.enabled.value = false
 
-	Slot()
-		.use(author, (slot, author) => author.description
-			&& Component()
-				.style('author-description')
-				.append(Slot().tweak(slot => {
-					const body = author.description!.body
+	const bio = Component()
+		.style('author-description')
+		.tweak(wrapper => {
+			author.useManual(author => {
+				wrapper.removeContents()
+				Slot().appendTo(wrapper).tweak(slot => {
+					const body = author.description?.body
 					if (body)
 						slot.setMarkdownContent(author.description)
 					else
 						slot.and(Placeholder).text.use('author/description/empty')
-				}))
-		)
-		.appendTo(block.content)
+				})
+			})
+		})
+		.appendToWhen(author.mapManual(author => !!author.description), block.content)
 
 	Slot()
 		.use(author, (slot, author) => author.support_link
@@ -113,6 +137,7 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 
 	let loadedFull = false
 	return block.extend<AuthorExtensions>(block => ({
+		bio,
 		async loadFull () {
 			if (loadedFull || loading.enabled.value)
 				return
