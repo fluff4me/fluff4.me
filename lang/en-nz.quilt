@@ -28,6 +28,9 @@ notes: Notes
 patreon-tier: {NAME}: {#B:{PRICE}}
 relationships-to: Relates To
 relationships-from: Related From
+word-count: Words
+work-count: Works
+time-join: Joined
 
 ## action
 auth: Authenticate
@@ -196,6 +199,8 @@ link/debug: Debug
 
 # work
 chapters/label=shared/term/chapters
+word-count/label=shared/term/word-count
+work-count/label=shared/term/work-count
 description/empty: This work has no description.
 state/private: Private
 state/private-no-chapters: Hidden (No Chapters)
@@ -209,6 +214,7 @@ action/label/delete=shared/action/delete
 action/delete/confirm: This will delete your work "**{0}**", and there's no undoing it!
 
 # author
+time-join/label=shared/term/time-join
 description/empty: This author prefers to remain elusive and mysterious...
 support-message/placeholder: Support My Writing
 action/label/edit=shared/action/edit

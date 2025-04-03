@@ -9,6 +9,13 @@
 	&-description:
 		margin-top: calc($markdown-paragraph-padding-top * -1)
 
+		&--in-popover:
+			%clamp-5
+
 	&-support-link:
 		%block
 		%margin-top-4
+
+	&-timestamp:
+		%colour-3
+		%style-normal

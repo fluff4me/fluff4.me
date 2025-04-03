@@ -105,6 +105,12 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 		.tweak(textLabel => textLabel.content.text.set(`${work.chapter_count_public}`))
 		.appendTo(block.footer.left)
 
+	if (work.word_count)
+		TextLabel()
+			.tweak(textLabel => textLabel.label.text.use('work/word-count/label'))
+			.tweak(textLabel => textLabel.content.text.set(`${work.word_count}`))
+			.appendTo(block.footer.left)
+
 	if (work.visibility === 'Private')
 		block.footer.right.append(Component().style('timestamp', 'work-timestamp').text.use('work/state/private'))
 	else if (!work.chapter_count_public)

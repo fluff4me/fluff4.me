@@ -83,8 +83,8 @@ const Chapter = Object.assign(
 				.text.use('chapter/state/private')
 				.appendTo(right)
 		else
-			timestamp = !chapter.time_last_update ? undefined
-				: Timestamp(chapter.time_last_update)
+			timestamp = !chapter.time_publish ? undefined
+				: Timestamp(chapter.time_publish)
 					.style('chapter-timestamp')
 					.appendTo(right)
 
