@@ -4,7 +4,14 @@ import type { Quilt } from 'ui/utility/StringApplicator'
 import Define from 'utility/Define'
 import Functions from 'utility/Functions'
 import State from 'utility/State'
+import Store from 'utility/Store'
 import type { SupplierOr } from 'utility/Type'
+
+declare module "utility/Store" {
+	interface ILocalStorage {
+		settings: string
+	}
+}
 
 interface SettingBaseDefinition<ID extends string, TYPE> {
 	tag?: SupplierOr<string>
@@ -58,7 +65,7 @@ namespace Settings {
 
 	const SETTINGS = State
 		.JIT(() => {
-			const settings = Session.Auth.author.value?.settings
+			const settings = Session.Auth.author.value ? Session.Auth.author.value?.settings : Store.items.settings
 			if (!settings)
 				return {}
 
@@ -109,6 +116,8 @@ namespace Settings {
 							author.settings = JSON.stringify(settings)
 							Session.Auth.author.emit()
 							void EndpointAuthorUpdateSettings.query({ body: { settings: author.settings } })
+						} else {
+							Store.items.settings = JSON.stringify(settings)
 						}
 					},
 				})
