@@ -13,6 +13,7 @@ import Viewport from 'ui/utility/Viewport'
 import type ViewContainer from 'ui/view/shared/component/ViewContainer'
 import AbortPromise from 'utility/AbortPromise'
 import Env from 'utility/Env'
+import State from 'utility/State'
 
 interface MastheadExtensions {
 	readonly sidebar: Sidebar
@@ -35,7 +36,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 		.event.subscribe('click', view.focus)
 		.appendTo(masthead)
 
-	let popover!: Popover
+	const popover = State<Popover | undefined>(undefined)
 	const left = Component()
 		.append(Component()
 			.and(Button)
@@ -50,7 +51,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 			.style('masthead-left-hamburger', 'masthead-left-hamburger-popover')
 			.ariaLabel.use('masthead/primary-nav/alt')
 			.clearPopover()
-			.setPopover('hover', p => popover = p
+			.setPopover('hover', p => popover.value = p
 				.style('primary-nav-popover')
 				.anchor.add('aligned left', 'off top')
 				.ariaRole('navigation')))
@@ -60,15 +61,15 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 	sidebar.style.bind(masthead.hasFocused, 'sidebar--visible-due-to-keyboard-navigation')
 
 	let sizeTimeout: number | undefined
+	const fallbackHolder = Component()
+	const putNav = (sidebarMode = !!sidebar.element.clientWidth) => nav
+		.style.toggle(sidebarMode, 'primary-nav--sidebar')
+		.appendTo(sidebarMode ? sidebar : (popover.value ?? fallbackHolder))
 	Viewport.size.use(masthead, () => {
 		window.clearTimeout(sizeTimeout)
-		sizeTimeout = window.setTimeout(() => {
-			const sidebarMode = !!sidebar.element.clientWidth
-			nav
-				.style.toggle(sidebarMode, 'primary-nav--sidebar')
-				.appendTo(sidebarMode ? sidebar : popover)
-		}, 1)
+		sizeTimeout = window.setTimeout(putNav, 1)
 	})
+	popover.subscribeManual(() => putNav())
 
 	HomeLink()
 		.style('masthead-home-wrapper')
