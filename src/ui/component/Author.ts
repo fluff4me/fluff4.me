@@ -51,13 +51,13 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 	if (author.value.work_count)
 		TextLabel()
 			.tweak(textLabel => textLabel.label.text.use('work/work-count/label'))
-			.tweak(textLabel => textLabel.content.text.bind(author.map(textLabel, author => `${author.work_count}`)))
+			.tweak(textLabel => textLabel.content.text.bind(author.map(textLabel, author => author.work_count.toLocaleString())))
 			.appendTo(block.footer.left)
 
 	if (author.value.word_count)
 		TextLabel()
 			.tweak(textLabel => textLabel.label.text.use('work/word-count/label'))
-			.tweak(textLabel => textLabel.content.text.bind(author.map(textLabel, author => `${author.word_count}`)))
+			.tweak(textLabel => textLabel.content.text.bind(author.map(textLabel, author => author.word_count.toLocaleString())))
 			.appendTo(block.footer.left)
 
 	TextLabel()
