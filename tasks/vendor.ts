@@ -54,6 +54,14 @@ const VENDOR_SCRIPTS: (string | VendorScript)[] = [
 		file: 'build/qrcode.js',
 		noUMD: true,
 	},
+	{
+		name: "jszip",
+		file: "dist/jszip.min.js"
+	},
+	{
+		name: "mammoth",
+		file: "mammoth.browser.min.js"
+	},
 
 	...Env.ENVIRONMENT !== 'dev' ? [] : [
 		{
@@ -90,6 +98,9 @@ export default Task('vendor', async () => {
 		else {
 			script.file = path.join(`src/node_modules/${script.package ?? script.name}`, script.file)
 		}
+
+		if (!script.file?.endsWith(".js") && !script.file?.endsWith(".cjs"))
+			script.file += ".js"
 
 		let content = await fs.readFile(script.file!, 'utf8').catch(() => undefined)
 		if (!content)
