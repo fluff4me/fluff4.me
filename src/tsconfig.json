@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
 		"strict": true,
-		"target": "ES2022",
-		"lib": ["ES2022", "DOM", "DOM.Iterable"],
+		"target": "ES2024",
+		"lib": ["ES2024", "DOM", "DOM.Iterable", "ESNext.Iterator"],
 		"moduleResolution": "node",
 		"outFile": "../docs/index.js",
 		"module": "AMD",
