@@ -21,6 +21,18 @@ namespace Strings {
 		}
 	}
 
+	export function optionalParseRegex (string?: string | null, flags?: string): RegExp | undefined {
+		if (!string)
+			return undefined
+
+		try {
+			return new RegExp(string, flags)
+		}
+		catch {
+			return undefined
+		}
+	}
+
 	export function simplify (string: string) {
 		return string.toLowerCase()
 			.replace(/\W+/g, ' ')
