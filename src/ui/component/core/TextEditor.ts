@@ -1353,6 +1353,8 @@ const TextEditor = Component.Builder((component): TextEditor => {
 		})
 		.appendTo(actualEditor)
 
+	component.onRemoveManual(() => editor.mirror?.destroy())
+
 	const contentWidth = State.Generator(() => `${editor.document?.element.scrollWidth ?? 0}px`)
 		.observe(component, state, Viewport.size)
 
