@@ -50,3 +50,6 @@
 		#each in font-sizes-mobile as var i, var font-size:
 			$font-#{i}: #{font-size}rem
 			$font-scaling-#{i}: #{font-size}
+
+%scroll-margin-top: scroll-margin-top: calc($masthead-height + $space-3)
+%sticky-top: top: calc($masthead-height - 1px)
