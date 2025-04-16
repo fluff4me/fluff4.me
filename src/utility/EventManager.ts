@@ -1,3 +1,4 @@
+import State from 'utility/State'
 import type { AnyFunction } from 'utility/Type'
 
 export interface IEventSubscriptionManager<EVENTS = object, TARGET extends EventTarget = EventTarget> {
@@ -111,19 +112,27 @@ export class EventManager<HOST extends object, EVENTS = object, TARGET extends E
 			this.subscribeOnce(types, resolve))
 	}
 
-	public until (promise: Promise<any> | keyof EVENTS, initialiser?: (manager: IEventSubscriptionManager<EVENTS, TARGET>) => unknown): HOST {
+	public until (promise: Promise<any> | State.Owner | keyof EVENTS, initialiser?: (manager: IEventSubscriptionManager<EVENTS, TARGET>) => unknown): HOST {
 		if (typeof promise !== 'object')
 			promise = this.waitFor(promise)
 
 		const manager: IEventSubscriptionManager<EVENTS, TARGET> = {
 			subscribe: (type: never, listener: (this: TARGET, event: any) => unknown) => {
 				this.subscribe(type, listener)
-				void (promise).then(() => this.unsubscribe(type, listener))
+				const unsubscribe = () => this.unsubscribe(type, listener)
+				if (!(promise instanceof Promise))
+					State.Owner.getOwnershipState(promise)?.awaitManual(true, unsubscribe)
+				else
+					void (promise).then(unsubscribe)
 				return manager
 			},
 			subscribeOnce: (type: never, listener: (this: TARGET, event: any) => unknown) => {
 				this.subscribeOnce(type, listener)
-				void (promise).then(() => this.unsubscribe(type, listener))
+				const unsubscribe = () => this.unsubscribe(type, listener)
+				if (!(promise instanceof Promise))
+					State.Owner.getOwnershipState(promise)?.awaitManual(true, unsubscribe)
+				else
+					void (promise).then(() => this.unsubscribe(type, listener))
 				return manager
 			},
 		}
