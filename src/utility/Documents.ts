@@ -1,16 +1,16 @@
-import JSZip from "jszip"
-import mammoth from "mammoth"
-import TextEditor from "ui/component/core/TextEditor"
-import Functions from "utility/Functions"
-import State from "utility/State"
-import Task from "utility/Task"
+import JSZip from 'jszip'
+import mammoth from 'mammoth'
+import TextEditor from 'ui/component/core/TextEditor'
+import Functions from 'utility/Functions'
+import State from 'utility/State'
+import Task from 'utility/Task'
 
 namespace Documents {
 
 	export function basename (filename: string) {
-		filename = filename.slice(filename.lastIndexOf("/") + 1)
-		filename = filename.slice(filename.lastIndexOf("\\") + 1)
-		filename = filename.slice(0, filename.lastIndexOf("."))
+		filename = filename.slice(filename.lastIndexOf('/') + 1)
+		filename = filename.slice(filename.lastIndexOf('\\') + 1)
+		filename = filename.slice(0, filename.lastIndexOf('.'))
 		return filename
 	}
 
@@ -57,9 +57,9 @@ namespace Documents {
 				if (signal.aborted)
 					return
 
-				setProgress(0.1 * (i / fileList.length), quilt => quilt["load/documents/discovering"](i, fileList.length))
+				setProgress(0.1 * (i / fileList.length), quilt => quilt['load/documents/discovering'](i, fileList.length))
 				await Task.yield()
-				await queueFile("", file.name, {
+				await queueFile('', file.name, {
 					text: () => file.text().then(text => ({ text, error: undefined }), error => ({ text: undefined, error })),
 					json: () => file.text().then(text => JSON.parse(text)).then(data => ({ data, error: undefined }), error => ({ data: undefined, error })),
 					raw: () => file.arrayBuffer().then(buffer => ({ buffer, error: undefined }), error => ({ buffer: undefined, error })),
@@ -67,8 +67,8 @@ namespace Documents {
 			}
 
 			async function queueFile (dir: string, path: string, file: FileProvider, originalPath?: string) {
-				const extension = path.slice(path.lastIndexOf("."))
-				const qualifiedPath = dir + "/" + (originalPath ?? path)
+				const extension = path.slice(path.lastIndexOf('.'))
+				const qualifiedPath = dir + '/' + (originalPath ?? path)
 				switch (extension) {
 					case '.zip': {
 						const { buffer, error } = await file.raw()
@@ -84,9 +84,9 @@ namespace Documents {
 								return
 
 							await queueFile(dir, path, {
-								text: () => file.async("text").then(text => ({ text, error: undefined }), error => ({ text: undefined, error })),
-								json: () => file.async("text").then(text => JSON.parse(text)).then(data => ({ data, error: undefined }), error => ({ data: undefined, error })),
-								raw: () => file.async("arraybuffer").then(buffer => ({ buffer, error: undefined }), error => ({ buffer: undefined, error })),
+								text: () => file.async('text').then(text => ({ text, error: undefined }), error => ({ text: undefined, error })),
+								json: () => file.async('text').then(text => JSON.parse(text)).then(data => ({ data, error: undefined }), error => ({ data: undefined, error })),
+								raw: () => file.async('arraybuffer').then(buffer => ({ buffer, error: undefined }), error => ({ buffer: undefined, error })),
 							})
 						}
 						return
@@ -109,14 +109,14 @@ namespace Documents {
 				if (signal.aborted)
 					return
 
-				setProgress(0.1 + 0.9 * (i / queue.length), quilt => quilt["load/documents/processing"](i, queue.length))
+				setProgress(0.1 + 0.9 * (i / queue.length), quilt => quilt['load/documents/processing'](i, queue.length))
 				await Task.yield()
 				await onFile(dir, path, file, path)
 			}
 
 			async function onFile (dir: string, path: string, file: FileProvider, originalPath?: string) {
-				const extension = path.slice(path.lastIndexOf("."))
-				const qualifiedPath = dir + "/" + (originalPath ?? path)
+				const extension = path.slice(path.lastIndexOf('.'))
+				const qualifiedPath = dir + '/' + (originalPath ?? path)
 				switch (extension) {
 					case '.txt': {
 						const { text, error } = await file.text()
@@ -195,7 +195,7 @@ namespace Documents {
 				const textEditor = TextEditor().style('text-editor--internal').appendTo(document.body)
 				const success = init(textEditor)
 				if (!success) {
-					imports.push({ file, error: new Error("Unable to convert HTML to markdown") })
+					imports.push({ file, error: new Error('Unable to convert HTML to markdown') })
 					return
 				}
 
