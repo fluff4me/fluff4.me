@@ -1,10 +1,17 @@
 .loading:
+	%align-self-centre
+	%row-2
+
+	%flex
+	%flex-column
+	%align-items-centre
+	%gap-3
+
+	width: calc($space-7 + $space-6)
 
 	&-flag:
 		#after: .flag
 		%block
-		%row-2
-		%align-self-centre
 		font-size: $space-6
 		$stripe-outer-background: #414552
 		$stripe-inner-background: #717A95
@@ -20,3 +27,25 @@
 		&--hidden:
 			#after: .loading-flag
 			%hidden
+
+	&-progress:
+		%contents
+
+		&-bar:
+			%block
+			%height-3
+			%width-100
+			%background-1-a30
+			%border-radius-1
+			%overflow-hidden
+
+			@before:
+				%block
+				%height-100
+				%width-100
+				scale: $progress 1
+				transform-origin: left center
+				%background-blue
+				transition: scale .1s linear
+
+		&-message:

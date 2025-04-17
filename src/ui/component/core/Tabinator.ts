@@ -52,6 +52,7 @@ interface TabinatorExtensions<TAB extends Tab> {
 	readonly tab: State<TAB | undefined>
 	allowNoneVisible (): this
 	showTab (tab: TAB): this
+	showNone (): this
 	addTab<NEW_TAB extends Tab> (tab: NEW_TAB): Tabinator<TAB | NEW_TAB>
 	addTabWhen<NEW_TAB extends Tab> (state: State<boolean>, tab: NEW_TAB): Tabinator<TAB | NEW_TAB>
 	removeTab (tab: Tab): this
@@ -82,6 +83,13 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 				if (tabs.value.includes(newTab) && !newTab.style.has('tabinator-tab--hidden'))
 					activeTab.value = newTab
 
+				return tabinator
+			},
+			showNone () {
+				if (shouldForceSelect)
+					throw new Error('Cannot show none when `allowNoneVisible` is not set')
+
+				activeTab.value = undefined
 				return tabinator
 			},
 			addTab (newTab) {

@@ -21,6 +21,7 @@
 	class/transition
 	class/action-group
 	class/patreon-icon-before
+	class/small
 
 #import:
 	component/core/break
@@ -65,6 +66,7 @@
 	component/core/range-input
 	component/core/confirm-dialog
 	component/core/code-input
+	component/core/details
 	component/vanity-input
 	component/masthead
 	component/sidebar
@@ -104,5 +106,6 @@
 	view/type/following
 	view/type/ignoring
 	view/type/manage-tags
+	view/type/chapter-bulk
 
 #import: app

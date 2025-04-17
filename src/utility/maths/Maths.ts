@@ -1,4 +1,12 @@
 namespace Maths {
+	export function isIncrementing (nums: number[]) {
+		for (let i = 1; i < nums.length; i++)
+			if (nums[i] !== nums[i - 1] + 1)
+				return false
+
+		return true
+	}
+
 	export function sum (...nums: number[]) {
 		let result = 0
 		for (const num of nums)

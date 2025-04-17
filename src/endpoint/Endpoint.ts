@@ -75,6 +75,7 @@ interface Endpoint<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>
 	query: QUERY
 	prep: (...parameters: Parameters<QUERY>) => ConfigurablePreparedEndpointQuery<ROUTE, QUERY>
 	getPageSize?(): number | undefined
+	setRetry (maxAttempts: number): this
 }
 
 interface ConfigurablePreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends EndpointQuery<ROUTE>> extends PreparedEndpointQuery<ROUTE, QUERY> {
@@ -96,6 +97,7 @@ interface PreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends Endpoin
 
 function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]['method'], headers?: Record<string, string>) {
 	let pageSize: number | undefined
+	let maxAttempts = method === 'get' ? 3 : 1
 	const endpoint: ConfigurablePreparedEndpointQuery<ROUTE, any> = {
 		route,
 		header (header, value) {
@@ -114,6 +116,10 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 		getPageSize: () => pageSize,
 		setPageSize: (size?: number) => {
 			pageSize = size
+			return endpoint
+		},
+		setRetry (newMaxAttempts) {
+			maxAttempts = newMaxAttempts
 			return endpoint
 		},
 		noResponse: () => endpoint.removeHeader('Accept'),
@@ -172,7 +178,7 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 		let response: globalThis.Response | undefined
 		let shouldRetry = true
 
-		for (let i = 0; shouldRetry && i < 3; i++) {
+		for (let i = 0; shouldRetry && i < maxAttempts; i++) {
 			error = undefined
 			response = undefined
 			shouldRetry = false

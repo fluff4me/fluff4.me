@@ -20,9 +20,11 @@ export namespace Quilt {
 	}
 }
 
+type ComponentFunction = typeof Component
 export namespace QuiltHelper {
 
 	let isComponent!: (value: unknown) => value is Component
+	let Component!: ComponentFunction
 	let Break!: Component.Builder<[], Component>
 	let Link!: typeof LinkFunction
 	let ExternalLink!: typeof ExternalLinkFunction
@@ -31,13 +33,15 @@ export namespace QuiltHelper {
 		Link: typeof LinkFunction
 		ExternalLink: typeof ExternalLinkFunction
 	}) {
-		const { Component } = dependencies
-		isComponent = Component.is
+		Component = dependencies.Component
 		Link = dependencies.Link
 		ExternalLink = dependencies.ExternalLink
+
 		Break = Component
 			.Builder('br', component => component.style('break'))
 			.setName('Break')
+
+		isComponent = Component.is
 	}
 
 	export function renderWeave (weave: Weave): Node[] {
@@ -74,6 +78,7 @@ export namespace QuiltHelper {
 		return true
 			&& typeof weft.content === 'string'
 			&& !weft.content.includes('\n')
+			&& !weft.tag
 	}
 
 	function renderWeft (weft: Weft): Node {
@@ -97,6 +102,7 @@ export namespace QuiltHelper {
 				case 'i': element = document.createElement('em'); break
 				case 'u': element = document.createElement('u'); break
 				case 's': element = document.createElement('s'); break
+				case 'sm': element = Component('small').style('small').element; break
 			}
 		}
 

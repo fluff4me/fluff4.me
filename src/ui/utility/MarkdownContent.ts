@@ -3,7 +3,7 @@ import Component from 'ui/Component'
 import Markdown from 'utility/string/Markdown'
 
 interface MarkdownContentExtensions {
-	setMarkdownContent (markdown?: TextBody | string | null, maxLength?: number): this
+	setMarkdownContent (markdown?: TextBody | string | null, maxLength?: number, simplify?: boolean): this
 }
 
 declare module 'ui/Component' {
@@ -46,7 +46,7 @@ type MarkdownContext = Omit<TextBody, 'body'>
 
 const MENTION_OPEN_TAG_REGEX = /(?<=<mention[^>]*>)/g
 Component.extend(component => component.extend<MarkdownContentExtensions>(component => ({
-	setMarkdownContent (markdown, maxLength) {
+	setMarkdownContent (markdown, maxLength, simplify) {
 		if (!markdown) {
 			component.element.innerHTML = ''
 			return component
@@ -61,7 +61,7 @@ Component.extend(component => component.extend<MarkdownContentExtensions>(compon
 			.replace(MENTION_OPEN_TAG_REGEX, '</mention>')
 
 		if (maxLength)
-			simplifyTree(component.element, maxLength)
+			simplifyTree(component.element, maxLength, simplify ?? !!maxLength)
 
 		const queuedChanges: (() => unknown)[] = []
 		const walker = document.createTreeWalker(component.element, NodeFilter.SHOW_ELEMENT)
@@ -82,7 +82,7 @@ Component.extend(component => component.extend<MarkdownContentExtensions>(compon
 	},
 })))
 
-function simplifyTree (root: HTMLElement, maxLength: number) {
+function simplifyTree (root: HTMLElement, maxLength: number, simplify: boolean) {
 	let length = 0
 	let clipped = false
 	const nodesToRemove: Node[] = []
@@ -114,38 +114,49 @@ function simplifyTree (root: HTMLElement, maxLength: number) {
 		}
 
 		const replacementTagName = ELEMENT_TYPES_TO_SIMPLIFY_INTO_SPAN[tagName]
-		if (replacementTagName)
+		if (replacementTagName && simplify)
 			elementsToReplace.push(node as HTMLElement)
 	}
 
 	for (let i = nodesToRemove.length - 1; i >= 0; i--)
 		nodesToRemove[i].parentNode?.removeChild(nodesToRemove[i])
 
-	for (let i = elementsToReplace.length - 1; i >= 0; i--) {
-		const element = elementsToReplace[i]
-		const replacementTagName = ELEMENT_TYPES_TO_SIMPLIFY_INTO_SPAN[element.tagName as TagNameUppercase]
-		const replacementTag = document.createElement(replacementTagName)
-		replacementTag.replaceChildren(...element.childNodes)
-		element.replaceWith(replacementTag)
-	}
+	if (simplify)
+		for (let i = elementsToReplace.length - 1; i >= 0; i--) {
+			const element = elementsToReplace[i]
+			const replacementTagName = ELEMENT_TYPES_TO_SIMPLIFY_INTO_SPAN[element.tagName as TagNameUppercase]
+			const replacementTag = document.createElement(replacementTagName)
+			replacementTag.replaceChildren(...element.childNodes)
+			element.replaceWith(replacementTag)
+		}
 
 	const elementsToStrip: HTMLElement[] = []
 
 	walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT)
-	while (walker.nextNode()) {
-		const element = walker.currentNode as HTMLElement
-		if (element.tagName === 'SPAN')
-			continue
+	if (simplify)
+		while (walker.nextNode()) {
+			const element = walker.currentNode as HTMLElement
+			if (element.tagName === 'SPAN')
+				continue
 
-		if (element.parentElement?.closest(element.tagName))
-			elementsToStrip.push(element)
-	}
+			if (element.parentElement?.closest(element.tagName))
+				elementsToStrip.push(element)
+		}
 
 	for (let i = elementsToStrip.length - 1; i >= 0; i--)
 		elementsToStrip[i].replaceWith(...elementsToStrip[i].childNodes)
 
-	if (clipped)
-		root.append('…')
+	if (clipped) {
+		const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+		let lastTextNode: Text | null = null
+		while (walker.nextNode())
+			lastTextNode = walker.currentNode as Text
+
+		if (lastTextNode)
+			lastTextNode.nodeValue += '…'
+		else
+			root.append('…')
+	}
 }
 
 namespace MarkdownContent {

@@ -1,9 +1,11 @@
 import type Component from 'ui/Component'
 import type ComponentInsertionTransaction from 'ui/component/core/ext/ComponentInsertionTransaction'
+import type { Quilt } from 'ui/utility/StringApplicator'
 import type Arrays from 'utility/Arrays'
 import { NonNullish as FilterNonNullish } from 'utility/Arrays'
 import Define from 'utility/Define'
 import Functions from 'utility/Functions'
+import { mutable } from 'utility/Objects'
 import type { Mutable as MakeMutable } from 'utility/Type'
 
 export type StateOr<T> = State<T> | T
@@ -53,11 +55,11 @@ interface MutableState<T> extends MutableStateSimple<T> {
 	bindManual (state: State<T>): UnsubscribeState
 }
 
-const SYMBOL_UNSUBSCRIBE = Symbol('UNSUBSCRIBE')
-interface SubscriberFunction<T> {
-	(value: T, oldValue: T): unknown
-	[SYMBOL_UNSUBSCRIBE]?: Set<() => void>
-}
+// const SYMBOL_UNSUBSCRIBE = Symbol('UNSUBSCRIBE')
+// interface SubscriberFunction<T> {
+// 	(value: T, oldValue: T): unknown
+// 	[SYMBOL_UNSUBSCRIBE]?: Set<() => void>
+// }
 
 const SYMBOL_VALUE = Symbol('VALUE')
 const SYMBOL_SUBSCRIBERS = Symbol('SUBSCRIBERS')
@@ -132,13 +134,13 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 			function cleanup () {
 				ownerClosedState!.unsubscribe(cleanup)
 				result.unsubscribe(subscriber)
-				fn[SYMBOL_UNSUBSCRIBE]?.delete(cleanup)
+				// fn[SYMBOL_UNSUBSCRIBE]?.delete(cleanup)
 			}
 
 			State.OwnerMetadata.setHasSubscriptions(owner)
-			const fn = subscriber as SubscriberFunction<T>
-			fn[SYMBOL_UNSUBSCRIBE] ??= new Set()
-			fn[SYMBOL_UNSUBSCRIBE].add(cleanup)
+			// const fn = subscriber as SubscriberFunction<T>
+			// fn[SYMBOL_UNSUBSCRIBE] ??= new Set()
+			// fn[SYMBOL_UNSUBSCRIBE].add(cleanup)
 			ownerClosedState.subscribeManual(cleanup)
 			result.subscribeManual(subscriber)
 			return cleanup
@@ -152,7 +154,7 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 			return result
 		},
 		await (owner, values, then) {
-			result.subscribe(owner, function awaitValue (newValue) {
+			result.use(owner, function awaitValue (newValue) {
 				if (newValue !== values && (!Array.isArray(values) || !values.includes(newValue)))
 					return
 
@@ -162,7 +164,7 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 			return result
 		},
 		awaitManual (values, then) {
-			result.subscribeManual(function awaitValue (newValue) {
+			result.useManual(function awaitValue (newValue) {
 				if (newValue !== values && (!Array.isArray(values) || !values.includes(newValue)))
 					return
 
@@ -432,6 +434,400 @@ namespace State {
 		}
 
 		return result
+	}
+
+	export interface AsyncStatePending<T> {
+		readonly settled: false
+		readonly value: undefined
+		readonly lastValue: T | undefined
+		readonly error: undefined
+		readonly progress: AsyncProgress | undefined
+	}
+
+	export interface AsyncStateResolved<T> {
+		readonly settled: true
+		readonly value: T
+		readonly lastValue: T | undefined
+		readonly error: undefined
+		readonly progress: undefined
+	}
+
+	export interface AsyncStateRejected<T> {
+		readonly settled: true
+		readonly value: undefined
+		readonly lastValue: T | undefined
+		readonly error: Error
+		readonly progress: undefined
+	}
+
+	export type AsyncState<T> = AsyncStatePending<T> | AsyncStateResolved<T> | AsyncStateRejected<T>
+
+	export interface AsyncProgress {
+		readonly progress: number
+		readonly message?: string | Quilt.Handler
+	}
+
+	export interface Async<T> extends State<T | undefined> {
+		readonly settled: State<boolean>
+		readonly lastValue: State<T | undefined>
+		readonly error: State<Error | undefined>
+		readonly state: State<AsyncState<T>>
+		readonly progress: State<AsyncProgress | undefined>
+	}
+
+	export function Async<FROM, T> (owner: State.Owner, from: State<FROM>, generator: (value: FROM, signal: AbortSignal, setProgress: (progress: number, message?: string | Quilt.Handler) => void) => Promise<T>): Async<T> {
+		const state = State<AsyncState<T>>({
+			settled: false,
+			value: undefined,
+			lastValue: undefined,
+			error: undefined,
+			progress: undefined,
+		})
+
+		const settled = state.mapManual(state => state.settled)
+		const error = state.mapManual(state => state.error)
+		const value = state.mapManual(state => state.value)
+		const lastValue = state.mapManual(state => state.lastValue)
+		const progress = state.mapManual(state => state.progress)
+		let abortController: AbortController | undefined
+
+		from.use(owner, async from => {
+			abortController?.abort()
+
+			const lastValue = state.value.value
+			state.value = {
+				settled: false,
+				value: undefined,
+				lastValue,
+				error: undefined,
+				progress: undefined,
+			}
+			abortController = new AbortController()
+			const { value, error } = await Promise
+				.resolve(generator(from, abortController.signal, (progress, message) => {
+					mutable(state.value).progress = { progress, message }
+					state.emit()
+				}))
+				.then(
+					value => ({ value, error: undefined }),
+					error => ({ error: new Error('Async state rejection:', { cause: error }), value: undefined }),
+				)
+
+			if (abortController.signal.aborted)
+				return
+
+			state.value = {
+				settled: true,
+				value,
+				lastValue,
+				error,
+				progress: undefined,
+			} as AsyncState<T>
+		})
+
+		return Object.assign(
+			value,
+			{
+				settled,
+				lastValue,
+				error,
+				state,
+				progress,
+			}
+		)
+	}
+
+	export interface ArrayItem<T> {
+		value: T
+		index: number
+		removed: State<boolean>
+	}
+
+	export interface ArraySubscriber<T> {
+		onItem (item: State<ArrayItem<T>>, state: Array<T>): unknown
+		onMove (startIndex: number, endIndex: number, newStartIndex: number): unknown
+		onMoveAt (indices: number[], newStartIndex: number): unknown
+	}
+
+	export interface Array<T> extends State<readonly T[]> {
+		readonly length: State<number>
+
+		set (index: number, value: T): this
+		emitItem (index: number): this
+		modify (index: number, modifier: (value: T, index: number, array: this) => T | void): this
+		clear (): this
+		push (...values: T[]): this
+		unshift (...values: T[]): this
+		pop (): this
+		shift (): this
+		splice (start: number, deleteCount: number, ...values: T[]): this
+		filterInPlace (predicate: (value: T, index: number) => boolean): this
+		move (startIndex: number, endIndex: number, newStartIndex: number): this
+		moveAt (indices: number[], newStartIndex: number): this
+
+		useEach (owner: State.Owner, subscriber: ArraySubscriber<T>): UnsubscribeState
+	}
+
+	export function Array<T> (...values: T[]): Array<T> {
+		const itemStates: State<ArrayItem<T>>[] = []
+		const subscribers: ArraySubscriber<T>[] = []
+
+		const state: Array<T> = Object.assign(
+			State(values),
+			{
+				length: undefined!,
+				set (index: number, value: T) {
+					values[index] = value
+					const itemState = itemStates[index]
+					itemState.value.value = value
+					itemState.emit()
+					state.emit()
+					return state
+				},
+				emitItem (index: number) {
+					itemStates[index]?.emit()
+					return state
+				},
+				modify (index: number, modifier: (value: T, index: number, array: Array<T>) => T) {
+					let value = values[index]
+					value = modifier(value, index, state) ?? value
+					state.set(index, value)
+					return state
+				},
+				clear () {
+					values.length = 0
+					itemStates.length = 0
+					state.emit()
+					return state
+				},
+				push (...newValues: T[]) {
+					const start = state.value.length
+					values.push(...newValues)
+					for (let i = 0; i < newValues.length; i++)
+						itemStates.push(addState(newValues[i], start + i))
+
+					state.emit()
+					return state
+				},
+				unshift (...newValues: T[]) {
+					values.unshift(...newValues)
+					for (let i = 0; i < newValues.length; i++)
+						itemStates.unshift(addState(newValues[i], i))
+
+					for (let i = newValues.length; i < itemStates.length; i++)
+						itemStates[i].value.index = i
+
+					for (let i = newValues.length; i < itemStates.length; i++)
+						itemStates[i].emit()
+
+					state.emit()
+					return state
+				},
+				pop () {
+					values.pop()
+					itemStates.pop()
+					state.emit()
+					return state
+				},
+				shift () {
+					values.shift()
+					itemStates.shift()
+					for (let i = 0; i < itemStates.length; i++)
+						itemStates[i].value.index = i
+
+					for (const itemState of itemStates)
+						itemState.emit()
+
+					state.emit()
+					return state
+				},
+				splice (start: number, deleteCount: number, ...newValues: T[]) {
+					values.splice(start, deleteCount, ...newValues)
+
+					itemStates.splice(start, deleteCount, ...newValues
+						.map((value, i) => addState(value, start + i)))
+
+					for (let i = start + newValues.length; i < itemStates.length; i++)
+						itemStates[i].value.index = i
+
+					for (let i = start + newValues.length; i < itemStates.length; i++)
+						itemStates[i].emit()
+
+					state.emit()
+					return state
+				},
+				filterInPlace (predicate: (value: T, index: number) => boolean) {
+					values.filterInPlace(predicate)
+					let oldStatesI = 0
+					NextValue: for (let i = 0; i < values.length; i++) {
+						while (oldStatesI < itemStates.length) {
+							if (itemStates[oldStatesI].value.value !== values[i]) {
+								itemStates[oldStatesI].value.removed.asMutable?.setValue(true)
+								oldStatesI++
+								continue
+							}
+
+							itemStates[i] = itemStates[oldStatesI]
+							itemStates[i].value.index = i
+							oldStatesI++
+							continue NextValue
+						}
+					}
+
+					// clip off the states that were pulled back or not included
+					for (let i = oldStatesI; i < itemStates.length; i++)
+						itemStates[i].value.removed.asMutable?.setValue(true)
+					itemStates.length = values.length
+
+					for (const itemState of itemStates)
+						itemState.emit()
+
+					state.emit()
+					return state
+				},
+				move (startIndex: number, endIndex: number, newStartIndex: number) {
+					startIndex = Math.max(0, startIndex)
+					endIndex = Math.min(endIndex, values.length)
+
+					newStartIndex = Math.max(0, Math.min(newStartIndex, values.length))
+
+					if (startIndex >= endIndex)
+						return state
+
+					if (newStartIndex >= startIndex && newStartIndex < endIndex)
+						// if the slice is moved to a new position within itself, do nothing
+						return state
+
+					const valuesToMove = values.splice(startIndex, endIndex - startIndex)
+					const statesToMove = itemStates.splice(startIndex, endIndex - startIndex)
+
+					const actualInsertionIndex = startIndex < newStartIndex
+						? newStartIndex - (endIndex - startIndex) + 1 // account for spliced out indices
+						: newStartIndex
+
+					values.splice(actualInsertionIndex, 0, ...valuesToMove)
+					itemStates.splice(actualInsertionIndex, 0, ...statesToMove)
+
+					const emitIndices: number[] = []
+					for (let i = 0; i < itemStates.length; i++) {
+						const savedIndex = itemStates[i].value.index
+						if (savedIndex !== i) {
+							itemStates[i].value.index = i
+							emitIndices.push(i)
+						}
+					}
+
+					for (const index of emitIndices)
+						itemStates[index]?.emit()
+
+					for (const subscriber of subscribers)
+						subscriber.onMove(startIndex, endIndex, newStartIndex)
+
+					state.emit()
+					return state
+				},
+				moveAt (movingIndices: number[], newStartIndex: number) {
+					if (!movingIndices.length)
+						return state
+
+					const length = values.length
+					movingIndices = movingIndices
+						.map(i => Math.max(0, Math.min(length - 1, i)))
+						.distinctInPlace()
+						.sort((a, b) => a - b)
+
+					newStartIndex = Math.min(newStartIndex, length - movingIndices.length)
+
+					let staticReadIndex = 0
+					let movingReadIndex = 0
+					let writeIndex = 0
+					let movedCount = 0
+
+					const sourceValues = values.slice()
+					const sourceItems = itemStates.slice()
+
+					let mode: 'moving' | 'static'
+
+					while (writeIndex < length) {
+						mode = writeIndex >= newStartIndex && movedCount < movingIndices.length ? 'moving' : 'static'
+
+						if (mode === 'static') {
+							for (let i = staticReadIndex; i < length; i++)
+								if (!movingIndices.includes(i)) {
+									staticReadIndex = i
+									break
+								}
+
+							values[writeIndex] = sourceValues[staticReadIndex]
+							itemStates[writeIndex] = sourceItems[staticReadIndex]
+							staticReadIndex++
+							writeIndex++
+						}
+						else {
+							values[writeIndex] = sourceValues[movingIndices[movingReadIndex]]
+							itemStates[writeIndex] = sourceItems[movingIndices[movingReadIndex]]
+							movingReadIndex++
+							movedCount++
+							writeIndex++
+						}
+					}
+
+					const emitIndices: number[] = []
+					for (let i = 0; i < itemStates.length; i++) {
+						const savedIndex = itemStates[i].value.index
+						if (savedIndex !== i) {
+							itemStates[i].value.index = i
+							emitIndices.push(i)
+						}
+					}
+
+					for (const index of emitIndices)
+						itemStates[index]?.emit()
+
+					for (const subscriber of subscribers)
+						subscriber.onMoveAt(movingIndices, newStartIndex)
+
+					state.emit()
+					return state
+				},
+
+				useEach (owner: State.Owner, subscriber: ArraySubscriber<T>) {
+					const ownerClosedState = State.Owner.getOwnershipState(owner)
+					if (!ownerClosedState || ownerClosedState.value)
+						return Functions.NO_OP
+
+					for (const itemState of itemStates)
+						subscriber.onItem(itemState, state)
+
+					State.OwnerMetadata.setHasSubscriptions(owner)
+					// const fn = subscriber as SubscriberFunction<T>
+					// fn[SYMBOL_UNSUBSCRIBE] ??= new Set()
+					// fn[SYMBOL_UNSUBSCRIBE].add(cleanup)
+					ownerClosedState.subscribeManual(cleanup)
+
+					subscribers.push(subscriber)
+					return cleanup
+
+					function cleanup () {
+						ownerClosedState!.unsubscribe(cleanup)
+						subscribers.filterInPlace(s => s !== subscriber)
+						// fn[SYMBOL_UNSUBSCRIBE]?.delete(cleanup)
+					}
+				},
+			}
+		)
+
+		mutable(state).length = state.mapManual(state => state.length)
+		return state
+
+		function addState (value: T, index: number) {
+			const itemState = State({ value, index, removed: State(false) })
+
+			for (const subscriber of subscribers)
+				subscriber.onItem(itemState, state)
+
+			return itemState
+		}
 	}
 
 	export function Truthy (owner: Owner, state: State<any>): Generator<boolean> {

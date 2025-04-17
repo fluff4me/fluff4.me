@@ -44,6 +44,7 @@
 		grid-template-columns: 1fr auto
 		$border-colour: $block-border-colour
 		background: light-dark(#{alpha(0.12, $light-0)}, #{alpha(0.04, $colour-0)})
+		scroll-margin-top: calc($masthead-height + $space-3)
 
 		#flush:
 			%border-radius-0

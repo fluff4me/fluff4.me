@@ -2,7 +2,12 @@ import type Component from 'ui/Component'
 import Arrays from 'utility/Arrays'
 import type { AnyFunction } from 'utility/Type'
 
-type EventParameters<HOST, EVENTS, EVENT extends keyof EVENTS> = EVENTS[EVENT] extends (...params: infer PARAMS) => unknown ? PARAMS extends [infer EVENT extends Event, ...infer PARAMS] ? [EVENT & { host: HOST }, ...PARAMS] : [Event & { host: HOST }, ...PARAMS] : never
+interface EventExtensions<HOST> {
+	host: HOST
+	targetComponent: Component | undefined
+}
+
+type EventParameters<HOST, EVENTS, EVENT extends keyof EVENTS> = EVENTS[EVENT] extends (...params: infer PARAMS) => unknown ? PARAMS extends [infer EVENT extends Event, ...infer PARAMS] ? [EVENT & EventExtensions<HOST>, ...PARAMS] : [Event & EventExtensions<HOST>, ...PARAMS] : never
 type EventParametersEmit<EVENTS, EVENT extends keyof EVENTS> = EVENTS[EVENT] extends (...params: infer PARAMS) => unknown ? PARAMS extends [Event, ...infer PARAMS] ? PARAMS : PARAMS : never
 type EventResult<EVENTS, EVENT extends keyof EVENTS> = EVENTS[EVENT] extends (...params: any[]) => infer RESULT ? RESULT : never
 
@@ -140,7 +145,10 @@ function EventManipulator<T extends object> (host: T): EventManipulator<T, Nativ
 			const customEvent = event instanceof CustomEvent ? event : undefined
 			const eventDetail = customEvent?.detail as EventDetail | undefined
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-			const result = (handler as any)(Object.assign(event, { host }), ...eventDetail?.params ?? [])
+			const result = (handler as any)(Object.assign(event, {
+				host,
+				targetComponent: getNearestComponent(event.target),
+			} satisfies EventExtensions<any>), ...eventDetail?.params ?? [])
 			eventDetail?.result.push(result)
 		}
 
@@ -151,6 +159,19 @@ function EventManipulator<T extends object> (host: T): EventManipulator<T, Nativ
 
 		return host
 	}
+}
+
+function getNearestComponent (target: EventTarget | null): Component | undefined {
+	if (!target || !(target instanceof Node))
+		return undefined
+
+	let node: Node | null = target
+	do {
+		const component = node.component
+		if (component)
+			return component
+	}
+	while ((node = node.parentNode))
 }
 
 export default EventManipulator

@@ -50,6 +50,7 @@ return: Return
 view-profile: View Profile{0? ({0})}
 continue: Continue
 new-chapter: New Chapter
+bulk-chapters: Bulk Chapters
 become-patron: Become a Patron
 done: Done
 filter: Filter...
@@ -93,6 +94,12 @@ invalid/too-long: This text is too long.
 invalid/required: This field is required.
 invalid/tags/too-many-global: Too many global tags.
 invalid/tags/too-many-custom: Too many custom tags.
+
+# load
+
+## documents
+discovering: Discovering files ({0}/{1})
+processing: Processing documents ({0}/{1})
 
 # component
 popover/button: open {0??details}{ 1??}
@@ -206,6 +213,7 @@ state/private: Private
 state/private-no-chapters: Hidden (No Chapters)
 action/label/edit=shared/action/edit
 action/label/new-chapter=shared/action/new-chapter
+action/label/bulk-chapters=shared/action/bulk-chapters
 action/label/follow=shared/action/follow
 action/label/unfollow=shared/action/unfollow
 action/label/ignore=shared/action/ignore
@@ -473,6 +481,7 @@ title: Edit work
 submit=shared/action/save
 action/delete: Delete Work
 action/new-chapter=shared/action/new-chapter
+action/bulk-chapters=shared/action/bulk-chapters
 
 
 ## work
@@ -481,6 +490,7 @@ action/new-chapter=shared/action/new-chapter
 title=shared/term/chapters
 content/empty: This work does not contain any chapters.
 action/label/new=shared/action/new-chapter
+action/label/new-bulk: Add in Bulk
 
 
 ## chapter-edit
@@ -521,8 +531,61 @@ submit=shared/action/save
 action/delete: Delete Chapter
 
 
+## chapter-create-bulk
+
+### shared
+action/select-all: Select All
+action/deselect-all: Deselect All
+
+### position
+title: Step 1: Choose position
+description: Choose where these chapters will be in this work.
+label/position/after: Inserting after:
+label/position/before: Inserting before:
+action/change: Change Position
+action/cancel-change: Cancel Changing Position
+
+### import
+title: Step 2: Import documents
+description: Optionally, select files from your computer to use as chapters.
+empty: No documents found...
+action/select: Select Files
+action/replace: Replace Files
+action/import: Import Documents
+action/clear: Clear Documents
+action/config: Advanced
+form/filename/label: Filename Parsing
+form/filename/invalid: Must be a valid regular expression.
+form/filename/variables: This expression provides the variable(s): {*, }
+form/name/label: Chapter Name
+form/name/invalid: Must include a filename variable.
+form/name/examples: Example chapter names: {*, }
+
+### create
+title: Step 3: Create chapters
+description: Queue a list of chapters that will be created in bulk.
+action/clear: Clear Chapters
+action/create: Create Chapters
+action/actions: Actions
+action/tab/visibility=shared/form/visibility/label
+action/apply: Apply
+action/remove: Remove
+action/remove/confirm: The following queued chapters will be removed: {0***&**:, }{1?, *...and {1} more chapters...*}
+visibility/private=shared/form/visibility/private
+
+### upload
+title: Step 4: Upload
+description: Is it done? Start the upload process!
+action/upload: Upload
+loading/clearing: Ensuring fresh queue
+loading/queuing: Queuing {0} ({1}/{2})
+loading/finishing: Finishing up
+notice/complete: Successfully added chapters!
+action/return: Return to {0}
+
 ## chapter
 number/label: Chapter {0}
+number/interlude/label: Interlude {0}
 tags/label: This chapter contains:
 notes/label=shared/term/notes
 patreon/label: Patrons Only

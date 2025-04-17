@@ -364,8 +364,14 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 					return
 				}
 
-				const target = scrollTarget.getBoundingClientRect().top + window.scrollY - mastheadHeight.value - space4.value
-				window.scrollTo({ top: target, behavior: instant ? 'instant' : 'smooth' })
+				if (direction > 0) {
+					const target = scrollTarget.getBoundingClientRect().top + window.scrollY - mastheadHeight.value - space4.value
+					window.scrollTo({ top: target, behavior: instant ? 'instant' : 'smooth' })
+				}
+				else {
+					const target = scrollTarget.getBoundingClientRect().top + window.scrollY + space4.value - window.innerHeight
+					window.scrollTo({ top: target, behavior: instant ? 'instant' : 'smooth' })
+				}
 			}
 		})
 		.appendTo(content)

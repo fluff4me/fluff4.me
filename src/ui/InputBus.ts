@@ -31,6 +31,8 @@ export interface IInputEvent {
 	shift: boolean
 	alt: boolean
 	used: boolean
+	targetElement: HTMLElement | null
+	targetComponent: Component | null
 	input: HTMLElement | null
 	use (key: string, ...modifiers: Modifier[]): boolean
 	useOverInput (key: string, ...modifiers: Modifier[]): boolean
@@ -75,8 +77,8 @@ const InputBus = Object.assign(
 )
 
 function emitKeyEvent (e: RawEvent) {
-	const target = e.target as HTMLElement
-	const input = target.closest<HTMLElement>('input[type=text], textarea, [contenteditable]')
+	const target = e.target as HTMLElement | null
+	const input = target?.closest<HTMLElement>('input[type=text], textarea, [contenteditable]') ?? null
 	let usedByInput = !!input
 
 	const isClick = true
@@ -84,9 +86,9 @@ function emitKeyEvent (e: RawEvent) {
 		&& e.type === 'keydown'
 		&& (e.key === 'Enter' || e.key === ' ')
 		&& !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey
-		&& target.classList.contains(Classes.ReceiveFocusedClickEvents)
+		&& !!target?.classList.contains(Classes.ReceiveFocusedClickEvents)
 	if (isClick) {
-		const result = target.component?.event.emit('click')
+		const result = target?.component?.event.emit('click')
 
 		if (result?.stoppedPropagation === true)
 			e.stopPropagation()
@@ -112,6 +114,8 @@ function emitKeyEvent (e: RawEvent) {
 		alt: e.altKey,
 		used: usedByInput,
 		input,
+		targetElement: target,
+		targetComponent: target?.component ?? null,
 		use: (key, ...modifiers) => {
 			if (event.used)
 				return false
@@ -164,8 +168,8 @@ function emitKeyEvent (e: RawEvent) {
 
 	if (usedByInput) {
 		if (e.type === 'keydown' && eventKey === 'Enter' && !event.shift && !event.alt) {
-			const form = target.closest('form')
-			if (form && (target.tagName.toLowerCase() === 'input' || target.closest('[contenteditable]')) && !event.ctrl) {
+			const form = target?.closest('form')
+			if (form && (target?.tagName.toLowerCase() === 'input' || target?.closest('[contenteditable]')) && !event.ctrl) {
 				if (!Component.closest(HandlesKeyboardEvents, target))
 					e.preventDefault()
 			}

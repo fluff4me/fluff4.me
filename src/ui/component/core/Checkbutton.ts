@@ -31,6 +31,7 @@ const Checkbutton = Component.Builder('label', (component): Checkbutton => {
 	const input = Component('input')
 		.style('checkbutton-input')
 		.attributes.set('type', 'checkbox')
+		.setRandomId()
 
 	const inputElement = input.element
 
@@ -45,6 +46,7 @@ const Checkbutton = Component.Builder('label', (component): Checkbutton => {
 		.ariaChecked(state)
 		.ariaRole('checkbox')
 		.setIcon('check')
+		.attributes.bind('for', input.id)
 		.tweak(button => button.icon
 			?.style('checkbutton-icon')
 			.style.bind(state, 'checkbutton-icon--checked'))
