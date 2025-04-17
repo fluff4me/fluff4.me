@@ -3,6 +3,7 @@ import { RoutePath } from 'navigation/RoutePath'
 import AccountView from 'ui/view/AccountView'
 import AuthorView from 'ui/view/AuthorView'
 import ChapterEditView from 'ui/view/ChapterEditView'
+import ChapterNewBulkView from 'ui/view/ChapterNewBulkView'
 import ChapterView from 'ui/view/ChapterView'
 import DebugView from 'ui/view/DebugView'
 import FeedView from 'ui/view/FeedView'
@@ -35,6 +36,7 @@ const Routes = [
 	Route('/work/$author/$vanity/edit', WorkEditView.navigate),
 
 	Route('/work/$author/$work/chapter/new', ChapterEditView.navigate),
+	Route('/work/$author/$work/chapter/new/bulk', ChapterNewBulkView.navigate),
 	Route('/work/$author/$work/chapter/$url', ChapterView.navigate),
 	Route('/work/$author/$work/chapter/$url/edit', ChapterEditView.navigate),
 

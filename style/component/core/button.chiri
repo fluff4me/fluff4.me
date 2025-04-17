@@ -167,6 +167,8 @@ $$button-background-highlight!colour
 		"angles-right
 		"angle-left
 		"angle-right
+		"angles-up
+		"angles-down
 		"heart
 		"check
 		"check-double
@@ -210,6 +212,7 @@ $$button-background-highlight!colour
 		"rotate
 		"tag
 		"tags
+		"file-import
 
 	#each in icons as var icon:
 		&-icon-#{icon}:
@@ -220,6 +223,16 @@ $$button-background-highlight!colour
 		&-icon-#{i}:
 			#after: .button-icon
 			#icon name="#{i}
+
+	#list!string icons-not-solid = [
+		"square-check
+		"square-minus
+
+	#each in icons-not-solid as var icon:
+		&-icon-#{icon}:
+			#after: .button-icon
+			#icon name="#{icon}
+			%weight-normal
 
 	; icons rotated -90deg
 	#record!string icons-rotated = {

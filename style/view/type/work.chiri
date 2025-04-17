@@ -66,6 +66,14 @@
 					%width-100
 					$transition-duration: $transition-focus
 
+			&--chosen:
+				#after: .view-type-work-chapter-slot
+				@after:
+					%opaque
+					%width-100
+					%border-pink
+					box-shadow: 0 0 0 1px $colour-pink, 0 0 3px 2px $colour-pink
+
 		&-reordering-icon:
 			#after: .button
 			%pointer-events-none

@@ -4,6 +4,7 @@ import EndpointChapterUpdate from 'endpoint/chapter/EndpointChapterUpdate'
 import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
 import quilt from 'lang/en-nz'
 import FormInputLengths from 'model/FormInputLengths'
+import Patreon from 'model/Patreon'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
@@ -18,35 +19,24 @@ import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
-import { QuiltHelper } from 'ui/utility/StringApplicator'
 import Arrays, { NonNullish } from 'utility/Arrays'
 import Functions from 'utility/Functions'
 import Objects from 'utility/Objects'
 import State from 'utility/State'
 
-interface ChapterEditFormExtensions {
+////////////////////////////////////
+//#region Form Content
+
+interface ChapterEditFormContentExtensions {
+	readonly numbered: RadioRow<'numbered' | 'other'>
 	hasUnsavedChanges (): boolean
-	save (): Promise<void>
+	getFormData (): ChapterCreateBody
 }
 
-type ChapterEditForm = Form & Block & ChapterEditFormExtensions
+interface ChapterEditFormContent extends LabelledTable, ChapterEditFormContentExtensions { }
 
-export default Component.Builder((component, state: State.Mutable<Chapter | undefined>, workParams: WorkParams): ChapterEditForm => {
-	const block = component.and(Block)
-	const form = block.and(Form, block.title)
-	form.viewTransition('chapter-edit-form')
-
-	const formType = state.value ? 'update' : 'create'
-
-	form.title.text.use(`view/chapter-edit/${formType}/title`)
-	state.use(form, chapter => form.setName(quilt[`view/chapter-edit/${formType}/title`](chapter?.url).toString()))
-
-	// if (params.type === "create")
-	// 	form.description.text.use("view/work-edit/create/description")
-
-	form.submit.textWrapper.text.use(`view/chapter-edit/${formType}/submit`)
-
-	const table = LabelledTable().appendTo(form.content)
+const ChapterEditFormContent = Component.Builder((component, state: State.Mutable<ChapterData | undefined>): ChapterEditFormContent => {
+	const table = component.and(LabelledTable)
 
 	const nameInput = TextInput()
 		.setRequired()
@@ -62,10 +52,11 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 			.append(Placeholder()
 				.style('view-type-chapter-edit-type-example')
 				.text.use(quilt => quilt['view/chapter-edit/shared/form/type/numbered/example'](Functions.resolve(() => {
-					if (!state.value)
+					const chapter = getChapter(state.value)
+					if (!chapter)
 						return 'N'
 
-					const url = state.value.url
+					const url = chapter.url
 					if (url.includes('.'))
 						return parseInt(url) + 1
 
@@ -111,94 +102,11 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 	table.label(label => label.text.use('view/chapter-edit/shared/form/notes/label'))
 		.content((content, label) => content.append(notesAfterInput.setLabel(label)))
 
-	type Visibility = ChapterLite['visibility']
-	const VisibilityRadioInitialiser = (radio: RadioButton, id: Visibility) => radio
-		.text.use(`view/chapter-edit/shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
+	const { threshold, visibility } = applyVisibilityOptions(table, state)
 
-	const campaign = Session.Auth.author.map(component, author => author?.patreon_campaign)
-	const visibility = RadioRow()
-		.add('Public', VisibilityRadioInitialiser)
-		.add('Patreon', (radio, id) => radio
-			.tweak(VisibilityRadioInitialiser, id)
-			.style('view-type-chapter-edit-visibility-patreon')
-			.style.bind(campaign.falsy, 'radio-row-option--hidden'))
-		.add('Private', VisibilityRadioInitialiser)
-		.default.bind(state.map(component, chapter => chapter?.visibility ?? 'Private'))
-	table.label(label => label.text.use('view/chapter-edit/shared/form/visibility/label'))
-		.content((content, label) => content.append(visibility.setLabel(label)))
-
-	const visibilityStateIsPatreon = visibility.selection.map(component, selection => selection === 'Patreon')
-	const tiers = State.Use(component, { campaign, visibilityStateIsPatreon })
-		.map(component, ({ campaign, visibilityStateIsPatreon }) =>
-			campaign && visibilityStateIsPatreon ? campaign.tiers : undefined)
-
-	let threshold: CheckDropdown<string> | undefined
-	table.label(label => label.text.use('view/chapter-edit/shared/form/visibility-patreon-tier/label'))
-		.if(tiers.truthy, () => threshold = undefined)
-		.content((content, label) => content.append(
-			threshold = CheckDropdown<string>({
-				translateSelection (dropdown, selection) {
-					const selectedTiers = selection
-						.map(id => tiers.value?.find(tier => tier.tier_id === id))
-						.filter(NonNullish)
-						.sort((a, b) => a.amount - b.amount)
-
-					if (!selectedTiers.length)
-						return quilt['view/chapter-edit/shared/form/visibility-patreon-tier/selection/none']()
-
-					if (tiers.value?.length === selectedTiers.length)
-						return quilt['view/chapter-edit/shared/form/visibility-patreon-tier/selection/all']()
-
-					const firstSelectedTier = selectedTiers[0]
-					if (tiers.value?.every(tier => tier.amount <= firstSelectedTier.amount || selection.includes(tier.tier_id))) {
-						const tierTranslation = Functions.resolve(dropdown.options[firstSelectedTier.tier_id].translation, firstSelectedTier.tier_id)
-						const resolvedTranslation = Functions.resolve(tierTranslation, quilt, QuiltHelper)
-						return quilt['view/chapter-edit/shared/form/visibility-patreon-tier/selection/tier-and-up'](resolvedTranslation)
-					}
-
-					return undefined
-				},
-			})
-				.tweak(dropdown => {
-					tiers.use(dropdown, tiers => {
-						dropdown.clear()
-						for (const tier of tiers ?? [])
-							dropdown.add(tier.tier_id, {
-								translation: quilt['shared/term/patreon-tier']({
-									NAME: tier.tier_name,
-									PRICE: `$${(tier.amount / 100).toFixed(2)}`,
-								}),
-							})
-					})
-
-					dropdown.selection.subscribeManual((selection, oldSelection) => {
-						if (oldSelection?.length || selection?.length !== 1)
-							return
-
-						const selectedTier = tiers.value?.find(tier => tier.tier_id === selection[0])
-						if (!selectedTier)
-							return
-
-						const higherTiers = tiers.value?.filter(tier => tier.amount > selectedTier.amount).sort((a, b) => a.amount - b.amount)
-						if (higherTiers?.length)
-							dropdown.selection.value = [...selection, ...higherTiers.map(tier => tier.tier_id)]
-					})
-				})
-				.default.bind(state.map(component, chapter => _
-					?? chapter?.patreon?.tiers.map(tier => tier.tier_id)
-					?? [chapter?.patreon?.tier.tier_id].filter(NonNullish)
-				))
-				.setLabel(label)
-		))
-
-	form.event.subscribe('submit', async event => {
-		event.preventDefault()
-		await save()
-	})
-
-	return form.extend<ChapterEditFormExtensions>(component => ({
+	return table.extend<ChapterEditFormContentExtensions>(component => ({
+		numbered: type,
 		hasUnsavedChanges,
-		save,
 		getFormData,
 	}))
 
@@ -239,8 +147,8 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 
 		const dataTiers = data.tier_ids ?? [data.tier_id].filter(NonNullish)
 		const stateTiers = _
-			?? state.value.patreon?.tiers.map(tier => tier.tier_id)
-			?? [state.value.patreon?.tier.tier_id].filter(NonNullish)
+			?? getChapter(state.value)?.patreon?.tiers.map(tier => tier.tier_id)
+			?? [getChapter(state.value)?.patreon?.tier.tier_id].filter(NonNullish)
 
 		if (dataTiers.length !== stateTiers.length)
 			return true
@@ -262,40 +170,183 @@ export default Component.Builder((component, state: State.Mutable<Chapter | unde
 
 		return false
 	}
+})
 
-	async function save () {
-		const response = await (() => {
-			switch (formType) {
-				case 'create':
-					return EndpointChapterCreate.query({
-						params: workParams,
-						body: getFormData(),
-					})
+const applyVisibilityOptions = (table: LabelledTable, state: State<ChapterData | undefined>) => {
+	type Visibility = ChapterLite['visibility']
+	const VisibilityRadioInitialiser = (radio: RadioButton, id: Visibility) => radio
+		.text.use(`view/chapter-edit/shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
 
-				case 'update': {
-					if (!state.value)
+	const campaign = Session.Auth.author.map(table, author => author?.patreon_campaign)
+	const visibility = RadioRow()
+		.add('Public', VisibilityRadioInitialiser)
+		.add('Patreon', (radio, id) => radio
+			.tweak(VisibilityRadioInitialiser, id)
+			.style('view-type-chapter-edit-visibility-patreon')
+			.style.bind(campaign.falsy, 'radio-row-option--hidden'))
+		.add('Private', VisibilityRadioInitialiser)
+		.default.bind(state.map(table, chapter => chapter?.visibility ?? 'Private'))
+	table.label(label => label.text.use('view/chapter-edit/shared/form/visibility/label'))
+		.content((content, label) => content.append(visibility.setLabel(label)))
+
+	const visibilityStateIsPatreon = visibility.selection.map(table, selection => selection === 'Patreon')
+	const tiers = State.Use(table, { campaign, visibilityStateIsPatreon })
+		.map(table, ({ campaign, visibilityStateIsPatreon }) =>
+			campaign && visibilityStateIsPatreon ? campaign.tiers : undefined)
+
+	const threshold = CheckDropdown<string>({
+		translateSelection (dropdown, selection) {
+			return Patreon.translateTiers(selection, tiers.value ?? [])
+		},
+	})
+	table.label(label => label.text.use('view/chapter-edit/shared/form/visibility-patreon-tier/label'))
+		.if(tiers.truthy)
+		.content((content, label) => content.append(
+			threshold.tweak(dropdown => {
+				tiers.use(dropdown, tiers => {
+					dropdown.clear()
+					for (const tier of tiers ?? [])
+						dropdown.add(tier.tier_id, {
+							translation: quilt['shared/term/patreon-tier']({
+								NAME: tier.tier_name,
+								PRICE: `$${(tier.amount / 100).toFixed(2)}`,
+							}),
+						})
+				})
+
+				dropdown.selection.subscribeManual((selection, oldSelection) => {
+					if (oldSelection?.length || selection?.length !== 1)
 						return
 
-					const authorVanity = Session.Auth.author.value?.vanity
-					if (!authorVanity)
-						return new Error('Cannot update a work when not signed in')
+					const selectedTier = tiers.value?.find(tier => tier.tier_id === selection[0])
+					if (!selectedTier)
+						return
 
-					return EndpointChapterUpdate.query({
-						params: {
-							author: workParams.author,
-							work: workParams.vanity,
-							url: state.value.url,
-						},
-						body: getFormData(),
-					})
-				}
-			}
-		})()
+					const higherTiers = tiers.value?.filter(tier => tier.amount > selectedTier.amount).sort((a, b) => a.amount - b.amount)
+					if (higherTiers?.length)
+						dropdown.selection.value = [...selection, ...higherTiers.map(tier => tier.tier_id)]
+				})
+			})
+				.default.bind(state.map(table, chapter => _
+					?? getPatreon(chapter)?.tier_ids
+					?? [getPatreon(chapter)?.tier_id].filter(NonNullish)
+				))
+				.setLabel(label)
+		))
 
-		if (toast.handleError(response, 'view/chapter-edit/shared/toast/failed-to-save'))
-			return
-
-		toast.success(TOAST_SUCCESS, 'view/chapter-edit/shared/toast/saved')
-		state.value = response?.data
+	return {
+		threshold,
+		visibility,
 	}
-})
+}
+
+//#endregion
+////////////////////////////////////
+
+////////////////////////////////////
+//#region Form
+
+interface ChapterEditFormExtensions {
+	hasUnsavedChanges (): boolean
+	save (): Promise<void>
+}
+
+type ChapterEditForm = Form & Block & ChapterEditFormExtensions
+
+type ChapterData = Chapter | ChapterCreateBody
+const getChapter = (chapter?: ChapterData) =>
+	chapter && 'url' in chapter ? chapter : undefined
+const getPatreon = (chapterIn?: ChapterData) => {
+	if (!chapterIn)
+		return undefined
+
+	const chapter = chapterIn as Partial<Chapter> & Partial<ChapterCreateBody>
+	if (chapter.patreon)
+		return {
+			tier_id: chapter.patreon.tier.tier_id,
+			tier_ids: chapter.patreon.tiers.map(tier => tier.tier_id),
+		}
+
+	return {
+		tier_id: chapter.tier_id,
+		tier_ids: chapter.tier_ids,
+	}
+}
+
+const ChapterEditForm = Object.assign(
+	Component.Builder((component, state: State.Mutable<ChapterData | undefined>, workParams: WorkParams): ChapterEditForm => {
+		const block = component.and(Block)
+		const form = block.and(Form, block.title)
+		form.viewTransition('chapter-edit-form')
+
+		const formType = state.value ? 'update' : 'create'
+
+		form.title.text.use(`view/chapter-edit/${formType}/title`)
+		state.use(form, chapter => form.setName(quilt[`view/chapter-edit/${formType}/title`](getChapter(chapter)?.url).toString()))
+
+		// if (params.type === "create")
+		// 	form.description.text.use("view/work-edit/create/description")
+
+		form.submit.textWrapper.text.use(`view/chapter-edit/${formType}/submit`)
+
+		const content = ChapterEditFormContent(state)
+			.appendTo(form.content)
+
+		form.event.subscribe('submit', async event => {
+			event.preventDefault()
+			await save()
+		})
+
+		return form.extend<ChapterEditFormExtensions>(component => ({
+			hasUnsavedChanges: content.hasUnsavedChanges,
+			getFormData: content.getFormData,
+			save,
+		}))
+
+		async function save () {
+			const response = await (() => {
+				switch (formType) {
+					case 'create':
+						return EndpointChapterCreate.query({
+							params: workParams,
+							body: content.getFormData(),
+						})
+
+					case 'update': {
+						const chapter = getChapter(state.value)
+						if (!chapter)
+							return
+
+						const authorVanity = Session.Auth.author.value?.vanity
+						if (!authorVanity)
+							return new Error('Cannot update a work when not signed in')
+
+						return EndpointChapterUpdate.query({
+							params: {
+								author: workParams.author,
+								work: workParams.vanity,
+								url: chapter.url,
+							},
+							body: content.getFormData(),
+						})
+					}
+				}
+			})()
+
+			if (toast.handleError(response, 'view/chapter-edit/shared/toast/failed-to-save'))
+				return
+
+			toast.success(TOAST_SUCCESS, 'view/chapter-edit/shared/toast/saved')
+			state.value = response?.data
+		}
+	}),
+	{
+		Content: ChapterEditFormContent,
+		applyVisibilityOptions,
+	}
+)
+
+//#endregion
+////////////////////////////////////
+
+export default ChapterEditForm

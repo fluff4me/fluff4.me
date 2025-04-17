@@ -755,7 +755,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 	} satisfies Pick<Component, keyof BaseComponent>) as any as Mutable<Component>
 
-	WeavingArg.setRenderable(component)
+	WeavingArg.setRenderable(component, () => component.element.textContent ?? '')
 
 	for (const extension of componentExtensionsRegistry)
 		extension(component)

@@ -22,6 +22,8 @@ export namespace FilterFunction {
 	export const DEFAULT = FilterFunction((...segments) => segments)
 }
 
+export type TextInputValidityHandler = (input: TextInput) => InvalidMessageText | undefined
+
 export interface TextInputExtensions {
 	readonly state: State<string>
 	value: string
@@ -36,6 +38,7 @@ export interface TextInputExtensions {
 	 * Prevent the user from entering invalid characters in this input via a filter function.
 	 */
 	filter (filterFn?: FilterFunction): this
+	setValidityHandler (handler: TextInputValidityHandler): this
 	setReadonly (): this
 }
 
@@ -44,6 +47,7 @@ interface TextInput extends Component, TextInputExtensions, InputExtensions { }
 const TextInput = Component.Builder('input', (component): TextInput => {
 	let shouldIgnoreInputEvent = false
 	let filterFunction: FilterFunction | undefined
+	let validityHandler: TextInputValidityHandler | undefined
 
 	const state = State('')
 
@@ -78,6 +82,10 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 				input.attributes.append('readonly')
 				return input
 			},
+			setValidityHandler (handler) {
+				validityHandler = handler
+				return input
+			},
 		}))
 		.extendMagic('value', input => ({
 			get: () => (input.element as HTMLInputElement).value || '',
@@ -109,6 +117,8 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 		let invalid: InvalidMessageText
 		if ((input.length.value ?? 0) > (input.maxLength.value ?? Infinity))
 			invalid = quilt['shared/form/invalid/too-long']()
+
+		invalid ??= validityHandler?.(input)
 
 		input.setCustomInvalidMessage(invalid)
 	}

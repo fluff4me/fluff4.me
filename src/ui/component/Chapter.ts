@@ -1,5 +1,6 @@
 import type { Author, ChapterLite, Work } from 'api.fluff4.me'
 import quilt from 'lang/en-nz'
+import type { AuthorReference } from 'model/Authors'
 import Chapters from 'model/Chapters'
 import Session from 'model/Session'
 import Component from 'ui/Component'
@@ -12,7 +13,7 @@ import Maths from 'utility/maths/Maths'
 import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 
-function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>, work: Work, author?: Author, isChapterView = false) {
+function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>, work: Work, author?: AuthorReference & Partial<Author>, isChapterView = false) {
 	return actions
 
 		.appendAction('patreon', State.get(chapter), (slot, chapter) => true
@@ -55,7 +56,7 @@ interface ChapterExtensions {
 interface Chapter extends Component, ChapterExtensions, HasActionsMenuExtensions<'edit' | 'delete'> { }
 
 const Chapter = Object.assign(
-	Component.Builder((component, chapter: ChapterLite, work: Work, author: Author): Chapter => {
+	Component.Builder((component, chapter: ChapterLite, work: Work, author: AuthorReference & Partial<Author>): Chapter => {
 		component = Link(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}`)
 			.style('chapter')
 			.style.toggle(chapter.visibility === 'Private', 'chapter--private')

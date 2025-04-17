@@ -116,6 +116,7 @@ interface SlotIfElseExtensions {
 }
 
 interface SlotExtensions {
+	use<const STATES extends State<any>[]> (states: STATES, initialiser: (slot: ComponentInsertionTransaction, ...values: { [INDEX in keyof STATES]: STATES[INDEX] extends State<infer T> ? T : never }) => SlotInitialiserReturn): this
 	use<T> (state: T | State<T>, initialiser: (slot: ComponentInsertionTransaction, value: T) => SlotInitialiserReturn): this
 	if (state: State<boolean>, initialiser: SlotInitialiser): this & SlotIfElseExtensions
 	preserveContents (): this
@@ -139,6 +140,7 @@ const Slot = Object.assign(
 
 		const elses = State<Elses>({ elseIfs: [] })
 		let unuseElses: UnsubscribeState | undefined
+		let unuseOwner: UnsubscribeState | undefined
 		let preserveContents = false
 		let inserted = false
 		const hidden = State(false)
@@ -153,17 +155,25 @@ const Slot = Object.assign(
 					preserveContents = true
 					return slot
 				},
-				use: (state, initialiser) => {
+				use: (state: unknown, initialiser: (slot: ComponentInsertionTransaction, ...values: any[]) => SlotInitialiserReturn) => {
 					if (preserveContents)
 						throw new Error('Cannot "use" when preserving contents')
-
-					state = State.get(state)
 
 					unuse?.(); unuse = undefined
 					abort?.(); abort = undefined
 					abortTransaction?.(); abortTransaction = undefined
+					unuseOwner?.(); unuseOwner = undefined
 
-					unuse = state.use(slot, value => {
+					const wasArrayState = Array.isArray(state)
+					if (!wasArrayState)
+						state = State.get(state)
+					else {
+						const owner = State.Owner.create()
+						unuseOwner = owner.remove
+						state = State.Map(owner, state as State<any>[], (...outputs) => outputs as never[])
+					}
+
+					unuse = (state as State<unknown>).use(slot, value => {
 						abort?.(); abort = undefined
 						cleanup?.(); cleanup = undefined
 						abortTransaction?.(); abortTransaction = undefined
@@ -177,7 +187,9 @@ const Slot = Object.assign(
 						Object.assign(transaction, { closed: component.removed })
 						abortTransaction = transaction.abort
 
-						handleSlotInitialiserReturn(transaction, initialiser(transaction, value))
+						handleSlotInitialiserReturn(transaction, wasArrayState
+							? initialiser(transaction, ...value as never[])
+							: initialiser(transaction, value))
 					})
 
 					return slot
@@ -186,11 +198,13 @@ const Slot = Object.assign(
 					unuse?.(); unuse = undefined
 					abort?.(); abort = undefined
 					abortTransaction?.(); abortTransaction = undefined
+					unuseOwner?.(); unuseOwner = undefined
 
 					state.use(slot, value => {
 						abort?.(); abort = undefined
 						cleanup?.(); cleanup = undefined
 						abortTransaction?.(); abortTransaction = undefined
+						unuseOwner?.(); unuseOwner = undefined
 						unuseElses?.(); unuseElses = undefined
 
 						if (!value) {

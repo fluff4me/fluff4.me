@@ -73,6 +73,10 @@ export default ViewDefinition({
 						.setIcon('plus')
 						.text.use('view/work-edit/update/action/new-chapter')
 						.event.subscribe('click', () => navigate.toURL(`/work/${work.author}/${work.vanity}/chapter/new`)))
+					.append(Button()
+						.setIcon('plus')
+						.text.use('view/work-edit/update/action/bulk-chapters')
+						.event.subscribe('click', () => navigate.toURL(`/work/${work.author}/${work.vanity}/chapter/new/bulk`)))
 				)
 				.tweak(row => row.right
 					.append(Button()

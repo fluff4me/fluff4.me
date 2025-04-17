@@ -87,9 +87,12 @@ export default ViewDefinition({
 						slot.style('chapter-list')
 							.style.bind(movingChapter.truthy, 'view-type-work-chapter-list--moving-chapter')
 
-						for (const chapterData of chapters) {
-							MoveSlot('before', chapterData).appendTo(slot)
+						const firstChapter = chapters.at(0)
+						if (firstChapter)
+							MoveSlot('before', firstChapter)
+								.appendTo(slot)
 
+						for (const chapterData of chapters) {
 							const isMoving = movingChapter.map(slot, movingChapter => movingChapter === chapterData)
 							Chapter(chapterData, workData, authorData)
 								.style('view-type-work-chapter')
@@ -121,12 +124,9 @@ export default ViewDefinition({
 												}))
 								)
 								.appendTo(slot)
-						}
 
-						const lastChapter = chapters.at(-1)
-						if (lastChapter)
-							MoveSlot('after', lastChapter)
-								.appendTo(slot)
+							MoveSlot('after', chapterData).appendTo(slot)
+						}
 
 						function MoveSlot (direction: 'before' | 'after', chapter: ChapterLite) {
 							return Component()
