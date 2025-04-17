@@ -1001,6 +1001,11 @@ export default ViewDefinition({
 						return
 
 					setProgress((currentState.chapters.length + 1) / (currentState.chapters.length + 2), quilt => quilt['view/chapter-create-bulk/upload/loading/finishing']())
+
+					const confirmed = await ConfirmDialog.ensureDangerToken(block, { dangerToken: 'chapter-create-bulk' })
+					if (!confirmed)
+						return resetUploadState()
+
 					const finishResponse = await EndpointChapterCreateBulkFinish.query({
 						params: work,
 						body: {
