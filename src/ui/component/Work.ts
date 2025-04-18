@@ -5,15 +5,14 @@ import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
 import Works from 'model/Works'
 import Component from 'ui/Component'
+import AuthorLink from 'ui/component/AuthorLink'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
-import Link from 'ui/component/core/Link'
 import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
 import TextLabel from 'ui/component/core/TextLabel'
 import Timestamp from 'ui/component/core/Timestamp'
 import FollowingBookmark from 'ui/component/FollowingBookmark'
-import AuthorPopover from 'ui/component/popover/AuthorPopover'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
 
@@ -47,10 +46,8 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 		block.description
 			.style('work-author-list')
 			.style.bind(isFlush, 'work-author-list--flush')
-			.append(Link(`/author/${author.vanity}`)
-				.style('work-author')
-				.text.set(author.name)
-				.setPopover('hover', popover => popover.and(AuthorPopover, author)))
+			.append(AuthorLink(author)
+				.style('work-author'))
 
 	block.content.style('work-content')
 

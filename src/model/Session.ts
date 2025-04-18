@@ -9,6 +9,19 @@ import State from 'utility/State'
 import type { ILocalStorage } from 'utility/Store'
 import Store from 'utility/Store'
 
+declare module 'api.fluff4.me' {
+	interface Author {
+		supporter?: Supporter
+	}
+
+	interface Supporter {
+		tier: number
+		months: number
+
+		vanity_colours?: number[]
+	}
+}
+
 declare module 'utility/Store' {
 	interface ILocalStorage {
 		stateToken: string
@@ -89,12 +102,12 @@ namespace Session {
 			| 'partial-login'
 			| 'logged-in'
 
-		export const state = Session.state.mapManual((session): State =>
-			session?.author ? 'logged-in'
-				: session?.partial_login ? 'partial-login'
-					: Store.items.session?.authorisations?.length ? 'has-authorisations'
-						: 'none'
-		)
+		export const state = Session.state.mapManual((session): State => {
+			if (session?.author) return 'logged-in'
+			if (session?.partial_login) return 'partial-login'
+			if (Store.items.session?.authorisations?.length) return 'has-authorisations'
+			return 'none'
+		})
 		export const loggedIn = state.mapManual(state => state === 'logged-in')
 		export const authorisations = Session.state.mapManual(session => session?.author?.authorisations ?? session?.authorisations ?? [], false)
 		export const author = Session.state.mapManual(session => session?.author, false)
@@ -138,7 +151,6 @@ namespace Session {
 				}
 				Store.items.session = sessionData
 				Session.state.asMutable?.setValue(sessionData)
-
 			}
 		}
 

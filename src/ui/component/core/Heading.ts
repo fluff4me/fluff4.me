@@ -4,7 +4,8 @@ import type { ComponentName } from 'ui/utility/StyleManipulator'
 import TextManipulator from 'ui/utility/TextManipulator'
 import Define from 'utility/Define'
 import Maths from 'utility/maths/Maths'
-import State, { StateOr } from 'utility/State'
+import type { StateOr } from 'utility/State'
+import State from 'utility/State'
 
 interface ComponentHeadingExtensions {
 	containsHeading (): boolean
@@ -37,6 +38,7 @@ type HeadingStylePrefix = keyof {
 }
 
 interface HeadingExtensions {
+	readonly textWrapper: Component
 	updateLevel (): this
 	/** Rather than using a heading style based on the actual level of this heading, instead use the style of another heading level */
 	setAestheticLevel (level?: HeadingLevel): this
@@ -85,6 +87,7 @@ const Heading = Component.Builder('h1', (component): Heading => {
 	component.rooted.subscribeManual(updateHeadingLevel)
 
 	return component.extend<HeadingExtensions>(heading => ({
+		textWrapper,
 		setAestheticLevel (level) {
 			const style = aestheticStyle ?? 'heading'
 

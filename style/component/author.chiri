@@ -1,6 +1,11 @@
 .author:
 
 	&-name:
+		#after: .block-title
+		%text-shadow-none
+
+		&-text:
+			%filter-shadow
 
 	&-vanity:
 

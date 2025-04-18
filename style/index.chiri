@@ -67,6 +67,7 @@
 	component/core/confirm-dialog
 	component/core/code-input
 	component/core/details
+	component/core/ext/gradient-text
 	component/vanity-input
 	component/masthead
 	component/sidebar
