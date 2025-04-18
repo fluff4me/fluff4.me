@@ -6,6 +6,7 @@ import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import GradientText from 'ui/component/core/ext/GradientText'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Loading from 'ui/component/core/Loading'
 import Placeholder from 'ui/component/core/Placeholder'
@@ -32,9 +33,16 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 		.style('author')
 
 	const block = component.and(Block)
+
 	block.title
 		.style('author-name')
 		.text.set(author.value.name)
+		.tweak(title => title.textWrapper
+			.style('author-name-text')
+			.and(GradientText)
+			.useGradient(author.map(block.title, author => author.supporter?.vanity_colours))
+		)
+
 	block.description
 		.append(Component()
 			.style('author-vanity')
