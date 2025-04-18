@@ -2,6 +2,7 @@ $markdown-paragraph-padding-bottom: round(up, $space-3, 1px)
 $markdown-paragraph-padding-top: round(up, $space-2, 1px)
 .markdown:
 	&& p, && li:
+		%wrap-words
 		margin-block: $markdown-paragraph-padding-top $markdown-paragraph-padding-bottom
 
 	&& hr:
@@ -10,6 +11,7 @@ $markdown-paragraph-padding-top: round(up, $space-2, 1px)
 		margin-block-end: round(up, $space-4 + 0.5lh - 1px, 1px)
 
 	&& blockquote:
+		%wrap-words
 		%margin-inline-0
 		%padding-left-3
 		box-shadow: inset $space-1 0 0 0 #{alpha(0.2, $colour-0)}
