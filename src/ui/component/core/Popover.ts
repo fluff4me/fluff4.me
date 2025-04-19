@@ -51,15 +51,21 @@ interface PopoverComponentExtensions {
 	/** Disallow any popovers to continue showing if this component is hovered */
 	clearPopover (): this
 	setPopover (event: 'hover' | 'click', initialiser: PopoverInitialiser<this>): this & PopoverComponentRegisteredExtensions
+	hasPopoverSet (): boolean
 }
 
 Component.extend(component => {
 	component.extend<PopoverComponentExtensions>((component: Component & PopoverComponentExtensions & Partial<PopoverComponentRegisteredExtensions> & Partial<InternalPopoverExtensions>) => ({
+		hasPopoverSet () {
+			return !!(component as Component & PopoverComponentRegisteredExtensions).popover
+		},
 		clearPopover: () => component
 			.attributes.set('data-clear-popover', 'true'),
 		setPopover: (popoverEvent, initialiser) => {
 			if (component.popover)
 				component.popover.remove()
+
+			component.style('has-popover')
 
 			let isShown = false
 
@@ -82,6 +88,22 @@ Component.extend(component => {
 					}
 				})
 				.appendTo(document.body)
+
+			let touchTimeout: number | undefined
+			component.event.until(popover, event => event
+				.subscribe('touchstart', event => {
+					event.preventDefault()
+
+					const closestWithPopover = event.targetComponent?.getAncestorComponents().find(component => component.hasPopoverSet())
+					if (closestWithPopover !== component)
+						return
+
+					touchTimeout = window.setTimeout(() => {
+						void updatePopoverState(null, null, 'longpress')
+					}, 1500)
+				})
+				.subscribe('touchend', () => clearTimeout(touchTimeout))
+			)
 
 			popover.visible.await(component, true, async () => {
 				popover.tweak(initialiser, component)
@@ -186,12 +208,13 @@ Component.extend(component => {
 					component.popover.popoverParent.value.popoverChildren.asMutable?.setValue([...component.popover.popoverParent.value.popoverChildren.value, component.popover])
 			}
 
-			async function updatePopoverState () {
+			async function updatePopoverState (_1?: any, _2?: any, reason?: 'longpress') {
 				if (!component.popover)
 					return
 
 				const shouldShow = false
-					|| component.hoveredOrFocused.value
+					|| (component.hoveredOrFocused.value && !Viewport.tablet.value)
+					|| reason === 'longpress'
 					|| (true
 						&& isShown
 						&& (false

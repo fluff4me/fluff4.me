@@ -80,10 +80,7 @@
 				$transition-duration: $transition-blur
 
 		#tablet:
-			%absolute
-			%right-2
-			%top-50
-			%translate-up-50
+			%hidden
 
 	:last:
 		%border-bottom-radius-2

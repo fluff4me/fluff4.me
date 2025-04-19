@@ -68,8 +68,10 @@
 			#transition: #{transition("opacity")}
 			::focus: $transition-duration: $transition-focus
 
-			#not-tablet:
-				:not ::focus: %transparent
+			:not ::focus: %transparent
+
+			#tablet:
+				%hidden
 
 	&-description:
 		#after: .paragraph
