@@ -287,10 +287,10 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 	hasOrHadFocus.subscribeManual(focus => editor.getPopover()?.toggle(focus).anchor.apply())
 	editor.setCustomHintPopover(popover => popover
 		.appendWhen(tagTypeFilter.falsy,
-			Input.createHintText(quilt['shared/form/tags/hint/main']()),
-			Input.createHintText(quilt['shared/form/tags/hint/global']()),
+			Input.createHintText(quilt => quilt['shared/form/tags/hint/main']()),
+			Input.createHintText(quilt => quilt['shared/form/tags/hint/global']()),
 			ProgressWheel.Length(editor.lengthGlobal, editor.maxLengthGlobal),
-			Input.createHintText(quilt['shared/form/tags/hint/custom']()),
+			Input.createHintText(quilt => quilt['shared/form/tags/hint/custom']()),
 			ProgressWheel.Length(editor.lengthCustom, editor.maxLengthCustom),
 		)
 		.anchor.reset()

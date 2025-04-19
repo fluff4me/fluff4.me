@@ -1,6 +1,5 @@
 import type { Author as AuthorData, AuthorFull } from 'api.fluff4.me'
 import EndpointAuthorGet from 'endpoint/author/EndpointAuthorGet'
-import quilt from 'lang/en-nz'
 import Follows from 'model/Follows'
 import Session from 'model/Session'
 import Component from 'ui/Component'
@@ -100,7 +99,7 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 		.use(author, (slot, author) => author.support_link
 			&& ExternalLink(author.support_link)
 				.style('author-support-link')
-				.text.set(author.support_message || quilt['author/support-message/placeholder']())
+				.text.set(author.support_message || author.support_link)
 		)
 		.appendTo(block.content)
 
@@ -121,9 +120,10 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 						.bindIcon(Follows.map(popover, () => Follows.followingAuthor(author.value.vanity)
 							? 'circle-check'
 							: 'circle'))
-						.text.bind(Follows.map(popover, () => Follows.followingAuthor(author.value.vanity)
-							? quilt['author/action/label/unfollow']()
-							: quilt['author/action/label/follow']()
+						.text.bind(Follows.map(popover, () => quilt =>
+							Follows.followingAuthor(author.value.vanity)
+								? quilt['author/action/label/unfollow']()
+								: quilt['author/action/label/follow']()
 						))
 						.event.subscribe('click', () => Follows.toggleFollowingAuthor(author.value.vanity))
 						.appendTo(popover)
@@ -133,9 +133,10 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 						.bindIcon(Follows.map(popover, () => Follows.ignoringAuthor(author.value.vanity)
 							? 'ban'
 							: 'circle'))
-						.text.bind(Follows.map(popover, () => Follows.ignoringAuthor(author.value.vanity)
-							? quilt['author/action/label/unignore']()
-							: quilt['author/action/label/ignore']()
+						.text.bind(Follows.map(popover, () => quilt =>
+							Follows.ignoringAuthor(author.value.vanity)
+								? quilt['author/action/label/unignore']()
+								: quilt['author/action/label/ignore']()
 						))
 						.event.subscribe('click', () => Follows.toggleIgnoringAuthor(author.value.vanity))
 						.appendTo(popover)

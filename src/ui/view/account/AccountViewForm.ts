@@ -66,16 +66,16 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 	let supportMessageInput!: TextInput
 	LabelledTextInputBlock()
 		.style('labelled-row--in-labelled-table')
-		.ariaLabel.use('view/account/support-link/label')
-		.label(label => label.text.use('view/account/support-link/label'))
+		.ariaLabel.use('view/account/external-link/label')
+		.label(label => label.text.use('view/account/external-link/label'))
 		.input(input => supportLinkInput = input
 			.default.bind(Session.Auth.author.map(component, author => author?.support_link))
-			.hint.use('view/account/support-link/hint')
+			.hint.use('view/account/external-link/hint')
 			.setMaxLength(FormInputLengths.map(table, lengths => lengths?.author.support_link)))
-		.label(label => label.text.use('view/account/support-message/label'))
+		.label(label => label.text.use('view/account/external-label/label'))
 		.input(input => supportMessageInput = input
 			.default.bind(Session.Auth.author.map(component, author => author?.support_message))
-			.hint.use('view/account/support-message/hint')
+			.hint.use('view/account/external-label/hint')
 			.setMaxLength(FormInputLengths.map(table, lengths => lengths?.author.support_message)))
 		.appendTo(table)
 

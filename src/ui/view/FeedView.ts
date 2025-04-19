@@ -1,5 +1,4 @@
 import EndpointFeedGetFollowed from 'endpoint/feed/EndpointFeedGetFollowed'
-import quilt from 'lang/en-nz'
 import Follows from 'model/Follows'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
@@ -18,7 +17,7 @@ export default ViewDefinition({
 			.and(Button)
 			.type('flush')
 			.setIcon('circle-check')
-			.text.bind(Follows.map(view, () =>
+			.text.bind(Follows.map(view, () => quilt =>
 				quilt['view/shared/info/following'](Follows.getTotalFollowing())))
 			.appendTo(view.breadcrumbs.actions)
 
@@ -26,7 +25,7 @@ export default ViewDefinition({
 			.and(Button)
 			.type('flush')
 			.setIcon('ban')
-			.text.bind(Follows.map(view, () =>
+			.text.bind(Follows.map(view, () => quilt =>
 				quilt['view/shared/info/ignoring'](Follows.getTotalIgnoring())))
 			.appendTo(view.breadcrumbs.actions)
 

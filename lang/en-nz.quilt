@@ -224,7 +224,6 @@ action/delete/confirm: This will delete your work "**{0}**", and there's no undo
 # author
 time-join/label=shared/term/time-join
 description/empty: This author prefers to remain elusive and mysterious...
-support-message/placeholder: Support My Writing
 action/label/edit=shared/action/edit
 action/label/follow=shared/action/follow
 action/label/unfollow=shared/action/unfollow
@@ -351,11 +350,10 @@ vanity/hint: Your username, and what people use to {#B:@ping} you in comments. T
 vanity/url-preview=shared/preview
 description/label=shared/form/description/label
 description/hint: This bio will appear on your profile above any works.
-support-link/label: Support Link
-support-link/hint: An optional link that people can use to support you. You could link directly to a payment or subscription platform, or you could use a service like Linktree.
-support-message/label: Message
-support-message/hint: A message to display instead of the support link itself. This is required, and will default to "Support My Writing."\nIf you want it to actually display the link, for whatever reason, you can put the link here as well.
-support-message/placeholder=author/support-message/placeholder
+external-link/label: External Link
+external-link/hint: An optional link that you can use to link to your profile on another platform. You could use a service like Linktree, or if you're an author, you could link directly to a payment or subscription platform.
+external-label/label: Link Text
+external-label/hint: A label to display instead of the external link itself.
 pronouns/label: Pronouns
 pronouns/hint: The pronouns that others should refer to you with. These will appear next to your name, usually.
 

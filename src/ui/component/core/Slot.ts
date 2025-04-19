@@ -163,6 +163,7 @@ const Slot = Object.assign(
 					abort?.(); abort = undefined
 					abortTransaction?.(); abortTransaction = undefined
 					unuseOwner?.(); unuseOwner = undefined
+					unuseElses?.(); unuseElses = undefined
 
 					const wasArrayState = Array.isArray(state)
 					if (!wasArrayState)
@@ -199,6 +200,7 @@ const Slot = Object.assign(
 					abort?.(); abort = undefined
 					abortTransaction?.(); abortTransaction = undefined
 					unuseOwner?.(); unuseOwner = undefined
+					unuseElses?.(); unuseElses = undefined
 
 					state.use(slot, value => {
 						abort?.(); abort = undefined

@@ -132,7 +132,7 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 				return Functions.NO_OP
 
 			function cleanup () {
-				ownerClosedState!.unsubscribe(cleanup)
+				ownerClosedState.unsubscribe(cleanup)
 				result.unsubscribe(subscriber)
 				// fn[SYMBOL_UNSUBSCRIBE]?.delete(cleanup)
 			}
@@ -227,7 +227,9 @@ namespace State {
 		| ComponentInsertionTransaction
 
 	export namespace Owner {
-		export function getOwnershipState (ownerIn: Owner) {
+		export function getOwnershipState (ownerIn: Owner): State<boolean>
+		export function getOwnershipState (ownerIn?: unknown): State<boolean> | undefined
+		export function getOwnershipState (ownerIn: unknown) {
 			const owner = ownerIn as Partial<Component> & Partial<ComponentInsertionTransaction>
 			return owner.removed ?? owner.closed
 		}
@@ -809,7 +811,7 @@ namespace State {
 					return cleanup
 
 					function cleanup () {
-						ownerClosedState!.unsubscribe(cleanup)
+						ownerClosedState.unsubscribe(cleanup)
 						subscribers.filterInPlace(s => s !== subscriber)
 						// fn[SYMBOL_UNSUBSCRIBE]?.delete(cleanup)
 					}

@@ -1,23 +1,37 @@
 import type { Quilt as QuiltBase, Weave, Weft } from 'lang/en-nz'
-import quilt, { WeavingArg } from 'lang/en-nz'
+import quiltBase, { WeavingArg } from 'lang/en-nz'
 import type { RoutePath } from 'navigation/RoutePath'
 import type Component from 'ui/Component'
 import type ExternalLinkFunction from 'ui/component/core/ExternalLink'
 import type LinkFunction from 'ui/component/core/Link'
+import DevServer from 'utility/DevServer'
+import Env from 'utility/Env'
+import Script from 'utility/Script'
 import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
-Object.assign(window, { quilt })
+export let quilt!: QuiltBase
+const quiltState = State(quiltBase)
+Object.defineProperty(window, 'quilt', { get: () => quiltState.value })
+Object.defineProperty(exports, 'quilt', { get: () => quiltState.value })
+
+DevServer.onMessage('updateLang', async () => {
+	Script.allowModuleRedefinition('lang/en-nz')
+	await Script.reload(`${Env.URL_ORIGIN}lang/en-nz.js`)
+	quiltState.value = await import('lang/en-nz').then(module => module.default)
+})
 
 export type Quilt = QuiltBase
 export namespace Quilt {
 	export type SimpleKey = QuiltBase.SimpleKey
-	export type Handler = (quilt: Quilt, helper: typeof QuiltHelper) => Weave
+	export type Handler = (quilt: Quilt, helper: typeof QuiltHelper) => Weave | null | undefined
 
 	export function fake (text: string): () => Weave {
 		const weave: Weave = { content: [{ content: text }], toString: () => text }
 		return () => weave
 	}
+
+	export const State = quiltState
 }
 
 type ComponentFunction = typeof Component
@@ -71,7 +85,7 @@ export namespace QuiltHelper {
 			arg = () => quilt[key]()
 		}
 
-		return arg(quilt, QuiltHelper).toString()
+		return arg(quilt, QuiltHelper)?.toString() ?? ''
 	}
 
 	function isPlaintextWeft (weft: Weft): weft is Weft & { content: string } {
@@ -137,11 +151,10 @@ export namespace QuiltHelper {
 
 interface StringApplicator<HOST> {
 	readonly state: State<string>
-	set (value: string | Weave): HOST
+	set (value: string | Quilt.Handler): HOST
 	use (translation?: Quilt.SimpleKey | Quilt.Handler): HOST
-	bind (state: State<string | Weave>): HOST
+	bind (state: State<string | Quilt.Handler>): HOST
 	unbind (): HOST
-	refresh (): void
 	/** Create a new string applicator with the same target that returns a different host */
 	rehost<NEW_HOST> (newHost: NEW_HOST): StringApplicator<NEW_HOST>
 }
@@ -151,45 +164,76 @@ function BaseStringApplicator<HOST> (
 	defaultValue: string | undefined,
 	set: (result: StringApplicator.Optional<HOST>, value?: string | Weave | null) => void,
 ): StringApplicator.Optional<HOST> {
-	let translationHandler: Quilt.Handler | undefined
 	let unbind: UnsubscribeState | undefined
+	let unown: UnsubscribeState | undefined
+	let subUnown: UnsubscribeState | undefined
+	let removed = false
 	const state = State(defaultValue)
 	const result = makeApplicator(host)
 	const setInternal = set.bind(null, result)
 	return result
 
 	function makeApplicator<HOST> (host: HOST): StringApplicator.Optional<HOST> {
+		State.Owner.getOwnershipState(host)?.awaitManual(true, () => {
+			removed = true
+			unbind?.(); unbind = undefined
+			unown?.(); unown = undefined
+			subUnown?.(); subUnown = undefined
+		})
+
 		return {
 			state,
 			set: value => {
-				unbind?.()
-				translationHandler = undefined
+				if (removed)
+					return host
+
+				if (typeof value === 'function') {
+					result.use(value)
+					return host
+				}
+
+				unbind?.(); unbind = undefined
+				unown?.(); unown = undefined
+				subUnown?.(); subUnown = undefined
+
 				setInternal(value)
 				return host
 			},
 			use: translation => {
-				unbind?.()
+				if (removed)
+					return host
+
+				unbind?.(); unbind = undefined
+				unown?.(); unown = undefined
+				subUnown?.(); subUnown = undefined
+
 				if (typeof translation === 'string') {
-					translationHandler = undefined
-					setInternal(quilt[translation]())
+					unown = quiltState.useManual(quilt => setInternal(quilt[translation]()))
 					return host
 				}
 
-				translationHandler = translation
-				result.refresh()
+				setInternal(translation?.(quilt, QuiltHelper))
 				return host
 			},
-			bind: state => {
-				translationHandler = undefined
+			bind: (state?: StateOr<string | Weave | Quilt.Handler | null | undefined>) => {
+				if (removed)
+					return host
+
 				unbind?.(); unbind = undefined
+				unown?.(); unown = undefined
+				subUnown?.(); subUnown = undefined
 
 				if (state === undefined || state === null) {
 					setInternal(defaultValue)
 					return host
 				}
 
-				if (typeof state === 'function')
-					state = state(quilt, QuiltHelper)
+				if (typeof state === 'function') {
+					const stateFunction = state
+					const owner = State.Owner.create()
+					unown = owner.remove
+					state = quiltState.map(owner, quilt => stateFunction(quilt, QuiltHelper))
+				}
 
 				if (!State.is(state)) {
 					setInternal(state)
@@ -197,23 +241,24 @@ function BaseStringApplicator<HOST> (
 				}
 
 				unbind = state?.use(host as Component, state => {
-					if (typeof state === 'function')
-						state = state(quilt, QuiltHelper)
+					subUnown?.(); subUnown = undefined
 
-					setInternal(state)
+					if (typeof state !== 'function')
+						return setInternal(state)
+
+					const stateFunction = state
+					const subOwner = State.Owner.create()
+					subUnown = subOwner.remove
+					quiltState.use(subOwner, quilt => setInternal(stateFunction(quilt, QuiltHelper)))
 				})
 				return host
 			},
 			unbind: () => {
-				unbind?.()
+				unbind?.(); unbind = undefined
+				unown?.(); unown = undefined
+				subUnown?.(); subUnown = undefined
 				setInternal(defaultValue)
 				return host
-			},
-			refresh: () => {
-				if (!translationHandler)
-					return
-
-				setInternal(translationHandler(quilt, QuiltHelper))
 			},
 			rehost: makeApplicator,
 		}
@@ -241,8 +286,8 @@ namespace StringApplicator {
 
 	export interface Optional<HOST> extends Omit<StringApplicator<HOST>, 'state' | 'set' | 'bind' | 'rehost'> {
 		state: State<string | undefined | null>
-		set (value?: string | Weave | null): HOST
-		bind (state?: StateOr<string | Weave | Quilt.Handler | undefined | null>): HOST
+		set (value?: string | Quilt.Handler | null): HOST
+		bind (state?: StateOr<string | Quilt.Handler | undefined | null>): HOST
 		/** Create a new string applicator with the same target that returns a different host */
 		rehost<NEW_HOST> (newHost: NEW_HOST): StringApplicator.Optional<NEW_HOST>
 	}

@@ -7,6 +7,7 @@ import Popover from 'ui/component/core/Popover'
 import ProgressWheel from 'ui/component/core/ProgressWheel'
 import Slot from 'ui/component/core/Slot'
 import { AllowYOffscreen } from 'ui/utility/AnchorManipulator'
+import type { Quilt } from 'ui/utility/StringApplicator'
 import StringApplicator from 'ui/utility/StringApplicator'
 import Viewport from 'ui/utility/Viewport'
 import type { StateOr } from 'utility/State'
@@ -60,7 +61,7 @@ export interface InputExtensions {
 
 interface Input extends Component, InputExtensions { }
 
-function createHintText (hint: StateOr<string | Weave>) {
+function createHintText (hint: StateOr<string | Quilt.Handler>) {
 	return Component()
 		.style('input-popover-hint-text')
 		.text.bind(hint)

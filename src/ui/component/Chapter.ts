@@ -1,5 +1,4 @@
 import type { Author, ChapterLite, Work } from 'api.fluff4.me'
-import quilt from 'lang/en-nz'
 import type { AuthorReference } from 'model/Authors'
 import Chapters from 'model/Chapters'
 import Session from 'model/Session'
@@ -22,7 +21,7 @@ function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>
 			&& chapter.patreon
 			&& Component()
 				.style('chapter-patreon-tier', 'patreon-icon-after')
-				.text.set(quilt['shared/term/patreon-tier']({
+				.text.use(quilt => chapter.patreon && quilt['shared/term/patreon-tier']({
 					NAME: chapter.patreon.tiers[0].tier_name,
 					PRICE: `$${((chapter.patreon.tiers[0].amount ?? 0) / 100).toFixed(2)}`,
 				})))

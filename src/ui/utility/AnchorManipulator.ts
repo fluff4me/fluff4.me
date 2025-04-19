@@ -257,6 +257,8 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			for (const unuse of subscribed)
 				unuse()
 
+			subscribed.length = 0
+
 			const anchoredBox = host?.rect.value
 			if (!anchoredBox.width || !anchoredBox.height) {
 				location.value = undefined
@@ -266,7 +268,7 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			if (anchoredBox && locationPreference && from) {
 				for (const preference of locationPreference) {
 					if (!preference)
-						return location.value ??= { mouse: false, x: -10000, y: -10000, padX: false, }
+						return location.value ??= { mouse: false, x: -10000, y: -10000, padX: false }
 
 					let alignment: AnchorLocationAlignment = 'left'
 

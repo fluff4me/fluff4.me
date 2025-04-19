@@ -1,4 +1,3 @@
-import type { Weave } from 'lang/en-nz'
 import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
@@ -14,13 +13,13 @@ import { QuiltHelper, type Quilt } from 'ui/utility/StringApplicator'
 import Arrays from 'utility/Arrays'
 import Async from 'utility/Async'
 import Functions from 'utility/Functions'
-import State, { UnsubscribeState } from 'utility/State'
-import type { SupplierOr } from 'utility/Type'
+import type { UnsubscribeState } from 'utility/State'
+import State from 'utility/State'
 
 type DropdownButton = RadioButton | Checkbutton
 
 interface DropdownOptionDefinition<ID extends string, BUTTON extends DropdownButton> {
-	translation: SupplierOr<string | Weave | Quilt.Handler, [ID]>
+	translation: string | ((id: ID) => string | Quilt.Handler)
 	tweakButton?(button: BUTTON, id: ID): unknown
 }
 
@@ -41,7 +40,7 @@ interface Dropdown<ID extends string = never, BUTTON extends DropdownButton = Dr
 
 interface DropdownDefinitionBase<BUTTON extends DropdownButton> {
 	createButton (): BUTTON
-	translateSelection?(dropdown: Dropdown<string, BUTTON>, selection: BUTTON extends RadioButton ? string : string[]): string | Weave | Quilt.Handler | undefined
+	translateSelection?(dropdown: Dropdown<string, BUTTON>, selection: BUTTON extends RadioButton ? string : string[]): string | Quilt.Handler | undefined
 }
 
 const Dropdown = Component.Builder((component, definition: DropdownDefinitionBase<DropdownButton>): Dropdown => {
@@ -68,13 +67,13 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 	Button()
 		.style('dropdown-button')
 		.text.bind(selection.mapManual(state => state === undefined
-			? quilt['shared/form/dropdown/selection/none']()
+			? quilt => quilt['shared/form/dropdown/selection/none']()
 			: (_
 				?? definition.translateSelection?.(dropdown as Dropdown<string>, state)
-				?? quilt['shared/form/dropdown/selection/join'](...Arrays.resolve(state)
+				?? (quilt => quilt['shared/form/dropdown/selection/join'](...Arrays.resolve(state)
 					.map(id => Functions.resolve(options[id]?.translation, id))
-					.map(translation => Functions.resolve(translation, quilt, QuiltHelper))
-				)
+					.map(translation => typeof translation === 'string' ? translation : Functions.resolve(translation, quilt, QuiltHelper))
+				))
 			)
 		))
 		.setPopover('click', p => {
@@ -112,7 +111,6 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 		.attributes.set('type', 'text')
 		.setName(`dropdown-validity-pipe-input-${Math.random().toString(36).slice(2)}`)
 		.appendTo(dropdown)
-
 
 	let labelFor: State<string | undefined> | undefined
 	let unusePopoverForInput: UnsubscribeState | undefined

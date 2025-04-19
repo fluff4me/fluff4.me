@@ -12,7 +12,7 @@ export default Component.Extension((component): GradientText => {
 	let unuseGradient: UnsubscribeState | undefined
 	return component.extend<GradientTextExtensions>(component => ({
 		useGradient (gradient) {
-			unuseGradient?.(); unuseGradient = undefined
+			unuseGradient?.()
 			unuseGradient = State.get(gradient).use(component, stops => component
 				.style.toggle(!!stops?.length, 'gradient-text')
 				.style.setProperty('background-image', !stops?.length ? undefined

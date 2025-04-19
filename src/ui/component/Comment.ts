@@ -87,7 +87,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 			if (time)
 				Timestamp(time)
 					.style('comment-header-timestamp')
-					.setTranslation(!commentData.edited_time ? undefined : quilt['comment/timestamp/edited'])
+					.setTranslation(!commentData.edited_time ? undefined : quilt => quilt['comment/timestamp/edited'])
 					.appendTo(header)
 
 			if (commentData.edit) {

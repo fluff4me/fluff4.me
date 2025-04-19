@@ -1,5 +1,4 @@
 import type { Author } from 'api.fluff4.me'
-import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
 import GradientText from 'ui/component/core/ext/GradientText'
 import Link from 'ui/component/core/Link'
@@ -16,7 +15,7 @@ const Mention = Component.Builder('a', (component, author?: Author): Mention => 
 	return component
 		.and(Link, author && `/author/${author.vanity}`)
 		.append(Component().style('mention-punctuation').text.set('@'))
-		.append(Component().style('mention-author-name').text.set(author?.name ?? quilt['shared/mention/unresolved']()))
+		.append(Component().style('mention-author-name').text.set(author?.name ?? (quilt => quilt['shared/mention/unresolved']())))
 		.setPopover('hover', popover => author && popover.and(AuthorPopover, author))
 		.style('mention')
 		.and(GradientText)

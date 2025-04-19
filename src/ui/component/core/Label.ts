@@ -52,7 +52,7 @@ const Label = Component.Builder('label', (label): Label => {
 				return label
 			},
 			setInput: input => {
-				unuseInput?.()
+				unuseInput?.(); unuseInput = undefined
 				if (!label.is(AutoLabel))
 					label.setFor(input?.name.value)
 

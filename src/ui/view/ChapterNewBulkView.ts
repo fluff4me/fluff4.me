@@ -32,6 +32,7 @@ import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import TextInput from 'ui/component/core/TextInput'
 import Work from 'ui/component/Work'
 import InputBus from 'ui/InputBus'
+import type { Quilt } from 'ui/utility/StringApplicator'
 import ChapterEditForm from 'ui/view/chapter/ChapterEditForm'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
@@ -387,19 +388,19 @@ export default ViewDefinition({
 
 													const afterMatch = file.title.slice(lastIndex)
 													result.content.push({ content: afterMatch, tag: 'SM' })
-													return result
+													return quilt => result
 												}
 
 												const [start, end] = match.indices![0]
 												const beforeMatch = file.title.slice(0, start)
 												const afterMatch = file.title.slice(end)
-												return {
+												return quilt => ({
 													content: [
 														{ content: beforeMatch, tag: 'SM' },
 														{ content: match[0], tag: 'B' },
 														{ content: afterMatch, tag: 'SM' },
 													],
-												}
+												})
 											}))
 											.appendTo(meta)
 
@@ -476,7 +477,7 @@ export default ViewDefinition({
 									)
 									.append(Small()
 										.text.bind(filenameExtractionRegexGroups.map(content, groups => {
-											return quilt['view/chapter-create-bulk/import/form/filename/variables'](...[...groups ?? ['']]
+											return quilt => quilt['view/chapter-create-bulk/import/form/filename/variables'](...[...groups ?? ['']]
 												.map((groupStr, group) => !group
 													? Component().style.setProperty('color', 'var(--colour-3)').text.set('{filename}')
 													: Component().style.setProperty('color', getColour(group)).text.set(`{filename:${group}}`)
@@ -499,14 +500,14 @@ export default ViewDefinition({
 									)
 									.append(Small()
 										.text.bind(State
-											.Generator(() => {
+											.Generator((): Quilt.Handler => {
 												const files = imports.value.imports.filter((file): file is Documents.ImportDocument & { enabled: boolean } => !file.error && file.enabled)
 
 												const titles: Weave[] = []
 												for (let i = 0; i < Math.min(files.length, 5); i++)
 													titles.push({ content: [{ content: getChapterName(files[i]), tag: 'B' }] })
 
-												return quilt['view/chapter-create-bulk/import/form/name/examples'](...titles)
+												return quilt => quilt['view/chapter-create-bulk/import/form/name/examples'](...titles)
 											})
 											.observe(content, imports, filenameExtractionRegexGroups, chapterNameTemplate)
 										)
@@ -628,7 +629,7 @@ export default ViewDefinition({
 								.append(chapter.body.visibility !== 'Patreon' || !chapter.body.tier_ids?.length ? undefined
 									: Component()
 										.style('view-type-chapter-bulk-create-chapter-summary-patreon', 'patreon-icon-before')
-										.text.set(Patreon.translateTiers(chapter.body.tier_ids, Session.Auth.author?.value?.patreon_campaign?.tiers ?? []))
+										.text.use(Patreon.translateTiers(chapter.body.tier_ids, Session.Auth.author?.value?.patreon_campaign?.tiers ?? []))
 								)
 								.append(chapter.body.visibility !== 'Private' ? undefined
 									: Placeholder()
