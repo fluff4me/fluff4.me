@@ -1,5 +1,8 @@
 $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 
+.has-popover:
+	-webkit-touch-callout: none
+
 .popover:
 	%fixed
 	%border-radius-2
