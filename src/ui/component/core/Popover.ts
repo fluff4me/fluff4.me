@@ -65,6 +65,8 @@ Component.extend(component => {
 			if (component.popover)
 				component.popover.remove()
 
+			component.style('has-popover')
+
 			let isShown = false
 
 			const popover = Popover()
@@ -90,8 +92,6 @@ Component.extend(component => {
 			let touchTimeout: number | undefined
 			component.event.until(popover, event => event
 				.subscribe('touchstart', event => {
-					event.preventDefault()
-
 					const closestWithPopover = event.targetComponent?.getAncestorComponents().find(component => component.hasPopoverSet())
 					if (closestWithPopover !== component)
 						return
