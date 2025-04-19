@@ -65,8 +65,6 @@ Component.extend(component => {
 			if (component.popover)
 				component.popover.remove()
 
-			component.style('has-popover')
-
 			let isShown = false
 
 			const popover = Popover()
