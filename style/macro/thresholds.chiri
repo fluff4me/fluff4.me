@@ -1,19 +1,29 @@
+#macro not-laptop:
+	#body!component content
+	:media (width >= calc(#{laptop-width} * 1.2)):
+		#include content
+
+#macro laptop:
+	#body!component content
+	:media (width < calc(#{laptop-width} * 1.2)):
+		#include content
+
 #macro not-tablet:
 	#body!component content
-	:media (width >= #{tablet-width}):
+	:media (width >= calc(#{tablet-width} * 1.2)):
 		#include content
 
 #macro tablet:
 	#body!component content
-	:media (width < #{tablet-width}):
+	:media (width < calc(#{tablet-width} * 1.2)):
 		#include content
 
 #macro not-flush:
 	#body!component content
-	:media (width >= #{content-width}):
+	:media (width >= calc(#{content-width} * 1.2)):
 		#include content
 
 #macro flush:
 	#body!component content
-	:media (width < #{content-width}):
+	:media (width < calc(#{content-width} * 1.2)):
 		#include content

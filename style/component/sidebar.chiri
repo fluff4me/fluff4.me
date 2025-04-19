@@ -24,6 +24,9 @@
 		%gradient-mask
 		$gradient-mask-height: $space-5
 
+		#laptop:
+			%hidden
+
 	&--visible:
 		$translate-x: 0%
 		%opaque
