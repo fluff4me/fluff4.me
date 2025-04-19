@@ -1,6 +1,5 @@
 import type { ManifestNotificationTypes, Notification as NotificationData } from 'api.fluff4.me'
 import type { Weave, WeavingArg } from 'lang/en-nz'
-import quilt from 'lang/en-nz'
 import Authors from 'model/Authors'
 import Chapters from 'model/Chapters'
 import Comments from 'model/Comments'
@@ -12,6 +11,7 @@ import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
 import Timestamp from 'ui/component/core/Timestamp'
 import AuthorPopover from 'ui/component/popover/AuthorPopover'
+import type { Quilt } from 'ui/utility/StringApplicator'
 import State from 'utility/State'
 
 type NotificationType = keyof ManifestNotificationTypes
@@ -23,7 +23,7 @@ interface NotificationTranslationInput {
 	WORK: WeavingArg
 }
 
-const notificationQuilt = quilt as (
+function notif (quilt: Quilt): (
 	({
 		[TYPE in NotificationType as `notification/${TYPE}` extends keyof typeof quilt ? `notification/${TYPE}` : never]: `notification/${TYPE}` extends keyof typeof quilt ? typeof quilt[`notification/${TYPE}`] : never
 	}) extends infer TRANSLATED ?
@@ -35,7 +35,9 @@ const notificationQuilt = quilt as (
 	TRANSLATED & PLACEHOLDER extends infer COMBINED ? { [KEY in keyof COMBINED]: COMBINED[KEY] } : never
 
 	: never : never
-)
+) {
+	return quilt
+}
 
 interface NotificationChildrenExtensions {
 	readonly readButton: Button
@@ -44,7 +46,7 @@ interface NotificationChildrenExtensions {
 interface Notification extends Component, NotificationChildrenExtensions { }
 
 const Notification = Component.Builder('a', (component, data: NotificationData): Notification | undefined => {
-	const translationFunction = notificationQuilt[`notification/${data.type as NotificationType}`]
+	const translationFunction = (quilt: Quilt) => notif(quilt)[`notification/${data.type as NotificationType}`]
 	if (!translationFunction)
 		return undefined
 
@@ -87,7 +89,7 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 	Component()
 		.style('notification-label')
 		.append(
-			Component().text.set(translationFunction?.({ TRIGGERED_BY, AUTHOR, WORK, CHAPTER })),
+			Component().text.use(quilt => translationFunction(quilt)?.({ TRIGGERED_BY, AUTHOR, WORK, CHAPTER })),
 			document.createTextNode('   '),
 			Timestamp(data.created_time).style('notification-timestamp'),
 		)

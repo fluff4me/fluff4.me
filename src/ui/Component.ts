@@ -437,8 +437,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 
 		setId: id => {
-			unuseIdState?.()
-			unuseIdState = undefined
+			unuseIdState?.(); unuseIdState = undefined
 
 			if (id && typeof id !== 'string')
 				unuseIdState = id.use(component, setId)
@@ -463,8 +462,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return component
 		},
 		setName: name => {
-			unuseNameState?.()
-			unuseNameState = undefined
+			unuseNameState?.(); unuseNameState = undefined
 
 			if (name && typeof name !== 'string')
 				unuseNameState = name.use(component, setName)
@@ -501,7 +499,11 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 
 			emitRemove(component)
 			component.event.emit('unroot')
-			unuseOwnerRemove?.()
+			unuseOwnerRemove?.(); unuseOwnerRemove = undefined
+			unuseAriaControlsIdState?.(); unuseAriaControlsIdState = undefined
+			unuseAriaLabelledByIdState?.(); unuseAriaLabelledByIdState = undefined
+			unuseIdState?.(); unuseIdState = undefined
+			unuseNameState?.(); unuseNameState = undefined
 		},
 		appendTo (destination) {
 			destination.append(component.element)
@@ -711,7 +713,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return Define.set(component, 'ariaLabel', StringApplicator(component as Component, value => component.attributes.set('aria-label', value)))
 		},
 		ariaLabelledBy: labelledBy => {
-			unuseAriaLabelledByIdState?.()
+			unuseAriaLabelledByIdState?.(); unuseAriaLabelledByIdState = undefined
 			if (labelledBy) {
 				const state = State.Generator(() => labelledBy.id.value ?? labelledBy.attributes.get('for'))
 					.observe(component, labelledBy.id, labelledBy.cast<Label>()?.for)

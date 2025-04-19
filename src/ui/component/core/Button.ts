@@ -82,7 +82,7 @@ const Button = Component.Builder('button', (component): Button => {
 				return button
 			},
 			setIcon (newIcon) {
-				unuseIconState?.()
+				unuseIconState?.(); unuseIconState = undefined
 				setIcon(newIcon)
 				return button
 			},

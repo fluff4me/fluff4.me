@@ -1,4 +1,3 @@
-import quilt from 'lang/en-nz'
 import Follows from 'model/Follows'
 import Session from 'model/Session'
 import type { TagsManifest } from 'model/Tags'
@@ -49,9 +48,10 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 				.bindIcon(Follows.map(popover, () => Follows.followingTag(id)
 					? 'circle-check'
 					: 'circle'))
-				.text.bind(Follows.map(popover, () => Follows.followingTag(id)
-					? quilt['tag/action/label/unfollow']()
-					: quilt['tag/action/label/follow']()
+				.text.bind(Follows.map(popover, () => quilt =>
+					Follows.followingTag(id)
+						? quilt['tag/action/label/unfollow']()
+						: quilt['tag/action/label/follow']()
 				))
 				.event.subscribe('click', () => Follows.toggleFollowingTag(id))
 				.appendTo(popover)
@@ -61,9 +61,10 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 				.bindIcon(Follows.map(popover, () => Follows.ignoringTag(id)
 					? 'ban'
 					: 'circle'))
-				.text.bind(Follows.map(popover, () => Follows.ignoringTag(id)
-					? quilt['tag/action/label/unignore']()
-					: quilt['tag/action/label/ignore']()
+				.text.bind(Follows.map(popover, () => quilt =>
+					Follows.ignoringTag(id)
+						? quilt['tag/action/label/unignore']()
+						: quilt['tag/action/label/ignore']()
 				))
 				.event.subscribe('click', () => Follows.toggleIgnoringTag(id))
 				.appendTo(popover)

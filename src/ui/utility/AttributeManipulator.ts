@@ -1,7 +1,5 @@
-import quilt from 'lang/en-nz'
 import type Component from 'ui/Component'
-import type { Quilt } from 'ui/utility/StringApplicator'
-import { QuiltHelper } from 'ui/utility/StringApplicator'
+import { Quilt, QuiltHelper } from 'ui/utility/StringApplicator'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
@@ -36,17 +34,32 @@ interface AttributeManipulator<HOST> {
 	compute (attribute: string, supplier: (host: HOST) => string | undefined): HOST
 	use (attribute: string, keyOrHandler: Quilt.SimpleKey | Quilt.Handler): HOST
 	getUsing (attribute: string): Quilt.SimpleKey | Quilt.Handler | undefined
-	refresh (): void
 	remove (...attributes: string[]): HOST
 	toggle (present: boolean, attribute: string, value?: string): HOST
 	copy (component: Component): HOST
 	copy (element: HTMLElement): HOST
 }
 
+interface TranslationHandlerRegistration {
+	handler: Quilt.SimpleKey | Quilt.Handler
+	unuse: UnsubscribeState
+}
+
 function AttributeManipulator (component: Component): AttributeManipulator<Component> {
-	let translationHandlers: Record<string, Quilt.SimpleKey | Quilt.Handler> | undefined
+	let removed = false
+	let translationHandlers: Record<string, TranslationHandlerRegistration> | undefined
 	const unuseAttributeMap = new Map<string, UnsubscribeState>()
 	const attributeStates = new Map<string, State<string | undefined>>()
+
+	State.Owner.getOwnershipState(component)?.awaitManual(true, () => {
+		removed = true
+
+		for (const registration of Object.values(translationHandlers ?? {}))
+			registration.unuse()
+
+		translationHandlers = undefined
+	})
+
 	const result: AttributeManipulator<Component> = {
 		has (attribute) {
 			return component.element.hasAttribute(attribute)
@@ -57,6 +70,7 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 		},
 		append (...attributes) {
 			for (const attribute of attributes) {
+				translationHandlers?.[attribute]?.unuse()
 				delete translationHandlers?.[attribute]
 				component.element.setAttribute(attribute, '')
 				attributeStates.get(attribute)?.asMutable?.setValue('')
@@ -129,6 +143,7 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 			return component
 		},
 		set (attribute, value) {
+			translationHandlers?.[attribute]?.unuse()
 			delete translationHandlers?.[attribute]
 			if (value === undefined) {
 				component.element.removeAttribute(attribute)
@@ -180,6 +195,7 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 			if (component.element.hasAttribute(attribute))
 				return component
 
+			translationHandlers?.[attribute]?.unuse()
 			delete translationHandlers?.[attribute]
 			const value = supplier(component)
 			if (value === undefined) {
@@ -193,28 +209,32 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 			return component
 		},
 		getUsing (attribute) {
-			return translationHandlers?.[attribute]
+			return translationHandlers?.[attribute]?.handler
 		},
 		use (attribute, handler) {
-			translationHandlers ??= {}
-			translationHandlers[attribute] = handler
-			result.refresh()
-			return component
-		},
-		refresh () {
-			if (!translationHandlers)
-				return
+			if (removed)
+				return component
 
-			for (const attribute in translationHandlers) {
-				const translationHandler = translationHandlers[attribute]
+			const unuse = Quilt.State.useManual(quilt => {
+				const registration = translationHandlers?.[attribute]
+				if (!registration)
+					return
+
+				const translationHandler = registration.handler
 				const weave = typeof translationHandler === 'string' ? quilt[translationHandler]() : translationHandler(quilt, QuiltHelper)
-				const value = weave.toString()
+				const value = weave?.toString() ?? ''
 				component.element.setAttribute(attribute, value)
 				attributeStates.get(attribute)?.asMutable?.setValue(value)
-			}
+			})
+
+			translationHandlers ??= {}
+			translationHandlers[attribute] = { handler, unuse }
+
+			return component
 		},
 		remove (...attributes) {
 			for (const attribute of attributes) {
+				translationHandlers?.[attribute]?.unuse()
 				delete translationHandlers?.[attribute]
 				component.element.removeAttribute(attribute)
 				attributeStates.get(attribute)?.asMutable?.setValue(undefined)

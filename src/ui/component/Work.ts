@@ -1,5 +1,4 @@
 import type { Author as AuthorData, Work as WorkData, WorkFull } from 'api.fluff4.me'
-import quilt from 'lang/en-nz'
 import Follows from 'model/Follows'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
@@ -145,9 +144,10 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 					.bindIcon(Follows.map(popover, () => Follows.followingWork(work)
 						? 'circle-check'
 						: 'circle'))
-					.text.bind(Follows.map(popover, () => Follows.followingWork(work)
-						? quilt['work/action/label/unfollow']()
-						: quilt['work/action/label/follow']()
+					.text.bind(Follows.map(popover, () => quilt =>
+						Follows.followingWork(work)
+							? quilt['work/action/label/unfollow']()
+							: quilt['work/action/label/follow']()
 					))
 					.event.subscribe('click', () => Follows.toggleFollowingWork(work))
 					.appendTo(popover)
@@ -157,9 +157,10 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 					.bindIcon(Follows.map(popover, () => Follows.ignoringWork(work)
 						? 'ban'
 						: 'circle'))
-					.text.bind(Follows.map(popover, () => Follows.ignoringWork(work)
-						? quilt['work/action/label/unignore']()
-						: quilt['work/action/label/ignore']()
+					.text.bind(Follows.map(popover, () => quilt =>
+						Follows.ignoringWork(work)
+							? quilt['work/action/label/unignore']()
+							: quilt['work/action/label/ignore']()
 					))
 					.event.subscribe('click', () => Follows.toggleIgnoringWork(work))
 					.appendTo(popover)

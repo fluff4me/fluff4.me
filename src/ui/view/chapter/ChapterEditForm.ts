@@ -207,7 +207,7 @@ const applyVisibilityOptions = (table: LabelledTable, state: State<ChapterData |
 					dropdown.clear()
 					for (const tier of tiers ?? [])
 						dropdown.add(tier.tier_id, {
-							translation: quilt['shared/term/patreon-tier']({
+							translation: id => quilt => quilt['shared/term/patreon-tier']({
 								NAME: tier.tier_name,
 								PRICE: `$${(tier.amount / 100).toFixed(2)}`,
 							}),

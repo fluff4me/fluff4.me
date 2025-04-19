@@ -70,6 +70,7 @@ const Checkbutton = Component.Builder('label', (component): Checkbutton => {
 				return checkbutton
 			},
 			use: sourceState => {
+				unuse?.()
 				unuse = sourceState.use(checkbutton, checked => {
 					if (inputElement.checked === checked)
 						return

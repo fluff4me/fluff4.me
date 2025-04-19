@@ -1,7 +1,6 @@
-import type { Weave } from 'lang/en-nz'
-import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
 import Slot from 'ui/component/core/Slot'
+import type { Quilt } from 'ui/utility/StringApplicator'
 import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 
@@ -13,7 +12,7 @@ interface ProgressWheel extends Component, ProgressWheelExtensions { }
 
 export interface ProgressWheelDefinition {
 	readonly progress: StateOr<number | undefined>
-	readonly label: StateOr<string | Weave | undefined>
+	readonly label: StateOr<string | Quilt.Handler | undefined>
 	initialiseIcon?(icon: Component): any
 	initialiseLabel?(label: Component): any
 }
@@ -53,7 +52,7 @@ const ProgressWheel = Object.assign(
 				: ProgressWheelBuilder()
 					.set({
 						progress: unusedPercent,
-						label: quilt['shared/form/progress-wheel/remaining/label'](unusedChars),
+						label: quilt => quilt['shared/form/progress-wheel/remaining/label'](unusedChars),
 						initialiseIcon: icon => icon
 							.style.bind(unusedPercent < 0, 'progress-wheel-icon--overflowing'),
 					}))
@@ -62,7 +61,7 @@ const ProgressWheel = Object.assign(
 			return ProgressWheelBuilder()
 				.set({
 					progress,
-					label: progress.mapManual(p => quilt['shared/form/progress-wheel/progress/label']((p ?? 0) * 100)),
+					label: progress.mapManual(p => quilt => quilt['shared/form/progress-wheel/progress/label']((p ?? 0) * 100)),
 				})
 		},
 	}

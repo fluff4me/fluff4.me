@@ -51,7 +51,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 
 					for (const category of Object.values(manifest.categories))
 						dropdown.add(category.nameLowercase, {
-							translation: Quilt.fake(category.name),
+							translation: id => Quilt.fake(category.name),
 						})
 
 					if (selectionValue && selectionValue in dropdown.options)

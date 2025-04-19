@@ -1,7 +1,8 @@
 import Component from 'ui/Component'
 import Flag from 'ui/component/core/Flag'
 import Placeholder from 'ui/component/core/Placeholder'
-import State, { UnsubscribeState } from 'utility/State'
+import type { UnsubscribeState } from 'utility/State'
+import State from 'utility/State'
 
 interface LoadingExtensions {
 	readonly enabled: State.Mutable<boolean>
@@ -36,8 +37,10 @@ const Loading = Component.Builder((component): Loading => {
 		.extend<LoadingExtensions>(loading => ({
 			enabled,
 			use (state) {
-				unuseSettled?.(); enabled.bind(loading, state.settled.falsy)
-				unuseProgress?.(); progress.bind(loading, state.progress)
+				unuseSettled?.()
+				unuseSettled = enabled.bind(loading, state.settled.falsy)
+				unuseProgress?.()
+				unuseProgress = progress.bind(loading, state.progress)
 				return loading
 			},
 		}))
