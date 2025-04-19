@@ -25,3 +25,17 @@
 				%weight-bold
 				content: " #{get-icon("up-right-from-square")}"
 				font-size: .5em
+
+		&--is-masked:
+			#after: .link-external--has
+			@after:
+				%hidden
+
+		&-real-domain:
+			#after: .link-external--has
+			font-size: .6em
+			%vertical-align-super
+
+			@after:
+				content: " #{get-icon("up-right-from-square")}"
+				font-size: calc((.5 / 1 / .6) * 1em)
