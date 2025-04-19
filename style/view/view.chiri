@@ -13,6 +13,7 @@
 
 	#tablet:
 		%width-content
+		max-width: 100vw
 		%margin-auto
 
 	#flush:
