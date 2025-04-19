@@ -23,16 +23,25 @@ namespace Viewport {
 		size.subscribe(owner, tablet.markDirty)
 		return result
 	})
+	export const laptop = State.JIT(owner => {
+		const laptopWidth = Style.measure('--laptop-width')
+		const result = size.value.w < laptopWidth.value
+		laptopWidth.subscribe(owner, laptop.markDirty)
+		size.subscribe(owner, laptop.markDirty)
+		return result
+	})
 
 	export type State =
 		| 'desktop'
+		| 'laptop'
 		| 'tablet'
 		| 'mobile'
 
 	export const state = State.JIT(owner => {
-		const result = mobile.value ? 'mobile' : tablet.value ? 'tablet' : 'desktop'
+		const result = mobile.value ? 'mobile' : tablet.value ? 'tablet' : laptop.value ? 'laptop' : 'desktop'
 		mobile.subscribe(owner, state.markDirty)
 		tablet.subscribe(owner, state.markDirty)
+		laptop.subscribe(owner, state.markDirty)
 		return result
 	})
 

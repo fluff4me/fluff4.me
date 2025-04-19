@@ -1,3 +1,5 @@
+$app-column-width: #{app-column-width}
+
 .app:
 	%width-100
 	%grid
@@ -7,7 +9,6 @@
 	grid-template-rows:
 		$masthead-height
 		1fr
-	$app-column-width: calc($space-5 * 4 + $space-4)
 	grid-template-columns:
 		$app-column-width 1fr $app-column-width
 

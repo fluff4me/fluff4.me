@@ -3,6 +3,6 @@
 	%grid
 	grid-template-columns: auto 1fr
 
-	#flush:
+	#tablet:
 		%flex
 		%flex-column

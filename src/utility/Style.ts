@@ -16,6 +16,7 @@ namespace Style {
 			element.style.width = value
 			element.style.pointerEvents = 'none'
 			element.style.opacity = '0'
+			element.style.position = 'fixed'
 			document.body.appendChild(element)
 			const state = measured[property] = State(0)
 			void Task.yield().then(() => {

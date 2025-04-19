@@ -5,7 +5,7 @@
 	&-labels:
 		%contents
 
-		#flush:
+		#tablet:
 			%flex
 			%flex-wrap
 			%gap-4
