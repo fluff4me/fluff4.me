@@ -1,7 +1,7 @@
 .breadcrumbs:
 
 	&-meta:
-		%z-index-fg-2
+		%z-index-fg
 		%relative
 
 	&-title:
