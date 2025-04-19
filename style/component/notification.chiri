@@ -36,8 +36,9 @@
 		padding-inline: ${notification-read-button-padding: $space-3}
 		left: ${block-padding: 0px}
 
-		::hover, ::focus:
-			%colour-3
+		#can-hover:
+			::hover, ::focus:
+				%colour-3
 
 		&-icon:
 			#after: .button-icon
@@ -93,8 +94,9 @@
 		inset-inline: calc(-1 * ${popover-padding: 0px})
 		#transition: #{transition("background")}
 
-	::hover, ::focus:
-		%colour-0
-		@before:
-			%background-6-a30
-			$transition-duration: $transition-focus
+	#can-hover:
+		::hover, ::focus:
+			%colour-0
+			@before:
+				%background-6-a30
+				$transition-duration: $transition-focus

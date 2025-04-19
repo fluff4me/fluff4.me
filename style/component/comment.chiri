@@ -88,8 +88,9 @@
 		$border-colour: $colour-11
 		%margin-bottom-2
 
-		::hover, ::focus:
-			$border-colour: $colour-8
+		#can-hover:
+			::hover, ::focus:
+				$border-colour: $colour-8
 
 		:last:
 			%margin-bottom-3

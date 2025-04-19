@@ -22,9 +22,10 @@
 	margin-inline: 1px
 	#transition: #{transition("background")}
 
-	::hover, ::focus:
-		%background-4
-		$transition-duration: $transition-focus
+	#can-hover:
+		::hover, ::focus:
+			%background-4
+			$transition-duration: $transition-focus
 
 	#flush:
 		%span-2

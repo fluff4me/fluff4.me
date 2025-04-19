@@ -12,10 +12,11 @@
 	$border-colour: $colour-pink
 	colour: $colour-pink
 
-	::hover:
-		%colour-0
-		$button-background: $colour-pink-0
-		$border-colour: $colour-pink-0
+	#can-hover:
+		::hover:
+			%colour-0
+			$button-background: $colour-pink-0
+			$border-colour: $colour-pink-0
 
 	&--dragging, &--selected:
 		#after: .tag

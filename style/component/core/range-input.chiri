@@ -44,12 +44,13 @@
 			%border-box
 			%overflow-hidden
 
-		:hover, :focus:
-			@range-thumb:
-				translate: 0 calc($space-1 / -2)
-				background: $colour-10
-				$border-colour: $colour-9
-				$transition-duration: calc($transition-focus / 2)
+		#can-hover:
+			:hover, :focus:
+				@range-thumb:
+					translate: 0 calc($space-1 / -2)
+					background: $colour-10
+					$border-colour: $colour-9
+					$transition-duration: calc($transition-focus / 2)
 
 		:active:
 			@range-thumb:

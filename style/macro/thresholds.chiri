@@ -1,3 +1,13 @@
+#macro can-hover:
+	#body!component content
+	:media not all and (hover: none):
+		#include content
+
+#macro no-hover:
+	#body!component content
+	:media (hover: none):
+		#include content
+
 #macro not-laptop:
 	#body!component content
 	:media (width >= calc(#{laptop-width} * 1.2)):

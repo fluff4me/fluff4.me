@@ -41,12 +41,18 @@ $$button-background-highlight!colour
 		%font-4
 		%background-none
 		%box-shadow-none
-		::hover, ::focus:
-			%box-shadow-none
+
+		#can-hover:
+			::hover, ::focus:
+				%box-shadow-none
 
 	&-type-flush:
-		:not ::hover ::focus ::active:
-			#after: .button
+		#after: .button
+		#can-hover:
+			:not ::hover ::focus ::active:
+				%box-shadow-none
+				$button-background: transparent
+		#no-hover:
 			%box-shadow-none
 			$button-background: transparent
 
@@ -66,8 +72,9 @@ $$button-background-highlight!colour
 		$button-background: $colour
 		colour: #{contrast($colour)}
 
-		::hover, ::focus:
-			$button-background: hsl(from $colour h s calc(l + 5))
+		#can-hover:
+			::hover, ::focus:
+				$button-background: hsl(from $colour h s calc(l + 5))
 
 		::active:
 			$button-background: hsl(from $colour h calc(s - 40) calc(l - 15))
@@ -91,11 +98,12 @@ $$button-background-highlight!colour
 		grid-template-columns: auto 1fr
 		grid-template-rows: auto auto
 
-	::hover, ::focus:
-		$button-background: $background-interact-5
-		%translate-up-1
-		%box-shadow-2
-		$transition-duration: $transition-focus
+	#can-hover:
+		::hover, ::focus:
+			$button-background: $background-interact-5
+			%translate-up-1
+			%box-shadow-2
+			$transition-duration: $transition-focus
 
 	::active:
 		$button-background: $background-interact-3
@@ -113,9 +121,10 @@ $$button-background-highlight!colour
 		%cursor-default
 		%pointer-events-none
 
-		::hover, ::focus, ::active:
-			%translate-y-0
-			%box-shadow-none
+		#can-hover:
+			::hover, ::focus, ::active:
+				%translate-y-0
+				%box-shadow-none
 
 		&--hover:
 			#after: .button, .button--disabled

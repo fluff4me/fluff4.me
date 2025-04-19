@@ -50,9 +50,10 @@
 			#{transition("opacity")},
 			$button-transition
 
-		::hover, ::focus:
-			%opaque
-			%pointer-events
+		#can-hover:
+			::hover, ::focus:
+				%opaque
+				%pointer-events
 
 		#flush:
 			%hidden
@@ -87,8 +88,9 @@
 		%background-none
 		%box-shadow-none
 
-		::hover, ::focus:
-			%box-shadow-none
+		#can-hover:
+			::hover, ::focus:
+				%box-shadow-none
 
 		@before, @after:
 			content: none

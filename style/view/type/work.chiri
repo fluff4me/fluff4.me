@@ -58,13 +58,14 @@
 				%transparent
 				#transition: #{transition("opacity")}, #{transition("width")}
 
-			::hover, ::focus:
-				%background-none
+			#can-hover:
+				::hover, ::focus:
+					%background-none
 
-				@after:
-					%opaque
-					%width-100
-					$transition-duration: $transition-focus
+					@after:
+						%opaque
+						%width-100
+						$transition-duration: $transition-focus
 
 			&--chosen:
 				#after: .view-type-work-chapter-slot
