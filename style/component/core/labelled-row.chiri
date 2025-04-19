@@ -24,6 +24,7 @@
 
 		#tablet:
 			%padding-block-1
+			%relative
 
 	&-content:
 		%block

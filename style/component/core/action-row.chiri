@@ -6,7 +6,8 @@
 	max-width: #{content-width}
 
 	#flush:
-		%gap-0
+		%flex-column
+		%gap-1
 
 	&-left, &-middle, &-right:
 		%flex
@@ -15,14 +16,17 @@
 		%align-items-centre
 		%max-width-100
 
-		#flush:
-			%gap-0
-
 	&-left:
 		%justify-content-start
 
+		#flush:
+			%justify-content-end
+
 	&-middle:
 		%justify-content-centre
+
+		#flush:
+			%justify-content-end
 
 	&-right:
 		%justify-content-end
