@@ -63,14 +63,22 @@
 			grid-template-columns: 1fr 1fr
 
 		&-left:
+			#after: .action-row-left
 			%gap-0
+
+			#flush:
+				%justify-content-start
+
 		&-right:
 			%gap-0
 
 		&-middle:
+			#after: .action-row-right
+
 			#flush:
 				%row-2
 				%column-1-2
+				%justify-content-centre
 
 		@before:
 			%absolute
