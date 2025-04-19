@@ -19,6 +19,9 @@
 		%z-index-fg-2
 		top: calc($masthead-height + -1px)
 
+		#flush:
+			top: -1px
+
 		&--within-popover:
 			#after: .paginator-header
 			%relative

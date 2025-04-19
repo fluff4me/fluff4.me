@@ -1,5 +1,6 @@
 import type Component from 'ui/Component'
 import Arrays from 'utility/Arrays'
+import State from 'utility/State'
 import type { AnyFunction } from 'utility/Type'
 
 interface EventExtensions<HOST> {
@@ -15,13 +16,23 @@ export type EventHandler<HOST, EVENTS, EVENT extends keyof EVENTS> = (...params:
 
 type ResolveEvent<EVENT extends Arrays.Or<PropertyKey>> = EVENT extends PropertyKey[] ? EVENT[number] : EVENT
 
-interface EventManipulator<HOST, EVENTS extends Record<string, any>> {
-	emit<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean, stoppedPropagation: boolean | 'immediate' }
-	bubble<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean, stoppedPropagation: boolean | 'immediate' }
+interface EventManipulatorSubscribe<HOST, EVENTS extends Record<string, any>> {
 	subscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 	subscribeCapture<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
 	subscribePassive<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
+}
+
+interface EventManipulatorUntilSubscribe<HOST, EVENTS extends Record<string, any>> {
+	subscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): this
+	subscribeCapture<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): this
+	subscribePassive<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): this
+}
+
+interface EventManipulator<HOST, EVENTS extends Record<string, any>> extends EventManipulatorSubscribe<HOST, EVENTS> {
+	emit<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean, stoppedPropagation: boolean | 'immediate' }
+	bubble<EVENT extends keyof EVENTS> (event: EVENT, ...params: EventParametersEmit<EVENTS, EVENT>): EventResult<EVENTS, EVENT>[] & { defaultPrevented: boolean, stoppedPropagation: boolean | 'immediate' }
 	unsubscribe<EVENT extends Arrays.Or<keyof EVENTS>> (event: EVENT, handler: EventHandler<HOST, EVENTS, ResolveEvent<EVENT> & keyof EVENTS>): HOST
+	until (owner: State.Owner, initialiser: (until: EventManipulatorUntilSubscribe<HOST, EVENTS>) => unknown): HOST
 }
 
 export type NativeEvents = { [KEY in keyof HTMLElementEventMap]: (event: KEY extends 'toggle' ? ToggleEvent : HTMLElementEventMap[KEY]) => unknown }
@@ -65,7 +76,7 @@ function EventManipulator<T extends object> (host: T): EventManipulator<T, Nativ
 		? host
 		: { element: document.createElement('span') }
 
-	return {
+	const manipulator: EventManipulator<T, NativeEvents> = {
 		emit (event, ...params) {
 			const detail: EventDetail = { result: [], params }
 			let stoppedPropagation: boolean | 'immediate' = false
@@ -133,7 +144,29 @@ function EventManipulator<T extends object> (host: T): EventManipulator<T, Nativ
 
 			return host
 		},
+		until (owner, initialiser) {
+			initialiser({
+				subscribe (event, handler) {
+					manipulator.subscribe(event, handler)
+					State.Owner.getOwnershipState(owner).awaitManual(true, () => manipulator.unsubscribe(event, handler))
+					return this
+				},
+				subscribeCapture (event, handler) {
+					manipulator.subscribeCapture(event, handler)
+					State.Owner.getOwnershipState(owner).awaitManual(true, () => manipulator.unsubscribe(event, handler))
+					return this
+				},
+				subscribePassive (event, handler) {
+					manipulator.subscribePassive(event, handler)
+					State.Owner.getOwnershipState(owner).awaitManual(true, () => manipulator.unsubscribe(event, handler))
+					return this
+				},
+			})
+			return host
+		},
 	}
+
+	return manipulator
 
 	function subscribe (handler: EventHandlerRegistered, events: Arrays.Or<keyof NativeEvents>, options?: AddEventListenerOptions) {
 		if (handler[SYMBOL_REGISTERED_FUNCTION]) {
