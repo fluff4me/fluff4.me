@@ -9,11 +9,15 @@
 		%font-inherit
 		colour: ${radio-colour: $colour-blue}
 
-		:not ::hover ::focus:
+		#can-hover:
+			:not ::hover ::focus:
+				border-colour: transparent
+		#no-hover:
 			border-colour: transparent
 
-		::hover, ::focus:
-			$button-background: transparent
+		#can-hover:
+			::hover, ::focus:
+				$button-background: transparent
 
 		&--selected:
 			#after: .radio-row-option, .button--disabled

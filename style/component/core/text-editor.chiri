@@ -95,9 +95,10 @@
 				top: #{size}
 				left: ${additional-left-padding: 0px}
 
-			::hover, ::focus, ::active:
-				$button-background: transparent
-				z-index: 2
+			#can-hover:
+				::hover, ::focus, ::active:
+					$button-background: transparent
+					z-index: 2
 
 			&--hidden:
 				%hidden
@@ -118,8 +119,9 @@
 				%border-radius-0
 				%outline-none
 
-				::hover, ::focus:
-					%translate-y-0
+				#can-hover:
+					::hover, ::focus:
+						%translate-y-0
 
 				@before:
 					%z-index-fg
@@ -248,8 +250,9 @@
 				width: $content-width
 				height: 1px
 
-			::hover:
-				scrollbar-colour: $colour-3 transparent
+			#can-hover:
+				::hover:
+					scrollbar-colour: $colour-3 transparent
 
 			&--fullscreen:
 				%hidden

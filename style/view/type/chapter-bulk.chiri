@@ -175,8 +175,9 @@
 							:scheme light:
 								$border-colour: $background-3
 
-							::hover, ::focus:
-								%translate-none
+							#can-hover:
+								::hover, ::focus:
+									%translate-none
 
 			&-empty-paragraph:
 				%padding-3
@@ -205,8 +206,9 @@
 			#transition: #{transition("background")}, #{transition("border-radius")}, #{transition("gap")}
 			$transition-duration: $transition-focus
 
-			&:hover, &:focus:
-				%background-4
+			#can-hover:
+				&:hover, &:focus:
+					%background-4
 
 			&--open:
 				#after: .view-type-chapter-bulk-import-summary
@@ -242,9 +244,10 @@
 				%background-none
 				%box-shadow-none
 
-				&::hover, &::focus:
-					%background-none
-					%box-shadow-none
+				#can-hover:
+					&::hover, &::focus:
+						%background-none
+						%box-shadow-none
 
 				&-icon:
 					#transition: #{transition("background")}
@@ -297,9 +300,10 @@
 				background: radial-gradient(ellipse at left 20% top 20%, $button-background-highlight, $button-background)
 				grid-template-columns: auto 1fr
 
-				::hover, ::focus:
-					$button-background: $background-6
-					$border-colour: $background-8
+				#can-hover:
+					::hover, ::focus:
+						$button-background: $background-6
+						$border-colour: $background-8
 
 				&--closed:
 					#after: .button, .block-header

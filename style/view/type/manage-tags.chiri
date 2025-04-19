@@ -37,9 +37,10 @@
 	&-tag:
 		#after: .tag
 
-		::hover:
-			%colour-pink
-			$button-background: transparent
+		#can-hover:
+			::hover:
+				%colour-pink
+				$button-background: transparent
 
 		&--filtered-out:
 			#after: .button, .tag
