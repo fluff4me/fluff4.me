@@ -173,6 +173,7 @@ skip-navigation: Skip Navigation
 
 primary-nav/alt: primary
 action/login=shared/action/login-or-signup
+label/beta: beta
 
 ## user/notifications
 alt: notifications

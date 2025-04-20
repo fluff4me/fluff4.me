@@ -88,6 +88,9 @@
 		%background-none
 		%box-shadow-none
 
+		&-link:
+			%no-decoration
+
 		#can-hover:
 			::hover, ::focus:
 				%box-shadow-none
@@ -100,6 +103,19 @@
 			&-wordmark:
 				%no-pointer-events
 				%height-em
+
+			&-beta:
+				%flex
+				%italic
+				%colour-pink
+				%weight-bold
+				%no-decoration
+				font-size: 0.4em
+				%absolute
+				right: 1.4em
+				top: 1em
+				%height-cap
+				%align-items-centre
 
 		&-wrapper:
 			#flush:
