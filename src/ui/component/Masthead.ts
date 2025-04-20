@@ -198,6 +198,7 @@ const HomeLink = Component.Builder('a', (component): Link => {
 
 	const homeLink = component.and(Link, '/')
 		.ariaLabel.use('home/label')
+		.style('masthead-home-link')
 		.clearPopover()
 		.append(Component()
 			.and(Button)
@@ -206,7 +207,13 @@ const HomeLink = Component.Builder('a', (component): Link => {
 			.append(Component('img')
 				.style('masthead-home-logo-wordmark')
 				.ariaHidden()
-				.attributes.set('src', `${Env.URL_ORIGIN}image/logo-wordmark.svg`)))
+				.attributes.set('src', `${Env.URL_ORIGIN}image/logo-wordmark.svg`)
+			)
+			.append(Component()
+				.style('masthead-home-logo-beta')
+				.text.use('masthead/label/beta')
+			)
+		)
 
 	flag.style.bind(homeLink.hoveredOrFocused, 'flag--focused')
 	flag.style.bind(homeLink.active, 'flag--active')
