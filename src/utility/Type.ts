@@ -34,6 +34,10 @@ namespace Type {
 	export function as<T extends keyof TypeMap> (type: T, value: unknown): TypeMap[T] | undefined {
 		return typeof value === type ? value as TypeMap[T] : undefined
 	}
+
+	export function not<T extends keyof TypeMap, R> (type: T, value: R): R | undefined {
+		return typeof value === type ? undefined : value
+	}
 }
 
 export default Type
