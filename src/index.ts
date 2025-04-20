@@ -13,17 +13,12 @@ Object.assign(window, {
 })
 
 import Env from 'utility/Env'
-import Import from 'utility/Import'
 import Maps from 'utility/Maps'
 import Ranges from 'utility/Ranges'
+import SelfScript from 'utility/SelfScript'
+import SourceMapping from 'utility/SourceMapping'
 
-interface BrowserSourceMapSupport {
-	install (options: { environment: string }): void
-}
-
-Import.getModule<BrowserSourceMapSupport>('browser-source-map-support')?.install({
-	environment: 'browser',
-})
+SourceMapping.init()
 
 // view transition api fallback
 const noopViewTransition: ViewTransition = {
@@ -47,6 +42,9 @@ Ranges.applyPrototypes()
 
 void (async () => {
 	await Env.load()
+	if (Env.isDev)
+		SelfScript.value = await fetch(`${Env.URL_ORIGIN}index.js`).then(response => response.text())
+
 	const app = await import('App')
 	await app.default()
 })()

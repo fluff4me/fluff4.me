@@ -16,6 +16,8 @@ import Define from 'utility/Define'
 import Env from 'utility/Env'
 import Errors from 'utility/Errors'
 import { mutable } from 'utility/Objects'
+import SelfScript from 'utility/SelfScript'
+import SourceMapping from 'utility/SourceMapping'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Strings from 'utility/string/Strings'
@@ -1005,7 +1007,10 @@ namespace Component {
 		return ELEMENT_TO_COMPONENT_MAP.get(element as Element)
 	}
 
-	const STACK_FILE_NAME_REGEX = /\(http.*?(\w+)\.ts:\d+:\d+\)/
+	// const STACK_FILE_NAME_REGEX = /\(http.*?(\w+)\.ts:\d+:\d+\)/
+	const STACK_FILE_LINE_REGEX = /\(http.*?\w+\.[tj]s:(\d+):\d+\)|@http.*?\w+\.[tj]s:(\d+):\d+/
+	const VARIABLE_NAME_REGEX = /\s*(?:const |exports\.(?!default))(\w+) = /
+	const LAST_MODULE_DEF_REGEX = /.*\bdefine\("(?:[^"]+\/)*(\w+)", /s
 	const PASCAL_CASE_WORD_START = /(?<=[a-z0-9_-])(?=[A-Z])/g
 
 	// eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
@@ -1019,13 +1024,48 @@ namespace Component {
 		})
 	}
 
+	// let logNode: HTMLElement | undefined
+	let indexjsText!: string | undefined
+	let lines: string[] | undefined
 	function getBuilderName (): BuilderName | undefined {
-		const stack = Strings.shiftLine((new Error().stack ?? ''), 3)
-		const name = stack.match(STACK_FILE_NAME_REGEX)?.[1]
-		if (!name || name === 'Component')
+		if (!lines) {
+			indexjsText ??= (document.currentScript as HTMLScriptElement)?.text ?? SelfScript.value
+			if (!indexjsText)
+				return undefined
+
+			lines = indexjsText.split('\n')
+		}
+
+		// if (!logNode) {
+		// 	logNode = document.createElement('div')
+		// 	document.body.prepend(logNode)
+		// }
+		SourceMapping.Enabled.value = false
+		const rawStack = new Error().stack ?? ''
+		const stack = Strings.shiftLine(rawStack, rawStack.includes('@') ? 2 : 3) // handle safari stack traces (@)
+		SourceMapping.Enabled.value = true
+
+		// logNode.append(document.createTextNode(`original stack ${new Error().stack}`), document.createElement('br'))
+		// logNode.append(document.createTextNode(`shifted stack ${stack}`), document.createElement('br'))
+
+		const lineMatch = stack.match(STACK_FILE_LINE_REGEX)
+		const line = Number(lineMatch?.[1] ?? lineMatch?.[2])
+		const lineText = lines[line - 1]
+		// logNode.append(document.createTextNode(`found ${lineMatch?.[1] ?? lineMatch?.[2]} ${line} ${lineText}`))
+		// logNode.append(document.createElement('br'), document.createElement('br'))
+		if (!lineText)
 			return undefined
 
-		return addKebabCase(name)
+		const varName = lineText.match(VARIABLE_NAME_REGEX)?.[1]
+		if (varName)
+			return addKebabCase(varName)
+
+		const sliceUntilLine = indexjsText!.slice(0, indexjsText!.indexOf(lineText))
+		const moduleName = sliceUntilLine.match(LAST_MODULE_DEF_REGEX)?.[1]
+		if (!moduleName)
+			return undefined
+
+		return addKebabCase(moduleName)
 	}
 
 	export function removeContents (element: Node) {
