@@ -3,7 +3,7 @@ import State from 'utility/State'
 
 namespace SourceMapping {
 	const originalPrepareStackTrace = Error.prepareStackTrace
-	let sourceMapPrepareStackTrace!: typeof originalPrepareStackTrace
+	let sourceMapPrepareStackTrace = originalPrepareStackTrace // default to same
 
 	export function init () {
 		interface BrowserSourceMapSupport {
