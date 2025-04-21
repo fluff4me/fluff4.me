@@ -6,6 +6,7 @@ import Script from 'utility/Script'
 import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Style from 'utility/Style'
+import type { PartialRecord } from 'utility/Type'
 
 const style = State(originalStyle)
 
@@ -52,6 +53,7 @@ interface StyleManipulatorFunctions<HOST> {
 
 	hasProperty (property: string): boolean
 	setProperty (property: string, value?: string | number | null): HOST
+	setProperties (properties: PartialRecord<keyof CSSStyleDeclaration, string | number | null>): HOST
 	toggleProperty (enabled: boolean | undefined, property: string, value?: string | number | null): HOST
 	setVariable (variable: string, value?: string | number | null): HOST
 	bindProperty (property: string, state: StateOr<string | number | undefined | null>): HOST
@@ -170,6 +172,14 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 			setProperty (property, value) {
 				unbindPropertyState[property]?.()
 				setProperty(property, value)
+				return component
+			},
+			setProperties (properties) {
+				for (let [property, value] of Object.entries(properties)) {
+					unbindPropertyState[property]?.()
+					property = property.replaceAll(/[a-z][A-Z]/g, match => `${match[0]}-${match[1].toLowerCase()}`).toLowerCase()
+					setProperty(property, value)
+				}
 				return component
 			},
 			toggleProperty (enabled, property, value) {

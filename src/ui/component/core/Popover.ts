@@ -90,17 +90,76 @@ Component.extend(component => {
 				.appendTo(document.body)
 
 			let touchTimeout: number | undefined
+			let longpressed = false
 			component.event.until(popover, event => event
 				.subscribe('touchstart', event => {
-					const closestWithPopover = event.targetComponent?.getAncestorComponents().find(component => component.hasPopoverSet())
+					const closestWithPopover = [
+						event.targetComponent,
+						...event.targetComponent?.getAncestorComponents() ?? [],
+					]
+						.find(component => component?.hasPopoverSet())
+
+					////////////////////////////////////
+					//#region Debugging
+
+					// function useError (supplier: () => unknown) {
+					// 	try {
+					// 		return supplier()
+					// 	}
+					// 	catch (e) {
+					// 		return e instanceof Error ? e.message : String(e)
+					// 	}
+					// }
+					// Component('pre')
+					// 	.style.setProperties({
+					// 		position: 'relative',
+					// 		zIndex: '2',
+					// 		background: '#222',
+					// 		color: '#aaa',
+					// 		fontSize: 'var(--font-0)',
+					// 		whiteSpace: 'pre-wrap',
+					// 	})
+					// 	.text.set(Object
+					// 		.entries({
+					// 			eventPopoverHost: component?.fullType,
+					// 			...(event.targetComponent === component
+					// 				? { targetIsEventHost: true }
+					// 				: {
+					// 					targetIsEventHost: false,
+					// 					target: event.targetComponent?.fullType,
+					// 					...(closestWithPopover === component
+					// 						? { closestIsEventHost: true }
+					// 						: {
+					// 							closestIsEventHost: false,
+					// 							closestPopoverHost: closestWithPopover?.fullType,
+					// 						}
+					// 					),
+					// 				}
+					// 			),
+					// 		})
+					// 		.map(([key, value]) => `${key}: ${typeof value === 'string' ? value : JSON.stringify(value)}`)
+					// 		.join('\n')
+					// 	)
+					// 	.appendTo(component)
+
+					//#endregion
+					////////////////////////////////////
+
 					if (closestWithPopover !== component)
 						return
 
 					touchTimeout = window.setTimeout(() => {
+						longpressed = true
 						void updatePopoverState(null, null, 'longpress')
 					}, 1500)
 				})
-				.subscribe('touchend', () => clearTimeout(touchTimeout))
+				.subscribe('touchend', event => {
+					if (longpressed)
+						event.preventDefault()
+
+					longpressed = false
+					clearTimeout(touchTimeout)
+				})
 			)
 
 			popover.visible.await(component, true, async () => {
@@ -220,6 +279,24 @@ Component.extend(component => {
 							|| InputBus.isDown('F4'))
 					)
 					|| !!component.clickState
+
+				////////////////////////////////////
+				//#region Debugging
+
+				// Component('pre')
+				// 	.style.setProperties({
+				// 		fontSize: 'var(--font-0)',
+				// 		whiteSpace: 'pre-wrap',
+				// 	})
+				// 	.text.set(JSON.stringify({
+				// 		shouldShow,
+				// 		isShown,
+				// 		reason,
+				// 	}, null, '  '))
+				// 	.prependTo(document.body)
+
+				//#endregion
+				////////////////////////////////////
 
 				if (isShown === shouldShow)
 					return

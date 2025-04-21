@@ -120,6 +120,8 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 
 	readonly element: ELEMENT
 
+	readonly fullType: string
+
 	/** Causes this element to be removed when its owner is removed */
 	setOwner (owner: Component | undefined): this
 
@@ -436,6 +438,13 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			this.event.subscribe(['insert', 'ancestorInsert', 'ancestorScroll', 'ancestorRectDirty'], rectState.markDirty)
 			Viewport.size.subscribe(component, rectState.markDirty)
 			return Define.set(component, 'rect', rectState)
+		},
+		get fullType () {
+			return ''
+				+ (component.tagName.startsWith(':') ? '' : `<${component.tagName}> `)
+				+ (!component.supers.value.length ? ''
+					: ':' + component.supers.value.map((t: Component.BuilderLike) => t.name.kebabcase).join(' :')
+				)
 		},
 
 		setId: id => {
