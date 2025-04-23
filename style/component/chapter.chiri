@@ -25,7 +25,7 @@
 	#can-hover:
 		::hover, ::focus:
 			%background-4
-			$transition-duration: $transition-focus
+			%transition-focus
 
 	#flush:
 		%span-2
@@ -70,14 +70,14 @@
 			$button-transition,
 			#{transition("margin")},
 			#{transition("opacity")}
-		$transition-duration: $transition-focus
+		%transition-focus
 
 		#not-tablet:
 			:not ::focus:
 				%transparent
 				%unmargin-left-3
 				margin-right: calc(-1 * ($space-2 + $space-1))
-				$transition-duration: $transition-blur
+				%transition-blur
 
 		#tablet:
 			%hidden

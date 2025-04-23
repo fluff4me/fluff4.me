@@ -76,11 +76,11 @@
 			#after: .tag-following-bookmark
 			$bookmark-colour-1: $colour-0
 			$bookmark-colour-2: $colour-1
-			$transition-duration: $transition-focus
+			%transition-focus
 
 			@before, @after:
 				$bookmark-colour-2: $colour-1
-				$transition-duration: $transition-focus
+				%transition-focus
 
 	&--has-following-bookmark:
 		#after: .tag

@@ -41,7 +41,7 @@ $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 	:popover:
 		%flex
 		%opaque
-		$transition-duration: $transition-focus
+		%transition-focus
 		%translate-y-0
 
 		:start:
@@ -51,7 +51,7 @@ $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 	&--normal-stacking:
 		%flex
 		%opaque
-		$transition-duration: $transition-focus
+		%transition-focus
 		%translate-y-0
 
 		&--hidden:
@@ -59,7 +59,7 @@ $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 			%hidden
 			%transparent
 			%translate-down-3
-			$transition-duration: $transition-blur
+			%transition-blur
 
 		:start:
 			%transparent
