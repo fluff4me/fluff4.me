@@ -39,12 +39,39 @@
 			$box-shadow-intensity: 30%
 			%translate-down-5
 
+			@backdrop:
+				#transition: #{transition("background")}, #{transition("backdrop-filter")}
+				%transition-focus
+				%background-none
+				%backdrop-filter-none
+
 			:popover:
 				%translate-y-0
+				%overflow-visible
 
 				:start:
 					%transparent
 					%translate-down-5
+
+				@backdrop:
+					backdrop-filter: blur(.1em)
+					%background-0-a30
+
+					:start:
+						%background-none
+						%backdrop-filter-none
+
+		&-close-surface:
+			%hidden
+
+			#flush:
+				%fixed
+				%block
+				%z-index-bg
+				%bottom-0
+				%left-0
+				width: 100vw
+				height: 100vh
 
 		&-arrow:
 			#not-tablet:
