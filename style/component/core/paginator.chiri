@@ -148,6 +148,7 @@
 		%stack-self
 		%translate-x-0
 		%transition-blur
+		%overflow-auto-y
 
 		:start:
 			%transparent
