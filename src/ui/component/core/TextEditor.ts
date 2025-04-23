@@ -478,6 +478,12 @@ const markdownHTMLNodeRegistry: PartialRecord<Nodes, MarkdownHTMLTokenRemapSpec>
 }
 
 const markdownHTMLMarkRegistry: PartialRecord<Marks, MarkdownHTMLTokenRemapSpec> = {
+	subscript: {
+		getAttrs: token => token.tag === 'sub' ? true : undefined,
+	},
+	superscript: {
+		getAttrs: token => token.tag === 'sup' ? true : undefined,
+	},
 	mention: {
 		getAttrs: token => {
 			const vanity = token.attrGet('vanity')
@@ -749,7 +755,17 @@ const markdownSerializer = new MarkdownSerializer(
 				return ''
 			},
 		},
-	},
+		subscript: {
+			open: '<sub>',
+			close: '</sub>',
+			expelEnclosingWhitespace: true,
+		},
+		superscript: {
+			open: '<sup>',
+			close: '</sup>',
+			expelEnclosingWhitespace: true,
+		},
+	} satisfies PartialRecord<Marks, MarkdownSerializer['marks']['']>,
 )
 
 function parseStyleAttributeValue (style: string): Map<string, string>
