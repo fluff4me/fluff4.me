@@ -99,4 +99,4 @@
 			%colour-0
 			@before:
 				%background-6-a30
-				$transition-duration: $transition-focus
+				%transition-focus

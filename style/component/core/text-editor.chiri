@@ -151,7 +151,7 @@
 					$border-colour: $colour-border-input
 					%untop-1
 					%backdrop-blur
-					$transition-duration: $transition-focus
+					%transition-focus
 
 			&--has-popover--within-popover:
 				@after:

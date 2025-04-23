@@ -147,7 +147,7 @@
 		%opaque
 		%stack-self
 		%translate-x-0
-		$transition-duration: $transition-blur
+		%transition-blur
 
 		:start:
 			%transparent
@@ -162,7 +162,7 @@
 			%hidden
 			%transparent
 			translate: calc($space-4 * $page-direction * -1)
-			$transition-duration: $transition-focus
+			%transition-focus
 
 		&--bounce:
 			#after: .paginator-page--hidden

@@ -65,7 +65,7 @@
 					@after:
 						%opaque
 						%width-100
-						$transition-duration: $transition-focus
+						%transition-focus
 
 			&--chosen:
 				#after: .view-type-work-chapter-slot

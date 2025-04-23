@@ -103,7 +103,7 @@ $$button-background-highlight!colour
 			$button-background: $background-interact-5
 			%translate-up-1
 			%box-shadow-2
-			$transition-duration: $transition-focus
+			%transition-focus
 
 	::active:
 		$button-background: $background-interact-3
@@ -129,7 +129,7 @@ $$button-background-highlight!colour
 		&--hover:
 			#after: .button, .button--disabled
 			$button-background: $background-interact-5
-			$transition-duration: $transition-focus
+			%transition-focus
 
 		&--active:
 			#after: .button, .button--disabled, .button--disabled--hover

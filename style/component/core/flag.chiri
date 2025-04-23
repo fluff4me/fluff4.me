@@ -77,7 +77,7 @@
 				to: transform: none
 
 	&--focused:
-		$transition-duration: $transition-focus
+		%transition-focus
 		$stripe-background-l-mod: 5
 
 	&--active:

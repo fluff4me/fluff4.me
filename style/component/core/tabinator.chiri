@@ -52,7 +52,7 @@
 		#transition: #{transition("opacity")}, #{transition("translate")}, #{transition("display")}
 		%transition-discrete
 		%translate-x-0
-		$transition-duration: $transition-blur
+		%transition-blur
 
 		:start:
 			%transparent
@@ -64,4 +64,4 @@
 			%transparent
 			%no-pointer-events
 			translate: calc($space-4 * $page-direction * -1)
-			$transition-duration: $transition-focus
+			%transition-focus

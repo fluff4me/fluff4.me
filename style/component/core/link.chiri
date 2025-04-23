@@ -9,7 +9,7 @@
 			%decoration-underline
 			%colour-0
 			text-decoration-color: $colour-0
-			$transition-duration: $transition-focus
+			%transition-focus
 
 	&-external:
 		#can-hover:
