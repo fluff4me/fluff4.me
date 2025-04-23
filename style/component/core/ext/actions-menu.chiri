@@ -28,6 +28,24 @@
 			@after:
 				top: calc(50% + $arrow-height / 2)
 
+		#flush:
+			%width-100
+			%border-bottom-radius-0
+			%padding-block-3
+			bottom: -1px
+			left: 0 !important
+			top: auto !important
+			box-shadow: #{box-shadow-inset-border-1}, #{box-shadow-bottom-2}
+			$box-shadow-intensity: 30%
+			%translate-down-5
+
+			:popover:
+				%translate-y-0
+
+				:start:
+					%transparent
+					%translate-down-5
+
 		&-arrow:
 			#not-tablet:
 				%absolute

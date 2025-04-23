@@ -7,6 +7,7 @@ import Mouse from 'ui/utility/Mouse'
 import type { ComponentNameType } from 'ui/utility/StyleManipulator'
 import TypeManipulator from 'ui/utility/TypeManipulator'
 import Viewport from 'ui/utility/Viewport'
+import Vector2 from 'utility/maths/Vector2'
 import { mutable } from 'utility/Objects'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
@@ -90,9 +91,19 @@ Component.extend(component => {
 				.appendTo(document.body)
 
 			let touchTimeout: number | undefined
+			let touchStart: Vector2 | undefined
 			let longpressed = false
+			function cancelLongpress () {
+				longpressed = false
+				touchStart = undefined
+				clearTimeout(touchTimeout)
+			}
 			component.event.until(popover, event => event
 				.subscribe('touchstart', event => {
+					touchStart = Vector2.fromClient(event.touches[0])
+					if (event.touches.length > 1)
+						return cancelLongpress()
+
 					const closestWithPopover = [
 						event.targetComponent,
 						...event.targetComponent?.getAncestorComponents() ?? [],
@@ -151,14 +162,24 @@ Component.extend(component => {
 					touchTimeout = window.setTimeout(() => {
 						longpressed = true
 						void updatePopoverState(null, null, 'longpress')
-					}, 1500)
+					}, 800)
+				})
+				.subscribePassive('touchmove', event => {
+					if (!touchStart)
+						return
+
+					if (event.touches.length > 1)
+						return cancelLongpress()
+
+					const newPosition = Vector2.fromClient(event.touches[0])
+					if (!Vector2.distanceWithin(20, touchStart, newPosition))
+						return cancelLongpress()
 				})
 				.subscribe('touchend', event => {
 					if (longpressed)
 						event.preventDefault()
 
-					longpressed = false
-					clearTimeout(touchTimeout)
+					cancelLongpress()
 				})
 			)
 
