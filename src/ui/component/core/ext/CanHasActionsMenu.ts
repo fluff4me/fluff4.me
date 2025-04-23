@@ -114,6 +114,10 @@ const CanHasActionsMenu = Component.Extension((component, popoverInitialiser?: A
 					actionsMenu = mutable(component).actionsMenu = popover
 						.and(ActionsMenu)
 						.style('actions-menu-popover')
+						.prepend(Component()
+							.style('actions-menu-popover-close-surface')
+							.event.subscribe('click', () => popover.hide())
+						)
 						.append(Slot().style.remove('slot').style('actions-menu-popover-arrow'))
 						.tweak(popoverInitialiser, button)
 						.tweak(initialiser, button)
