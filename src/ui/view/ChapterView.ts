@@ -18,14 +18,12 @@ import Chapter from 'ui/component/Chapter'
 import Comments from 'ui/component/Comments'
 import Button from 'ui/component/core/Button'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
-import Dialog from 'ui/component/core/Dialog'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import Reaction from 'ui/component/Reaction'
-import SettingsDialog from 'ui/component/SettingsDialog'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
 import Work from 'ui/component/Work'
@@ -100,14 +98,6 @@ export default ViewDefinition({
 			`/work/${params.author}/${params.work}`,
 			button => button.subText.set(workData.name),
 		)
-
-		Button()
-			.type('flush')
-			.setIcon('gear')
-			.style('breadcrumbs-actions-action')
-			.text.use('view/chapter/action/settings')
-			.event.subscribe('click', () => SettingsDialog().tweak(Dialog.await))
-			.appendTo(view.breadcrumbs.actions)
 
 		Link(`/work/${author?.vanity}/${workData.vanity}`)
 			.and(Work, workData, author)

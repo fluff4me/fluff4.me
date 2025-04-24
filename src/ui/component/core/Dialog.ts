@@ -2,6 +2,19 @@ import Component from 'ui/Component'
 import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
+const OPEN_DIALOGS = new Set<Dialog>()
+function addOpenDialog (dialog: Dialog) {
+	const hadOpenDialogs = !!OPEN_DIALOGS.size
+	OPEN_DIALOGS.add(dialog)
+	if (!hadOpenDialogs)
+		Component.getDocument().style('has-dialog')
+}
+function removeOpenDialog (dialog: Dialog) {
+	OPEN_DIALOGS.delete(dialog)
+	if (!OPEN_DIALOGS.size)
+		Component.getDocument().style.remove('has-dialog')
+}
+
 export interface DialogExtensions {
 	readonly willClose: State<boolean>
 	readonly willOpen: State<boolean>
@@ -47,6 +60,7 @@ const Dialog = Object.assign(
 						return dialog
 
 					unbind?.()
+					addOpenDialog(dialog)
 					dialog.element[modal ? 'showModal' : 'show']()
 					opened.value = true
 					willOpen.value = false
@@ -58,6 +72,7 @@ const Dialog = Object.assign(
 						return dialog
 
 					unbind?.()
+					removeOpenDialog(dialog)
 					dialog.element.close()
 					opened.value = false
 					willClose.value = false
@@ -70,10 +85,14 @@ const Dialog = Object.assign(
 						return dialog
 
 					unbind?.()
-					if (open)
+					if (open) {
+						addOpenDialog(dialog)
 						dialog.element[modal ? 'showModal' : 'show']()
-					else
+					}
+					else {
+						removeOpenDialog(dialog)
 						dialog.element.close()
+					}
 
 					opened.value = open ?? !opened.value
 					dialog[willChangeStateName].asMutable?.setValue(false)
@@ -85,10 +104,14 @@ const Dialog = Object.assign(
 						const willChangeStateName = open ? 'willOpen' : 'willClose'
 						dialog[willChangeStateName].asMutable?.setValue(true)
 
-						if (open)
+						if (open) {
+							addOpenDialog(dialog)
 							dialog.element[modal ? 'showModal' : 'show']()
-						else
+						}
+						else {
+							removeOpenDialog(dialog)
 							dialog.element.close()
+						}
 
 						opened.value = open
 						dialog[willChangeStateName].asMutable?.setValue(false)
@@ -121,6 +144,10 @@ const Dialog = Object.assign(
 						resolve()
 					})
 				})
+
+				navigate.event.until(dialog, event => event
+					.subscribe('Navigate', () => dialog.close())
+				)
 			})
 		},
 	}

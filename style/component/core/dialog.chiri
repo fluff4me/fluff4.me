@@ -1,3 +1,6 @@
+.has-dialog:
+	%overflow-hidden
+
 .dialog:
 	%fixed
 	%top-0
@@ -26,6 +29,9 @@
 			%margin-auto
 			#transition: #{transition("display")}, #{transition("overlay")}
 			%transition-discrete
+
+			max-height: 100vh
+			%overflow-auto-y
 
 			@backdrop:
 				background: color-mix(in lch, #{background-highlight}, transparent 5%)
