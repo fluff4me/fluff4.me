@@ -1395,6 +1395,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	const fullscreenDialog = Dialog()
 		.and(Slot)
 		.style.remove('slot')
+		.style('text-editor-fullscreen-dialog')
 		.setFullscreen()
 		.setOwner(editor)
 		.bind(isFullscreen)
@@ -1632,6 +1633,7 @@ const TextEditor = Component.Builder((component): TextEditor => {
 	function toggleFullscreen () {
 		ViewTransition.perform('subview', viewTransitionName, () => {
 			isFullscreen.value = !isFullscreen.value
+			Component.getDocument().style.toggle(isFullscreen.value, 'has-fullscreen-text-editor')
 			actualEditor.appendTo(isFullscreen.value ? fullscreenDialog : editor)
 			actualEditor.rect.markDirty()
 		})

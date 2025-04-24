@@ -833,6 +833,11 @@ function emitRemove (component: Component | undefined) {
 let canBuildComponents = false
 namespace Component {
 
+	let bodyComponent: Component | undefined, documentComponent: Component | undefined, windowComponent: Component | undefined
+	export const getBody = () => bodyComponent ??= wrap(document.body)
+	export const getDocument = () => documentComponent ??= wrap(document.documentElement)
+	export const getWindow = () => windowComponent ??= wrap(window as any as HTMLElement)
+
 	export function allowBuilding () {
 		canBuildComponents = true
 	}

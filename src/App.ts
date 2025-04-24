@@ -165,9 +165,9 @@ async function App (): Promise<App> {
 		.style('app-content')
 		.append(view, related)
 
-	Component.wrap(document.body).monitorScrollEvents()
-	Component.wrap(document.documentElement).monitorScrollEvents()
-	Component.wrap(window as any as HTMLElement).monitorScrollEvents()
+	Component.getBody().monitorScrollEvents()
+	Component.getDocument().monitorScrollEvents()
+	Component.getWindow().monitorScrollEvents()
 
 	const app: App = Component()
 		.style('app')
