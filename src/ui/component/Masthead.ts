@@ -2,12 +2,14 @@ import Notifications from 'model/Notifications'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
+import Dialog from 'ui/component/core/Dialog'
 import Flag from 'ui/component/core/Flag'
 import Link from 'ui/component/core/Link'
 import type Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
 import NotificationList from 'ui/component/NotificationList'
 import PrimaryNav from 'ui/component/PrimaryNav'
+import SettingsDialog from 'ui/component/SettingsDialog'
 import Sidebar from 'ui/component/Sidebar'
 import Viewport from 'ui/utility/Viewport'
 import type ViewContainer from 'ui/view/shared/component/ViewContainer'
@@ -174,6 +176,15 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 						}))))
 			//#endregion
 			////////////////////////////////////
+
+			.append(Button()
+				.setIcon('gear')
+				.type('icon')
+				.clearPopover()
+				.ariaLabel.use('masthead/user/settings/alt')
+				.event.subscribe('click', () => SettingsDialog().tweak(Dialog.await))
+			)
+
 		)
 		.else(() => Button()
 			.style('masthead-user-action-login')

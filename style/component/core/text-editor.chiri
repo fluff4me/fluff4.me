@@ -1,5 +1,4 @@
 .has-fullscreen-text-editor:
-	%overflow-hidden
 	%gutter-auto
 
 .text-editor:

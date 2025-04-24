@@ -4,6 +4,8 @@ import Button from 'ui/component/core/Button'
 import Checkbutton from 'ui/component/core/Checkbutton'
 import Heading from 'ui/component/core/Heading'
 import LabelledTable from 'ui/component/core/LabelledTable'
+import Paragraph from 'ui/component/core/Paragraph'
+import Placeholder from 'ui/component/core/Placeholder'
 import RangeInput from 'ui/component/core/RangeInput'
 import TextInput from 'ui/component/core/TextInput'
 import Vector2 from 'utility/maths/Vector2'
@@ -19,6 +21,12 @@ const SettingsDialog = Component.Builder((component): SettingsDialog => {
 	const dialog = component.and(BlockDialog)
 
 	dialog.title.text.use('settings/title')
+	dialog.description.text.use('settings/description')
+
+	Paragraph().and(Placeholder)
+		.style('settings-dialog-hint')
+		.text.use('settings/hint/account')
+		.appendTo(dialog.content)
 
 	for (const group of Settings.get()) {
 		const groupWrapper = Component()

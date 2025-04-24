@@ -175,6 +175,9 @@ primary-nav/alt: primary
 action/login=shared/action/login-or-signup
 label/beta: beta
 
+## user/settings
+alt: settings
+
 ## user/notifications
 alt: notifications
 title: Notifications
@@ -273,6 +276,8 @@ empty: And all was quiet...
 
 # settings
 title=shared/term/settings
+description: Settings related to the way the fluff4.me application behaves.
+hint/account: Looking for account settings? See your {#LINK(/account):Account} page.
 chapter/name: Chapter
 chapter/font-size/name: Font Size
 chapter/font-size/description: A multiplier for the default chapter text font size.
@@ -591,7 +596,6 @@ patreon/label: Patrons Only
 action/become-patron=shared/action/become-patron
 action/auth-to-patreon=shared/action/auth
 action/unlink-patreon: Unlink ({0})
-action/settings: Display Settings
 placeholder/login-for-patreon: Log in to authenticate with Patreon.
 
 ### dialog/patron
