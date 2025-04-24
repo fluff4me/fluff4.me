@@ -1,3 +1,7 @@
+.has-fullscreen-text-editor:
+	%overflow-hidden
+	%gutter-auto
+
 .text-editor:
 	%relative
 	%grid
@@ -44,7 +48,9 @@
 			%border-top-radius-1
 
 		&--fullscreen:
+			#after: .text-editor-toolbar
 			padding-inline: $fullscreen-padding-inline
+			top: 0
 
 		&--minimal:
 			#after: .text-editor-toolbar
@@ -201,6 +207,7 @@
 					border-top-left-radius: $space-1
 
 	&-document-slot--fullscreen:
+		#after: .slot
 		%block
 		%overflow-auto
 		%scrollbar-auto
@@ -263,6 +270,9 @@
 	&--required:
 
 .text-editor:
+	&-fullscreen-dialog:
+		%overflow-hidden
+
 	&--fullscreen:
 		#after: .text-editor
 
