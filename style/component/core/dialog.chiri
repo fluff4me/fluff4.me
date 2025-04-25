@@ -25,9 +25,10 @@
 
 	&-block:
 		&-wrapper:
+			%z-index-fg
 			%overflow-visible
 			%margin-auto
-			#transition: #{transition("display")}, #{transition("overlay")}
+			#transition: #{transition("display")}, #{transition("overlay")}, #{transition("translate")}
 			%transition-discrete
 
 			max-height: 100vh
@@ -40,17 +41,20 @@
 				#transition: #{transition("display")}, #{transition("background")}, #{transition("backdrop-filter")}
 
 			&--closed:
+				%translate-down-5
 				@backdrop:
 					%background-none
 					%backdrop-filter-none
 
-		#transition: #{transition("opacity")}, #{transition("translate")}
+			&--opening:
+				%translate-up-4
+				%transition-none
+
+		#transition: #{transition("opacity")}
 
 		&--closed:
-			%translate-down-5
 			%transparent
 
 		&--opening:
-			%translate-up-4
 			%transparent
 			%transition-none
