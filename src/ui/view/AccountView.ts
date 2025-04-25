@@ -44,6 +44,7 @@ export default ViewDefinition({
 		const tabinator = Tabinator().appendTo(view.content)
 
 		Tab()
+			.setIcon('circle-user')
 			.text.use('view/account/tab/profile')
 			.tweak(tab => AccountViewForm('update')
 				.subviewTransition(id)
@@ -51,6 +52,7 @@ export default ViewDefinition({
 			.addTo(tabinator)
 
 		Tab()
+			.setIcon('patreon')
 			.text.use('view/account/tab/patreon')
 			.tweak(tab => Slot()
 				.use(state, (slot, state) => state === 'logged-in'
@@ -62,6 +64,7 @@ export default ViewDefinition({
 		//#region Security
 
 		Tab()
+			.setIcon('shield-halved')
 			.text.use('view/account/tab/security')
 			.tweak(tab => {
 				services
@@ -135,6 +138,8 @@ export default ViewDefinition({
 		//#region More
 
 		Tab()
+			.setIcon('ellipsis-vertical')
+			.tweak(tab => tab.icon?.style('button-icon--unpad-left'))
 			.text.use('view/account/tab/more')
 			.tweak(tab =>
 				Slot()
