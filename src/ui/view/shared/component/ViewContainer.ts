@@ -4,8 +4,8 @@ import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Dialog from 'ui/component/core/Dialog'
 import Loading from 'ui/component/core/Loading'
-import AccountView from 'ui/view/AccountView'
 import ErrorView from 'ui/view/ErrorView'
+import LoginView from 'ui/view/LoginView'
 import RequireLoginView from 'ui/view/RequireLoginView'
 import type View from 'ui/view/shared/component/View'
 import type ViewDefinition from 'ui/view/shared/component/ViewDefinition'
@@ -54,7 +54,7 @@ const ViewContainer = (): ViewContainer => {
 
 						const login = logIn()
 						loginPromise = login?.authed
-						await login?.accountViewShown
+						await login?.loginViewShown
 					})
 					await transition.updateCallbackDone
 					await loginPromise
@@ -212,8 +212,8 @@ const ViewContainer = (): ViewContainer => {
 		if (Session.Auth.author.value)
 			return
 
-		const accountViewShown = showEphemeral(AccountView, undefined)
-		const authPromise = accountViewShown.then(async view => {
+		const loginViewShown = showEphemeral(LoginView, undefined)
+		const authPromise = loginViewShown.then(async view => {
 			if (!view)
 				return false
 
@@ -229,7 +229,7 @@ const ViewContainer = (): ViewContainer => {
 		})
 
 		return {
-			accountViewShown,
+			loginViewShown,
 			authed: authPromise,
 		}
 	}
