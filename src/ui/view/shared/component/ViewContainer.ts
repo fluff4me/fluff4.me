@@ -10,6 +10,7 @@ import RequireLoginView from 'ui/view/RequireLoginView'
 import type View from 'ui/view/shared/component/View'
 import type ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import ViewTransition from 'ui/view/shared/ext/ViewTransition'
+import type Errors from 'utility/Errors'
 import State from 'utility/State'
 
 interface ViewContainerExtensions {
@@ -41,7 +42,7 @@ const ViewContainer = (): ViewContainer => {
 				const showingId = ++globalId
 
 				let view: VIEW | undefined
-				let loadParams: LOAD_PARAMS | undefined = undefined
+				let loadParams: LOAD_PARAMS | Errors.Redirecting | undefined = undefined
 
 				const needsLogin = definition.requiresLogin && !Session.Auth.loggedIn.value
 				if (needsLogin || definition.load) {
@@ -93,7 +94,11 @@ const ViewContainer = (): ViewContainer => {
 
 				loading?.remove()
 				container.style.remove('view-container--loading')
+
 				if (globalId !== showingId)
+					return
+
+				if (typeof loadParams === 'symbol')
 					return
 
 				if (container.state || showingId > 1) {
@@ -117,7 +122,7 @@ const ViewContainer = (): ViewContainer => {
 				}
 
 				async function swapAdd (replacementDefinition: ViewDefinition<View, object | undefined, object | undefined> = definition) {
-					const shownView = await (loadError ? Promise.reject(loadError) : Promise.resolve(replacementDefinition.create(params, loadParams)))
+					const shownView = await (loadError ? Promise.reject(loadError) : Promise.resolve(replacementDefinition.create(params, loadParams as object | undefined)))
 						.then(v => {
 							view = replacementDefinition === definition ? v as VIEW : undefined
 							return v

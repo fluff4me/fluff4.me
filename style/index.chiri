@@ -92,6 +92,7 @@
 	view/type/error
 	view/type/debug
 	view/type/account
+	view/type/login
 	view/type/home
 	view/type/author
 	view/type/work

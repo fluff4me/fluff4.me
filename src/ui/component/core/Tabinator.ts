@@ -9,6 +9,7 @@ interface TabExtensions {
 	readonly tabinator?: Tabinator<Tab>
 	tweakContent<PARAMS extends any[]> (tweaker: (content: Component, tab: this, ...params: PARAMS) => unknown, ...params: PARAMS): this
 	addTo (tabinator: Tabinator<Tab>): this
+	addToWhen (state: State<boolean>, tabinator: Tabinator<Tab>): this
 }
 
 export interface Tab extends Component, TabExtensions {
@@ -36,6 +37,10 @@ export const Tab = Component.Builder((component): Tab => {
 			},
 			addTo (tabinator) {
 				tabinator.addTab(tab)
+				return tab
+			},
+			addToWhen (state, tabinator) {
+				tabinator.addTabWhen(state, tab)
 				return tab
 			},
 		}))

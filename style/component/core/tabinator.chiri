@@ -19,6 +19,9 @@
 		%box-shadow-1
 		$box-shadow-intensity: 30%
 
+		#flush:
+			%padding-inline-2
+
 		&--no-tab-shown:
 			#after: .tabinator-tab-list
 			%margin-bottom-0

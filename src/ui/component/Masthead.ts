@@ -191,7 +191,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 			.type('primary')
 			.setIcon('circle-user')
 			.text.use('masthead/action/login')
-			.event.subscribe('click', () => navigate.toURL('/account'))
+			.event.subscribe('click', () => navigate.toURL('/login'))
 		)
 		.appendTo(masthead)
 
