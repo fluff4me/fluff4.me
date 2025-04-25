@@ -41,7 +41,11 @@ const BlockDialog = Component.Builder((component): BlockDialog => {
 		open () {
 			superOpen()
 			block.style('dialog-block--opening')
-			void Task.yield().then(() => block.style.remove('dialog-block--opening'))
+			dialog.style('dialog-block-wrapper--opening')
+			void Task.yield().then(() => {
+				block.style.remove('dialog-block--opening')
+				dialog.style.remove('dialog-block-wrapper--opening')
+			})
 			return dialog
 		},
 	}))

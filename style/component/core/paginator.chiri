@@ -149,6 +149,7 @@
 		%translate-x-0
 		%transition-blur
 		%overflow-auto-y
+		padding-block: round($space-1 / 2, 1px)
 
 		:start:
 			%transparent
