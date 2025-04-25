@@ -1,21 +1,20 @@
-import EndpointTOTPCreate from "endpoint/auth/EndpointTOTPCreate"
-import EndpointTOTPDelete from "endpoint/auth/EndpointTOTPDelete"
-import EndpointTOTPEnable from "endpoint/auth/EndpointTOTPEnable"
-import Session from "model/Session"
-import Component from "ui/Component"
-import Block from "ui/component/core/Block"
-import Button from "ui/component/core/Button"
-import CodeInput from "ui/component/core/CodeInput"
-import ConfirmDialog from "ui/component/core/ConfirmDialog"
-import Loading from "ui/component/core/Loading"
-import Paragraph from "ui/component/core/Paragraph"
-import Placeholder from "ui/component/core/Placeholder"
-import TextInput from "ui/component/core/TextInput"
-import State from "utility/State"
-
+import EndpointTOTPCreate from 'endpoint/auth/EndpointTOTPCreate'
+import EndpointTOTPDelete from 'endpoint/auth/EndpointTOTPDelete'
+import EndpointTOTPEnable from 'endpoint/auth/EndpointTOTPEnable'
+import Session from 'model/Session'
+import Component from 'ui/Component'
+import Block from 'ui/component/core/Block'
+import Button from 'ui/component/core/Button'
+import CodeInput from 'ui/component/core/CodeInput'
+import ConfirmDialog from 'ui/component/core/ConfirmDialog'
+import Loading from 'ui/component/core/Loading'
+import Paragraph from 'ui/component/core/Paragraph'
+import Placeholder from 'ui/component/core/Placeholder'
+import TextInput from 'ui/component/core/TextInput'
+import State from 'utility/State'
 
 export default Component.Builder((component, session: State<Session | undefined>) => {
-	const block = component.and(Block)
+	const block = component.and(Block).style('view-type-account-totp')
 
 	block.title.text.use('view/account/totp/title')
 
@@ -133,7 +132,10 @@ export default Component.Builder((component, session: State<Session | undefined>
 			if (state.value !== 'starting')
 				return
 
-			EndpointTOTPDelete.query()
+			const response = await EndpointTOTPDelete.query()
+			if (toast.handleError(response))
+				return
+
 			const author = Session.state.value?.author
 			if (!author)
 				return
@@ -173,7 +175,10 @@ export default Component.Builder((component, session: State<Session | undefined>
 			if (state.value !== 'enter')
 				return
 
-			EndpointTOTPDelete.query()
+			const response = await EndpointTOTPDelete.query()
+			if (toast.handleError(response))
+				return
+
 			const author = Session.state.value?.author
 			if (!author)
 				return

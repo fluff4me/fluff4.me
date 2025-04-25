@@ -10,6 +10,7 @@ import FeedView from 'ui/view/FeedView'
 import FollowingView from 'ui/view/FollowingView'
 import HistoryView from 'ui/view/HistoryView'
 import IgnoringView from 'ui/view/IgnoringView'
+import LoginView from 'ui/view/LoginView'
 import ManageTagsView from 'ui/view/ManageTagsView'
 import NewView from 'ui/view/NewView'
 import NotificationsView from 'ui/view/NotificationsView'
@@ -27,6 +28,7 @@ const Routes = [
 	Route('/following', FollowingView.navigate),
 	Route('/ignoring', IgnoringView.navigate),
 
+	Route('/login', LoginView.navigate),
 	Route('/account', AccountView.navigate),
 	Route('/author/$vanity', AuthorView.navigate),
 	Route('/notifications', NotificationsView.navigate),

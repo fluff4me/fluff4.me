@@ -1,11 +1,23 @@
 #view type="account":
 
+	&-more-row:
+		%margin-bottom-3
+		%width-fit
+
+		#flush:
+			%padding-inline-2
+
 	&-oauth-services:
 		&-mfa:
 			&-heading:
 				%margin-top-4
 
 			&-required-count-row:
+				#after: .labelled-row
+				#flush:
+					grid-template-columns: 1fr
+					%gap-0
+
 				&-content:
 					#after: .labelled-row-content
 					%grid
@@ -52,6 +64,7 @@
 			&-amount:
 
 	&-totp:
+		%margin-top-4
 
 		&-content:
 			%flex
