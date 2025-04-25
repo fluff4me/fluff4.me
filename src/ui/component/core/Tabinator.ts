@@ -12,7 +12,7 @@ interface TabExtensions {
 	addToWhen (state: State<boolean>, tabinator: Tabinator<Tab>): this
 }
 
-export interface Tab extends Component, TabExtensions {
+export interface Tab extends Button, TabExtensions {
 
 }
 

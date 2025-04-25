@@ -165,6 +165,11 @@ $$button-background-highlight!colour
 			#after: .button-icon
 			%hidden
 
+		&--unpad-left:
+			#after: .button-icon
+			width: 0.5em
+			%justify-content-start
+
 	#list!string icons = [
 		"plus
 		"ellipsis-vertical
@@ -222,6 +227,9 @@ $$button-background-highlight!colour
 		"tag
 		"tags
 		"file-import
+		"lock
+		"lock-open
+		"shield-halved
 
 	#each in icons as var icon:
 		&-icon-#{icon}:
@@ -301,3 +309,9 @@ $$button-background-highlight!colour
 	&-icon-rotate-reverse:
 		#after: .button-icon
 		#icon name="rotate" mirror
+
+	&-icon-patreon:
+		@before:
+			filter: invert()
+			%size-em
+			%patreon-icon-background
