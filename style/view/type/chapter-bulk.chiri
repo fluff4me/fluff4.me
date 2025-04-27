@@ -8,6 +8,9 @@
 		:scheme light:
 			%background-1-a70
 
+	&-step-action-row:
+		%margin-top-3
+
 	&-block:
 
 		&--not-last:
@@ -360,7 +363,7 @@
 			%border-1
 			$border-colour: $background-5
 			%border-radius-1
-			%unmargin-3
+			%unmargin-inline-3
 			%margin-top-3
 			%padding-block-2
 			padding-inline: calc($space-3 + $space-2)

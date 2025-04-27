@@ -1,5 +1,6 @@
 import originalStyle from 'style'
 import type Component from 'ui/Component'
+import { NonNullish } from 'utility/Arrays'
 import DevServer from 'utility/DevServer'
 import Env from 'utility/Env'
 import Script from 'utility/Script'
@@ -230,7 +231,7 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 
 		component.attributes.set('component', stylesArray.join(' '))
 
-		const toAdd = stylesArray.flatMap(component => style.value[component])
+		const toAdd = stylesArray.flatMap(component => style.value[component]).filter(NonNullish)
 		const toRemove = currentClasses.filter(cls => !toAdd.includes(cls))
 
 		if (toRemove)

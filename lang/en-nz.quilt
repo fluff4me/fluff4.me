@@ -56,6 +56,7 @@ done: Done
 filter: Filter...
 rename: Rename
 modify: Modify
+next: Next
 
 ## toast
 failed-to-save: Failed to save {0}
@@ -548,6 +549,7 @@ action/select-all: Select All
 action/deselect-all: Deselect All
 
 ### position
+tab: 1. Position
 title: Step 1: Choose position
 description: Choose where these chapters will be in this work.
 label/position/after: Inserting after:
@@ -556,6 +558,7 @@ action/change: Change Position
 action/cancel-change: Cancel Changing Position
 
 ### import
+tab: 2. Import
 title: Step 2: Import documents
 description: Optionally, select files from your computer to use as chapters.
 empty: No documents found...
@@ -572,6 +575,7 @@ form/name/invalid: Must include a filename variable.
 form/name/examples: Example chapter names: {*, }
 
 ### create
+tab: 3. Create
 title: Step 3: Create chapters
 description: Queue a list of chapters that will be created in bulk.
 action/clear: Clear Chapters
@@ -584,6 +588,7 @@ action/remove/confirm: The following queued chapters will be removed: {0***&**:,
 visibility/private=shared/form/visibility/private
 
 ### upload
+tab: 4. Upload
 title: Step 4: Upload
 description: Is it done? Start the upload process!
 action/upload: Upload
