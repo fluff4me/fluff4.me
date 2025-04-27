@@ -111,6 +111,10 @@ export default ViewDefinition({
 
 		const state = State<UploadStateUploading | UploadStateComplete | undefined>(undefined)
 
+		const tabinator = Tabinator()
+			.tabType('steps')
+			.appendTo(viewContent)
+
 		////////////////////////////////////
 		//#region Position
 
@@ -145,6 +149,10 @@ export default ViewDefinition({
 		)
 
 		const changingPosition = State(false)
+
+		const positionTab = Tab()
+			.text.use('view/chapter-create-bulk/position/tab')
+			.addTo(tabinator)
 
 		const positionBlock = Block()
 			.type('flush')
@@ -213,8 +221,12 @@ export default ViewDefinition({
 				////////////////////////////////////
 
 				.append(InsertionPositionDisplay())
+
+				.append(ActionRow()
+					.style('view-type-chapter-bulk-step-action-row')
+					.tweak(row => row.right.append(positionTab.createNextButton())))
 			)
-			.appendToWhen(state.falsy, viewContent)
+			.appendToWhen(state.falsy, positionTab.content)
 
 		//#endregion
 		////////////////////////////////////
@@ -264,6 +276,10 @@ export default ViewDefinition({
 			.attributes.append('multiple')
 			.event.subscribe('change', event => fileList.value = event.host.element.files)
 			.appendTo(viewContent)
+
+		const importTab = Tab()
+			.text.use('view/chapter-create-bulk/import/tab')
+			.addTo(tabinator)
 
 		Block()
 			.type('flush')
@@ -454,6 +470,9 @@ export default ViewDefinition({
 				.tweak(footer => {
 					const hasFiles = fileList.map(footer, list => !!list?.length)
 
+					////////////////////////////////////
+					//#region Advanced
+
 					Details()
 						.style('view-type-chapter-bulk-import-list-wrapper-footer-config-details')
 						.tweak(details => {
@@ -516,6 +535,9 @@ export default ViewDefinition({
 							))
 						.prependToWhen(hasFiles, footer)
 
+					//#endregion
+					////////////////////////////////////
+
 					Button()
 						.setIcon('xmark')
 						.text.use('view/chapter-create-bulk/import/action/clear')
@@ -546,11 +568,14 @@ export default ViewDefinition({
 							}
 
 							chapterFormData.emit()
+
+							importTab.showNextTab()
 						})
 						.appendTo(footer.right)
 				})
+
 			)
-			.appendToWhen(state.falsy, viewContent)
+			.appendToWhen(state.falsy, importTab.content)
 
 		//#endregion
 		////////////////////////////////////
@@ -717,6 +742,10 @@ export default ViewDefinition({
 		//#endregion
 		////////////////////////////////////
 
+		const createTab = Tab()
+			.text.use('view/chapter-create-bulk/create/tab')
+			.addTo(tabinator)
+
 		Block()
 			.type('flush')
 			.style('view-type-chapter-bulk-block', 'view-type-chapter-bulk-block--not-last')
@@ -828,6 +857,9 @@ export default ViewDefinition({
 							.style('view-type-chapter-bulk-create-selection-actions-details-tabinator')
 							.allowNoneVisible()
 
+							////////////////////////////////////
+							//#region Action Selection
+
 							.tweak(tabinator => {
 								hasSelectedChapter.subscribe(tabinator, hasSelected => {
 									if (!hasSelected)
@@ -871,6 +903,9 @@ export default ViewDefinition({
 									}
 								}))
 							})
+
+							//#endregion
+							////////////////////////////////////
 
 							////////////////////////////////////
 							//#region Visibility
@@ -949,14 +984,23 @@ export default ViewDefinition({
 						)
 					)
 				)
+
+				.append(ActionRow()
+					.style('view-type-chapter-bulk-step-action-row')
+					.tweak(row => row.right.append(createTab.createNextButton())))
 			)
-			.appendToWhen(state.falsy, viewContent)
+			.appendToWhen(state.falsy, createTab.content)
 
 		//#endregion
 		////////////////////////////////////
 
 		////////////////////////////////////
 		//#region Upload
+
+		const uploadTab = Tab()
+			.text.use('view/chapter-create-bulk/upload/tab')
+			.bindDisabled(chapterFormData.length.falsy, 'no chapters')
+			.addTo(tabinator)
 
 		Block()
 			.type('flush')
@@ -1069,7 +1113,7 @@ export default ViewDefinition({
 					block.element.scrollIntoView()
 				}
 			})
-			.appendToWhen(chapterFormData.length.truthy, viewContent)
+			.appendToWhen(chapterFormData.length.truthy, uploadTab.content)
 
 		//#endregion
 		////////////////////////////////////

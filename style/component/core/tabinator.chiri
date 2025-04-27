@@ -68,3 +68,76 @@
 			%no-pointer-events
 			translate: calc($space-4 * $page-direction * -1)
 			%transition-focus
+
+	&--type:
+
+		&-steps:
+
+			&-tab-list:
+				#after: .tabinator-tab-list
+				%grid
+				grid-auto-flow: column
+				grid-auto-columns: 1fr
+				grid-template-columns: unset
+
+				#flush:
+					grid-auto-flow: row
+					grid-template-columns: 1fr
+
+			&-tab:
+				#after: .button
+				%width-auto
+				%relative
+				z-index: unset
+
+				@before, @after:
+					%block
+					%absolute
+					%background-blue
+					#transition: #{transition("translate")}
+
+				@before:
+					size: .8em
+					%border-radius-100
+
+				@after:
+					%z-index-fg-2
+
+				#can-hover:
+					::hover, ::focus:
+						@before, @after:
+							%translate-down-1
+							%transition-focus
+
+				:first:
+					@after:
+						%hidden
+
+				#not-flush:
+					padding-bottom: calc($space-2 + $space-1 + .8em)
+					%justify-content-centre
+
+					@before:
+						%bottom-2
+						%left-50
+						%translate-left-50
+
+					@after:
+						width: calc((50% - .6em) * 2 + $space-3)
+						height: .2em
+						bottom: calc($space-2 + .3em)
+						right: calc(50% + .6em)
+
+				#flush:
+					padding-left: calc($space-3 + .8em + $space-2)
+
+					@before:
+						%top-50
+						%left-3
+						%translate-up-50
+
+					@after:
+						width: .2em
+						height: calc((50% - .6em) * 2 + $space-3)
+						bottom: calc(50% + .6em)
+						left: calc($space-3 + .3em)

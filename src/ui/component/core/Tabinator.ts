@@ -1,6 +1,8 @@
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import type { ComponentName, ComponentNameType } from 'ui/utility/StyleManipulator'
+import TypeManipulator from 'ui/utility/TypeManipulator'
 import { mutable } from 'utility/Objects'
 import State from 'utility/State'
 
@@ -10,6 +12,8 @@ interface TabExtensions {
 	tweakContent<PARAMS extends any[]> (tweaker: (content: Component, tab: this, ...params: PARAMS) => unknown, ...params: PARAMS): this
 	addTo (tabinator: Tabinator<Tab>): this
 	addToWhen (state: State<boolean>, tabinator: Tabinator<Tab>): this
+	createNextButton (): Button | undefined
+	showNextTab (): void
 }
 
 export interface Tab extends Button, TabExtensions {
@@ -43,6 +47,12 @@ export const Tab = Component.Builder((component): Tab => {
 				tabinator.addTabWhen(state, tab)
 				return tab
 			},
+			createNextButton () {
+				return Button()
+					.text.use('shared/action/next')
+					.event.subscribe('click', showNextTab)
+			},
+			showNextTab,
 		}))
 
 	content
@@ -50,11 +60,27 @@ export const Tab = Component.Builder((component): Tab => {
 		.setOwner(tab)
 
 	return tab
+
+	function showNextTab () {
+		const index = tab.tabinator?.tabs.value.indexOf(tab) ?? -1
+		if (index === -1)
+			return
+
+		const nextTab = tab.tabinator!.tabs.value[index + 1]
+		if (!nextTab)
+			return
+
+		tab.tabinator!.showTab(nextTab)
+	}
 })
 	.setName('Tab')
 
+export type TabinatorType = ComponentNameType<'tabinator--type'>
+
 interface TabinatorExtensions<TAB extends Tab> {
 	readonly tab: State<TAB | undefined>
+	readonly tabType: TypeManipulator<this, TabinatorType>
+	readonly tabs: State<readonly TAB[]>
 	allowNoneVisible (): this
 	showTab (tab: TAB): this
 	showNone (): this
@@ -79,7 +105,13 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 		.style('tabinator')
 		.ariaRole('tablist')
 		.extend<TabinatorExtensions<Tab>>(tabinator => ({
+			tabType: TypeManipulator.Style(tabinator, [
+				[tabinator, type => `tabinator--type-${type}`],
+				[tabinator.header, type => `tabinator--type-${type}-tab-list` as ComponentName],
+				[tabs, type => `tabinator--type-${type}-tab` as ComponentName],
+			]),
 			tab: activeTab,
+			tabs,
 			allowNoneVisible () {
 				shouldForceSelect = false
 				return tabinator
@@ -135,6 +167,7 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 				if (!tabs.value.includes(removeTab))
 					return tabinator
 
+				mutable(removeTab).tabinator = undefined
 				removeTab.setOwner(undefined)
 				removeTab.remove()
 

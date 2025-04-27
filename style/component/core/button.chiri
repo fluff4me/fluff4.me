@@ -46,16 +46,6 @@ $$button-background-highlight!colour
 			::hover, ::focus:
 				%box-shadow-none
 
-	&-type-flush:
-		#after: .button
-		#can-hover:
-			:not ::hover ::focus ::active:
-				%box-shadow-none
-				$button-background: transparent
-		#no-hover:
-			%box-shadow-none
-			$button-background: transparent
-
 	&-type-inherit-size:
 		#after: .button
 		%font-inherit
@@ -135,6 +125,16 @@ $$button-background-highlight!colour
 			#after: .button, .button--disabled, .button--disabled--hover
 			%box-shadow-inset-1
 			$transition-duration: $transition-action
+
+	&-type-flush:
+		#after: .button, .button--disabled
+		#can-hover:
+			:not ::hover ::focus ::active:
+				%box-shadow-none
+				$button-background: transparent
+		#no-hover:
+			%box-shadow-none
+			$button-background: transparent
 
 	&-icon:
 		%flex

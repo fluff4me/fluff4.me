@@ -1,5 +1,7 @@
 import Define from 'utility/Define'
 
+export type ArrayOr<T> = T | T[]
+
 declare global {
 	interface Array<T> {
 		/**
