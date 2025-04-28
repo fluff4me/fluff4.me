@@ -303,7 +303,18 @@ export type PaginatedEndpointRoutes = keyof {
 
 export type PaginatedEndpoint = { [ROUTE in PaginatedEndpointRoutes]: Endpoint<ROUTE> } extends infer ENDPOINTS ? ENDPOINTS[keyof ENDPOINTS] : never
 
-export type PreparedQueryOf<ENDPOINT extends Endpoint<any, any>> = ENDPOINT extends Endpoint<infer ROUTE, infer QUERY> ? PreparedEndpointQuery<ROUTE, QUERY> : never
+export type PreparedQueryOf<ENDPOINT extends Endpoint<keyof Paths, any>> = ENDPOINT extends Endpoint<infer ROUTE, infer QUERY> ? PreparedEndpointQuery<ROUTE, QUERY> : never
+export type PreparedQuery = PreparedQueryOf<Endpoint<keyof Paths>>
+
+export type PreparedQueryReturning<R> = {
+	[PATH in keyof Paths as (
+		EndpointResponse<Endpoint<PATH>> extends infer RESPONSE ?
+		RESPONSE extends Response<R> ?
+		PATH
+		: never
+		: never
+	)]: PreparedQueryOf<Endpoint<PATH>>
+} extends infer O ? O[keyof O] : never
 
 export type PreparedPaginatedQueryReturning<R> = {
 	[PATH in keyof Paths as (

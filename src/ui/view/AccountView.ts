@@ -14,9 +14,11 @@ import Slot from 'ui/component/core/Slot'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import AccountViewForm from 'ui/view/account/AccountViewForm'
 import AccountViewPatreonCampaign from 'ui/view/account/AccountViewPatreonCampaign'
+import AccountViewSupporter from 'ui/view/account/AccountViewSupporter'
 import AccountViewTOTP from 'ui/view/account/AccountViewTOTP'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
+import Env from 'utility/Env'
 import Errors from 'utility/Errors'
 import State from 'utility/State'
 
@@ -59,6 +61,19 @@ export default ViewDefinition({
 					&& AccountViewPatreonCampaign(services.data.patreon).subviewTransition(id))
 				.appendTo(tab.content))
 			.addTo(tabinator)
+
+		////////////////////////////////////
+		//#region Supporter
+
+		if (Env.DEBUG_ENABLE_SUPPORTER_SYSTEM)
+			Tab()
+				.setIcon('heart')
+				.text.use('view/account/tab/supporter')
+				.tweak(tab => AccountViewSupporter().appendTo(tab.content))
+				.addTo(tabinator)
+
+		//#endregion
+		////////////////////////////////////
 
 		////////////////////////////////////
 		//#region Security

@@ -57,6 +57,7 @@ filter: Filter...
 rename: Rename
 modify: Modify
 next: Next
+retry: Retry
 
 ## toast
 failed-to-save: Failed to save {0}
@@ -107,7 +108,7 @@ popover/button: open {0??details}{ 1??}
 popover: {0??details}
 
 paginator/error: Failed to load content.
-paginator/error/retry: Retry
+paginator/error/retry=shared/action/retry
 paginator/first/label: first page
 paginator/previous/label: previous page
 paginator/next/label: next page
@@ -374,8 +375,16 @@ toast/saved=shared/toast/saved | account data
 ### tab
 profile: Profile
 patreon: Patreon
+supporter: Supporter
 security: Security
 more: More
+
+### supporter
+title: Support fluff4.me
+description: Help the site exist, and gain aesthetic or promotional features as rewards!
+status/error: Unable to get supporter status: {0}
+status/action/retry=shared/action/retry
+hint: The current features provided to supporters is admittedly very small — other site features have taken priority. As the site grows, so too will the number of features provided to supporters.
 
 ### patreon/campaign
 title: Patreon Campaign

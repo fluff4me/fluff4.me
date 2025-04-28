@@ -99,3 +99,71 @@
 		&-login-wrapper:
 			%block
 			%margin-top-4
+
+	&-supporter:
+
+		&-product-list:
+			%flex
+			%flex-column
+			%gap-3
+
+		&-product:
+			%relative
+			%flex
+			%flex-column
+			%padding-top-1
+			box-shadow: #{box-shadow-inset-border-1}, #{box-shadow-1}
+			$border-colour: #fff2
+			padding-inline: calc($space-3 + $space-2)
+			%padding-bottom-3
+			%border-radius-2
+			$colour-rotation: calc(180deg + $colour-rotation-index * 45deg)
+			$button-background:
+				light-dark(
+					oklch(50% 50% $colour-rotation / 35%),
+					oklch(30% 50% $colour-rotation / 35%)
+				)
+			$button-background-highlight: oklch(from $button-background calc(L + .2) C H)
+
+			#can-hover:
+				::hover, ::focus:
+					$button-background:
+						light-dark(
+							oklch(60% 50% $colour-rotation / 35%),
+							oklch(40% 50% $colour-rotation / 35%)
+						)
+
+			&-title:
+				%flex
+				%gap-3
+				%justify-content-space-between
+				%align-items-centre
+				%padding-right-4
+				%font-kanit
+				%margin-top-1
+				%unmargin-bottom-2
+				%font-5
+
+			&-name:
+			&-price:
+				%font-4
+				colour:
+					light-dark(
+						oklch(10% 30% $colour-rotation),
+						oklch(90% 30% $colour-rotation)
+					)
+
+			&-description:
+				%italic
+				%weight-normal
+				colour:
+					light-dark(
+						oklch(10% 20% $colour-rotation),
+						oklch(90% 20% $colour-rotation)
+					)
+
+			@after:
+				%absolute
+				right: calc($space-3 + $space-2)
+				%top-3
+				%font-0

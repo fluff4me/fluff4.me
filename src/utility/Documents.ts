@@ -192,16 +192,13 @@ namespace Documents {
 			}
 
 			function passThroughTextEditor (file: string, init: (editor: TextEditor) => boolean) {
-				const textEditor = TextEditor().style('text-editor--internal').appendTo(document.body)
-				const success = init(textEditor)
-				if (!success) {
-					imports.push({ file, error: new Error('Unable to convert HTML to markdown') })
-					return
+				try {
+					const result = TextEditor.passThrough(init)
+					imports.push({ file, title: basename(file), body: result })
 				}
-
-				const result = textEditor.content.value
-				textEditor.remove()
-				imports.push({ file, title: basename(file), body: result })
+				catch (err) {
+					imports.push({ file, error: err as Error })
+				}
 			}
 
 			//#endregion
