@@ -885,7 +885,7 @@ interface TextEditorExtensions {
 interface TextEditor extends Input, TextEditorExtensions { }
 
 let globalid = 0
-const TextEditor = Component.Builder((component): TextEditor => {
+const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	const id = globalid++
 
 	const isMarkdown = State<boolean>(false)
@@ -1834,6 +1834,23 @@ const TextEditor = Component.Builder((component): TextEditor => {
 
 	//#endregion
 	////////////////////////////////////
+}), {
+	passThrough,
 })
+
+function passThrough (init: (editor: TextEditor) => boolean): string
+function passThrough (init: (editor: TextEditor) => boolean, throwError: false): string | undefined
+function passThrough (init: (editor: TextEditor) => boolean, throwError = true): string | undefined {
+	const textEditor = TextEditor().style('text-editor--internal').appendTo(document.body)
+	const success = init(textEditor)
+
+	const result = textEditor.content.value
+	textEditor.remove()
+
+	if (!success && throwError)
+		throw new Error('Unable to convert HTML to markdown')
+
+	return success ? result : undefined
+}
 
 export default TextEditor

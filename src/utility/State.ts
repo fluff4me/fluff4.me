@@ -1,3 +1,6 @@
+import type { Paths } from 'api.fluff4.me'
+import type Endpoint from 'endpoint/Endpoint'
+import type { EndpointResponse, PreparedQueryOf, ResponseData } from 'endpoint/Endpoint'
 import type Component from 'ui/Component'
 import type ComponentInsertionTransaction from 'ui/component/core/ext/ComponentInsertionTransaction'
 import type { Quilt } from 'ui/utility/StringApplicator'
@@ -537,6 +540,31 @@ namespace State {
 				progress,
 			}
 		)
+	}
+
+	export interface EndpointResult<T> extends Async<T> {
+		refresh (): void
+	}
+
+	export namespace Async {
+
+		export function fromEndpoint<const QUERY extends PreparedQueryOf<Endpoint<keyof Paths>>> (owner: State.Owner, endpoint: QUERY): EndpointResult<ResponseData<EndpointResponse<QUERY>>> {
+			const refresher = State(null)
+			return Object.assign(
+				Async(owner, refresher, async (_, signal) => {
+					const response = await endpoint.query()
+					if (response instanceof Error)
+						throw response
+
+					return response?.data as ResponseData<EndpointResponse<QUERY>>
+				}),
+				{
+					refresh () {
+						refresher.emit()
+					},
+				}
+			)
+		}
 	}
 
 	export interface ArrayItem<T> {

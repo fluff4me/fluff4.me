@@ -22,6 +22,7 @@ export default Task('env', _ => {
 		ENVIRONMENT: env('ENVIRONMENT', 'prod'),
 		BUILD_NUMBER: env('BUILD_NUMBER', 'dev'),
 		BUILD_SHA: optional('BUILD_SHA'),
+		DEBUG_ENABLE_SUPPORTER_SYSTEM: optional('DEBUG_ENABLE_SUPPORTER_SYSTEM'),
 	}
 
 	return fs.writeFile('docs/env.json', JSON.stringify(environment))
