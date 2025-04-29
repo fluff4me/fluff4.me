@@ -1,9 +1,10 @@
 import quilt from 'lang/en-nz'
-import DangerToken from 'model/DangerToken'
 import FormInputLengths from 'model/FormInputLengths'
 import Notifications from 'model/Notifications'
 import Session from 'model/Session'
 import Navigator from 'navigation/Navigate'
+import PopupRoute from 'navigation/popup/PopupRoute'
+import PopupRoutes from 'navigation/popup/PopupRoutes'
 import style from 'style'
 import Component from 'ui/Component'
 import ExternalLink from 'ui/component/core/ExternalLink'
@@ -24,7 +25,6 @@ import ViewContainer from 'ui/view/shared/component/ViewContainer'
 import DevServer from 'utility/DevServer'
 import Env from 'utility/Env'
 import State from 'utility/State'
-import Store from 'utility/Store'
 import Strings from 'utility/string/Strings'
 
 if (location.href.includes('localhost') && Env.isNgrok)
@@ -61,29 +61,10 @@ interface AppExtensions {
 interface App extends Component, AppExtensions { }
 
 async function App (): Promise<App> {
-	if (location.pathname.startsWith('/auth/')) {
-		// eslint-disable-next-line no-debugger
-		debugger
-
-		if (location.pathname.endsWith('/error')) {
-			const params = new URLSearchParams(location.search)
-			Store.items.popupError = {
-				code: +(params.get('code') ?? '500'),
-				message: params.get('message') ?? 'Internal Server Error',
-			}
-		}
-		else if (location.pathname.endsWith('/ok')) {
-			const params = new URLSearchParams(location.search)
-			DangerToken.handleAuthParams(params)
-		}
-		else {
-			Store.items.popupError = {
-				code: 600,
-				message: `Unsupported auth url '${location.pathname}'`,
-			}
-		}
-
-		window.close()
+	for (const { route, handler } of PopupRoutes) {
+		const match = PopupRoute.match(route, location.pathname)
+		if (match)
+			handler(match)
 	}
 
 	await screen?.orientation?.lock?.('portrait-primary').catch(() => { })
