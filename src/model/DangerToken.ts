@@ -1,6 +1,7 @@
 import type { AuthService, Paths } from 'api.fluff4.me'
 import Env from 'utility/Env'
-import popup from 'utility/Popup'
+import Popup from 'utility/Popup'
+import type State from 'utility/State'
 import Store from 'utility/Store'
 
 interface DangerTokenMetadata {
@@ -43,7 +44,9 @@ namespace DangerToken {
 		return !!getActiveDangerToken(type)
 	}
 
-	export async function request (type: DangerTokenType, service: AuthService) {
+	const PopupDangerToken = Popup({ width: 600, height: 900 })
+
+	export async function request (owner: State.Owner, type: DangerTokenType, service: AuthService) {
 		const token = getActiveDangerToken(type)
 		if (token) {
 			token.uses--
@@ -54,8 +57,12 @@ namespace DangerToken {
 			return false
 
 		isRequestingDangerToken = true
-		const result = await popup(`Re-authenticate Using ${service.name}`, `${Env.API_ORIGIN}danger-token/request/${type}/${service.id}/begin`, 600, 900)
-			.then(() => true).catch(err => { console.warn(err); return false })
+		const result = await PopupDangerToken
+			.show(owner, {
+				translation: quilt => quilt['shared/popup/danger-token/title'](service.name),
+				url: `${Env.API_ORIGIN}danger-token/request/${type}/${service.id}/begin`,
+			})
+			.toastError()
 		isRequestingDangerToken = false
 
 		if (!result)

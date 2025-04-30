@@ -113,7 +113,7 @@ const OAuthService = Component.Builder((component, service: AuthService, definit
 				await Session.Auth.unauth(auth.id)
 			}
 			else
-				await Session.Auth.auth(service)
+				await Session.Auth.auth(button, service)
 		})
 	})
 

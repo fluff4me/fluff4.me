@@ -4,7 +4,7 @@ import EndpointAuthRemove from 'endpoint/auth/EndpointAuthDelete'
 import EndpointSessionGet from 'endpoint/session/EndpointSessionGet'
 import EndpointSessionReset from 'endpoint/session/EndpointSessionReset'
 import type Component from 'ui/Component'
-import popup from 'utility/Popup'
+import Popup from 'utility/Popup'
 import State from 'utility/State'
 import type { ILocalStorage } from 'utility/Store'
 import Store from 'utility/Store'
@@ -135,28 +135,33 @@ namespace Session {
 
 		export async function unauth (authOrId: Authorisation | string) {
 			const id = typeof authOrId === 'string' ? authOrId : authOrId.id
-			await EndpointAuthRemove.query({ body: { id } })
+			const response = await EndpointAuthRemove.query({ body: { id } })
+			if (toast.handleError(response))
+				return
 
 			const session = Store.items.session
-			if (session?.authorisations) {
-				let authorisations: Authorisation[] | null = session.authorisations.filter(auth => auth.id !== id)
-				if (!authorisations.length) {
-					authorisations = null
+			const authorisations = session?.author?.authorisations ?? session?.authorisations
+			if (authorisations) {
+				authorisations.filterInPlace(auth => auth.id !== id)
+				if (!authorisations.length && session?.partial_login) {
+					session.authorisations = null
 					delete session?.partial_login
 				}
 
-				const sessionData = {
-					...session,
-					authorisations,
-				}
-				Store.items.session = sessionData
-				Session.state.asMutable?.setValue(sessionData)
+				Store.items.session = session
+				Session.state.asMutable?.setValue(session)
 			}
 		}
 
-		export async function auth (service: AuthService) {
-			await popup(`Login Using ${service.name}`, service.url_begin, 600, 900)
-				.then(() => true).catch(err => { console.warn(err); return false })
+		const LoginPopup = Popup({ width: 600, height: 900 })
+
+		export async function auth (owner: State.Owner, service: AuthService) {
+			await LoginPopup
+				.show(owner, {
+					translation: quilt => quilt['view/account/auth/popup/title'](service.name),
+					url: service.url_begin,
+				})
+				.toastError()
 			await Session.refresh()
 		}
 
