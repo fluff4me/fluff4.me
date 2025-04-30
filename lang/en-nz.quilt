@@ -6,6 +6,9 @@ home/label: home
 preview: Preview
 mention/unresolved: unknown
 
+## popup
+danger-token/title: Re-authenticate Using {0}
+
 ## prompt
 confirm: Are you sure?
 reauth: To perform this action, reauthenticate to verify your identity:
@@ -385,11 +388,13 @@ description: Help the site exist, and gain aesthetic or promotional features as 
 status/error: Unable to get supporter status: {0}
 status/action/retry=shared/action/retry
 hint: The current features provided to supporters is admittedly very small — other site features have taken priority. As the site grows, so too will the number of features provided to supporters.
+popup/title: Become a Supporter
 
 ### patreon/campaign
 title: Patreon Campaign
 description: Link your Patreon campaign to create patron-only chapters or works.
 tiers: Tiers
+popup/title: Link Patreon Campaign
 
 #### unlink
 title: Unlink Patreon Campaign
@@ -400,6 +405,7 @@ confirm: Unlink
 service/accessibility/connect: connect {0}
 service/accessibility/disconnect: disconnect {0} account {1}
 service/disconnect/confirm: This will disconnect your {0} account "**{1}**".
+popup/title: Login Using {0}
 
 ### none
 title: Log in or sign up
@@ -621,6 +627,7 @@ placeholder/login-for-patreon: Log in to authenticate with Patreon.
 ### dialog/patron
 title: Authenticate as Patron
 description: In order to view this content, please sign in to the Patreon account that you pledge with.
+popup/title: Link Patron Account
 done=shared/action/done
 
 

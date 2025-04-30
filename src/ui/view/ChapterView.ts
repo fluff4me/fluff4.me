@@ -32,7 +32,7 @@ import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import ViewTitle from 'ui/view/shared/ext/ViewTitle'
 import Maths from 'utility/maths/Maths'
-import popup from 'utility/Popup'
+import Popup from 'utility/Popup'
 import Settings from 'utility/Settings'
 import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
@@ -294,6 +294,13 @@ export default ViewDefinition({
 	},
 })
 
+const PopupPatron = Popup({
+	translation: 'view/chapter/dialog/patron/popup/title',
+	url: Endpoint.path('/auth/patreon/patron/begin'),
+	width: 600,
+	height: 900,
+})
+
 function authAsPatron (owner: State.Owner) {
 	void ConfirmDialog.prompt(owner, {
 		titleTranslation: 'view/chapter/dialog/patron/title',
@@ -318,8 +325,7 @@ function authAsPatron (owner: State.Owner) {
 				.appendTo(dialog.content)
 
 			async function relink () {
-				await popup('Link Patron Account', Endpoint.path('/auth/patreon/patron/begin'), 600, 900)
-					.then(() => true).catch(err => { console.warn(err); return false })
+				await PopupPatron.show(dialog).toastError()
 				await Session.refresh()
 			}
 

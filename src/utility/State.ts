@@ -34,8 +34,8 @@ interface State<T, E = T> {
 	subscribeManual (subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
 	unsubscribe (subscriber: (value: E, oldValue?: E) => unknown): void
 	emit (oldValue?: E): void
-	await<R extends Arrays.Or<T>> (owner: State.Owner, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
-	awaitManual<R extends Arrays.Or<T>> (value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): this
+	await<R extends Arrays.Or<T>> (owner: State.Owner, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): UnsubscribeState
+	awaitManual<R extends Arrays.Or<T>> (value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): UnsubscribeState
 
 	map<R> (owner: State.Owner, mapper: (value: T) => StateOr<R>, equals?: ComparatorFunction<R>): State.Generator<R>
 	mapManual<R> (mapper: (value: T) => StateOr<R>, equals?: ComparatorFunction<R>): State.Generator<R>
@@ -157,24 +157,22 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 			return result
 		},
 		await (owner, values, then) {
-			result.use(owner, function awaitValue (newValue) {
+			return result.use(owner, function awaitValue (newValue) {
 				if (newValue !== values && (!Array.isArray(values) || !values.includes(newValue)))
 					return
 
 				result.unsubscribe(awaitValue)
 				then(newValue as never)
 			})
-			return result
 		},
 		awaitManual (values, then) {
-			result.useManual(function awaitValue (newValue) {
+			return result.useManual(function awaitValue (newValue) {
 				if (newValue !== values && (!Array.isArray(values) || !values.includes(newValue)))
 					return
 
 				result.unsubscribe(awaitValue)
 				then(newValue as never)
 			})
-			return result
 		},
 
 		map: (owner, mapper, equals) => State.Map(owner, [result], mapper, equals),

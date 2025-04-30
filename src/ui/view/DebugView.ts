@@ -3,12 +3,13 @@ import EndpointAuthServices from 'endpoint/auth/EndpointAuthServices'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
+import { Quilt } from 'ui/utility/StringApplicator'
 import { BUTTON_REGISTRY, type IButtonImplementation } from 'ui/view/debug/ButtonRegistry'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import Env from 'utility/Env'
 import Objects from 'utility/Objects'
-import popup from 'utility/Popup'
+import Popup from 'utility/Popup'
 
 const Block = Component.Builder(component => component
 	.style('debug-block'))
@@ -38,11 +39,16 @@ export default ViewDefinition({
 		for (const service of Objects.values(OAuthServices.data ?? {} as Partial<AuthServices>)) {
 			if (!service) continue
 
+			const PopupOAuth = Popup({
+				translation: Quilt.fake(`OAuth ${service.name}`),
+				url: service.url_begin,
+				width: 600,
+				height: 900,
+			})
 			Button()
 				.text.set(`OAuth ${service.name}`)
 				.event.subscribe('click', async () => {
-					await popup(`OAuth ${service.name}`, service.url_begin, 600, 900)
-						.then(() => true).catch(err => { console.warn(err); return false })
+					await PopupOAuth.show(oauthDiv).toastError()
 					await Session.refresh()
 				})
 				.appendTo(oauthDiv)
@@ -412,11 +418,16 @@ export default ViewDefinition({
 
 		const patreonButtons = Block().appendTo(view.content)
 
+		const PopupCampaignOAuth = Popup({
+			translation: Quilt.fake('Campaign OAuth'),
+			url: `${Env.API_ORIGIN}auth/patreon/campaign/begin`,
+			width: 600,
+			height: 900,
+		})
 		Button()
 			.text.set('Campaign Test')
 			.event.subscribe('click', async () => {
-				await popup('Campaign OAuth', `${Env.API_ORIGIN}auth/patreon/campaign/begin`, 600, 900)
-					.then(() => true).catch(err => { console.warn(err); return false })
+				await PopupCampaignOAuth.show(patreonButtons).toastError()
 				await Session.refresh()
 			})
 			.appendTo(patreonButtons)
@@ -451,11 +462,16 @@ export default ViewDefinition({
 			},
 		}))
 
+		const PopupPatronOAuth = Popup({
+			translation: Quilt.fake('Patron OAuth'),
+			url: `${Env.API_ORIGIN}auth/patreon/patron/begin`,
+			width: 600,
+			height: 900,
+		})
 		Button()
 			.text.set('Patron Test')
 			.event.subscribe('click', async () => {
-				await popup('Patron OAuth', `${Env.API_ORIGIN}auth/patreon/patron/begin`, 600, 900)
-					.then(() => true).catch(err => { console.warn(err); return false })
+				await PopupPatronOAuth.show(patreonButtons).toastError()
 				await Session.refresh()
 			})
 			.appendTo(patreonButtons)

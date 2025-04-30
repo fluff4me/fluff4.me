@@ -1,3 +1,6 @@
+import type { Quilt } from 'ui/utility/StringApplicator'
+import { quilt, QuiltHelper } from 'ui/utility/StringApplicator'
+import State from 'utility/State'
 import Store from 'utility/Store'
 
 declare module 'utility/Store' {
@@ -12,26 +15,84 @@ export interface PopupError {
 }
 
 export interface PopupDefinition {
-	width: number
-	height: number
+	translation?: Quilt.SimpleKey | Quilt.Handler
+	url?: string
+	width?: number
+	height?: number
 }
 
-export default function popup (name: string, url: string, width = 600, height = 800) {
-	const left = (window.innerWidth - width) / 2 + window.screenLeft
-	const top = (window.innerHeight - height) / 2 + window.screenTop
-	return new Promise<void>((resolve, reject) => {
-		delete Store.items.popupError
-		const options = 'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left
-		const oauthPopup = window.open(url, name, options)
-		const interval = setInterval(() => {
-			if (oauthPopup?.closed) {
-				clearInterval(interval)
-				const popupError = Store.items.popupError
-				if (popupError)
-					return reject(Object.assign(new Error(popupError.message ?? 'Internal Server Error'), { code: popupError.code }))
+export interface PopupPromise extends Promise<void> {
+	toastError (): Promise<boolean>
+}
 
-				resolve()
+export interface Popup extends PopupDefinition {
+	show (owner: State.Owner, definition?: PopupDefinition): PopupPromise
+}
+
+const defaultWidth = 600, defaultHeight = 800
+
+function Popup (baseDefinition: PopupDefinition): Popup {
+	return {
+		...baseDefinition,
+		show (owner, instanceDefinition) {
+			const url = instanceDefinition?.url ?? baseDefinition.url
+			if (!url) {
+				// eslint-disable-next-line no-debugger
+				debugger
+				console.error('Popup URL is not defined')
+				const result = Object.assign(Promise.resolve(), { toastError () { return Promise.resolve(false) } })
+				return result
 			}
-		}, 100)
-	})
+
+			const translation = instanceDefinition?.translation ?? baseDefinition.translation
+			const width = instanceDefinition?.width ?? baseDefinition.width ?? defaultWidth
+			const height = instanceDefinition?.height ?? baseDefinition.height ?? defaultHeight
+			const left = (window.innerWidth - width) / 2 + window.screenLeft
+			const top = (window.innerHeight - height) / 2 + window.screenTop
+
+			let toastError = false
+
+			const result = Object.assign(
+				new Promise<void>((resolve, reject) => {
+					delete Store.items.popupError
+					const options = ''
+						+ 'width=' + width
+						+ ',height=' + height
+						+ ',top=' + top
+						+ ',left=' + left
+					const name = typeof translation === 'string' ? quilt[translation]() : translation?.(quilt, QuiltHelper)
+					const oauthPopup = window.open(url, name?.toString(), options)
+
+					const unsubscribe = State.Owner.getOwnershipState(owner).awaitManual(true, () => oauthPopup?.close())
+
+					const interval = setInterval(() => {
+						if (oauthPopup?.closed) {
+							unsubscribe()
+
+							clearInterval(interval)
+							const popupError = Store.items.popupError
+							if (popupError) {
+								const error = Object.assign(new Error(popupError.message ?? 'Internal Server Error'), { code: popupError.code })
+								if (!toastError)
+									return reject(error)
+
+								toast.handleError(error)
+							}
+
+							(resolve as (value: boolean | undefined) => unknown)(toastError ? !popupError : undefined)
+						}
+					}, 100)
+				}),
+				{
+					toastError () {
+						toastError = true
+						return result as any as Promise<boolean>
+					},
+				}
+			)
+			return result
+		},
+	}
 }
+
+export default Popup

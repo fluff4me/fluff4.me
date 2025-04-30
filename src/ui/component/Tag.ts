@@ -85,7 +85,7 @@ const Tag = Object.assign(
 	{
 		Category: Component
 			.Builder('button', (component, category: TagsManifestCategory): Tag =>
-				component.and(Tag, { category: category.name, name: '...', description: { body: category.description } }))
+				component.and(Tag, { category: category.name, name: '...', description: { body: category.description }, is_mature: false }))
 			.setName('TagCategory'),
 	}
 )

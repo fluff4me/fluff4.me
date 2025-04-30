@@ -9,7 +9,14 @@ import Button from 'ui/component/core/Button'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import Heading from 'ui/component/core/Heading'
 import Slot from 'ui/component/core/Slot'
-import popup from 'utility/Popup'
+import Popup from 'utility/Popup'
+
+const PopupCampaign = Popup({
+	translation: 'view/account/patreon/campaign/popup/title',
+	url: Endpoint.path('/auth/patreon/campaign/begin'),
+	width: 600,
+	height: 900,
+})
 
 export default Component.Builder((component, patreon: AuthService) => {
 	const block = component.and(Block)
@@ -68,8 +75,7 @@ export default Component.Builder((component, patreon: AuthService) => {
 	return block
 
 	async function relink () {
-		await popup('Link Patreon Campaign', Endpoint.path('/auth/patreon/campaign/begin'), 600, 900)
-			.then(() => true).catch(err => { console.warn(err); return false })
+		await PopupCampaign.show(component).toastError()
 		await Session.refresh()
 	}
 
