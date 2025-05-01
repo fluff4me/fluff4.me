@@ -1372,7 +1372,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	component.onRemoveManual(() => editor.mirror?.destroy())
 
 	const contentWidth = State.Generator(() => `${editor.document?.element.scrollWidth ?? 0}px`)
-		.observe(component, state, Viewport.size)
+		.observe(component, state, Viewport.size, isFullscreen)
 
 	const scrollbarProxy: Component = Component()
 		.style('text-editor-document-scrollbar-proxy')
