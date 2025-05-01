@@ -213,21 +213,25 @@
 
 	&-document:
 		#after: .markdown
-
 		%block
 		%no-outline
-		%overflow-auto-x
 		%padding-2-3
-		%scrollbar-none
 		%relative
 		%white-space-pre-wrap
+		max-height: min($space-8, 100svh - $space-6 - $space-4 - $masthead-height)
+		%overflow-auto
+
+		#not-flush:
+			overscroll-behavior: contain
 
 		@after:
 			%hidden
 
 		&--fullscreen:
+			#after: .text-editor-document
 			%overflow-visible
 			max-width: #{content-width}
+			max-height: unset
 			padding-inline: $fullscreen-padding-inline
 
 			@before:
