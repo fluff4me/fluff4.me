@@ -390,6 +390,20 @@ status/action/retry=shared/action/retry
 hint: The current features provided to supporters is admittedly very small — other site features have taken priority. As the site grows, so too will the number of features provided to supporters.
 popup/title: Become a Supporter
 
+#### feature
+section/features: Features
+custom-username-colours: Custom username colours
+custom-author-card-colours: Custom author card colours
+custom-work-card-colours: Custom work card colours
+
+section/planned: Planned Features
+avatars: Early access to avatars, when implemented
+work-covers: Early access to work covers, when implemented
+profile-backgrounds: Custom profile backgrounds
+work-backgrounds: Custom work backgrounds
+work-promotion: Work promotion
+loosened-rate-limits: Reduced rate limits
+
 ### patreon/campaign
 title: Patreon Campaign
 description: Link your Patreon campaign to create patron-only chapters or works.

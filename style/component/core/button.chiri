@@ -230,6 +230,9 @@ $$button-background-highlight!colour
 		"lock
 		"lock-open
 		"shield-halved
+		"paintbrush
+		"wrench
+		"bullhorn
 
 	#each in icons as var icon:
 		&-icon-#{icon}:

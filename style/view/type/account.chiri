@@ -167,3 +167,14 @@
 				right: calc($space-3 + $space-2)
 				%top-3
 				%font-0
+
+		&-feature-section:
+			%block
+			%margin-top-4
+
+		&-feature:
+			#after: .paragraph
+			%flex
+			%align-items-centre
+			%gap-2
+			%margin-top-2
