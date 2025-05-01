@@ -171,6 +171,7 @@
 		&-feature-section:
 			%block
 			%margin-top-4
+			margin-bottom: calc(0px - $space-3 - $space-1)
 
 		&-feature:
 			#after: .paragraph
