@@ -397,12 +397,12 @@ custom-author-card-colours: Custom author card colours
 custom-work-card-colours: Custom work card colours
 
 section/planned: Planned Features
-avatars: Early access to avatars, when implemented
-work-covers: Early access to work covers, when implemented
+avatars: Early access to custom avatars, when implemented
+work-covers: Early access to custom work covers, when implemented
 profile-backgrounds: Custom profile backgrounds
 work-backgrounds: Custom work backgrounds
-work-promotion: Work promotion
-loosened-rate-limits: Reduced rate limits
+work-promotion: Work promotion, to pull in new viewers
+loosened-rate-limits: Reduced API rate limits
 
 ### patreon/campaign
 title: Patreon Campaign
