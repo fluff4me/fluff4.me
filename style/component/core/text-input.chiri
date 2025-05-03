@@ -13,3 +13,26 @@
 	$border-colour: $colour-border-input
 	background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
 	%background-unclip
+
+	&--wrapped:
+		#after: .text-input
+		%borderless
+		%background-none
+		%stack-self
+
+		&--hidden:
+			#after: .text-input
+			colour: transparent
+
+	&-wrapper:
+		#after: .text-input
+		%padding-0
+		%cursor-text
+		%grid
+		%stack
+
+	&-display:
+		%stack-self
+		%margin-2-3
+		%width-fit
+		colour: fieldtext

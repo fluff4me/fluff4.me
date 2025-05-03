@@ -29,11 +29,19 @@ namespace FocusListener {
 		focusInternal(element)
 	}
 
+	let focusedThisTick = 0
+	let focusTimeout: number | undefined
 	function focusInternal (element: HTMLElement) {
 		if (document.querySelector(':focus-visible') === element)
 			return
 
+		if (focusedThisTick > 100)
+			return
+
+		focusedThisTick++
 		element.focus()
+		window.clearTimeout(focusTimeout)
+		window.setTimeout(() => focusedThisTick = 0)
 	}
 
 	export function blur (element: HTMLElement) {

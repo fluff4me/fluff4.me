@@ -40,6 +40,7 @@ export interface TextInputExtensions {
 	filter (filterFn?: FilterFunction): this
 	setValidityHandler (handler: TextInputValidityHandler): this
 	setReadonly (): this
+	wrap (): Component
 }
 
 interface TextInput extends Component, TextInputExtensions, InputExtensions { }
@@ -85,6 +86,12 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 			setValidityHandler (handler) {
 				validityHandler = handler
 				return input
+			},
+			wrap () {
+				input.style('text-input--wrapped')
+				return Component()
+					.style('text-input', 'text-input-wrapper')
+					.append(input)
 			},
 		}))
 		.extendMagic('value', input => ({

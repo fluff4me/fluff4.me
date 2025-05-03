@@ -280,6 +280,9 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 
 		replaceElement: newElement => {
+			if (typeof newElement === 'string' && newElement.toUpperCase() === component.element.tagName.toUpperCase())
+				return component // already correct tag type
+
 			if (typeof newElement === 'string')
 				newElement = document.createElement(newElement)
 

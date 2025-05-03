@@ -3,7 +3,7 @@ import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
 interface GradientTextExtensions {
-	useGradient (gradient?: StateOr<number[] | undefined>): this
+	useGradient (gradient?: StateOr<readonly number[] | null | undefined>): this
 }
 
 interface GradientText extends Component, GradientTextExtensions { }
@@ -16,7 +16,7 @@ export default Component.Extension((component): GradientText => {
 			unuseGradient = State.get(gradient).use(component, stops => component
 				.style.toggle(!!stops?.length, 'gradient-text')
 				.style.setProperty('background-image', !stops?.length ? undefined
-					: `linear-gradient(to right, ${(stops
+					: `linear-gradient(to right in oklch, ${(stops
 						.map(colour => `#${colour.toString(16).padStart(6, '0')}`)
 						.map(colour => `light-dark(
 							oklch(from ${colour} min(0.5, L) C H),

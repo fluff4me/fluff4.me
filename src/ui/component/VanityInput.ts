@@ -93,6 +93,9 @@ const VanityInput = Component.Builder((component): VanityInput => {
 				input.setValidityHandler(handler)
 				return component
 			},
+			wrap () {
+				return input.wrap()
+			},
 		}))
 		.extendMagic('value', component => ({
 			get () { return input.value },

@@ -1,0 +1,33 @@
+.colour-input:
+	appearance: none
+	%borderless
+	%background-none
+	%padding-0
+	%cursor-pointer
+	%border-radius-1
+	%box-shadow-1
+	%font-3
+	%font-family-inherit
+	size: calc(1lh + $space-3)
+	#transition: #{transition("translate")}, #{transition("box-shadow")}
+
+	@swatch-wrapper:
+		%padding-0
+
+	@swatch:
+		%border-radius-1
+		%borderless
+		%inset-border-1
+		$border-colour: #fff4
+		#transition: #{transition("filter")}
+
+	#can-hover:
+		::hover:
+			@swatch:
+				%transition-focus
+				filter: brightness(1.1)
+
+		::hover, ::focus:
+			%box-shadow-2
+			%transition-focus
+			%translate-up-1

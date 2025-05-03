@@ -9,19 +9,6 @@ import State from 'utility/State'
 import type { ILocalStorage } from 'utility/Store'
 import Store from 'utility/Store'
 
-declare module 'api.fluff4.me' {
-	interface Author {
-		supporter?: Supporter
-	}
-
-	interface Supporter {
-		tier: number
-		months: number
-
-		vanity_colours?: number[]
-	}
-}
-
 declare module 'utility/Store' {
 	interface ILocalStorage {
 		stateToken: string

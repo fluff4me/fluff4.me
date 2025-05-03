@@ -1,2 +1,3 @@
 .gradient-text:
 	%background-clip-text
+	font-weight: 500

@@ -68,6 +68,8 @@
 	component/core/code-input
 	component/core/details
 	component/core/ext/gradient-text
+	component/core/colour-input
+	component/core/gradient-input
 	component/vanity-input
 	component/masthead
 	component/sidebar
@@ -86,6 +88,7 @@
 	component/primary-nav
 	component/settings-dialog
 	component/tag-edit-form
+	component/supporter-label
 
 #import:
 	view/view
