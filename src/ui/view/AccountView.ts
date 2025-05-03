@@ -24,6 +24,10 @@ import State from 'utility/State'
 
 const REDIRECT_LOGIN: Errors.Redirection = Errors.redirection('/login')
 
+interface AccountViewParams {
+	tab?: string
+}
+
 export default ViewDefinition({
 	async load () {
 		if (Session.Auth.state.value !== 'logged-in')
@@ -32,7 +36,7 @@ export default ViewDefinition({
 		const services = await OAuthServices(Session.Auth.state)
 		return { services }
 	},
-	create (_, { services }) {
+	create ({ tab }: AccountViewParams | undefined = {}, { services }) {
 		const id = 'account'
 		const view = View(id)
 
@@ -45,7 +49,7 @@ export default ViewDefinition({
 
 		const tabinator = Tabinator().appendTo(view.content)
 
-		Tab()
+		Tab('profile')
 			.setIcon('circle-user')
 			.text.use('view/account/tab/profile')
 			.tweak(tab => AccountViewForm('update')
@@ -53,7 +57,7 @@ export default ViewDefinition({
 				.appendTo(tab.content))
 			.addTo(tabinator)
 
-		Tab()
+		Tab('patreon')
 			.setIcon('patreon')
 			.text.use('view/account/tab/patreon')
 			.tweak(tab => Slot()
@@ -66,7 +70,7 @@ export default ViewDefinition({
 		//#region Supporter
 
 		if (Env.DEBUG_ENABLE_SUPPORTER_SYSTEM)
-			Tab()
+			Tab('supporter')
 				.setIcon('heart')
 				.text.use('view/account/tab/supporter')
 				.tweak(tab => AccountViewSupporter().appendTo(tab.content))
@@ -78,7 +82,7 @@ export default ViewDefinition({
 		////////////////////////////////////
 		//#region Security
 
-		Tab()
+		Tab('security')
 			.setIcon('shield-halved')
 			.text.use('view/account/tab/security')
 			.tweak(tab => {
@@ -152,7 +156,7 @@ export default ViewDefinition({
 		////////////////////////////////////
 		//#region More
 
-		Tab()
+		Tab('more')
 			.setIcon('ellipsis-vertical')
 			.tweak(tab => tab.icon?.style('button-icon--unpad-left'))
 			.text.use('view/account/tab/more')
@@ -190,6 +194,11 @@ export default ViewDefinition({
 
 		//#endregion
 		////////////////////////////////////
+
+		if (tab)
+			tabinator.showTab(tab)
+
+		tabinator.tab.use(view, tab => navigate.setURL(tab ? `/account/${tab.tabId}` : '/account'))
 
 		state.equals('logged-in').await(view, false, () => navigate.toURL('/login'))
 

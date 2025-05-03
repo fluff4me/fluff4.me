@@ -30,6 +30,7 @@ const Routes = [
 
 	Route('/login', LoginView.navigate),
 	Route('/account', AccountView.navigate),
+	Route('/account/$tab', AccountView.navigate),
 	Route('/author/$vanity', AuthorView.navigate),
 	Route('/notifications', NotificationsView.navigate),
 
