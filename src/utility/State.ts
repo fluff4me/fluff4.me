@@ -282,7 +282,7 @@ namespace State {
 	}
 
 	export interface Generator<T> extends State<T> {
-		refresh (): this
+		refresh (): this // NEVER ACCEPT A BOOL PARAM HERE. It breaks everything and I don't know why
 		regenerate (): this
 		observe (owner: Owner, ...states: (State<any> | undefined)[]): this
 		observeManual (...states: (State<any> | undefined)[]): this
