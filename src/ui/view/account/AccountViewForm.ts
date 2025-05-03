@@ -5,7 +5,9 @@ import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
+import GradientText from 'ui/component/core/ext/GradientText'
 import Form from 'ui/component/core/Form'
+import GradientInput from 'ui/component/core/GradientInput'
 import LabelledTable from 'ui/component/core/LabelledTable'
 import LabelledTextInputBlock from 'ui/component/core/LabelledTextInputBlock'
 import TextEditor from 'ui/component/core/TextEditor'
@@ -36,8 +38,26 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 		.default.bind(Session.Auth.author.map(component, author => author?.name))
 		.hint.use('view/account/name/hint')
 		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.author.name))
+	const nameDisplay = Component().and(GradientText).text.bind(nameInput.state).style('text-input-display')
 	table.label(label => label.text.use('view/account/name/label'))
-		.content((content, label) => content.append(nameInput.setLabel(label)))
+		.content((content, label) => content.append(nameInput
+			.setLabel(label)
+			.style('text-input--wrapped--hidden')
+			.wrap()
+			.append(nameDisplay)
+		))
+
+	const gradientInput = GradientInput()
+		.default.bind(Session.Auth.author.map(component, author => author?.supporter?.vanity_colours))
+	table
+		.label(label => label
+			.style('label--supporter')
+			.append(Component().style('label-supporter').text.use('shared/term/supporters'))
+			.append(Component().text.use('view/account/vanity-colours/label'))
+		)
+		.content((content, label) => content.append(gradientInput.setLabel(label)))
+
+	nameDisplay.useGradient(gradientInput.value)
 
 	const vanityInput = VanityInput()
 		.placeholder.bind(nameInput.state
@@ -90,6 +110,7 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 				pronouns: pronounsInput.value,
 				support_link: supportLinkInput.value,
 				support_message: supportMessageInput.value,
+				vanity_colours: gradientInput.value.value.length ? gradientInput.value.value.slice() : undefined,
 			},
 		})
 

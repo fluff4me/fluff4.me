@@ -34,6 +34,7 @@ relationships-from: Related From
 word-count: Words
 work-count: Works
 time-join: Joined
+supporters: Supporters
 
 ## action
 auth: Authenticate
@@ -367,6 +368,7 @@ external-label/label: Link Text
 external-label/hint: A label to display instead of the external link itself.
 pronouns/label: Pronouns
 pronouns/hint: The pronouns that others should refer to you with. These will appear next to your name, usually.
+vanity-colours/label: Colours
 
 action/logout: Log Out
 action/delete: Delete Account

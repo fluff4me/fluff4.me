@@ -283,6 +283,7 @@ namespace State {
 
 	export interface Generator<T> extends State<T> {
 		refresh (): this
+		regenerate (): this
 		observe (owner: Owner, ...states: (State<any> | undefined)[]): this
 		observeManual (...states: (State<any> | undefined)[]): this
 		unobserve (...states: (State<any> | undefined)[]): this
@@ -298,31 +299,8 @@ namespace State {
 
 		let initial = true
 		let unuseInternalState: UnsubscribeState | undefined
-		result.refresh = () => {
-			unuseInternalState?.(); unuseInternalState = undefined
-
-			const value = generate()
-			if (State.is(value)) {
-				unuseInternalState = value.useManual(value => {
-					if (result.comparator(value))
-						return result
-
-					const oldValue = result[SYMBOL_VALUE]
-					result[SYMBOL_VALUE] = value
-					result.emit(oldValue)
-				})
-				return result
-			}
-
-			if (result.comparator(value) && !initial)
-				return result
-
-			initial = false
-			const oldValue = result[SYMBOL_VALUE]
-			result[SYMBOL_VALUE] = value
-			result.emit(oldValue)
-			return result
-		}
+		result.refresh = () => refreshInternal()
+		result.regenerate = () => refreshInternal(true)
 
 		result.refresh()
 
@@ -360,6 +338,32 @@ namespace State {
 		}
 
 		return result
+
+		function refreshInternal (forceOverwrite?: true) {
+			unuseInternalState?.(); unuseInternalState = undefined
+
+			const value = generate()
+			if (State.is(value)) {
+				unuseInternalState = value.useManual(value => {
+					if (result.comparator(value))
+						return result
+
+					const oldValue = result[SYMBOL_VALUE]
+					result[SYMBOL_VALUE] = value
+					result.emit(oldValue)
+				})
+				return result
+			}
+
+			if (result.comparator(value) && !initial && !forceOverwrite)
+				return result
+
+			initial = false
+			const oldValue = result[SYMBOL_VALUE]
+			result[SYMBOL_VALUE] = value
+			result.emit(oldValue)
+			return result
+		}
 	}
 
 	export interface JIT<T> extends State<T, () => T> {

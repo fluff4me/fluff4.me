@@ -1,0 +1,17 @@
+.gradient-input:
+	%flex
+	%gap-2
+
+	&-stop:
+
+	&-add-stop:
+		#after: .button
+		size: calc(1lh + $space-3)
+		%padding-0
+		%justify-content-centre
+		box-shadow: #{box-shadow-inset-border-1}, #{box-shadow-1}
+		$border-colour: #fff4
+
+		#can-hover:
+			::hover, ::focus:
+				box-shadow: #{box-shadow-inset-border-1}, #{box-shadow-2}

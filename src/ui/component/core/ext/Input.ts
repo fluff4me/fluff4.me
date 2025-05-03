@@ -59,7 +59,7 @@ export interface InputExtensions {
 	refreshValidity (): this
 }
 
-interface Input extends Component, InputExtensions { }
+interface Input<ELEMENT extends HTMLElement = HTMLElement> extends Component<ELEMENT>, InputExtensions { }
 
 function createHintText (hint: StateOr<string | Quilt.Handler>) {
 	return Component()

@@ -1,0 +1,29 @@
+.label:
+	&--supporter:
+		#after: .labelled-row-label
+		%flex
+		%flex-column
+		%relative
+		%padding-0
+
+		@before:
+			%absolute
+			%block
+			%border-left-2
+			%border-pink
+			%height-100
+			%unleft-2
+			background: linear-gradient(to right, color-mix(in lch, $colour-pink, #0000 90%), #0000)
+			%width-100
+			%border-left-radius-1
+
+	&-supporter:
+		%colour-pink
+		%italic
+		font-size: .5em
+		%font-kanit
+		%weight-bold
+		letter-spacing: .1em
+		%lowercase
+		%width-fit
+		%margin-top-1
