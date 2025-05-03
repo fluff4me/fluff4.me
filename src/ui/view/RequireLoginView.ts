@@ -1,7 +1,7 @@
 import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
-import AccountView from 'ui/view/AccountView'
+import LoginView from 'ui/view/LoginView'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 
@@ -20,7 +20,7 @@ export default ViewDefinition({
 		Button()
 			.type('primary')
 			.text.use('view/shared/login-required/action')
-			.event.subscribe('click', () => navigate.ephemeral(AccountView, undefined))
+			.event.subscribe('click', () => navigate.ephemeral(LoginView, undefined))
 			.appendTo(actionRow.right)
 
 		return view
