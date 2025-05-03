@@ -9,6 +9,7 @@ import State from 'utility/State'
 interface TabExtensions {
 	readonly content: Component
 	readonly tabinator?: Tabinator<Tab>
+	readonly tabId?: string
 	tweakContent<PARAMS extends any[]> (tweaker: (content: Component, tab: this, ...params: PARAMS) => unknown, ...params: PARAMS): this
 	addTo (tabinator: Tabinator<Tab>): this
 	addToWhen (state: State<boolean>, tabinator: Tabinator<Tab>): this
@@ -16,11 +17,9 @@ interface TabExtensions {
 	showNextTab (): void
 }
 
-export interface Tab extends Button, TabExtensions {
+export interface Tab extends Button, TabExtensions { }
 
-}
-
-export const Tab = Component.Builder((component): Tab => {
+export const Tab = Component.Builder((component, tabId?: string): Tab => {
 	const content = Component()
 		.style('tabinator-panel')
 		.ariaRole('tabpanel')
@@ -35,6 +34,7 @@ export const Tab = Component.Builder((component): Tab => {
 		.extend<TabExtensions>(tab => ({
 			content,
 			tabinator: undefined,
+			tabId,
 			tweakContent (tweaker, ...params) {
 				content.tweak(tweaker, tab, ...params)
 				return tab
@@ -82,7 +82,7 @@ interface TabinatorExtensions<TAB extends Tab> {
 	readonly tabType: TypeManipulator<this, TabinatorType>
 	readonly tabs: State<readonly TAB[]>
 	allowNoneVisible (): this
-	showTab (tab: TAB): this
+	showTab (tab: TAB | string): this
 	showNone (): this
 	addTab<NEW_TAB extends Tab> (tab: NEW_TAB): Tabinator<TAB | NEW_TAB>
 	addTabWhen<NEW_TAB extends Tab> (state: State<boolean>, tab: NEW_TAB): Tabinator<TAB | NEW_TAB>
@@ -117,6 +117,14 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 				return tabinator
 			},
 			showTab (newTab) {
+				if (typeof newTab === 'string') {
+					const tab = tabs.value.find(tab => tab.tabId === newTab)
+					if (!tab)
+						return tabinator
+
+					newTab = tab
+				}
+
 				if (tabs.value.includes(newTab) && !newTab.style.has('tabinator-tab--hidden'))
 					activeTab.value = newTab
 
