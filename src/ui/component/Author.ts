@@ -39,7 +39,7 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 		.tweak(title => title.textWrapper
 			.style('author-name-text')
 			.and(GradientText)
-			.useGradient(author.map(block.title, author => author.supporter?.vanity_colours))
+			.useGradient(author.map(block.title, author => author.supporter?.username_colours))
 		)
 
 	block.description
