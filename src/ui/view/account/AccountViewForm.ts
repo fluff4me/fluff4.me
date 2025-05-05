@@ -48,7 +48,7 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 		))
 
 	const gradientInput = GradientInput()
-		.default.bind(Session.Auth.author.map(component, author => author?.supporter?.vanity_colours))
+		.default.bind(Session.Auth.author.map(component, author => author?.supporter?.username_colours))
 	table
 		.label(label => label
 			.style('label--supporter')
@@ -110,7 +110,7 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 				pronouns: pronounsInput.value,
 				support_link: supportLinkInput.value,
 				support_message: supportMessageInput.value,
-				vanity_colours: gradientInput.value.value.length ? gradientInput.value.value.slice() : undefined,
+				username_colours: gradientInput.value.value.length ? gradientInput.value.value.slice() : undefined,
 			},
 		})
 

@@ -9,5 +9,5 @@ export default Component.Builder('a', (component, author: Author): Link => {
 		.text.set(author.name)
 		.setPopover('hover', popover => popover.and(AuthorPopover, author))
 		.and(GradientText)
-		.useGradient(author.supporter?.vanity_colours)
+		.useGradient(author.supporter?.username_colours)
 })

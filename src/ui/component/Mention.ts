@@ -19,7 +19,7 @@ const Mention = Component.Builder('a', (component, author?: Author): Mention => 
 		.setPopover('hover', popover => author && popover.and(AuthorPopover, author))
 		.style('mention')
 		.and(GradientText)
-		.useGradient(author?.supporter?.vanity_colours)
+		.useGradient(author?.supporter?.username_colours)
 })
 
 export default Mention
