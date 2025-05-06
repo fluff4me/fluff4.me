@@ -123,7 +123,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	readonly fullType: string
 
 	/** Causes this element to be removed when its owner is removed */
-	setOwner (owner: Component | undefined): this
+	setOwner (owner: State.Owner | undefined): this
 
 	setId (id?: string | State<string | undefined>): this
 	setRandomId (): this
@@ -275,7 +275,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 
 		setOwner: newOwner => {
 			unuseOwnerRemove?.()
-			unuseOwnerRemove = newOwner?.removed.use(component, removed => removed && component.remove())
+			unuseOwnerRemove = State.Owner.getOwnershipState(newOwner)?.use(component, removed => removed && component.remove())
 			return component
 		},
 
