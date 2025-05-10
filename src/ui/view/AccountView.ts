@@ -195,10 +195,7 @@ export default ViewDefinition({
 		//#endregion
 		////////////////////////////////////
 
-		if (tab)
-			tabinator.showTab(tab)
-
-		tabinator.tab.use(view, tab => navigate.setURL(tab ? `/account/${tab.tabId}` : '/account'))
+		tabinator.bindURL(tab, tab => tab ? `/account/${tab}` : '/account')
 
 		state.equals('logged-in').await(view, false, () => navigate.toURL('/login'))
 

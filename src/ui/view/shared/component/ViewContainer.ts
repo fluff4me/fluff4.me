@@ -31,6 +31,8 @@ const ViewContainer = (): ViewContainer => {
 
 	const state = State<View | undefined>(undefined)
 
+	let loadingOwner: State.Owner.Removable | undefined
+
 	const container = Component()
 		.style('view-container')
 		.tabIndex('programmatic')
@@ -40,6 +42,8 @@ const ViewContainer = (): ViewContainer => {
 			state,
 			show: async <VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined> (definition: ViewDefinition<VIEW, PARAMS, LOAD_PARAMS>, params: PARAMS) => {
 				const showingId = ++globalId
+				loadingOwner?.remove()
+				loadingOwner = State.Owner.create()
 
 				let view: VIEW | undefined
 				let loadParams: LOAD_PARAMS | Errors.Redirecting | undefined = undefined
@@ -81,8 +85,9 @@ const ViewContainer = (): ViewContainer => {
 				let loading: Loading | undefined
 				if (definition.load)
 					loading = Loading()
+						.setOwner(loadingOwner)
 						.style('view-container-loading')
-						.appendTo(container)
+						.prependTo(container)
 
 				let loadError: Error & Partial<ErrorResponse> | undefined
 				try {
@@ -92,7 +97,9 @@ const ViewContainer = (): ViewContainer => {
 					loadError = err as never
 				}
 
+				// throw new Error()
 				loading?.remove()
+				loadingOwner?.remove(); loadingOwner = undefined
 				container.style.remove('view-container--loading')
 
 				if (globalId !== showingId)
@@ -132,7 +139,7 @@ const ViewContainer = (): ViewContainer => {
 							error,
 						}, {}))
 					if (shownView) {
-						shownView.appendTo(container)
+						shownView.prependTo(container)
 						state.value = shownView
 						if (replacementDefinition === definition)
 							shownView.params = params

@@ -29,6 +29,9 @@ const SettingsDialog = Component.Builder((component): SettingsDialog => {
 		.appendTo(dialog.content)
 
 	for (const group of Settings.get()) {
+		if (group.hidden)
+			continue
+
 		const groupWrapper = Component()
 			.style('settings-dialog-group')
 			.appendTo(dialog.content)

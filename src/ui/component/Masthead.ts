@@ -203,7 +203,13 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 
 export default Masthead
 
-const HomeLink = Component.Builder('a', (component): Link => {
+interface HomeLinkExtensions {
+	readonly button: Button
+}
+
+export interface HomeLink extends Link, HomeLinkExtensions { }
+
+export const HomeLink = Component.Builder('a', (component): HomeLink => {
 	const flag = Flag()
 		.style('masthead-home-logo')
 
@@ -211,26 +217,27 @@ const HomeLink = Component.Builder('a', (component): Link => {
 		.ariaLabel.use('home/label')
 		.style('masthead-home-link')
 		.clearPopover()
-		.append(Component()
-			.and(Button)
-			.style('masthead-home', 'heading')
-			.append(flag)
-			.append(Component('img')
-				.style('masthead-home-logo-wordmark')
-				.ariaHidden()
-				.attributes.set('src', `${Env.URL_ORIGIN}image/logo-wordmark.svg`)
-			)
-			.append(Component()
-				.style('masthead-home-logo-beta')
-				.text.use('masthead/label/beta')
-			)
+
+	const button = Component()
+		.and(Button)
+		.style('masthead-home', 'heading')
+		.append(flag)
+		.append(Component('img')
+			.style('masthead-home-logo-wordmark')
+			.ariaHidden()
+			.attributes.set('src', `${Env.URL_ORIGIN}image/logo-wordmark.svg`)
 		)
+		.append(Component()
+			.style('masthead-home-logo-beta')
+			.text.use('masthead/label/beta')
+		)
+		.appendTo(homeLink)
 
 	flag.style.bind(homeLink.hoveredOrFocused, 'flag--focused')
 	flag.style.bind(homeLink.active, 'flag--active')
 	homeLink.hoveredOrFocused.subscribeManual(focus => flag.wave('home link focus', focus))
 
-	return homeLink
+	return homeLink.extend<HomeLinkExtensions>(homeLink => ({ button }))
 })
 
 export const MastheadFlush = Component.Builder('header', masthead => {

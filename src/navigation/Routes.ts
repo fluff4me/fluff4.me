@@ -1,15 +1,18 @@
 import Route from 'navigation/Route'
 import { RoutePath } from 'navigation/RoutePath'
+import AboutView from 'ui/view/AboutView'
 import AccountView from 'ui/view/AccountView'
 import AuthorView from 'ui/view/AuthorView'
 import ChapterEditView from 'ui/view/ChapterEditView'
 import ChapterNewBulkView from 'ui/view/ChapterNewBulkView'
 import ChapterView from 'ui/view/ChapterView'
+import ContactView from 'ui/view/ContactView'
 import DebugView from 'ui/view/DebugView'
 import FeedView from 'ui/view/FeedView'
 import FollowingView from 'ui/view/FollowingView'
 import HistoryView from 'ui/view/HistoryView'
 import IgnoringView from 'ui/view/IgnoringView'
+import LegalView from 'ui/view/LegalView'
 import LoginView from 'ui/view/LoginView'
 import ManageTagsView from 'ui/view/ManageTagsView'
 import NewView from 'ui/view/NewView'
@@ -22,6 +25,13 @@ const Routes = [
 	Route('/debug', DebugView.navigate),
 
 	Route('/', NewView.navigate),
+
+	Route('/about', AboutView.navigate),
+	Route('/about/$tab', AboutView.navigate),
+	Route('/contact', ContactView.navigate),
+	Route('/legal', LegalView.navigate),
+	Route('/legal/$tab', LegalView.navigate),
+
 	Route('/feed', FeedView.navigate),
 	Route('/history', HistoryView.navigate),
 

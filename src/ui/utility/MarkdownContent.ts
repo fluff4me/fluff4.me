@@ -1,9 +1,12 @@
 import type { TextBody } from 'api.fluff4.me'
 import Component from 'ui/Component'
+import { Quilt, QuiltHelper } from 'ui/utility/StringApplicator'
+import type { UnsubscribeState } from 'utility/State'
 import Markdown from 'utility/string/Markdown'
 
 interface MarkdownContentExtensions {
 	setMarkdownContent (markdown?: TextBody | string | null, maxLength?: number, simplify?: boolean): this
+	useMarkdownContent (markdownHandler: Quilt.SimpleKey | Quilt.Handler): this
 }
 
 declare module 'ui/Component' {
@@ -45,11 +48,33 @@ const ELEMENT_TYPES_TO_SIMPLIFY_BY_REMOVAL = new Set<TagNameUppercase>([
 type MarkdownContext = Omit<TextBody, 'body'>
 
 const MENTION_OPEN_TAG_REGEX = /(?<=<mention[^>]*>)/g
-Component.extend(component => component.extend<MarkdownContentExtensions>(component => ({
-	setMarkdownContent (markdown, maxLength, simplify) {
+Component.extend(component => {
+	let unuseQuilt: UnsubscribeState | undefined
+	component.extend<MarkdownContentExtensions>(component => ({
+		setMarkdownContent (markdown, maxLength, simplify) {
+			unuseQuilt?.(); unuseQuilt = undefined
+			setMarkdownContent(markdown, maxLength, simplify)
+			return component
+		},
+		useMarkdownContent (markdownHandler) {
+			unuseQuilt?.()
+			unuseQuilt = Quilt.State.use(component, quilt => {
+				if (typeof markdownHandler === 'string') {
+					const key = markdownHandler
+					markdownHandler = quilt => quilt[key]()
+				}
+
+				const content = markdownHandler(quilt, QuiltHelper)?.toString()
+				setMarkdownContent(content)
+			})
+			return component
+		},
+	}))
+
+	function setMarkdownContent (markdown?: TextBody | string | null, maxLength?: number, simplify?: boolean) {
 		if (!markdown) {
 			component.element.innerHTML = ''
-			return component
+			return
 		}
 
 		if (typeof markdown === 'string')
@@ -78,9 +103,9 @@ Component.extend(component => component.extend<MarkdownContentExtensions>(compon
 		if (component.element.lastElementChild?.tagName.length === 2 && component.element.lastElementChild.tagName[0] === 'H')
 			Component('p').appendTo(component)
 
-		return component
-	},
-})))
+		return
+	}
+})
 
 function simplifyTree (root: HTMLElement, maxLength: number, simplify: boolean) {
 	let length = 0
