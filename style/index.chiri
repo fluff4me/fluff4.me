@@ -112,5 +112,8 @@
 	view/type/ignoring
 	view/type/manage-tags
 	view/type/chapter-bulk
+	view/type/about
+	view/type/contact
+	view/type/legal
 
 #import: app

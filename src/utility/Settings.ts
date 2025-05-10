@@ -7,7 +7,7 @@ import State from 'utility/State'
 import Store from 'utility/Store'
 import type { SupplierOr } from 'utility/Type'
 
-declare module "utility/Store" {
+declare module 'utility/Store' {
 	interface ILocalStorage {
 		settings: string
 	}
@@ -54,6 +54,7 @@ type Setting = {
 export interface SettingsGroupDefinition {
 	name: Quilt.SimpleKey
 	settings: SettingDefinition[]
+	hidden?: true
 }
 
 export interface SettingsGroup extends SettingsGroupDefinition {
@@ -116,7 +117,9 @@ namespace Settings {
 							author.settings = JSON.stringify(settings)
 							Session.Auth.author.emit()
 							void EndpointAuthorUpdateSettings.query({ body: { settings: author.settings } })
-						} else {
+							Session.setAuthor(author)
+						}
+						else {
 							Store.items.settings = JSON.stringify(settings)
 						}
 					},

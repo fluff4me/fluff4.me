@@ -1,8 +1,8 @@
 .sidebar:
 	%padding-4-2
 	%sticky
-	top: $masthead-height
-	height: calc(100vh - $masthead-height)
+	top: calc($masthead-height + $banner-height)
+	height: calc(100vh - $masthead-height - $banner-height)
 	%border-box
 	%transparent
 	%translate
