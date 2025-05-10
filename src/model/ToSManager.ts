@@ -1,4 +1,5 @@
 import quilt from 'lang/en-nz'
+import Session from 'model/Session'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import type { Quilt } from 'ui/utility/StringApplicator'
@@ -44,7 +45,12 @@ namespace ToSManager {
 		if (lastAcceptedToS < latestVersionNumbers['terms-of-service'] || lastAcceptedPrivacy < latestVersionNumbers['privacy-policy']) {
 			await banner.queue(banner => {
 				banner.body.append(
-					Component().text.use('banner/tos-and-privacy-policy-notification-initial'),
+					Component().text.use(lastAcceptedToS < 0
+						? 'banner/tos-and-privacy-policy-notification-initial'
+						: Session.Auth.loggedIn.value
+							? 'banner/tos-and-privacy-policy-notification-update-logged-in'
+							: 'banner/tos-and-privacy-policy-notification-update-logged-out',
+					),
 					Button().type('icon', 'flush').setIcon('xmark')
 						.event.subscribe('click', banner.dismiss),
 				)
