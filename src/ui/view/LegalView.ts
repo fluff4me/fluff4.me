@@ -30,6 +30,7 @@ export default ViewDefinition({
 			.addTo(tabinator)
 
 		tabinator.bindURL(tab, tab => tab ? `/legal/${tab}` : '/legal')
+		tabinator.bindViewTitle()
 
 		return view
 	},

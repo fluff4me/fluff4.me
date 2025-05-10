@@ -4,6 +4,9 @@
 	%max-width-100
 	%border-none
 
+	&-view-title:
+		%hidden
+
 	&-tab-list:
 		#after: .block-header, .block--type-flush-header
 		%flex

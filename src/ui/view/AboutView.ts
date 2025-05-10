@@ -35,6 +35,7 @@ export default ViewDefinition({
 			.addTo(tabinator)
 
 		tabinator.bindURL(tab, tab => tab ? `/about/${tab}` : '/about')
+		tabinator.bindViewTitle()
 
 		return view
 	},
