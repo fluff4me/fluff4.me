@@ -1,4 +1,3 @@
-import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
 import type { InputExtensions, InvalidMessageText } from 'ui/component/core/ext/Input'
 import Input from 'ui/component/core/ext/Input'
@@ -135,10 +134,10 @@ const Textarea = Component.Builder((component): Textarea => {
 	function updateValidity () {
 		let invalid: InvalidMessageText
 		if ((input.length.value ?? 0) > (input.maxLength.value ?? Infinity))
-			invalid = quilt['shared/form/invalid/too-long']()
+			invalid = quilt => quilt['shared/form/invalid/too-long']()
 
 		if (!input.length.value && input.required.value)
-			invalid = quilt['shared/form/invalid/required']()
+			invalid = quilt => quilt['shared/form/invalid/required']()
 
 		input.setCustomInvalidMessage(invalid)
 	}

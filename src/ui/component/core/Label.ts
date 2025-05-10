@@ -46,7 +46,7 @@ const Label = Component.Builder('label', (label): Label => {
 				label.style.unbind(requiredState)
 				requiredState = undefined
 				if (typeof required === 'boolean')
-					textWrapper.style.toggle('label-required')
+					textWrapper.style.toggle(required, 'label-required')
 				else
 					textWrapper.style.bind(requiredState = required, 'label-required')
 				return label

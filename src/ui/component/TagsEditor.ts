@@ -1,4 +1,3 @@
-import quilt from 'lang/en-nz'
 import type { TagId } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
@@ -301,9 +300,9 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 	tagsState.use(editor, tags => {
 		let invalid: InvalidMessageText
 		if (tags.global_tags.length > (editor.maxLengthGlobal.value ?? Infinity))
-			invalid = quilt['shared/form/invalid/tags/too-many-global']()
+			invalid = quilt => quilt['shared/form/invalid/tags/too-many-global']()
 		else if (tags.custom_tags.length > (editor.maxLengthCustom.value ?? Infinity))
-			invalid = quilt['shared/form/invalid/tags/too-many-custom']()
+			invalid = quilt => quilt['shared/form/invalid/tags/too-many-custom']()
 
 		editor.setCustomInvalidMessage(invalid)
 	})

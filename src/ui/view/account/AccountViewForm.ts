@@ -5,6 +5,7 @@ import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
+import Checkbutton from 'ui/component/core/Checkbutton'
 import GradientText from 'ui/component/core/ext/GradientText'
 import Form from 'ui/component/core/Form'
 import GradientInput from 'ui/component/core/GradientInput'
@@ -19,9 +20,9 @@ type AccountViewFormType =
 	| 'create'
 	| 'update'
 
-export default Component.Builder((component, type: AccountViewFormType) => {
+export default Component.Builder('form', (component, type: AccountViewFormType) => {
 	const block = component.and(Block)
-	const form = block.and(Form, block.title)
+	const form = block.and(Form, block.title) as Component<HTMLFormElement> & Block & Form
 	form.viewTransition('account-form')
 
 	form.title.text.use(`view/account/${type}/title`)
@@ -99,8 +100,50 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 			.setMaxLength(FormInputLengths.map(table, lengths => lengths?.author.support_message)))
 		.appendTo(table)
 
+	let sixteenPlus!: Checkbutton
+	let eighteenPlus!: Checkbutton
+	table.label(label => label.text.use('view/account/age/label'))
+		.content((content, label) => {
+			label.setRequired()
+
+			content.style('view-type-account-form-age-row')
+
+			sixteenPlus = Checkbutton()
+				.text.use('view/account/age/option/sixteen-plus')
+				.setChecked(!!Session.Auth.author.value)
+				.appendTo(content)
+
+			eighteenPlus = Checkbutton()
+				.text.use('view/account/age/option/eighteen-plus')
+				.setChecked(Session.Auth.author.value?.age === 'eighteen_plus')
+				.appendToWhen(sixteenPlus.checked, content)
+
+			sixteenPlus.checked.use(content, checked => {
+				sixteenPlus.setCustomInvalidMessage(checked ? undefined : quilt => quilt['view/account/age/invalid']())
+				if (!checked) eighteenPlus.setChecked(false)
+			})
+		})
+
+	if (type === 'create')
+		table.label(label => label.text.use('view/account/terms/label'))
+			.content((content, label) => {
+				label.setRequired()
+
+				const terms = Checkbutton()
+					.text.use('view/account/terms/button')
+					.appendTo(content)
+
+				terms.checked.use(content, checked => {
+					terms.setCustomInvalidMessage(checked ? undefined : quilt => quilt['view/account/terms/invalid']())
+				})
+			})
+
 	form.event.subscribe('submit', async event => {
 		event.preventDefault()
+
+		const age = sixteenPlus.checked.value ? (eighteenPlus.checked.value ? 'eighteen_plus' : 'sixteen_plus') : undefined
+		if (!age)
+			return
 
 		const response = await (type === 'create' ? EndpointAuthorCreate : EndpointAuthorUpdate).query({
 			body: {
@@ -111,6 +154,7 @@ export default Component.Builder((component, type: AccountViewFormType) => {
 				support_link: supportLinkInput.value,
 				support_message: supportMessageInput.value,
 				username_colours: gradientInput.value.value.length ? gradientInput.value.value.slice() : undefined,
+				age,
 			},
 		})
 
