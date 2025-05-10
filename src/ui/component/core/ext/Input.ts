@@ -1,4 +1,3 @@
-import type { Weave } from 'lang/en-nz'
 import Component from 'ui/Component'
 import { BlockClasses } from 'ui/component/core/Block'
 import type Label from 'ui/component/core/Label'
@@ -8,12 +7,12 @@ import ProgressWheel from 'ui/component/core/ProgressWheel'
 import Slot from 'ui/component/core/Slot'
 import { AllowYOffscreen } from 'ui/utility/AnchorManipulator'
 import type { Quilt } from 'ui/utility/StringApplicator'
-import StringApplicator from 'ui/utility/StringApplicator'
+import StringApplicator, { quilt, QuiltHelper } from 'ui/utility/StringApplicator'
 import Viewport from 'ui/utility/Viewport'
 import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 
-export type InvalidMessageText = string | Weave | undefined
+export type InvalidMessageText = string | Quilt.Handler | undefined
 
 export interface InputExtensions {
 	readonly required: State<boolean>
@@ -144,7 +143,7 @@ const Input = Object.assign(
 		const customInvalidMessage = State<InvalidMessageText>(undefined)
 		let validityPipeComponent: Component<HTMLInputElement> | undefined
 		customInvalidMessage.subscribe(component, invalidMessage => {
-			const validity = typeof invalidMessage === 'object' ? invalidMessage.toString() : invalidMessage
+			const validity = typeof invalidMessage === 'function' ? invalidMessage(quilt, QuiltHelper)?.toString() : invalidMessage
 			const input = validityPipeComponent?.element ?? component.element as HTMLInputElement
 			input.setCustomValidity?.(validity ?? '')
 		})

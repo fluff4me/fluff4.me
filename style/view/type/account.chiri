@@ -11,6 +11,12 @@
 
 		&-name-input:
 
+		&-age-row:
+			#after: .labelled-row-content
+			%flex
+			%gap-3
+			%align-items-centre
+
 	&-oauth-services:
 		&-mfa:
 			&-heading:

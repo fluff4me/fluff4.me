@@ -1404,7 +1404,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	editor.length.use(editor, (length = 0) => {
 		let invalid: InvalidMessageText
 		if (length > (editor.maxLength.value ?? Infinity))
-			invalid = quilt['shared/form/invalid/too-long']()
+			invalid = quilt => quilt['shared/form/invalid/too-long']()
 
 		editor.setCustomInvalidMessage(invalid)
 		editor.document?.setCustomInvalidMessage(invalid)
@@ -1420,10 +1420,10 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	function updateValidity () {
 		let invalid: InvalidMessageText
 		if ((editor.length.value ?? 0) > (editor.maxLength.value ?? Infinity))
-			invalid = quilt['shared/form/invalid/too-long']()
+			invalid = quilt => quilt['shared/form/invalid/too-long']()
 
 		if (!editor.length.value && editor.required.value)
-			invalid = quilt['shared/form/invalid/required']()
+			invalid = quilt => quilt['shared/form/invalid/required']()
 
 		editor.setCustomInvalidMessage(invalid)
 	}

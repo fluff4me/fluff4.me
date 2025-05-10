@@ -71,7 +71,7 @@ namespace Session {
 			author: {
 				...author,
 				authorisations: undefined,
-			} as AuthorFull,
+			} as AuthorSelf,
 			authorisations: author.authorisations ?? session.authorisations,
 		}
 		Store.items.session = sessionData

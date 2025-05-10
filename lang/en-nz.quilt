@@ -404,6 +404,13 @@ external-label/hint: A label to display instead of the external link itself.
 pronouns/label: Pronouns
 pronouns/hint: The pronouns that others should refer to you with. These will appear next to your name, usually.
 vanity-colours/label: Colours
+age/label: Age
+age/option/sixteen-plus: I am 16 or older
+age/option/eighteen-plus: I am 18 or older
+age/invalid: You must be 16 or older to use fluff4.me
+terms/label: Terms
+terms/button: I agree to the {#LINK(/legal/terms-of-service):Terms of Service} and {#LINK(/legal/privacy-policy):Privacy Policy}
+terms/invalid: You must agree to the Terms of Service and Privacy Policy
 
 action/logout: Log Out
 action/delete: Delete Account
