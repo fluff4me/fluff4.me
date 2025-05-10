@@ -1,3 +1,4 @@
+import type { RoutePath } from 'navigation/RoutePath'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
@@ -87,6 +88,7 @@ interface TabinatorExtensions<TAB extends Tab> {
 	addTab<NEW_TAB extends Tab> (tab: NEW_TAB): Tabinator<TAB | NEW_TAB>
 	addTabWhen<NEW_TAB extends Tab> (state: State<boolean>, tab: NEW_TAB): Tabinator<TAB | NEW_TAB>
 	removeTab (tab: Tab): this
+	bindURL (tabId: string | undefined, tabHandler: (tabId: string | undefined, tab: TAB | undefined) => RoutePath): this
 }
 
 interface Tabinator<TAB extends Tab> extends Block, TabinatorExtensions<TAB> { }
@@ -184,6 +186,11 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 				if (activeTab.value === removeTab)
 					activeTab.value = shouldForceSelect ? getFirstAvailableTab() : undefined
 
+				return tabinator
+			},
+			bindURL (tabId, tabHandler) {
+				if (tabId) tabinator.showTab(tabId)
+				tabinator.tab.useManual(tab => navigate.setURL(tabHandler(tab?.tabId, tab)))
 				return tabinator
 			},
 		}))

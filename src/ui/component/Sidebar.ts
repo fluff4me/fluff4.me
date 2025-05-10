@@ -1,4 +1,5 @@
 import Component from 'ui/Component'
+import State from 'utility/State'
 import Store from 'utility/Store'
 
 declare module 'utility/Store' {
@@ -8,6 +9,7 @@ declare module 'utility/Store' {
 }
 
 interface SidebarExtensions {
+	readonly state: State<boolean>
 	toggle (): this
 }
 
@@ -17,10 +19,13 @@ const Sidebar = Component.Builder('nav', (sidebar): Sidebar => {
 	sidebar.style('sidebar')
 		.ariaLabel.use('masthead/primary-nav/alt')
 
+	const state = State.Generator(() => !!Store.items.sidebar)
 	updateSidebarVisibility()
 	return sidebar.extend<SidebarExtensions>(sidebar => ({
+		state,
 		toggle: () => {
 			Store.items.sidebar = !Store.items.sidebar
+			state.refresh()
 			updateSidebarVisibility()
 			return sidebar
 		},

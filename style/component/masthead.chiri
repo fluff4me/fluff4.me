@@ -21,7 +21,7 @@
 		%flex
 		%justify-content-space-around
 		%top-auto
-		%bottom-0
+		bottom: calc(100lvh - 100dvh)
 		box-shadow:
 			#{box-shadow-inset-border-top-1},
 			#{box-shadow-top-inset-1}
@@ -84,7 +84,9 @@
 		%size-fit
 		%flex
 		%gap-2
-		%padding-2-3
+		$padding-block: $space-2
+		$padding-inline: $space-3
+		padding: $padding-block $padding-inline
 		%background-none
 		%box-shadow-none
 
@@ -112,8 +114,8 @@
 				%no-decoration
 				font-size: 0.4em
 				%absolute
-				right: 1.4em
-				top: 1em
+				right: calc($padding-inline - $space-3 + 1.4em)
+				top: calc($padding-block - $space-2 + 1em)
 				%height-cap
 				%align-items-centre
 

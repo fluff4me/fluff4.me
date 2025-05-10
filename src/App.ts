@@ -2,11 +2,14 @@ import quilt from 'lang/en-nz'
 import FormInputLengths from 'model/FormInputLengths'
 import Notifications from 'model/Notifications'
 import Session from 'model/Session'
+import ToSManager from 'model/ToSManager'
 import Navigator from 'navigation/Navigate'
 import PopupRoute from 'navigation/popup/PopupRoute'
 import PopupRoutes from 'navigation/popup/PopupRoutes'
 import style from 'style'
 import Component from 'ui/Component'
+import { AppBannerQueue } from 'ui/component/AppBanner'
+import AppFooter from 'ui/component/AppFooter'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Link from 'ui/component/core/Link'
 import ToastList from 'ui/component/core/toast/ToastList'
@@ -142,6 +145,10 @@ async function App (): Promise<App> {
 	const related = Component()
 		.style('app-content-related')
 
+	AppFooter()
+		.style.bind(masthead.sidebar.state.falsy, 'app-footer--no-sidebar')
+		.appendTo(view)
+
 	const content = Component()
 		.style('app-content')
 		.append(view, related)
@@ -150,9 +157,11 @@ async function App (): Promise<App> {
 	Component.getDocument().monitorScrollEvents()
 	Component.getWindow().monitorScrollEvents()
 
+	const banner = AppBannerQueue()
 	const app: App = Component()
 		.style('app')
-		.append(masthead.flush, masthead, masthead.sidebar, content)
+		.style.bind(banner.state, 'app--has-banner')
+		.append(masthead.flush, masthead, banner, masthead.sidebar, content)
 		.append(ToastList())
 		.extend<AppExtensions>(app => ({
 			navigate,
@@ -179,6 +188,8 @@ async function App (): Promise<App> {
 				: `v${env.BUILD_NUMBER} (${env.BUILD_SHA?.slice(0, 7)})`
 		))
 		.appendTo(document.body)
+
+	ToSManager.ensureAccepted()
 
 	await app.navigate.fromURL()
 
