@@ -5,7 +5,6 @@ import EndpointChapterCreateBulkQueue from 'endpoint/chapter/EndpointChapterCrea
 import EndpointChapterGetAll from 'endpoint/chapter/EndpointChapterGetAll'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import type { Weave, WeavingArg } from 'lang/en-nz'
-import quilt from 'lang/en-nz'
 import Chapters from 'model/Chapters'
 import PagedListData from 'model/PagedListData'
 import Patreon from 'model/Patreon'
@@ -491,7 +490,7 @@ export default ViewDefinition({
 										.setLabel(label)
 										.placeholder.set('(.*)')
 										.setValidityHandler(input => !input.value || filenameExtractionRegexGroups.value ? undefined
-											: quilt['view/chapter-create-bulk/import/form/filename/invalid']())
+											: quilt => quilt['view/chapter-create-bulk/import/form/filename/invalid']())
 										.tweak(input => input.state.useManual(value => filenameExtractionRegex.value = Strings.optionalParseRegex(value, 'd')))
 									)
 									.append(Small()
@@ -513,7 +512,7 @@ export default ViewDefinition({
 										.placeholder.set('{filename}')
 										.setValidityHandler(input => {
 											if (input.length.value && !/\{filename(:\d+)\}/.test(input.value))
-												return quilt['view/chapter-create-bulk/import/form/name/invalid']()
+												return quilt => quilt['view/chapter-create-bulk/import/form/name/invalid']()
 										})
 										.tweak(input => input.state.useManual(value => chapterNameTemplate.value = value || undefined))
 									)

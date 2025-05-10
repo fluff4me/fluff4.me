@@ -231,8 +231,8 @@ namespace State {
 		export function getOwnershipState (ownerIn: Owner): State<boolean>
 		export function getOwnershipState (ownerIn?: unknown): State<boolean> | undefined
 		export function getOwnershipState (ownerIn: unknown) {
-			const owner = ownerIn as Partial<Component> & Partial<ComponentInsertionTransaction>
-			return owner.removed ?? owner.closed
+			const owner = ownerIn as Partial<Component> & Partial<ComponentInsertionTransaction> | undefined
+			return owner?.removed ?? owner?.closed
 		}
 
 		export type Removable = Extract<Owner, { remove (): void }>

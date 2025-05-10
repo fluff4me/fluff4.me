@@ -1,4 +1,3 @@
-import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Checkbutton from 'ui/component/core/Checkbutton'
@@ -205,7 +204,7 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 	function updateValidity () {
 		let invalid: InvalidMessageText
 		if (!selection.value && dropdown.required.value)
-			invalid = quilt['shared/form/invalid/required']()
+			invalid = quilt => quilt['shared/form/invalid/required']()
 
 		dropdown.setCustomInvalidMessage(invalid)
 		dropdown.closest(Form)?.refreshValidity()

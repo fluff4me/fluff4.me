@@ -87,6 +87,8 @@ const Checkbutton = Component.Builder('label', (component): Checkbutton => {
 			},
 		}))
 
+	checkbutton.pipeValidity(input)
+
 	input.event.subscribe('change', () => {
 		if (unuse) {
 			const checked = inputElement.checked
