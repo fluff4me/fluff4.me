@@ -4,6 +4,7 @@ import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import type { ComponentName, ComponentNameType } from 'ui/utility/StyleManipulator'
 import TypeManipulator from 'ui/utility/TypeManipulator'
+import ViewTitle from 'ui/view/shared/ext/ViewTitle'
 import { mutable } from 'utility/Objects'
 import State from 'utility/State'
 
@@ -89,6 +90,7 @@ interface TabinatorExtensions<TAB extends Tab> {
 	addTabWhen<NEW_TAB extends Tab> (state: State<boolean>, tab: NEW_TAB): Tabinator<TAB | NEW_TAB>
 	removeTab (tab: Tab): this
 	bindURL (tabId: string | undefined, tabHandler: (tabId: string | undefined, tab: TAB | undefined) => RoutePath): this
+	bindViewTitle (): this
 }
 
 interface Tabinator<TAB extends Tab> extends Block, TabinatorExtensions<TAB> { }
@@ -191,6 +193,13 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 			bindURL (tabId, tabHandler) {
 				if (tabId) tabinator.showTab(tabId)
 				tabinator.tab.useManual(tab => navigate.setURL(tabHandler(tab?.tabId, tab)))
+				return tabinator
+			},
+			bindViewTitle () {
+				Component().and(ViewTitle)
+					.style('tabinator-view-title')
+					.tweak(title => this.tab.use(title, tab => title.text.bind(tab?.text.state)))
+					.appendTo(tabinator.header)
 				return tabinator
 			},
 		}))
