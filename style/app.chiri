@@ -73,7 +73,7 @@ $app-column-width: #{app-column-width}
 				%hidden
 
 	&-footer:
-		%row-2
+		%row-3
 		%grid
 		%gap-4
 		background: color-mix(in lch, $dark-2, $dark-3 80%)

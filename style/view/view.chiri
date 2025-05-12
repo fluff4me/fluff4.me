@@ -25,11 +25,18 @@
 		%padding-left-4
 		grid-area: content
 		%border-box
-		grid-template-rows: minmax(calc(100lvh - $masthead-height), max-content) auto
+		grid-template-rows: auto minmax(calc(100lvh - $masthead-height), max-content) auto
 		%align-items-start
 
 		#laptop:
 			%padding-left-0
+
+		&-start-anchor:
+			%block
+			%width-1
+			%height-1
+			%unmargin-bottom-1
+			%scroll-margin-top
 
 		&-ephemeral:
 			%flex-column
