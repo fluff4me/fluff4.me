@@ -33,11 +33,14 @@ const ViewContainer = (): ViewContainer => {
 
 	let loadingOwner: State.Owner.Removable | undefined
 
+	const viewStartAnchor = Component().style('view-container-start-anchor')
+
 	const container = Component()
 		.style('view-container')
 		.tabIndex('programmatic')
 		.ariaRole('main')
 		.ariaLabel.use('view/container/alt')
+		.append(viewStartAnchor)
 		.extend<ViewContainerExtensions>(container => ({
 			state,
 			show: async <VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined> (definition: ViewDefinition<VIEW, PARAMS, LOAD_PARAMS>, params: PARAMS) => {
@@ -47,6 +50,8 @@ const ViewContainer = (): ViewContainer => {
 
 				let view: VIEW | undefined
 				let loadParams: LOAD_PARAMS | Errors.Redirecting | undefined = undefined
+
+				viewStartAnchor.element.scrollIntoView({ behavior: 'smooth' })
 
 				const needsLogin = definition.requiresLogin && !Session.Auth.loggedIn.value
 				if (needsLogin || definition.load) {
@@ -83,11 +88,12 @@ const ViewContainer = (): ViewContainer => {
 				container.style('view-container--loading')
 
 				let loading: Loading | undefined
-				if (definition.load)
+				if (definition.load) {
 					loading = Loading()
 						.setOwner(loadingOwner)
 						.style('view-container-loading')
-						.prependTo(container)
+						.insertTo(container, 'after', viewStartAnchor)
+				}
 
 				let loadError: Error & Partial<ErrorResponse> | undefined
 				try {
@@ -139,7 +145,7 @@ const ViewContainer = (): ViewContainer => {
 							error,
 						}, {}))
 					if (shownView) {
-						shownView.prependTo(container)
+						shownView.insertTo(container, 'after', viewStartAnchor)
 						state.value = shownView
 						if (replacementDefinition === definition)
 							shownView.params = params
