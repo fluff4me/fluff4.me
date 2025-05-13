@@ -12,3 +12,13 @@
 
 		&-item:
 			%block
+
+			&-content:
+				margin-block: calc(0px - $space-3 - $space-2)
+				%grid
+				grid-template-columns: 1fr auto
+
+			&-body:
+				%block
+
+			&-primary-actions:
