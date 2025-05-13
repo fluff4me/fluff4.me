@@ -1,5 +1,6 @@
 import Block from 'ui/component/core/Block'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
+import AboutViewRoadmap from 'ui/view/about/AboutViewRoadmap'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 
@@ -22,9 +23,7 @@ export default ViewDefinition({
 
 		Tab('roadmap')
 			.text.use('view/about/roadmap/tab')
-			.tweak(tab => tab.content.append(Block()
-				.tweak(block => block.content.text.set('This page will be filled in soon!'))
-			))
+			.tweak(tab => tab.content.append(AboutViewRoadmap()))
 			.addTo(tabinator)
 
 		Tab('supporters')

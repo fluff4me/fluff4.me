@@ -61,9 +61,6 @@ const html = Object.assign(
 
 		defaultOptions: {
 			voidElements: [
-				// custom
-				'mention',
-
 				// default
 				'area',
 				'base',
@@ -80,9 +77,6 @@ const html = Object.assign(
 				'wbr',
 			],
 			allowedTags: [
-				// custom
-				'mention',
-
 				// headings
 				'hgroup',
 				'h1',
@@ -161,9 +155,6 @@ const html = Object.assign(
 			],
 			allTagsAllowedAttributeValues: {},
 			perTagAllowedAttributes: {
-				// custom
-				mention: ['vanity'],
-
 				// default
 				a: ['href'],
 				img: ['src', 'alt', 'usemap', 'width', 'height'],
@@ -400,7 +391,7 @@ const html = Object.assign(
 
 			const tagName = tagNameRaw.toLowerCase()
 			const o = state.options
-			if (!o.allowedTags.includes(tagNameRaw)) {
+			if (!o.allowedTags.includes(tagName)) {
 				state.i = start
 				return undefined
 			}

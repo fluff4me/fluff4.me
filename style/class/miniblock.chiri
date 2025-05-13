@@ -1,0 +1,17 @@
+.miniblock:
+	%block
+	%unmargin-inline-3
+	%padding-inline-3
+	%padding-block-3
+	%margin-block-3
+	%border-left-radius-2
+	$gradient-colour: $background-2
+	background: linear-gradient(to right, color-mix(in lch, $gradient-colour, #0000 60%), transparent)
+	$markdown-heading-margin-top-multiplier: 0
+
+	@after:
+		%block
+		margin-bottom: calc($markdown-paragraph-padding-bottom * -1)
+
+	:even:
+		$gradient-colour: $background-3

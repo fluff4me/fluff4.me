@@ -1,1 +1,14 @@
 #view type="about":
+
+	&-changelog:
+		%flex
+		%flex-column
+		%gap-4
+
+		&-wrapper:
+			#after: .block--type-flush
+			$block-padding: 0px
+			%margin-top-4
+
+		&-item:
+			%block

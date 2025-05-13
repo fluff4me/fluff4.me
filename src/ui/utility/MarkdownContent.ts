@@ -1,8 +1,11 @@
 import type { TextBody } from 'api.fluff4.me'
+import type { Weft } from 'lang/en-nz'
+import { WeavingArg } from 'lang/en-nz'
 import Component from 'ui/Component'
 import { Quilt, QuiltHelper } from 'ui/utility/StringApplicator'
 import type { UnsubscribeState } from 'utility/State'
 import Markdown from 'utility/string/Markdown'
+import MarkdownItHTML from 'utility/string/MarkdownItHTML'
 
 interface MarkdownContentExtensions {
 	setMarkdownContent (markdown?: TextBody | string | null, maxLength?: number, simplify?: boolean): this
@@ -64,8 +67,25 @@ Component.extend(component => {
 					markdownHandler = quilt => quilt[key]()
 				}
 
-				const content = markdownHandler(quilt, QuiltHelper)?.toString()
+				const content = markdownHandler(quilt, QuiltHelper)?.content.map(stringify).join('')
 				setMarkdownContent(content)
+
+				function stringify (weft: Weft): string {
+					if (!weft.tag) {
+						if (Array.isArray(weft.content))
+							return weft.content.map(stringify).join('')
+
+						if (typeof weft.content === 'object' && weft.content && !WeavingArg.isRenderable(weft.content))
+							return weft.content.content.map(stringify).join('')
+
+						if (typeof weft.content === 'string' || typeof weft.content === 'number')
+							return String(weft.content)
+
+						return ''
+					}
+
+					return `<weave tag="${weft.tag}">${stringify({ content: weft.content })}</weave>`
+				}
 			})
 			return component
 		},
@@ -81,7 +101,7 @@ Component.extend(component => {
 			markdown = { body: markdown }
 
 		component.classes.add('markdown')
-		const rendered = Markdown.render(markdown.body)
+		const rendered = Markdown().render(markdown.body)
 		component.element.innerHTML = rendered
 			.replace(MENTION_OPEN_TAG_REGEX, '</mention>')
 
@@ -194,6 +214,29 @@ namespace MarkdownContent {
 			.replace(/^(?:\s|<br>)+/, '')
 			.replace(/(?:\s|<br>)+$/, '')
 	}
+
+	export function registerMarkdownWeaveHandler () {
+		MarkdownItHTML.defaultOptions.allowedTags.push('weave')
+		MarkdownItHTML.defaultOptions.perTagAllowedAttributes.weave = ['tag']
+
+		MarkdownContent.handle((element, context) => {
+			if (element.tagName !== 'WEAVE')
+				return
+
+			return () => {
+				const tag = element.getAttribute('tag')
+
+				let newElement = !tag ? undefined : QuiltHelper.createTagElement(tag)
+				newElement ??= document.createElement('span')
+
+				if (element.childNodes.length)
+					newElement.replaceChildren(...element.childNodes)
+
+				element.replaceWith(newElement)
+			}
+		})
+	}
+
 }
 
 export default MarkdownContent

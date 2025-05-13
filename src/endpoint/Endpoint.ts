@@ -43,20 +43,20 @@ type EndpointQuery<ROUTE extends keyof Paths> =
 	[keyof SEARCH] extends [never]
 	? (
 		[keyof DATA] extends [never]
-		? { (data?: undefined): Promise<RESPONSE> }
-		: { (data: DATA): Promise<RESPONSE> }
+		? { (data?: undefined, query?: undefined, signal?: AbortSignal): Promise<RESPONSE> }
+		: { (data: DATA, query?: undefined, signal?: AbortSignal): Promise<RESPONSE> }
 	)
 	: (
 		[keyof { [K in keyof SEARCH as object extends Pick<SEARCH, K> ? never : K]: SEARCH[K] }] extends [never]
 		? (
 			[keyof DATA] extends [never]
-			? { (data?: undefined, query?: SEARCH): Promise<RESPONSE> }
-			: { (data: DATA, query?: SEARCH): Promise<RESPONSE> }
+			? { (data?: undefined, query?: SEARCH, signal?: AbortSignal): Promise<RESPONSE> }
+			: { (data: DATA, query?: SEARCH, signal?: AbortSignal): Promise<RESPONSE> }
 		)
 		: (
 			[keyof DATA] extends [never]
-			? { (data: undefined, query: SEARCH): Promise<RESPONSE> }
-			: { (data: DATA, query: SEARCH): Promise<RESPONSE> }
+			? { (data: undefined, query: SEARCH, signal?: AbortSignal): Promise<RESPONSE> }
+			: { (data: DATA, query: SEARCH, signal?: AbortSignal): Promise<RESPONSE> }
 		)
 	)
 
@@ -92,6 +92,7 @@ interface PreparedEndpointQuery<ROUTE extends keyof Paths, QUERY extends Endpoin
 			} : never : never
 		),
 		query?: Parameters<QUERY>[1] extends infer Q ? Partial<Q> : never,
+		signal?: AbortSignal,
 	): ReturnType<QUERY>
 }
 
@@ -124,21 +125,18 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 		},
 		noResponse: () => endpoint.removeHeader('Accept'),
 		query: query as Endpoint<ROUTE>['query'],
-		prep: (...parameters) => {
+		prep: (prepData?: unknown, prepQueryData?: unknown) => {
 			const endpoint = Endpoint(route, method, headers) as any as ConfigurablePreparedEndpointQuery<ROUTE, any>
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return Object.assign(endpoint, {
-				query: (...p2: any[]) => {
-					const newParameters: any[] = []
-					const length = Math.max(parameters.length, p2.length)
-					for (let i = 0; i < length; i++)
-						newParameters.push(Objects.merge(parameters[i], p2[i]))
+				query: (data?: unknown, queryData?: unknown, signal?: AbortSignal) => {
+					data = Objects.merge(prepData, data)
+					queryData = Objects.merge(prepQueryData, queryData)
 
 					const ownPageSize = pageSize
 					pageSize = endpoint.getPageSize()
 
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-					const result = query(...newParameters)
+					const result = query(data as EndpointQueryData, queryData as EndpointQuerySearchParams, signal)
 
 					pageSize = ownPageSize
 					return result
@@ -159,7 +157,7 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 		page?: number
 	}
 
-	async function query (data?: EndpointQueryData, search?: EndpointQuerySearchParams) {
+	async function query (data?: EndpointQueryData, search?: EndpointQuerySearchParams, signal?: AbortSignal) {
 		const body = !data?.body ? undefined : JSON.stringify(data.body)
 		const url = route.slice(1)
 			.replaceAll(/\{([^}]+)\}/g, (match, paramName) =>
@@ -183,6 +181,7 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 			response = undefined
 			shouldRetry = false
 
+			const timeoutSignal = AbortSignal.timeout(Time.seconds(7))
 			response = await fetch(`${Env.API_ORIGIN}${url}${qs}`, {
 				method,
 				headers: Objects.filterNullish({
@@ -195,7 +194,7 @@ function Endpoint<ROUTE extends keyof Paths> (route: ROUTE, method: Paths[ROUTE]
 				}) as HeadersInit,
 				credentials: 'include',
 				body,
-				signal: AbortSignal.timeout(Time.seconds(7)),
+				signal: !signal ? timeoutSignal : AbortSignal.any([timeoutSignal, signal]),
 			}).catch((e: Error): undefined => {
 				if (e.name === 'AbortError' || e.name === 'TimeoutError') {
 					shouldRetry = true

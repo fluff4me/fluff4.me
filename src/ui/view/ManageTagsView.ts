@@ -12,7 +12,7 @@ import State from 'utility/State'
 
 export default ViewDefinition({
 	async load (params) {
-		if (!Session.Auth.hasPrivilege('TagGlobalDelete'))
+		if (!Session.Auth.privileged.TagGlobalDelete.value)
 			throw Errors.Forbidden()
 
 		const customTags = await EndpointTagCustomGetAll.query()

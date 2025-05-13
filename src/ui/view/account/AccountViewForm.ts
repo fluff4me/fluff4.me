@@ -14,6 +14,7 @@ import LabelledTextInputBlock from 'ui/component/core/LabelledTextInputBlock'
 import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
+import SupportersOnlyLabel from 'ui/component/SupportersOnlyLabel'
 import VanityInput, { FilterVanity } from 'ui/component/VanityInput'
 
 type AccountViewFormType =
@@ -51,11 +52,7 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 	const gradientInput = GradientInput()
 		.default.bind(Session.Auth.author.map(component, author => author?.supporter?.username_colours))
 	table
-		.label(label => label
-			.style('label--supporter')
-			.append(Component().style('label-supporter').text.use('shared/term/supporters'))
-			.append(Component().text.use('view/account/vanity-colours/label'))
-		)
+		.label(label => label.and(SupportersOnlyLabel).text.use('view/account/vanity-colours/label'))
 		.content((content, label) => content.append(gradientInput.setLabel(label)))
 
 	nameDisplay.useGradient(gradientInput.value)
