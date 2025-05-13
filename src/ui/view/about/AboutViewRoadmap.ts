@@ -77,10 +77,16 @@ export default Component.Builder(component => {
 					table.label(label => label.text.use('view/about/roadmap/create-changelog/label/version'))
 						.content((content, label) => content.append(versionInput.setLabel(label)))
 
+					let submitting = false
 					form.submit.text.use('view/about/roadmap/create-changelog/action/submit')
 						.event.subscribe('click', async () => {
 							if (versionInput.value && isNaN(+versionInput.value))
 								return
+
+							if (submitting)
+								return
+
+							submitting = true
 
 							const response = await EndpointChangelogAdd.query({
 								body: {
@@ -90,9 +96,13 @@ export default Component.Builder(component => {
 								},
 							})
 
+							submitting = false
 							if (toast.handleError(response))
 								return
 
+							bodyInput.importMarkdown('')
+							versionInput.value = ''
+							timeInput.value = ''
 							changelog.reset()
 						})
 				})
@@ -105,7 +115,7 @@ export default Component.Builder(component => {
 							.style('view-type-about-changelog-item')
 							.tweak(block => block.content.setMarkdownContent(item.body))
 							.tweak(block => block.footer.left.and(Placeholder).and(Small).text.set(`v${item.version}`))
-							.tweak(block => block.footer.right.and(Placeholder).and(Small).text.set(new Date(item.time).toLocaleDateString()))
+							.tweak(block => block.footer.right.and(Placeholder).and(Small).text.set(new Date(item.time).toLocaleDateString(navigator.language)))
 							.appendTo(slot)
 					}
 				})
