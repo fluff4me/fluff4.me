@@ -14,6 +14,7 @@ import Small from 'ui/component/core/Small'
 import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
 import Env from 'utility/Env'
+import State from 'utility/State'
 
 export default Component.Builder(component => {
 	Block()
@@ -45,6 +46,10 @@ export default Component.Builder(component => {
 					table.label(label => label.text.use('view/about/roadmap/create-changelog/label/body'))
 						.content((content, label) => content.append(bodyInput.setLabel(label)))
 
+					const currentTimeState = State.Generator(() => new Date().toLocaleString())
+					const i = setInterval(() => currentTimeState.refresh(), 1000)
+					block.onRemoveManual(() => clearInterval(i))
+
 					const timeInput = TextInput()
 						.setValidityHandler(input => {
 							if (!input.length.value)
@@ -53,20 +58,34 @@ export default Component.Builder(component => {
 							if (isNaN(new Date(input.value).getTime()))
 								return quilt => quilt['shared/form/invalid/time']()
 						})
+						.placeholder.use('shared/form/time/placeholder')
 					table.label(label => label.text.use('view/about/roadmap/create-changelog/label/time'))
 						.content((content, label) => content
 							.append(timeInput.setLabel(label))
 							.append(Paragraph().and(Placeholder).and(Small)
-								.text.bind(timeInput.state.map(content, time => new Date(time).toLocaleString()))
+								.text.bind(State.Map(content, [timeInput.state, currentTimeState],
+									(inputTime, currentTime) => !inputTime ? currentTime : new Date(inputTime).toLocaleString()
+								))
 							)
 						)
 
+					const versionInput = TextInput()
+						.filter((...segments) => (
+							segments.map(segment => segment.replace(/[^0-9]/g, ''))
+						) as [string, string, string])
+						.placeholder.set(`v${+Env.BUILD_NUMBER! || 0}`)
+					table.label(label => label.text.use('view/about/roadmap/create-changelog/label/version'))
+						.content((content, label) => content.append(versionInput.setLabel(label)))
+
 					form.submit.text.use('view/about/roadmap/create-changelog/action/submit')
 						.event.subscribe('click', async () => {
+							if (versionInput.value && isNaN(+versionInput.value))
+								return
+
 							const response = await EndpointChangelogAdd.query({
 								body: {
 									body: bodyInput.useMarkdown(),
-									version: +Env.BUILD_NUMBER! || 0,
+									version: !versionInput.value ? +Env.BUILD_NUMBER! || 0 : +versionInput.value,
 									time: !timeInput.value ? undefined : new Date(timeInput.value).toISOString(),
 								},
 							})
