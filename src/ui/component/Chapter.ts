@@ -64,7 +64,7 @@ const Chapter = Object.assign(
 		const chapterNumber = Maths.parseIntOrUndefined(chapter.url)
 		const number = Component()
 			.style('chapter-number')
-			.text.set(chapterNumber ? `${chapterNumber.toLocaleString()}` : '')
+			.text.set(chapterNumber ? `${chapterNumber.toLocaleString(navigator.language)}` : '')
 			.appendTo(component)
 
 		const chapterName = Component()
