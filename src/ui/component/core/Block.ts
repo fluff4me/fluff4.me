@@ -89,6 +89,7 @@ const Block = Component.Builder((component): Block => {
 
 				actionsMenu.anchor.reset()
 					.anchor.add('off right', 'centre', `>> .${BlockClasses.Header}`)
+					.anchor.add('off right', 'centre', `.${BlockClasses.Main}`)
 					.anchor.orElseHide()
 			})
 		)

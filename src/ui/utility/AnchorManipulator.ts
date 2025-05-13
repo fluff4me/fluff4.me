@@ -274,6 +274,9 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 
 					const xConf = preference.xAnchor
 					const xRef = resolveAnchorRef(preference.xRefSelector)
+					if (preference.xRefSelector !== '*' && !xRef)
+						continue
+
 					const xBox = xRef?.rect.value
 					addSubscription(xRef?.rect.subscribe(host, result.markDirty))
 
@@ -309,6 +312,9 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 
 					const yConf = preference.yAnchor
 					const yRef = resolveAnchorRef(preference.yRefSelector)
+					if (preference.yRefSelector !== '*' && !yRef)
+						continue
+
 					const yBox = yRef?.rect.value
 					addSubscription(yRef?.rect.subscribe(host, result.markDirty))
 

@@ -757,12 +757,17 @@ action/delete/confirm: This will permanently delete the following global tags:
 #### roadmap
 title: Roadmap
 
-#### create-changelog
-title: Add new
+#### changelog-editor
+title/create: Add new
+title/update: Update
 label/body=shared/form/body/label
 label/time=shared/form/time/label
 label/version: Version
-action/submit=shared/action/create
+action/submit/create=shared/action/create
+action/submit/save=shared/action/save
+action/cancel=shared/action/cancel
+action/edit=shared/action/edit
+action/delete=shared/action/delete
 
 #### changelog
 title: Changelog
