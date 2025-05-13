@@ -7,6 +7,7 @@ import Paragraph from 'ui/component/core/Paragraph'
 import Placeholder from 'ui/component/core/Placeholder'
 import Small from 'ui/component/core/Small'
 import { HomeLink } from 'ui/component/Masthead'
+import Env from 'utility/Env'
 
 export default Component.Builder(footer => {
 	const Column = () => Component()
@@ -41,6 +42,14 @@ export default Component.Builder(footer => {
 				.text.use(quilt => quilt['footer/other/copyright']({ YEAR: new Date().getFullYear() }))
 			)
 		)
+		.append(BaseExternalLink(undefined)
+			.style('app-version')
+			.attributes.bind('href', Env.state.mapManual(env => !env?.BUILD_SHA ? undefined : `https://github.com/fluff4me/fluff4.me/commit/${env.BUILD_SHA}`))
+			.text.bind(Env.state.mapManual(env => !env ? ''
+				: !env.BUILD_SHA
+					? 'dev'
+					: `v${env.BUILD_NUMBER} (${env.BUILD_SHA?.slice(0, 7)})`
+			)))
 		.appendTo(footer)
 
 	Column()

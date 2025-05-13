@@ -187,14 +187,9 @@ $app-column-width: #{app-column-width}
 
 	&-version:
 		%block
-		%fixed
-		%right-1
-		%bottom-1
 		%font-0
 		%colour-8
-
-		#tablet:
-			%hidden
+		%unmargin-top-1
 
 .masthead:
 	grid-area: masthead
