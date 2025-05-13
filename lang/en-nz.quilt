@@ -98,6 +98,7 @@ visibility-patreon-tier/selection/none: {#I:No Tiers Selected}
 visibility-patreon-tier/selection/all: {#I:All Tiers}
 visibility-patreon-tier/selection/tier-and-up: {0} {#I:(And All Higher Tiers)}
 time/label: Time
+time/placeholder: (Now)
 
 invalid/too-long: This text is too long.
 invalid/required: This field is required.
@@ -760,6 +761,7 @@ title: Roadmap
 title: Add new
 label/body=shared/form/body/label
 label/time=shared/form/time/label
+label/version: Version
 action/submit=shared/action/create
 
 #### changelog
