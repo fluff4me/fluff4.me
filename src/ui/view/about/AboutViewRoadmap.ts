@@ -46,7 +46,7 @@ export default Component.Builder(component => {
 					table.label(label => label.text.use('view/about/roadmap/create-changelog/label/body'))
 						.content((content, label) => content.append(bodyInput.setLabel(label)))
 
-					const currentTimeState = State.Generator(() => new Date().toLocaleString())
+					const currentTimeState = State.Generator(() => new Date().toLocaleString(navigator.language))
 					const i = setInterval(() => currentTimeState.refresh(), 1000)
 					block.onRemoveManual(() => clearInterval(i))
 
@@ -64,7 +64,7 @@ export default Component.Builder(component => {
 							.append(timeInput.setLabel(label))
 							.append(Paragraph().and(Placeholder).and(Small)
 								.text.bind(State.Map(content, [timeInput.state, currentTimeState],
-									(inputTime, currentTime) => !inputTime ? currentTime : new Date(inputTime).toLocaleString()
+									(inputTime, currentTime) => !inputTime ? currentTime : new Date(inputTime).toLocaleString(navigator.language)
 								))
 							)
 						)

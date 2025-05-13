@@ -98,13 +98,13 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 
 	TextLabel()
 		.tweak(textLabel => textLabel.label.text.use('work/chapters/label'))
-		.tweak(textLabel => textLabel.content.text.set(work.chapter_count_public.toLocaleString()))
+		.tweak(textLabel => textLabel.content.text.set(work.chapter_count_public.toLocaleString(navigator.language)))
 		.appendTo(block.footer.left)
 
 	if (work.word_count)
 		TextLabel()
 			.tweak(textLabel => textLabel.label.text.use('work/word-count/label'))
-			.tweak(textLabel => textLabel.content.text.set(work.word_count.toLocaleString()))
+			.tweak(textLabel => textLabel.content.text.set(work.word_count.toLocaleString(navigator.language)))
 			.appendTo(block.footer.left)
 
 	if (work.visibility === 'Private')
