@@ -4,6 +4,7 @@ import GradientText from 'ui/component/core/ext/GradientText'
 import Link from 'ui/component/core/Link'
 import AuthorPopover from 'ui/component/popover/AuthorPopover'
 import MarkdownContent from 'ui/utility/MarkdownContent'
+import MarkdownItHTML from 'utility/string/MarkdownItHTML'
 
 interface MentionExtensions {
 
@@ -25,6 +26,10 @@ const Mention = Component.Builder('a', (component, author?: Author): Mention => 
 export default Mention
 
 export function registerMarkdownMentionHandler () {
+	MarkdownItHTML.defaultOptions.voidElements.push('mention')
+	MarkdownItHTML.defaultOptions.allowedTags.push('mention')
+	MarkdownItHTML.defaultOptions.perTagAllowedAttributes.mention = ['vanity']
+
 	MarkdownContent.handle((element, context) => {
 		if (element.tagName !== 'MENTION')
 			return

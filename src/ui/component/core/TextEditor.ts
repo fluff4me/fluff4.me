@@ -446,7 +446,7 @@ types<[Marks, Nodes]>()
 ////////////////////////////////////
 //#region Markdown
 
-const markdown = Markdown.clone()
+const markdown = Markdown()
 
 const REGEX_ATTRIBUTE = (() => {
 	const attr_name = '[a-zA-Z_:][a-zA-Z0-9:._-]*'

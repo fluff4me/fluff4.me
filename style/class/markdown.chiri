@@ -9,6 +9,9 @@ $markdown-paragraph-padding-top: round(up, $space-2, 1px)
 		; to match paragraph sizes
 		margin-block-start: round(up, $space-4 + 0.5lh, 1px)
 		margin-block-end: round(up, $space-4 + 0.5lh - 1px, 1px)
+		%border-none
+		%border-top-1
+		%border-colour-6
 
 	&& blockquote:
 		%wrap-words

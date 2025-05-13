@@ -8,6 +8,7 @@ import Popup from 'utility/Popup'
 import State from 'utility/State'
 import type { ILocalStorage } from 'utility/Store'
 import Store from 'utility/Store'
+import type { PartialRecord } from 'utility/Type'
 
 declare module 'utility/Store' {
 	interface ILocalStorage {
@@ -116,9 +117,15 @@ namespace Session {
 				|| Session.Auth.authorisations.value.some(auth => auth.service === service.name)
 		}
 
-		export function hasPrivilege (privilege: Privilege) {
-			return !!Session.Auth.author.value?.roles?.some(role => role.privileges?.includes(privilege))
-		}
+		const privilegeStates: PartialRecord<Privilege, State.Generator<boolean>> = {}
+		export const privileged = new Proxy({} as Record<Privilege, State.Generator<boolean>>, {
+			get (target, p) {
+				const privilege = p as Privilege
+				return privilegeStates[privilege]
+					??= Session.Auth.author.mapManual(author =>
+						author?.roles?.some(role => role.privileges?.includes(privilege)) ?? false)
+			},
+		})
 
 		export async function unauth (authOrId: Authorisation | string) {
 			const id = typeof authOrId === 'string' ? authOrId : authOrId.id

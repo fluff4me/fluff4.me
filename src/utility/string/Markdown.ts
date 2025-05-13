@@ -2,14 +2,7 @@ import type { StateInline, Token } from 'markdown-it'
 import MarkdownIt from 'markdown-it'
 import MarkdownItHTML from 'utility/string/MarkdownItHTML'
 
-export default Object.assign(
-	createMarkdownInstance(),
-	{
-		clone: createMarkdownInstance,
-	}
-)
-
-function createMarkdownInstance () {
+export default function () {
 	const Markdown = new MarkdownIt('commonmark', { html: true, breaks: true })
 
 	MarkdownItHTML.use(Markdown, MarkdownItHTML.Options()

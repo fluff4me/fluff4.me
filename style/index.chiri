@@ -22,6 +22,7 @@
 	class/action-group
 	class/patreon-icon-before
 	class/small
+	class/miniblock
 
 #import:
 	component/core/break
@@ -70,6 +71,7 @@
 	component/core/ext/gradient-text
 	component/core/colour-input
 	component/core/gradient-input
+	component/core/infinite-scroll
 	component/vanity-input
 	component/masthead
 	component/sidebar

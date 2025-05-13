@@ -21,6 +21,7 @@ import ActiveListener from 'ui/utility/ActiveListener'
 import FocusListener from 'ui/utility/FocusListener'
 import FontsListener from 'ui/utility/FontsListener'
 import HoverListener from 'ui/utility/HoverListener'
+import MarkdownContent from 'ui/utility/MarkdownContent'
 import Mouse from 'ui/utility/Mouse'
 import { QuiltHelper } from 'ui/utility/StringApplicator'
 import Viewport from 'ui/utility/Viewport'
@@ -53,6 +54,7 @@ QuiltHelper.init({
 })
 
 registerMarkdownMentionHandler()
+MarkdownContent.registerMarkdownWeaveHandler()
 
 TagPopover.register()
 

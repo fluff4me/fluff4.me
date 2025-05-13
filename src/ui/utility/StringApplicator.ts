@@ -1,6 +1,7 @@
 import type { Quilt as QuiltBase, Weave, Weft } from 'lang/en-nz'
 import quiltBase, { WeavingArg } from 'lang/en-nz'
 import type { RoutePath } from 'navigation/RoutePath'
+import style from 'style'
 import type Component from 'ui/Component'
 import type ExternalLinkFunction from 'ui/component/core/ExternalLink'
 import type LinkFunction from 'ui/component/core/Link'
@@ -95,31 +96,50 @@ export namespace QuiltHelper {
 			&& !weft.tag
 	}
 
+	export function createTagElement (tag: string): HTMLElement | undefined {
+		tag = tag.toLowerCase()
+
+		if (tag.startsWith('link(')) {
+			const href = tag.slice(5, -1)
+			const link = href.startsWith('/')
+				? Link(href as RoutePath)
+				: ExternalLink(href)
+
+			return link.element
+		}
+
+		if (tag.startsWith('.')) {
+			const className = tag.slice(1)
+			if (className in style)
+				return Component()
+					.style(className as keyof typeof style)
+					.element
+		}
+
+		switch (tag) {
+			case 'b': return document.createElement('strong')
+			case 'i': return document.createElement('em')
+			case 'u': return document.createElement('u')
+			case 's': return document.createElement('s')
+
+			case 'sm': return Component('small')
+				.style('small')
+				.element
+
+			case 'supporters-only': return Component()
+				.style('label-supporter')
+				.text.use('shared/term/supporters')
+				.element
+		}
+	}
+
 	function renderWeft (weft: Weft): Node {
 		if (isPlaintextWeft(weft))
 			return document.createTextNode(weft.content)
 
-		let element: HTMLElement | undefined
 		const tag = weft.tag?.toLowerCase()
-		if (tag) {
-			if (tag.startsWith('link(')) {
-				const href = tag.slice(5, -1)
-				const link = href.startsWith('/')
-					? Link(href as RoutePath)
-					: ExternalLink(href)
 
-				element = link.element
-			}
-
-			switch (tag) {
-				case 'b': element = document.createElement('strong'); break
-				case 'i': element = document.createElement('em'); break
-				case 'u': element = document.createElement('u'); break
-				case 's': element = document.createElement('s'); break
-				case 'sm': element = Component('small').style('small').element; break
-			}
-		}
-
+		let element = !tag ? undefined : createTagElement(tag)
 		element ??= document.createElement('span')
 
 		if (Array.isArray(weft.content))

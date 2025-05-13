@@ -18,12 +18,25 @@
 			%border-left-radius-1
 
 	&-supporter:
+		%block
 		%colour-pink
 		%italic
-		font-size: .5em
+		%font-0
 		%font-kanit
 		%weight-bold
 		letter-spacing: .1em
 		%lowercase
 		%width-fit
 		%margin-top-1
+		%padding-inline-1
+		%unmargin-top-2
+		%margin-bottom-3
+		%border-radius-1
+		background: color-mix(in lch, $colour-pink, #0000 90%)
+
+		&--in-label:
+			#after: .label-supporter
+			%background-none
+			%padding-0
+			%margin-0
+			font-size: .5em

@@ -56,9 +56,9 @@
 		%weight-bold
 
 .markdown-heading:
-	margin-top: round(up, calc(0.5rem + 0.5em), 1px)
+	margin-top: round(up, calc((0.5rem + 0.5em) * ${markdown-heading-margin-top-multiplier: 1}), 1px)
 	margin-bottom: round(up, calc(0.2rem + 0.2em), 1px)
-	line-height: 1cap
+	line-height: calc(1cap + $space-2)
 
 	&-1, &-2, &-3, &-4, &-5, &-6:
 		#after: .markdown-heading

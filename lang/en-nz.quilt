@@ -97,11 +97,13 @@ visibility-patreon-tier/label: Tier
 visibility-patreon-tier/selection/none: {#I:No Tiers Selected}
 visibility-patreon-tier/selection/all: {#I:All Tiers}
 visibility-patreon-tier/selection/tier-and-up: {0} {#I:(And All Higher Tiers)}
+time/label: Time
 
 invalid/too-long: This text is too long.
 invalid/required: This field is required.
 invalid/tags/too-many-global: Too many global tags.
 invalid/tags/too-many-custom: Too many custom tags.
+invalid/time: This is not a valid time.
 
 # load
 
@@ -747,6 +749,23 @@ action/delete=shared/action/delete
 action/delete/confirm: This will permanently delete the following global tags:
 
 
+## about
+
+### roadmap
+
+#### roadmap
+title: Roadmap
+
+#### create-changelog
+title: Add new
+label/body=shared/form/body/label
+label/time=shared/form/time/label
+action/submit=shared/action/create
+
+#### changelog
+title: Changelog
+
+
 # document
 contact/title: Contact
 contact:
@@ -760,6 +779,106 @@ contact:
 	We don't currently have money to offer for reported vulnerabilities, but assuming you have a fluff4.me account, we'll at least grant you lifetime supporter features.
 	
 	When we publish our disclosure report, we can either give you credit or keep you anonymous. Let us know!
+
+
+roadmap/title: Roadmap
+roadmap:
+	## Up Next
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Supporters
+	*Become a paid supporter of fluff4.me and gain access to aeshetic features!*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Reporting
+	*Report content to bring it to moderator's attention.*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Work licenses
+	*Set a license for your work with a dedicated field, instead of needing to put it in the work's description. Will come with default licenses that you can choose between, or the ability to link to a different license.*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Launch!!!
+	*When the above features are done, this will be considered fluff4me's main launch!*
+	</WEAVE>
+
+	---
+	## Soon
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Work statuses
+	*Set the status of your work — Completed, Ongoing, Hiatus, or Cancelled.*
+	</WEAVE>
+
+	<WEAVE TAG=".MINIBLOCK">
+	#### Patron-only works
+	*Instead of setting individual chapters as patron-only, instead set the work as a whole.*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Chapter scheduling
+	*Set a schedule for your work as a whole, resulting in newly uploaded chapters releasing to patrons or publicly on particular days.*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Feature more than just new works
+	*In the "New" view, also show what's trending or "hot", what's recently completed, and more!*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Work promotion
+	*Being a supporter will grant you a certain number of monthly "promotions" to use on your works as you see fit. These promotions will place your work in the recommendations sidebar of fluff4.me readers.*
+	{#SUPPORTERS-ONLY:}
+	</WEAVE>
+	
+	---
+	## Later
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Saving your place in a work
+	*Click a button on works to "continue" reading them, rather than having to find your place. Will work with rereads as well, showing both your furthest progress in a work, and your current progress in a reread.*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Collections
+	*Imagine a music or video playlist, but instead for works. Useful for:*
+	- *An ongoing series of books (works) — in which case you'll also be able to set it so that following one work is equivalent to following the series itself.*
+	- *Groups of works by various authors around a theme, like an anthology, or related to an event of some kind.*
+	- *Making a collection of stories you'd like to recommend reading.*
+	- *Making a collection of stories to hold stories by other authors set in one of your universes, or to hold fanfics for one of your stories.*
+	
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Work covers
+	*Add a cover for your story! This feature will be supporters-only at the start.*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Profile avatars
+	*Add an image to represent yourself! This feature will be supporters-only at the start.*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Custom work backgrounds
+	*Add a background to appear behind the main page of your story.*
+	{#SUPPORTERS-ONLY:}
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Custom profile backgrounds
+	*Add a background to appear behind your profile.*
+	{#SUPPORTERS-ONLY:}
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### And much more!
+	*I can't spoil all the surprises on the distant horizon, now can I?*  
+	*<sub>(I could tbh, it would just take ten million years to write it all out and I'd rather work on the site.)</sub>*
+	</WEAVE>
 
 ## legal
 
