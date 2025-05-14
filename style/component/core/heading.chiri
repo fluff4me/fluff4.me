@@ -59,10 +59,14 @@
 	margin-top: round(up, calc((0.5rem + 0.5em) * ${markdown-heading-margin-top-multiplier: 1}), 1px)
 	margin-bottom: round(up, calc(0.2rem + 0.2em), 1px)
 	line-height: calc(1cap + $space-2)
+	%colour-0
 
 	&-1, &-2, &-3, &-4, &-5, &-6:
 		#after: .markdown-heading
 		%weight-bolder
+
+	&-4, &-5, &-6:
+		%colour-1
 
 	&-1: font-size: 2.4em
 	&-2: font-size: 2.2em

@@ -17,7 +17,8 @@ export default ViewDefinition({
 		Tab()
 			.text.use('view/about/main/tab')
 			.tweak(tab => tab.content.append(Block()
-				.tweak(block => block.content.text.set('This page will be filled in soon!'))
+				.tweak(block => block.title.text.use('document/about/title'))
+				.tweak(block => block.content.useMarkdownContent('document/about'))
 			))
 			.addTo(tabinator)
 
