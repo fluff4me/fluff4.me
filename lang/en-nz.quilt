@@ -774,6 +774,91 @@ title: Changelog
 
 
 # document
+about/title: About fluff4.me
+about:
+	##### The modern internet has become *cursed*.
+	Instead of anyone being able to post their content on their own website, doing so now will result in your content being hard — or altogether impossible — to find. If you want an audience, you're pretty much required to use a platform. 
+	
+	And in the case of writing... historically, the platforms you can use have had a *lot* of issues. Either it's impossible to find things other than the stuff written by the top 10 authors on the site, or it's impossible to filter out content you don't want to see, or the site is ridden with ads, or it's not very accessible, or simply a bit ugly... I'm sure anyone that spends a lot of time on writing websites, authors or readers, could name a hundred more problems they've had.
+	
+	##### fluff4.me's goal...
+	**...is to provide one, singular platform for both authors and readers, that improves things in every way it can.**
+	
+	It's a lofty goal, and the team is microscopic, so the chances we'll accomplish it right out of the gate — or even any time soon — is slim. But we can continue to iterate, and continue to improve, until this place is the best it can be for everyone.
+	
+	---
+	# People Matter.
+	This is the main guiding principle that will determine the direction that fluff4.me will go, in all aspects — development, the community, and otherwise. All of our other values are based around this core value. This site isn't for the most popular authors, it's for *all* authors. This site isn't for the bulk of readers, it's for *all* readers. And lastly, this site isn't for AI-generated slop, it's for the stuff that real people have spent their time on.
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Stats aren't always a good thing
+	If stats are the primary driver of traffic to stories, we've done something wrong. Often, stats lead to users looking for new things to read on "top" pages, which results in the same few stories and authors that are already there get even *more* attention, thereby making them far outpace everyone else, and never allowing anyone to ever catch up again.
+	
+	We would argue that this is worse for everyone *including* the authors at the top of the list — if a platform is only good for those at the top, the audience will eventually stagnate because they can't find everything they want to read there, and stagnation will mean that even the authors at the top will begin to lose traction.
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### The actions users can take affect the vibes
+	We're careful about what kind of actions we allow. For notable examples, we will:
+	- **Never allow downvoting content.** Being able to share your appreciation with authors is a good thing, because it's encouraging. Being able to upvote comments is also a good thing, because it means sometimes the quieter people can also feel like they're engaging in the discussion, simply by finding something they agree with. Downvoting, though? The only purpose this serves is to quietly, anonymously tell someone off for what they posted.
+	- **Never add systems specifically for rating or reviewing content.** This isn't a marketplace. Not all authors want that kind of feedback. Oftentimes, people will go into a story completely outside the target audience, not get it — maybe not even try — and then leave a terrible rating or review, making it harder for the work to find its actual audience. Let alone what this does to an author who's struggling to believe their stuff has worth.
+	
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Ban early, ban often
+	fluff4.me's rules are not optional. They're very basic, obvious rules, and they exist to keep everyone safe. If someone decides to break those rules, that's on them. There are other places where they can go. There's no need to give people second chances.
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### The community should be able to manage things
+	A platform should not unilaterally control user behaviour, and instead should be focused on allowing the community to do what *they* think is best, with the exception of guidelines like rules and terms. For fluff4.me at first, this will be mostly through feedback. Over time, however, through new features and through community growth, the community should gain more and more power and control, everyone working together to shape the platform into what it should be.
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Platforms shouldn't take advantage of their users
+	If a platform needs to track users, sell data, and show targeted ads for its users, it's already screwed up. If people aren't willing to help keep a platform afloat, or they aren't *able* to because the platform's running costs are too high, it's the platform's fault. Betraying user trust is the end of a platform.
+	</WEAVE>
+	
+	---
+	# Features
+	As fluff4.me launches, it will already have a number of features to set it apart from the competition. If you're new here, to help you get started, here's an overview:
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### No ads
+	There will never be advertisements on fluff4.me. The closest we'll ever have is allowing paid supporters to "promote" their works, making them appear as recommendations in sidebars.
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Custom permalinks
+	Sick of having to constantly go to your profile or your story in order to copy the link? On fluff4.me, you choose a unique "vanity" for your profile and your works (your work vanity only needs to be unique between your other works.) These together will form URLs that are much easier for you or for your readers to remember. For example, a unique profile could be `fluff4.me/author/CoolUser`, and one of their works could be `fluff4.me/work/CoolUser/AmazingWork`
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Simplified chapter formatting
+	The fluff4.me text editor supports copy-paste from various writing software. However, it's very specific about what formatting options it supports, so that the way stories display can be consistent and can be tweaked by the reader. Internally, it's saved as markdown.
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Patreon integration
+	Authors using Patreon rejoice! Rather than needing to post your chapter text on Patreon, where the reading experience is awful, you can now post it to fluff4.me instead. Simply link your Patreon campaign, and then in your content visibility settings, set which of your patron tiers it's visible to. Your patrons will be able to view your content when they login and link their patron account.
+	
+	As a side bonus, this means that you can pull in new patrons by keeping the last X chapters in a work patron-only. Free readers will run into the patron-only chapters and be incentivised to become a patron!
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Bulk chapter upload
+	Have a gigantic number of chapters and don't want to spend the time manually copy-pasting them in one by one? If you can get them into separate files, you can then upload those files in bulk to a "bulk chapter" form. You can of course still make edits to the chapters before they're fully uploaded, this just gets rid of some of the busywork.
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Security
+	fluff4.me doesn't support login through an email and password. All authentication must be done through OAuth with third party services. This means instead of having to trust us with your email and password, instead you can rely on whatever third party service you're probably already using.
+	
+	We also support MFA (Multi-Factor Authentication), through both the ability to require linking *multiple* third party services in order to login, and through the ability to enable TOTP (Time-based One-Time Passcodes) on your account.
+	</WEAVE>
+	
+
 contact/title: Contact
 contact:
 	Want to hang out? Request features? Report bugs? **Join the [Discord](https://discord.gg/KrXfDtn) and say hi!**
@@ -883,8 +968,8 @@ roadmap:
 	
 	<WEAVE TAG=".MINIBLOCK">
 	#### And much more!
-	*I can't spoil all the surprises on the distant horizon, now can I?*  
-	*<sub>(I could tbh, it would just take ten million years to write it all out and I'd rather work on the site.)</sub>*
+	*We can't spoil all the surprises on the distant horizon, now can we?*  
+	*<sub>(We could tbh, it would just take ten million years to write it all out and we'd rather work on the site.)</sub>*
 	</WEAVE>
 
 ## legal
