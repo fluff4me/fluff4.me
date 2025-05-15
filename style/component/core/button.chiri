@@ -151,6 +151,15 @@ $$button-background-highlight!colour
 		%justify-content-centre
 		%align-content-centre
 		margin-top: -.05em
+		; vertical-align: bottom
+
+		@before:
+			%block
+
+		&--inline:
+			#after: .button-icon
+			%inline-block
+			%margin-right-1
 
 		&--has-subtext:
 			#after: .button-icon
@@ -233,6 +242,13 @@ $$button-background-highlight!colour
 		"paintbrush
 		"wrench
 		"bullhorn
+		"chart-simple
+		"thumbs-up
+		"thumbs-down
+		"users
+		"hand-holding-dollar
+		"font
+		"arrow-up-from-bracket
 
 	#each in icons as var icon:
 		&-icon-#{icon}:

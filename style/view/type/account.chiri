@@ -189,3 +189,7 @@
 			%align-items-centre
 			%gap-2
 			%margin-top-2
+
+		&-about:
+			%block
+			%margin-top-4

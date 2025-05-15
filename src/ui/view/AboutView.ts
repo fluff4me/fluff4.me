@@ -30,7 +30,8 @@ export default ViewDefinition({
 		Tab('supporters')
 			.text.use('view/about/supporters/tab')
 			.tweak(tab => tab.content.append(Block()
-				.tweak(block => block.content.text.set('This page will be filled in soon!'))
+				.tweak(block => block.title.text.use('document/about-supporters/title'))
+				.tweak(block => block.content.useMarkdownContent('document/about-supporters'))
 			))
 			.addTo(tabinator)
 
