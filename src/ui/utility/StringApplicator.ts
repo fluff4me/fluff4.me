@@ -1,10 +1,10 @@
 import type { Quilt as QuiltBase, Weave, Weft } from 'lang/en-nz'
 import quiltBase, { WeavingArg } from 'lang/en-nz'
 import type { RoutePath } from 'navigation/RoutePath'
-import style from 'style'
 import type Component from 'ui/Component'
 import type ExternalLinkFunction from 'ui/component/core/ExternalLink'
 import type LinkFunction from 'ui/component/core/Link'
+import { style } from 'ui/utility/StyleManipulator'
 import DevServer from 'utility/DevServer'
 import Env from 'utility/Env'
 import Script from 'utility/Script'
@@ -110,9 +110,17 @@ export namespace QuiltHelper {
 
 		if (tag.startsWith('.')) {
 			const className = tag.slice(1)
-			if (className in style)
+			if (className in style.value)
 				return Component()
-					.style(className as keyof typeof style)
+					.style(className as keyof typeof style.value)
+					.element
+		}
+
+		if (tag.startsWith('icon.')) {
+			const className = `button-icon-${tag.slice(5)}`
+			if (className in style.value)
+				return Component()
+					.style('button-icon', className as keyof typeof style.value, 'button-icon--inline')
 					.element
 		}
 

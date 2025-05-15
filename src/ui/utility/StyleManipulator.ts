@@ -9,7 +9,7 @@ import State from 'utility/State'
 import Style from 'utility/Style'
 import type { PartialRecord } from 'utility/Type'
 
-const style = State(originalStyle)
+export const style = State(originalStyle)
 
 DevServer.onMessage('updateStyle', async () => {
 	Script.allowModuleRedefinition('style')

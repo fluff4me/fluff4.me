@@ -1,7 +1,6 @@
 import EndpointSupporterStatus from 'endpoint/supporter/EndpointSupporterStatus'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
-import type { ButtonIcon } from 'ui/component/core/Button'
 import Button from 'ui/component/core/Button'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Heading from 'ui/component/core/Heading'
@@ -9,7 +8,6 @@ import Loading from 'ui/component/core/Loading'
 import Paragraph from 'ui/component/core/Paragraph'
 import Slot from 'ui/component/core/Slot'
 import TextEditor from 'ui/component/core/TextEditor'
-import type { Quilt } from 'ui/utility/StringApplicator'
 import Popup from 'utility/Popup'
 import State from 'utility/State'
 
@@ -18,21 +16,6 @@ const PopupSupporter = Popup({
 	width: 1000,
 	height: 900,
 })
-
-const CURRENT_FEATURES: [Quilt.SimpleKey, ButtonIcon][] = [
-	['view/account/supporter/feature/custom-username-colours', 'paintbrush'],
-	['view/account/supporter/feature/custom-author-card-colours', 'paintbrush'],
-	['view/account/supporter/feature/custom-work-card-colours', 'paintbrush'],
-]
-
-const PLANNED_FEATURES: [Quilt.SimpleKey, ButtonIcon][] = [
-	['view/account/supporter/feature/avatars', 'clock'],
-	['view/account/supporter/feature/work-covers', 'clock'],
-	['view/account/supporter/feature/profile-backgrounds', 'paintbrush'],
-	['view/account/supporter/feature/work-backgrounds', 'paintbrush'],
-	['view/account/supporter/feature/work-promotion', 'bullhorn'],
-	['view/account/supporter/feature/loosened-rate-limits', 'wrench'],
-]
 
 export default Component.Builder(component => {
 	const block = component.and(Block)
@@ -94,30 +77,10 @@ export default Component.Builder(component => {
 		}
 	})
 
-	Slot()
-		.style.remove('slot')
-		.style('view-type-account-supporter-feature-section')
-		.append(Heading()
-			.text.use('view/account/supporter/feature/section/features'))
-		.append(...CURRENT_FEATURES.map(([feature, icon]) =>
-			Paragraph()
-				.style('view-type-account-supporter-feature')
-				.append(Component().style('button-icon', `button-icon-${icon}`))
-				.append(Component().text.use(feature))
-		))
-		.appendTo(block.content)
-
-	Slot()
-		.style.remove('slot')
-		.style('view-type-account-supporter-feature-section')
-		.append(Heading()
-			.text.use('view/account/supporter/feature/section/planned'))
-		.append(...PLANNED_FEATURES.map(([feature, icon]) =>
-			Paragraph()
-				.style('view-type-account-supporter-feature')
-				.append(Component().style('button-icon', `button-icon-${icon}`))
-				.append(Component().text.use(feature))
-		))
+	Component()
+		.style('view-type-account-supporter-about')
+		.append(Heading().text.use('view/account/supporter/about/title'))
+		.append(Component().useMarkdownContent('document/about-supporters'))
 		.appendTo(block.content)
 
 	return component

@@ -432,24 +432,11 @@ more: More
 ### supporter
 title: Support fluff4.me
 description: Help the site exist, and gain aesthetic or promotional features as rewards!
+about/title: About supporters
 status/error: Unable to get supporter status: {0}
 status/action/retry=shared/action/retry
 hint: The current features provided to supporters is admittedly very small — other site features have taken priority. As the site grows, so too will the number of features provided to supporters.
 popup/title: Become a Supporter
-
-#### feature
-section/features: Features
-custom-username-colours: Custom username colours
-custom-author-card-colours: Custom author card colours
-custom-work-card-colours: Custom work card colours
-
-section/planned: Planned Features
-avatars: Early access to custom avatars, when implemented
-work-covers: Early access to custom work covers, when implemented
-profile-backgrounds: Custom profile backgrounds
-work-backgrounds: Custom work backgrounds
-work-promotion: Work promotion, to pull in new viewers
-loosened-rate-limits: Reduced API rate limits
 
 ### patreon/campaign
 title: Patreon Campaign
@@ -791,14 +778,14 @@ about:
 	This is the main guiding principle that will determine the direction that fluff4.me will go, in all aspects — development, the community, and otherwise. All of our other values are based around this core value. This site isn't for the most popular authors, it's for *all* authors. This site isn't for the bulk of readers, it's for *all* readers. And lastly, this site isn't for AI-generated slop, it's for the stuff that real people have spent their time on.
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Stats aren't always a good thing
+	#### {#ICON.CHART-SIMPLE:} Stats aren't always a good thing
 	If stats are the primary driver of traffic to stories, we've done something wrong. Often, stats lead to users looking for new things to read on "top" pages, which results in the same few stories and authors that are already there get even *more* attention, thereby making them far outpace everyone else, and never allowing anyone to ever catch up again.
 	
 	We would argue that this is worse for everyone *including* the authors at the top of the list — if a platform is only good for those at the top, the audience will eventually stagnate because they can't find everything they want to read there, and stagnation will mean that even the authors at the top will begin to lose traction.
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### The actions users can take affect the vibes
+	#### {#ICON.THUMBS-DOWN:} The actions users can take affect the vibes
 	We're careful about what kind of actions we allow. For notable examples, we will:
 	- **Never allow downvoting content.** Being able to share your appreciation with authors is a good thing, because it's encouraging. Being able to upvote comments is also a good thing, because it means sometimes the quieter people can also feel like they're engaging in the discussion, simply by finding something they agree with. Downvoting, though? The only purpose this serves is to quietly, anonymously tell someone off for what they posted.
 	- **Never add systems specifically for rating or reviewing content.** This isn't a marketplace. Not all authors want that kind of feedback. Oftentimes, people will go into a story completely outside the target audience, not get it — maybe not even try — and then leave a terrible rating or review, making it harder for the work to find its actual audience. Let alone what this does to an author who's struggling to believe their stuff has worth.
@@ -806,17 +793,17 @@ about:
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Ban early, ban often
+	#### {#ICON.BAN:} Ban early, ban often
 	fluff4.me's rules are not optional. They're very basic, obvious rules, and they exist to keep everyone safe. If someone decides to break those rules, that's on them. There are other places where they can go. There's no need to give people second chances.
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### The community should be able to manage things
+	#### {#ICON.USERS:} The community should be able to manage things
 	A platform should not unilaterally control user behaviour, and instead should be focused on allowing the community to do what *they* think is best, with the exception of guidelines like rules and terms. For fluff4.me at first, this will be mostly through feedback. Over time, however, through new features and through community growth, the community should gain more and more power and control, everyone working together to shape the platform into what it should be.
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Platforms shouldn't take advantage of their users
+	#### {#ICON.HAND-HOLDING-DOLLAR:} Platforms shouldn't take advantage of their users
 	If a platform needs to track users, sell data, and show targeted ads for its users, it's already screwed up. If people aren't willing to help keep a platform afloat, or they aren't *able* to because the platform's running costs are too high, it's the platform's fault. Betraying user trust is the end of a platform.
 	</WEAVE>
 	
@@ -825,38 +812,69 @@ about:
 	As fluff4.me launches, it will already have a number of features to set it apart from the competition. If you're new here, to help you get started, here's an overview:
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### No ads
+	#### {#ICON.BAN:} No ads
 	There will never be advertisements on fluff4.me. The closest we'll ever have is allowing paid supporters to "promote" their works, making them appear as recommendations in sidebars.
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Custom permalinks
+	#### {#ICON.LINK:} Custom permalinks
 	Sick of having to constantly go to your profile or your story in order to copy the link? On fluff4.me, you choose a unique "vanity" for your profile and your works (your work vanity only needs to be unique between your other works.) These together will form URLs that are much easier for you or for your readers to remember. For example, a unique profile could be `fluff4.me/author/CoolUser`, and one of their works could be `fluff4.me/work/CoolUser/AmazingWork`
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Simplified chapter formatting
+	#### {#ICON.FONT:} Simplified chapter formatting
 	The fluff4.me text editor supports copy-paste from various writing software. However, it's very specific about what formatting options it supports, so that the way stories display can be consistent and can be tweaked by the reader. Internally, it's saved as markdown.
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Patreon integration
+	#### {#ICON.PATREON:} Patreon integration
 	Authors using Patreon rejoice! Rather than needing to post your chapter text on Patreon, where the reading experience is awful, you can now post it to fluff4.me instead. Simply link your Patreon campaign, and then in your content visibility settings, set which of your patron tiers it's visible to. Your patrons will be able to view your content when they login and link their patron account.
 	
 	As a side bonus, this means that you can pull in new patrons by keeping the last X chapters in a work patron-only. Free readers will run into the patron-only chapters and be incentivised to become a patron!
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Bulk chapter upload
+	#### {#ICON.ARROW-UP-FROM-BRACKET:} Bulk chapter upload
 	Have a gigantic number of chapters and don't want to spend the time manually copy-pasting them in one by one? If you can get them into separate files, you can then upload those files in bulk to a "bulk chapter" form. You can of course still make edits to the chapters before they're fully uploaded, this just gets rid of some of the busywork.
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Security
+	#### {#ICON.SHIELD-HALVED:} Security
 	fluff4.me doesn't support login through an email and password. All authentication must be done through OAuth with third party services. This means instead of having to trust us with your email and password, instead you can rely on whatever third party service you're probably already using.
 	
 	We also support MFA (Multi-Factor Authentication), through both the ability to require linking *multiple* third party services in order to login, and through the ability to enable TOTP (Time-based One-Time Passcodes) on your account.
 	</WEAVE>
+
+
+about-supporters/title: Supporters
+about-supporters:
+	fluff4.me funds itself through the support of its users. In order to pay back to the users more than simply just maintaining the platform, we provide aesthetic benefits, early access to some new features, or the ability to "promote" content on the site.
+	
+	Supporter plans come in three variations: one-time payments, monthly subscriptions, and yearly subscriptions. Cancelling a subscription will not take away supporter benefits you've already paid for.
+	
+	Every **$5 US** paid is equivalent to one month of supporter benefits.  
+	Every **$50 US** gives a bonus additional two months of supporter benefits.  
+	Upon reaching **$200 US**, supporter benefits will no longer lapse.
+
+	#### Features
+	{#ICON.PAINTBRUSH:} Custom username colours
+	
+	{#ICON.PAINTBRUSH:} Custom author card colours
+	
+	{#ICON.PAINTBRUSH:} Custom work card colours
+
+	#### Planned Features
+	{#ICON.CLOCK:} Early access to custom avatars, when implemented
+	
+	{#ICON.CLOCK:} Early access to custom work covers, when implemented
+	
+	{#ICON.PAINTBRUSH:} Custom profile backgrounds
+	
+	{#ICON.PAINTBRUSH:} Custom work backgrounds
+	
+	{#ICON.BULLHORN:} Work promotion, to pull in new viewers
+	
+	{#ICON.WRENCH:} Reduced API rate limits
 	
 
 contact/title: Contact
