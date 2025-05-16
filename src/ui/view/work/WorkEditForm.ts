@@ -7,6 +7,7 @@ import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Form from 'ui/component/core/Form'
+import GradientInput from 'ui/component/core/GradientInput'
 import LabelledTable from 'ui/component/core/LabelledTable'
 import type RadioButton from 'ui/component/core/RadioButton'
 import RadioRow from 'ui/component/core/RadioRow'
@@ -14,6 +15,7 @@ import Textarea from 'ui/component/core/Textarea'
 import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
+import SupportersOnlyLabel from 'ui/component/SupportersOnlyLabel'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
 import { FilterVanity } from 'ui/component/VanityInput'
@@ -82,10 +84,22 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 	const visibility = RadioRow()
 		.hint.use('view/work-edit/shared/form/visibility/hint')
 		.add('Public', VisibilityRadioInitialiser)
+		.add('Patreon', (radio, id) => radio
+			.tweak(VisibilityRadioInitialiser, id)
+			.style('view-type-chapter-edit-visibility-patreon')
+			.style('radio-row-option--hidden'))
 		.add('Private', VisibilityRadioInitialiser)
 		.default.bind(state.map(component, work => work?.visibility ?? 'Private'))
 	table.label(label => label.text.use('view/work-edit/shared/form/visibility/label'))
 		.content((content, label) => content.append(visibility.setLabel(label)))
+
+	const cardGradientInput = GradientInput()
+		.default.bind(state.map(component, work => work?.card_colours))
+	table
+		.label(label => label.and(SupportersOnlyLabel).text.use('view/work-edit/shared/form/card-colours/label'))
+		.content((content, label) => content.append(cardGradientInput.setLabel(label)))
+
+	block.useGradient(cardGradientInput.value)
 
 	form.event.subscribe('submit', async event => {
 		event.preventDefault()
@@ -103,6 +117,7 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 							synopsis: synopsisInput.useMarkdown(),
 							visibility: visibility.selection.value ?? 'Private',
 							...tagsEditor.state.value,
+							card_colours: cardGradientInput.value.value.length ? cardGradientInput.value.value.slice() : undefined,
 						},
 					})
 
@@ -126,6 +141,7 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 							synopsis: synopsisInput.useMarkdown(),
 							visibility: visibility.selection.value ?? 'Private',
 							...tagsEditor.state.value,
+							card_colours: cardGradientInput.value.value.length ? cardGradientInput.value.value.slice() : undefined,
 						},
 					})
 				}

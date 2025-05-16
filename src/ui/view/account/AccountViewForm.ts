@@ -97,6 +97,14 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 			.setMaxLength(FormInputLengths.map(table, lengths => lengths?.author.support_message)))
 		.appendTo(table)
 
+	const cardGradientInput = GradientInput()
+		.default.bind(Session.Auth.author.map(component, author => author?.supporter?.card_colours))
+	table
+		.label(label => label.and(SupportersOnlyLabel).text.use('view/account/card-colours/label'))
+		.content((content, label) => content.append(cardGradientInput.setLabel(label)))
+
+	block.useGradient(cardGradientInput.value)
+
 	let sixteenPlus!: Checkbutton
 	let eighteenPlus!: Checkbutton
 	table.label(label => label.text.use('view/account/age/label'))
@@ -151,6 +159,7 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 				support_link: supportLinkInput.value,
 				support_message: supportMessageInput.value,
 				username_colours: gradientInput.value.value.length ? gradientInput.value.value.slice() : undefined,
+				card_colours: cardGradientInput.value.value.length ? cardGradientInput.value.value.slice() : undefined,
 				age,
 			},
 		})

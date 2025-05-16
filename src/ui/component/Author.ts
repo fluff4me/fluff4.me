@@ -33,6 +33,8 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 
 	const block = component.and(Block)
 
+	block.useGradient(author.map(block, author => author.supporter?.card_colours))
+
 	block.title
 		.style('author-name')
 		.text.set(author.value.name)

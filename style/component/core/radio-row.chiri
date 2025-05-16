@@ -26,5 +26,5 @@
 			$button-background: ${radio-background: $colour-blue-2}
 
 		&--hidden:
-			#after: .radio-row-option
+			#after: .radio-row-option, .button
 			%hidden
