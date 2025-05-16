@@ -99,6 +99,7 @@ visibility-patreon-tier/selection/all: {#I:All Tiers}
 visibility-patreon-tier/selection/tier-and-up: {0} {#I:(And All Higher Tiers)}
 time/label: Time
 time/placeholder: (Now)
+card-colours/label: Card Colours
 
 invalid/too-long: This text is too long.
 invalid/required: This field is required.
@@ -406,7 +407,8 @@ external-label/label: Link Text
 external-label/hint: A label to display instead of the external link itself.
 pronouns/label: Pronouns
 pronouns/hint: The pronouns that others should refer to you with. These will appear next to your name, usually.
-vanity-colours/label: Colours
+vanity-colours/label: Name Colours
+card-colours/label=shared/form/card-colours/label
 age/label: Age
 age/option/sixteen-plus: I am 16 or older
 age/option/eighteen-plus: I am 18 or older
@@ -544,7 +546,9 @@ tags/label=shared/form/tags/label
 visibility/label=shared/form/visibility/label
 visibility/hint: When set to public, a work will not be visible until it has a public chapter as well.
 visibility/public=shared/form/visibility/public
+visibility/patreon=shared/form/visibility/patreon
 visibility/private=shared/form/visibility/private
+card-colours/label=shared/form/card-colours/label
 
 ## work-edit/create
 title: Create work

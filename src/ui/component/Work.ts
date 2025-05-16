@@ -30,6 +30,10 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 		.style.toggle(work.visibility === 'Private' || !work.chapter_count_public, 'work--private')
 
 	const block = component.and(Block)
+	const cardColours = work.author !== Session.Auth.author.value?.vanity || Session.Auth.author.value.supporter?.tier
+		? work.card_colours
+		: undefined
+	block.useGradient(cardColours)
 	const isFlush = block.type.state.mapManual(types => types.has('flush'))
 
 	block.header.style('work-header')

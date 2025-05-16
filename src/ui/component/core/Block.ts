@@ -6,6 +6,7 @@ import Link from 'ui/component/core/Link'
 import Paragraph from 'ui/component/core/Paragraph'
 import type { ComponentName } from 'ui/utility/StyleManipulator'
 import TypeManipulator from 'ui/utility/TypeManipulator'
+import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
 type BlockType = keyof { [KEY in ComponentName as KEY extends `block--type-${infer TYPE}--${string}` ? TYPE
@@ -21,6 +22,7 @@ export interface BlockExtensions {
 	readonly content: Component
 	readonly footer: ActionRow
 	readonly type: TypeManipulator<this, BlockType>
+	useGradient (gradient?: StateOr<readonly number[] | null | undefined>): this
 }
 
 export enum BlockClasses {
@@ -34,6 +36,7 @@ const Block = Component.Builder((component): Block => {
 	let header: Component | undefined
 	let footer: Component | undefined
 
+	let unuseGradient: UnsubscribeState | undefined
 	const isLink = component.supers.mapManual(() => component.is(Link))
 	const block = component
 		.classes.add(BlockClasses.Main)
@@ -63,6 +66,22 @@ const Block = Component.Builder((component): Block => {
 					}
 				},
 			),
+			useGradient (gradient) {
+				unuseGradient?.()
+				unuseGradient = State.get(gradient).use(block, stops => block
+					.style.toggle(!!stops?.length, 'block--gradient')
+					.style.setVariable('block-gradient', !stops?.length ? undefined
+						: `${(stops
+							.map(colour => `#${colour.toString(16).padStart(6, '0')}`)
+							.map(colour => `light-dark(
+							oklch(from ${colour} max(var(--block-gradient-light-max), L) C H),
+							oklch(from ${colour} min(var(--block-gradient-dark-min), L) C H)
+						)`)
+							.join(', ')
+						)}`)
+				)
+				return block
+			},
 		}))
 		.tweak(block => block
 			.style.bindFrom(State.MapManual([isLink, block.type.state], (link, types) =>

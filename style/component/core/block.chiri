@@ -165,3 +165,18 @@
 			#after: .block--type-flush
 			@after:
 				%border-radius-0
+
+	&--gradient:
+		$block-gradient-light-max: 0.85
+		$block-gradient-dark-min: 0.5
+		@after:
+			%block
+			%absolute
+			%inset-0
+			%z-index-bg
+			background: linear-gradient(105deg in oklch, $block-gradient)
+			opacity: .15
+			%border-radius-2
+
+			:scheme light:
+				opacity: .4
