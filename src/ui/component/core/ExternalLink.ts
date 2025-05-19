@@ -5,7 +5,6 @@ import MarkdownContent from 'ui/utility/MarkdownContent'
 import Env from 'utility/Env'
 
 interface ExternalLinkExtensions {
-
 }
 
 interface ExternalLink extends Component, ExternalLinkExtensions { }

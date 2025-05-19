@@ -7,6 +7,8 @@ home/label: home
 # shared
 preview: Preview
 mention/unresolved: unknown
+prefix/vanity: @
+prefix/currency: $
 
 ## popup
 danger-token/title: Re-authenticate Using {0}
@@ -435,10 +437,51 @@ more: More
 title: Support fluff4.me
 description: Help the site exist, and gain aesthetic or promotional features as rewards!
 about/title: About supporters
+status/supporter:
+	#### {#ICON.HEART:} You're a fluff4.me supporter!
+	Thank you so much!
+status/end-date: Your supporter features will lapse {#B:{0}}.
+status/total: In total, you have given {#B:${0} US} in support.
 status/error: Unable to get supporter status: {0}
 status/action/retry=shared/action/retry
-hint: The current features provided to supporters is admittedly very small — other site features have taken priority. As the site grows, so too will the number of features provided to supporters.
-popup/title: Become a Supporter
+
+order/created: Created {0}
+order/renews: Renewing {0}
+order/list-title: Order History
+order/type/order: One-Time
+order/type/subscription: Subscription
+order/status: {0}
+order/amount/subscription/value: {#B:${0}}
+order/amount/subscription/unit: {#B: US}/{0?y:mo}
+order/amount/total/value: {#B:${0}}
+order/amount/total/unit: {#B: US}
+order/label/timestamp: Created
+order/label/amount: Amount
+order/label/type: Type
+order/label/status: Status
+order/label/total: Total
+
+dialog/amount/label: Amount
+
+action/add-plan: Add Another Plan
+action/checkout: Checkout
+
+popup/start/title: Become a Supporter
+popup/manage/title: Manage Payments
+
+#### product
+single/name: One-Time Supporter
+single/description: Support fluff4.me with a one-time payment.
+single/default-price: $5 US
+monthly/name: Monthly Supporter
+monthly/description: Support fluff4.me with a monthly plan.
+monthly/default-price: $5 US/mo
+yearly/name: Yearly Supporter
+yearly/description: Support fluff4.me with a yearly plan.
+yearly/default-price: $50 US/yr
+founder/name: Founder
+founder/description: Become a founder with lifetime supporter features.
+founder/price: ${0} US
 
 ### patreon/campaign
 title: Patreon Campaign

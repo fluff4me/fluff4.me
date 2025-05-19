@@ -72,6 +72,7 @@
 	component/core/colour-input
 	component/core/gradient-input
 	component/core/infinite-scroll
+	component/core/prefixed-input
 	component/vanity-input
 	component/masthead
 	component/sidebar

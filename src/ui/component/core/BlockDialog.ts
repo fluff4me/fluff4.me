@@ -7,6 +7,7 @@ import type { CanHasActionsMenuExtensions } from 'ui/component/core/ext/CanHasAc
 import Task from 'utility/Task'
 
 interface BlockDialogExtensions {
+	readonly block: Block
 }
 
 interface BlockDialog extends Dialog, Block, BlockDialogExtensions { }
@@ -38,6 +39,7 @@ const BlockDialog = Component.Builder((component): BlockDialog => {
 
 	const superOpen = dialog.open
 	return dialog.extend<BlockDialogExtensions & Partial<DialogExtensions>>(dialog => ({
+		block,
 		open () {
 			superOpen()
 			block.style('dialog-block--opening')

@@ -18,7 +18,22 @@ export function FilterFunction (fn: FilterFunction): FilterFunctionFull {
 }
 
 export namespace FilterFunction {
+	export function mapped (fn: (text: string) => string): FilterFunction {
+		return FilterFunction((...segments) => segments.map(segment => fn(segment)) as [string, string, string])
+	}
+
 	export const DEFAULT = FilterFunction((...segments) => segments)
+
+	const regexNonNumeric = /[^0-9]/g
+	export const NUMERIC = FilterFunction.mapped(segment => segment.replace(regexNonNumeric, ''))
+
+	const regexNonDecimal = /[^0-9.]|(?<=\..*)\./g
+	export const DECIMAL = FilterFunction((before, selected, after) => {
+		before = before.replace(regexNonDecimal, '')
+		selected = selected.replace(before.includes('.') ? regexNonNumeric : regexNonDecimal, '')
+		after = after.replace(before.includes('.') || selected.includes('.') ? regexNonNumeric : regexNonDecimal, '')
+		return [before, selected, after]
+	})
 }
 
 export type TextInputValidityHandler = (input: TextInput) => InvalidMessageText | undefined

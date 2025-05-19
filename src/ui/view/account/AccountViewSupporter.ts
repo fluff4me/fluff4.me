@@ -1,18 +1,36 @@
+import type { Paths } from 'api.fluff4.me'
+import EndpointSupporterOrders from 'endpoint/supporter/EndpointSupporterOrders'
+import EndpointSupporterPoll from 'endpoint/supporter/EndpointSupporterPoll'
 import EndpointSupporterStatus from 'endpoint/supporter/EndpointSupporterStatus'
+import PagedListData from 'model/PagedListData'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
-import ExternalLink from 'ui/component/core/ExternalLink'
+import ConfirmDialog from 'ui/component/core/ConfirmDialog'
+import Details from 'ui/component/core/Details'
 import Heading from 'ui/component/core/Heading'
+import LabelledRow from 'ui/component/core/LabelledRow'
 import Loading from 'ui/component/core/Loading'
+import Paginator from 'ui/component/core/Paginator'
 import Paragraph from 'ui/component/core/Paragraph'
+import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
-import TextEditor from 'ui/component/core/TextEditor'
+import Small from 'ui/component/core/Small'
+import Timestamp from 'ui/component/core/Timestamp'
+import CurrencyInput from 'ui/component/CurrencyInput'
+import type { Quilt } from 'ui/utility/StringApplicator'
+import Env from 'utility/Env'
 import Popup from 'utility/Popup'
 import State from 'utility/State'
 
-const PopupSupporter = Popup({
-	translation: 'view/account/supporter/popup/title',
+const PopupSupporterStart = Popup({
+	translation: 'view/account/supporter/popup/start/title',
+	width: 1000,
+	height: 900,
+})
+
+const PopupSupporterManage = Popup({
+	translation: 'view/account/supporter/popup/manage/title',
 	width: 1000,
 	height: 900,
 })
@@ -26,8 +44,8 @@ export default Component.Builder(component => {
 		.style.remove('slot')
 		.style('view-type-account-supporter')
 		.appendTo(block.content)
-	const status = State.Async.fromEndpoint(slot, EndpointSupporterStatus.prep())
 
+	const status = State.Async.fromEndpoint(slot, EndpointSupporterStatus.prep())
 	slot.use(status.state, (slot, statusState) => {
 		if (!statusState.settled)
 			return Loading().use(status)
@@ -40,22 +58,159 @@ export default Component.Builder(component => {
 					.text.use('view/account/supporter/status/action/retry')
 					.event.subscribe('click', () => status.refresh()))
 
+		if (statusState.value.status || statusState.value.months_remaining) {
+			Component()
+				.append(Component().useMarkdownContent('view/account/supporter/status/supporter'))
+				.append(statusState.value.status === 'has_active_subscription' || !statusState.value.end_time ? undefined
+					: Paragraph().and(Placeholder)
+						.text.use(quilt => quilt['view/account/supporter/status/end-date'](
+							Timestamp(statusState.value.end_time!).style.remove('timestamp')
+						))
+				)
+				.append(!statusState.value.total_paid ? undefined
+					: Paragraph()
+						.style('view-type-account-supporter-status-total')
+						.text.use(quilt => quilt['view/account/supporter/status/total'](
+							(statusState.value.total_paid / 100).toFixed(2)
+						))
+				)
+				.appendTo(slot)
+
+			if (statusState.value.status)
+				Paginator()
+					.type('flush')
+					.style('view-type-account-supporter-order-paginator')
+					.tweak(paginator => paginator.title.text.use('view/account/supporter/order/list-title'))
+					.tweak(paginator => paginator.header
+						.style('view-type-account-supporter-order-paginator-header')
+						.append(Button()
+							.setIcon('rotate')
+							.type('flush')
+							.event.subscribe('click', async () => {
+								const response = await EndpointSupporterPoll.query()
+								if (toast.handleError(response))
+									return
+
+								status.refresh()
+							})
+						)
+					)
+					.tweak(paginator => paginator.content.style('view-type-account-supporter-order-paginator-content'))
+					.tweak(paginator => paginator.footer.style('view-type-account-supporter-order-paginator-footer'))
+					.set(PagedListData.fromEndpoint(25, EndpointSupporterOrders.prep()), (slot, orders) => {
+						slot.style('view-type-account-supporter-order-list')
+
+						const HeaderCell = () => Component().style('view-type-account-supporter-order-list-header-label')
+						const HeaderCellAmount = () => HeaderCell().style('view-type-account-supporter-order-list-header-amount')
+						Component()
+							.style('view-type-account-supporter-order-list-header')
+							.style('view-type-account-supporter-order')
+							.append(HeaderCell().text.use('view/account/supporter/order/label/timestamp'))
+							.append(HeaderCellAmount().text.use('view/account/supporter/order/label/amount'))
+							.append(HeaderCell().text.use('view/account/supporter/order/label/type'))
+							.append(HeaderCell().text.use('view/account/supporter/order/label/status'))
+							.append(HeaderCellAmount().text.use('view/account/supporter/order/label/total'))
+							.appendTo(slot)
+
+						for (const order of orders) {
+							const orderURL = `${Env.API_ORIGIN}supporter/order/${order.uuid}`
+							Component('a')
+								.attributes.set('href', orderURL)
+								.attributes.set('target', '_blank')
+								.style('view-type-account-supporter-order')
+								.style(`view-type-account-supporter-order--${order.type}`)
+								.append(Timestamp(order.timestamp)
+									.setSimple()
+									.style('view-type-account-supporter-order-date')
+								)
+								.append(
+									Component()
+										.style('view-type-account-supporter-order-amount-value')
+										.text.use(order.type === 'subscription'
+											? quilt => quilt['view/account/supporter/order/amount/subscription/value'](
+												!order.interval_amount ? '?' : (order.interval_amount / 100).toFixed(2),
+											)
+											: quilt => quilt['view/account/supporter/order/amount/total/value'](
+												(order.amount / 100).toFixed(2),
+											)
+										),
+									Component()
+										.style('view-type-account-supporter-order-amount-unit')
+										.text.use(order.type === 'subscription'
+											? quilt => quilt['view/account/supporter/order/amount/subscription/unit'](
+												order.interval === 'yearly',
+											)
+											: 'view/account/supporter/order/amount/total/unit'
+										),
+								)
+								.append(Component()
+									.style('view-type-account-supporter-order-type')
+									.text.use(`view/account/supporter/order/type/${order.type}`)
+								)
+								.append(Component()
+									.style('view-type-account-supporter-order-status')
+									.text.use(quilt => {
+										if (order.renewal_timestamp)
+											return quilt['view/account/supporter/order/renews'](
+												Timestamp(order.renewal_timestamp).setSimple().style.remove('timestamp')
+											)
+
+										return quilt['view/account/supporter/order/status'](order.status)
+									})
+								)
+								.append(
+									Component().and(Small)
+										.style('view-type-account-supporter-order-amount-value')
+										.text.use(quilt => quilt['view/account/supporter/order/amount/total/value'](
+											(order.amount / 100).toFixed(2),
+										)),
+									Component().and(Small)
+										.style('view-type-account-supporter-order-amount-unit')
+										.text.use('view/account/supporter/order/amount/total/unit'),
+								)
+								.event.subscribe('click', async event => {
+									event.preventDefault()
+									await PopupSupporterManage.show(event.host, { url: orderURL }).toastError()
+									status.refresh()
+								})
+								.appendTo(slot)
+						}
+					})
+					.appendTo(slot)
+		}
+
+		const hasActiveSubscription = statusState.value.status === 'has_active_subscription'
+		const addProduct = Details().appendTo(slot)
+		addProduct.summary.type('primary').text.use('view/account/supporter/action/add-plan')
+		addProduct.state.value = !hasActiveSubscription
+
+		if (!hasActiveSubscription)
+			addProduct.summary.style('view-type-account-supporter-add-plan-button--hidden')
+
+		if (hasActiveSubscription)
+			Paragraph().appendTo(addProduct)
+
 		const productList = Component()
 			.style('view-type-account-supporter-product-list')
-			.appendTo(slot)
+			.appendTo(addProduct)
 
-		const products = statusState.value.products.sort((a, b) => a.price - b.price)
+		const remainingTillFounder = 200 - (statusState.value.total_paid) / 100
+		type Product = Extract<keyof Quilt, `view/account/supporter/product/${string}/name`> extends `view/account/supporter/product/${infer TYPE}/name` ? TYPE : never
+		const products = ['single', 'monthly', 'yearly', 'founder'] satisfies Product[]
 		for (let i = 0; i < products.length; i++) {
 			const product = products[i]
-			ExternalLink(product.buy_now_url)
+			const realProduct = product === 'founder' ? 'single' : product
+			const url = `${Env.API_ORIGIN}${(`/supporter/checkout/${realProduct}` satisfies keyof Paths).slice(1)}`
+			Component('a')
 				.and(Button)
+				.attributes.set('href', url)
 				.attributes.set('target', '_blank')
 				.style('view-type-account-supporter-product')
 				.style.setVariable('colour-rotation-index', i)
 				.event.subscribe('click', async event => {
 					event.preventDefault()
-					await PopupSupporter.show(event.host, { url: product.buy_now_url }).toastError()
-					// TODO
+					await PopupSupporterStart.show(event.host, { url }).toastError()
+					status.refresh()
 				})
 				.append(Heading()
 					.setAestheticStyle(false)
@@ -63,16 +218,64 @@ export default Component.Builder(component => {
 					.tweak(heading => heading.textWrapper.remove())
 					.append(Component()
 						.style('view-type-account-supporter-product-name')
-						.text.set(product.name)
+						.text.use(`view/account/supporter/product/${product}/name`)
 					)
 					.append(Component()
 						.style('view-type-account-supporter-product-price')
-						.text.set(product.price_formatted.replace('.00', ''))
+						.text.use(product === 'founder'
+							? quilt => quilt['view/account/supporter/product/founder/price'](remainingTillFounder)
+							: `view/account/supporter/product/${product}/default-price`
+						)
 					)
 				)
-				.append(Component()
+				.append(Paragraph()
 					.style('view-type-account-supporter-product-description')
-					.setMarkdownContent(TextEditor.passThrough(editor => !!editor.mirror?.pasteHTML(product.description), false)))
+					.text.use(product === 'founder'
+						? quilt => quilt['view/account/supporter/product/founder/description']()
+						: `view/account/supporter/product/${product}/description`))
+				.append(product === 'founder'
+					? Button()
+						.style('view-type-account-supporter-product-icon', 'view-type-account-supporter-product-heart')
+						.type('flush')
+						.setIcon('heart')
+					: Button()
+						.style('view-type-account-supporter-product-icon', 'view-type-account-supporter-product-tweak')
+						.type('flush')
+						.setIcon('pencil')
+						.event.subscribe('click', async event => {
+							event.stopPropagation()
+							event.preventDefault()
+							const amount = State<number | undefined>(undefined)
+							const customURL = amount.mapManual(amount => !amount ? url : `${url}?amount=${Math.floor(amount * 100)}`)
+							const confirmed = await ConfirmDialog.prompt(event.host, {
+								titleTranslation: `view/account/supporter/product/${product}/name`,
+								bodyTranslation: `view/account/supporter/product/${product}/description`,
+								confirmButtonTranslation: 'view/account/supporter/action/checkout',
+								tweak (dialog) {
+									dialog.block.style('view-type-account-supporter-product-dialog')
+										.style.setVariable('colour-rotation-index', i)
+
+									const amountInput = CurrencyInput()
+										.placeholder.set(product === 'yearly' ? '50.00' : '5.00')
+									amount.bind(dialog, amountInput.state.map(dialog, input => +input))
+									LabelledRow()
+										.tweak(row => row.label.text.use('view/account/supporter/dialog/amount/label'))
+										.tweak(row => row.content.append(amountInput.setLabel(row.label)))
+										.appendTo(dialog.block.content)
+
+									dialog.confirmButton?.replaceElement('a')
+										.attributes.bind('href', customURL)
+										.event.subscribe('click', event => event.preventDefault())
+								},
+							})
+
+							if (!confirmed)
+								return
+
+							await PopupSupporterStart.show(event.host, { url: customURL.value }).toastError()
+							status.refresh()
+						})
+				)
 				.appendTo(productList)
 		}
 	})

@@ -27,7 +27,6 @@
 		letter-spacing: .1em
 		%lowercase
 		%width-fit
-		%margin-top-1
 		%padding-inline-1
 		%unmargin-top-2
 		%margin-bottom-3
@@ -38,5 +37,6 @@
 			#after: .label-supporter
 			%background-none
 			%padding-0
-			%margin-0
+			%margin-bottom-0
+			%margin-top-1
 			font-size: .5em
