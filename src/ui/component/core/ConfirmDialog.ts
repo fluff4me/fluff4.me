@@ -29,7 +29,7 @@ interface ConfirmDialog extends BlockDialog, ConfirmDialogExtensions { }
 interface ConfirmDialogDefinition {
 	dangerToken?: DangerTokenType
 	titleTranslation?: Quilt.SimpleKey | Quilt.Handler
-	bodyTranslation?: Quilt.SimpleKey | Quilt.Handler
+	bodyTranslation?: Quilt.SimpleKey | Quilt.Handler | null
 	confirmButtonTranslation?: Quilt.SimpleKey | Quilt.Handler | false
 	cancelButtonTranslation?: Quilt.SimpleKey | Quilt.Handler | false
 	tweak?(dialog: ConfirmDialog): unknown
@@ -40,7 +40,7 @@ interface ConfirmDialogDefinitionWithDangerToken extends ConfirmDialogDefinition
 }
 
 interface ConfirmDialogDefinitionWithBodyTranslation extends ConfirmDialogDefinition {
-	bodyTranslation: Quilt.SimpleKey | Quilt.Handler
+	bodyTranslation: Quilt.SimpleKey | Quilt.Handler | null
 }
 
 const ConfirmDialog = Object.assign(

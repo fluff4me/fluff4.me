@@ -1,3 +1,4 @@
 .gradient-text:
+	%width-fit
 	%background-clip-text
 	font-weight: 500

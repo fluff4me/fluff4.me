@@ -112,16 +112,26 @@
 
 	&-supporter:
 
+		&-status:
+			&-total:
+				#after: .paragraph
+				margin-top: calc($space-3 + $space-1)
+				%colour-5
+				%font-2
+
 		&-product-list:
-			%flex
-			%flex-column
+			%grid
+			grid-template-columns: 1fr auto
 			%gap-3
 
 		&-product:
+			#after: .button
 			%relative
-			%flex
-			%flex-column
+			%grid
+			%columns-subgrid
+			%column-1-2
 			%padding-top-1
+			column-gap: unset
 			box-shadow: #{box-shadow-inset-border-1}, #{box-shadow-1}
 			$border-colour: #fff2
 			padding-inline: calc($space-3 + $space-2)
@@ -143,12 +153,29 @@
 							oklch(40% 50% $colour-rotation / 35%)
 						)
 
+			&-dialog:
+				#after: .block
+				background: light-dark($background-0, $background-4)
+
+				@before:
+					%backdrop-filter-none
+					$colour-rotation: calc(180deg + $colour-rotation-index * 45deg)
+					$block-background-light: oklch(50% 70% $colour-rotation / 35%)
+					$block-background-dark: oklch(40% 50% $colour-rotation / 35%)
+					background:
+						radial-gradient(ellipse at left 20% top 20%, 
+							light-dark(
+								oklch(from $block-background-light calc(L + .2) C H), 
+								oklch(from $block-background-dark calc(L + .2) C H)
+							), 
+							light-dark($block-background-light, $block-background-dark)
+						)
+
 			&-title:
 				%flex
 				%gap-3
 				%justify-content-space-between
 				%align-items-centre
-				%padding-right-4
 				%font-kanit
 				%margin-top-1
 				%unmargin-bottom-2
@@ -164,12 +191,47 @@
 					)
 
 			&-description:
+				%column-1
 				%italic
 				%weight-normal
+				%margin-top-1
+				%margin-bottom-0
 				colour:
 					light-dark(
 						oklch(10% 20% $colour-rotation),
 						oklch(90% 20% $colour-rotation)
+					)
+
+			&-icon:
+				#after: .button
+				%column-2
+				%row-1-2
+				%font-5
+				%padding-0
+				%margin-top-1
+				%unmargin-bottom-2
+				%unmargin-right-3
+				width: calc($space-5 + $space-3)
+				%justify-content-centre
+
+			&-tweak:
+				#after: .button
+				#can-hover:
+					::hover, ::focus:
+						$button-background:
+							light-dark(
+								oklch(60% 30% $colour-rotation),
+								oklch(50% 30% $colour-rotation)
+							)
+
+			&-heart:
+				#after: .button, .view-type-account-supporter-product-icon
+				%no-pointer-events
+				%font-7
+				colour:
+					light-dark(
+						oklch(60% 30% $colour-rotation),
+						oklch(45% 30% $colour-rotation)
 					)
 
 			@after:
@@ -193,3 +255,96 @@
 		&-about:
 			%block
 			%margin-top-4
+
+
+		&-order-paginator:
+			#after: .block--type-flush, .paginator--flush
+			%margin-block-4
+			%border-radius-1
+			%background-1-a20
+			%padding-top-0
+			%border-1
+			%border-colour-5
+			%overflow-clip
+			%scheme-light-dark
+			@before:
+				box-shadow: inset 0 calc($space-1 / 2) $space-1 #0003
+				%border-radius-1
+
+			&-header:
+				#after: .paginator-header, .block--type-flush-header, .paginator-header--flush
+				%relative
+				%top-auto
+				%margin-bottom-0
+				%background-none
+				%box-shadow-none
+				@before:
+					%background-none
+					%backdrop-filter-none
+			&-content:
+				#after: .paginator-content--flush, .paginator-content--has-header
+				%padding-top-0
+				%margin-top-0
+			&-footer:
+				#after: .paginator-footer, .block--type-flush-footer
+				%margin-top-0
+				%box-shadow-none
+				@before:
+					%backdrop-filter-none
+
+		&-order-list:
+			#after: .paginator-page-content
+			%grid
+			grid-template-columns: auto auto auto auto 1fr auto auto
+			%row-gap-0
+
+			&-header:
+				%border-bottom-1
+				%border-colour-6
+				&-label:
+					%text-align-centre
+					%weight-bold
+					%colour-4
+				&-amount:
+					grid-column: span 2
+
+		&-order:
+			%grid
+			%columns-subgrid
+			%column-1-7
+			%padding-1-3
+			%colour-inherit
+			%decoration-none
+			%font-2
+			#transition: #{transition("background")}
+
+			:even:
+				%background-5-a20
+
+			:odd:
+				%background-5-a50
+
+			&--subscription:
+			&--order:
+
+			&-type:
+				%justify-self-centre
+			&-status:
+				%align-self-centre
+				%justify-self-centre
+			&-amount-value:
+				%justify-self-end
+			&-amount-unit:
+				%justify-self-start
+				%unmargin-left-2
+			&-date:
+				%justify-self-end
+
+			::hover, ::focus:
+				%background-6-a50
+				%transition-focus
+
+
+		&-add-plan-button--hidden:
+			#after: .button
+			%hidden
