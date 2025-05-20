@@ -2514,15 +2514,26 @@
 	#string name
 	#string rotate?
 	#bool mirror?
+	#bool after?
 
-	@before:
-		content: "#{get-icon(name)}"
-		#if exists rotate:
-			%block
-			rotate: #{rotate}
-		#if exists mirror:
-			%block
-			scale: -1 1
+	#if !(exists after) || after == false:
+		@before:
+			content: "#{get-icon(name)}"
+			#if exists rotate:
+				%block
+				rotate: #{rotate}
+			#if exists mirror && mirror == true:
+				%block
+				scale: -1 1
+	#else:
+		@after:
+			content: "#{get-icon(name)}"
+			#if exists rotate:
+				%block
+				rotate: #{rotate}
+			#if exists mirror && mirror == true:
+				%block
+				scale: -1 1
 
 #macro dual-icon:
 	#string a

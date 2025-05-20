@@ -4,10 +4,12 @@
 	%relative
 	%grid
 	grid-template-rows: auto auto
+	grid-template-columns: 1fr auto
 	%no-decoration
 	%padding-1-2
 	%border-1
 	%box-shadow-none
+	%gap-0
 	$button-background: transparent
 	$border-colour: $colour-pink
 	colour: $colour-pink
@@ -40,10 +42,12 @@
 
 	&-name:
 		%unmargin-top-1
+		%flex
+		%align-items-centre
 
 	&-category, &-name:
-		%column-1
 		%text-align-left
+		%column-1
 
 	&-global:
 	&-custom:
@@ -101,6 +105,7 @@
 		%padding-right-2
 		%height-100
 		%unmargin-right-2
+		%margin-left-2
 		%colour-inherit
 		margin-top: -0.1em
 		#transition: #{transition("translate")}
@@ -108,5 +113,7 @@
 		@before:
 			%hidden
 
-	&--has-delete-button:
-		grid-template-columns: 1fr auto
+	&-mature-icon:
+		font-size: 1.2cap
+		margin-right: .3em
+		margin-top: calc($space-1 / 2)

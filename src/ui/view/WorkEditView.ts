@@ -1,10 +1,8 @@
 import type { WorkFull } from 'api.fluff4.me'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import Works from 'model/Works'
-import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
-import InfoDialog from 'ui/component/core/InfoDialog'
 import Slot from 'ui/component/core/Slot'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
@@ -24,16 +22,7 @@ export default ViewDefinition({
 		if (response instanceof Error)
 			throw response
 
-		const owner = Component()
-
 		const work = response?.data
-		if (!work)
-			await InfoDialog.prompt(owner, {
-				titleTranslation: 'shared/prompt/beta-restrictions/title',
-				bodyTranslation: 'shared/prompt/beta-restrictions/description',
-			})
-
-		owner.remove()
 		return { work }
 	},
 	create (params: WorkEditViewParams | undefined, { work }) {

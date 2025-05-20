@@ -7,7 +7,6 @@ import Chapters from 'model/Chapters'
 import PagedData from 'model/PagedData'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
-import InfoDialog from 'ui/component/core/InfoDialog'
 import Link from 'ui/component/core/Link'
 import Work from 'ui/component/Work'
 import ChapterEditForm from 'ui/view/chapter/ChapterEditForm'
@@ -34,14 +33,6 @@ export default ViewDefinition({
 		if (workResponse instanceof Error)
 			throw workResponse
 
-		const owner = Component()
-		if (!params.url)
-			await InfoDialog.prompt(owner, {
-				titleTranslation: 'shared/prompt/beta-restrictions/title',
-				bodyTranslation: 'shared/prompt/beta-restrictions/description',
-			})
-
-		owner.remove()
 		return { initialChapterResponse, work: workResponse.data as WorkData & Partial<WorkFull> }
 	},
 	create (params: ChapterEditViewParams, { initialChapterResponse, work }) {
