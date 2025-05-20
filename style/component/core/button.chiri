@@ -334,3 +334,23 @@ $$button-background-highlight!colour
 			filter: invert()
 			%size-em
 			%patreon-icon-background
+
+	&-icon-circle-exclamation:
+		#after: .button-icon
+		#icon name="circle
+		#icon after name="exclamation
+		%grid
+		%stack
+
+		@before, @after:
+			%stack-self
+
+		@before:
+			%weight-normal
+			%justify-self-centre
+			%align-self-centre
+
+		@after:
+			font-size: .7em
+			%justify-self-centre
+			%align-self-centre

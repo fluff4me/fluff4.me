@@ -2,6 +2,7 @@ import type { TagCreateGlobalBody } from 'api.fluff4.me'
 import FormInputLengths from 'model/FormInputLengths'
 import type { TagId, TagsManifest } from 'model/Tags'
 import Component from 'ui/Component'
+import Checkbutton from 'ui/component/core/Checkbutton'
 import { RadioDropdown } from 'ui/component/core/Dropdown'
 import Form from 'ui/component/core/Form'
 import LabelledTable from 'ui/component/core/LabelledTable'
@@ -18,6 +19,7 @@ interface TagEditFormExtensions {
 	readonly aliasesEditor: TagsEditor
 	readonly relationshipsToEditor: TagsEditor
 	readonly relationshipsFromEditor: TagsEditor
+	readonly isMature: Checkbutton
 	getFormData (): TagCreateGlobalBody | undefined
 }
 
@@ -32,6 +34,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 	let aliasesEditor!: TagsEditor
 	let relationshipsToEditor!: TagsEditor
 	let relationshipsFromEditor!: TagsEditor
+	let isMature!: Checkbutton
 
 	const form = component.and(Form, null)
 
@@ -118,6 +121,13 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			}))
 		))
 
+		.label(label => label.text.use('view/manage-tags/global-tag-form/mature/label'))
+		.content((content, label) => content.append(isMature = Checkbutton()
+			.setLabel(label)
+			.setChecked(tag.value?.is_mature ?? false)
+			.text.use('view/manage-tags/global-tag-form/mature/hint')
+		))
+
 	form.footer.style('tag-edit-form-footer')
 
 	return form
@@ -128,6 +138,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			aliasesEditor,
 			relationshipsToEditor,
 			relationshipsFromEditor,
+			isMature,
 			getFormData () {
 				const category = categoryDropdown.selection.value
 				if (!category)
@@ -140,6 +151,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 					aliases: aliasesEditor.state.value.custom_tags,
 					relationships_to: relationshipsToEditor.state.value.global_tags,
 					relationships_from: relationshipsFromEditor.state.value.global_tags,
+					is_mature: isMature.checked.value,
 				}
 			},
 		}))

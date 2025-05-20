@@ -17,15 +17,6 @@ danger-token/title: Re-authenticate Using {0}
 confirm: Are you sure?
 reauth: To perform this action, reauthenticate to verify your identity:
 
-### beta-restrictions
-title: Beta Restrictions
-description:
-	While fluff4.me is in beta, due to a lack of legal consult and limited content moderation abilities, the content that can be published is restricted.
-	- **DO NOT post NSFW/18+ content.** Use your best judgement. A swear word here or there is fine, and violence, assuming it's not gratuitous.  
-	This restriction will be lifted when there is proper content moderation, reporting, and a full suite of official tags.
-	- **DO NOT post stories based on published, copyrighted works**, such as fanfics or spitefics.  
-	This restriction will be lifted after legal consult.
-
 ## term
 profile: Profile
 chapters: Chapters
@@ -737,6 +728,8 @@ description/label=shared/form/description/label
 aliases/label: Aliases
 relationships-to/label=shared/term/relationships-to
 relationships-from/label=shared/term/relationships-from
+mature/label: Mature
+mature/hint: Only display tagged content to those 18+
 
 ### shared
 hint/filter=shared/action/filter

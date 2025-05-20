@@ -5,7 +5,7 @@ import Session from 'model/Session'
 import Works from 'model/Works'
 import Component from 'ui/Component'
 import AuthorLink from 'ui/component/AuthorLink'
-import Block from 'ui/component/core/Block'
+import Block, { BlockClasses } from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
@@ -120,6 +120,16 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 
 	if (!component.is(Popover))
 		block.setActionsMenu((popover, button) => {
+			popover.subscribeReanchor((actionsMenu, isTablet) => {
+				if (isTablet)
+					return
+
+				if (author && author.vanity === Session.Auth.author.value?.vanity)
+					actionsMenu.anchor.reset()
+						.anchor.add('off right', 'centre', `.${BlockClasses.Main}`)
+						.anchor.orElseHide()
+			})
+
 			if (author && author.vanity === Session.Auth.author.value?.vanity) {
 				Button()
 					.type('flush')
@@ -133,6 +143,13 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 					.setIcon('plus')
 					.text.use('work/action/label/new-chapter')
 					.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/new`))
+					.appendTo(popover)
+
+				Button()
+					.type('flush')
+					.setIcon('plus')
+					.text.use('view/work-edit/update/action/bulk-chapters')
+					.event.subscribe('click', () => navigate.toURL(`/work/${work.author}/${work.vanity}/chapter/new/bulk`))
 					.appendTo(popover)
 
 				Button()

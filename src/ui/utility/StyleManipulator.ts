@@ -1,6 +1,6 @@
 import originalStyle from 'style'
 import type Component from 'ui/Component'
-import { NonNullish } from 'utility/Arrays'
+import Arrays, { NonNullish } from 'utility/Arrays'
 import DevServer from 'utility/DevServer'
 import Env from 'utility/Env'
 import Script from 'utility/Script'
@@ -50,6 +50,9 @@ interface StyleManipulatorFunctions<HOST> {
 	bind (state: StateOr<boolean>, ...names: ComponentName[]): HOST
 	bindFrom (state: State<ComponentName[] | ComponentName | undefined>): HOST
 	unbind (state?: State<boolean> | State<ComponentName[] | ComponentName | undefined>): HOST
+	/** Add a combined style when multiple requirement styles are present */
+	combine (combined: ComponentName, requirements: ComponentName[]): HOST
+	uncombine (combined: ComponentName): HOST
 	refresh (): HOST
 
 	hasProperty (property: string): boolean
@@ -75,6 +78,12 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 	const currentClasses: string[] = []
 	const stateUnsubscribers = new WeakMap<State<boolean> | State<ComponentName[] | ComponentName | undefined>, [UnsubscribeState, ComponentName[]]>()
 	const unbindPropertyState: Record<string, UnsubscribeState | undefined> = {}
+
+	interface Combination {
+		combined: ComponentName
+		requirements: ComponentName[]
+	}
+	const combinations: Combination[] = []
 
 	if (Env.isDev)
 		style.subscribe(component, () => updateClasses())
@@ -165,6 +174,15 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 				result.remove(...names)
 				return component
 			},
+			combine (combined, requirements) {
+				combinations.push({ combined, requirements })
+				return component
+			},
+			uncombine (combined) {
+				combinations.filterInPlace(combination => combination.combined !== combined)
+				result.remove(combined)
+				return component
+			},
 			refresh: () => updateClasses(),
 
 			hasProperty (property) {
@@ -225,6 +243,18 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 
 	function updateClasses () {
 		const stylesArray = [...styles]
+
+		for (const combination of combinations) {
+			const hasRequirements = combination.requirements.every(name => styles.has(name))
+			if (hasRequirements) {
+				styles.add(combination.combined)
+				stylesArray.push(combination.combined)
+			}
+			else {
+				styles.delete(combination.combined)
+				Arrays.remove(stylesArray, combination.combined)
+			}
+		}
 
 		if (!component.attributes.has('component'))
 			component.attributes.insertBefore('class', 'component')

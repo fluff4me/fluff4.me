@@ -29,7 +29,7 @@ const Tag = Object.assign(
 		if (component.tagName === 'A')
 			component.and(Link, typeof tag === 'string' ? undefined /* `/tag/${tag}` */ : `/tag/${toURL(tag.category)}/${toURL(tag.name)}`)
 
-		component
+		const button = component
 			.and(Button)
 			.style('tag')
 			.style.toggle(typeof tag === 'string', 'tag-custom')
@@ -57,6 +57,10 @@ const Tag = Object.assign(
 			.text.set(typeof tag === 'string' ? tag : tag.name)
 			.appendTo(component)
 
+		if (typeof tag === 'object' && tag.is_mature)
+			button.setIcon('circle-exclamation')
+				.tweak(button => button.icon?.style('tag-mature-icon').prependTo(nameWrapper))
+
 		const unuseSupers = component.supers.useManual(() => {
 			if (!component.is(Draggable))
 				return
@@ -71,7 +75,6 @@ const Tag = Object.assign(
 			nameWrapper,
 			followingBookmark,
 			addDeleteButton (handler) {
-				component.style('tag--has-delete-button')
 				followingBookmark?.style('tag-following-bookmark--has-delete-button')
 				Button()
 					.style('tag-delete-button')

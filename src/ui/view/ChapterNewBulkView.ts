@@ -17,7 +17,6 @@ import Button from 'ui/component/core/Button'
 import Checkbutton from 'ui/component/core/Checkbutton'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import Details from 'ui/component/core/Details'
-import InfoDialog from 'ui/component/core/InfoDialog'
 import LabelledTable from 'ui/component/core/LabelledTable'
 import Link from 'ui/component/core/Link'
 import Loading from 'ui/component/core/Loading'
@@ -51,18 +50,6 @@ export default ViewDefinition({
 			throw workResponse
 
 		const author = workResponse.data.synopsis?.mentions.find(author => author.vanity === params.author)
-
-		const owner = Component()
-		try {
-			await InfoDialog.prompt(owner, {
-				titleTranslation: 'shared/prompt/beta-restrictions/title',
-				bodyTranslation: 'shared/prompt/beta-restrictions/description',
-			})
-		}
-		finally {
-			owner.remove()
-		}
-
 		return { work: workResponse.data as WorkData & Partial<WorkFull>, author }
 	},
 	create (params: Params, { work, author }) {

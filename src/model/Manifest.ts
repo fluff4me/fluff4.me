@@ -52,12 +52,15 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 						const response = await definition.get()
 						if (response instanceof Error)
 							throw response
+						lastTime = Date.now()
 						state.value = response.data
 						ensureSaveWatcher()
 					}
 					catch (err) {
-						if (definition.orElse)
+						if (definition.orElse) {
+							lastTime = Date.now()
 							state.value = definition.orElse()
+						}
 						else
 							throw err
 					}
@@ -112,8 +115,8 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 				}
 
 			currentlyAssigning = true
-			state.value = result.data
 			lastTime = newTime
+			state.value = result.data
 
 			return {
 				time: newTime,
@@ -140,7 +143,7 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 				return
 
 			localStorage.setItem(`manifest:${definition.cacheId}`,
-				JSON.stringify({ time: Date.now(), data })
+				JSON.stringify({ time: lastTime, data })
 			)
 		})
 	}
