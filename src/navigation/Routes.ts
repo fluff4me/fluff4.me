@@ -17,6 +17,7 @@ import LoginView from 'ui/view/LoginView'
 import ManageTagsView from 'ui/view/ManageTagsView'
 import NewView from 'ui/view/NewView'
 import NotificationsView from 'ui/view/NotificationsView'
+import SupporterFinishView from 'ui/view/SupporterFinishView'
 import TagView from 'ui/view/TagView'
 import WorkEditView from 'ui/view/WorkEditView'
 import WorkView from 'ui/view/WorkView'
@@ -57,6 +58,8 @@ const Routes = [
 	// Route('/tag/$custom_name', TagView.navigate),
 
 	Route('/manage/tags', ManageTagsView.navigate),
+
+	Route('/supporter/finish', SupporterFinishView.navigate),
 ]
 
 RoutePath.setRoutes(Routes)

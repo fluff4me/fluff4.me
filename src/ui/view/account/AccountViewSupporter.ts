@@ -1,6 +1,6 @@
 import type { Paths } from 'api.fluff4.me'
 import EndpointSupporterOrders from 'endpoint/supporter/EndpointSupporterOrders'
-import EndpointSupporterPoll from 'endpoint/supporter/EndpointSupporterPoll'
+import EndpointSupporterPollFull from 'endpoint/supporter/EndpointSupporterPollFull'
 import EndpointSupporterStatus from 'endpoint/supporter/EndpointSupporterStatus'
 import PagedListData from 'model/PagedListData'
 import Component from 'ui/Component'
@@ -22,6 +22,8 @@ import type { Quilt } from 'ui/utility/StringApplicator'
 import Env from 'utility/Env'
 import Popup from 'utility/Popup'
 import State from 'utility/State'
+import Store from 'utility/Store'
+import Strings from 'utility/string/Strings'
 
 const PopupSupporterStart = Popup({
 	translation: 'view/account/supporter/popup/start/title',
@@ -87,7 +89,7 @@ export default Component.Builder(component => {
 							.setIcon('rotate')
 							.type('flush')
 							.event.subscribe('click', async () => {
-								const response = await EndpointSupporterPoll.query()
+								const response = await EndpointSupporterPollFull.query()
 								if (toast.handleError(response))
 									return
 
@@ -209,7 +211,9 @@ export default Component.Builder(component => {
 				.style.setVariable('colour-rotation-index', i)
 				.event.subscribe('click', async event => {
 					event.preventDefault()
-					await PopupSupporterStart.show(event.host, { url }).toastError()
+					const transactionId = Strings.uid()
+					Store.items.supporterTransactionId = transactionId
+					await PopupSupporterStart.show(event.host, { url: `${url}?transaction_id=${transactionId}` }).toastError()
 					status.refresh()
 				})
 				.append(Heading()
@@ -246,7 +250,8 @@ export default Component.Builder(component => {
 							event.stopPropagation()
 							event.preventDefault()
 							const amount = State<number | undefined>(undefined)
-							const customURL = amount.mapManual(amount => !amount ? url : `${url}?amount=${Math.floor(amount * 100)}`)
+							const transactionId = Strings.uid()
+							const customURL = amount.mapManual(amount => !amount ? `${url}?transaction_id=${transactionId}` : `${url}?amount=${Math.floor(amount * 100)}&transaction_id=${transactionId}`)
 							const confirmed = await ConfirmDialog.prompt(event.host, {
 								titleTranslation: `view/account/supporter/product/${product}/name`,
 								bodyTranslation: `view/account/supporter/product/${product}/description`,
@@ -272,6 +277,7 @@ export default Component.Builder(component => {
 							if (!confirmed)
 								return
 
+							Store.items.supporterTransactionId = transactionId
 							await PopupSupporterStart.show(event.host, { url: customURL.value }).toastError()
 							status.refresh()
 						})

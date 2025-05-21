@@ -216,3 +216,7 @@
 		&-text:
 			%clamp-1
 			max-width: calc($space-5 * 4)
+
+	&--view-no-wrapper:
+		#after: .masthead, .masthead-flush
+		%hidden

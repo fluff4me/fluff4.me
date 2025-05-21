@@ -38,3 +38,7 @@
 	::focus:
 		$translate-x: 0%
 		%opaque
+
+	&--view-no-wrapper:
+		#after: .sidebar, .sidebar--visible-due-to-keyboard-navigation
+		%hidden

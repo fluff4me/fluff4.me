@@ -474,7 +474,7 @@ namespace State {
 		readonly message?: string | Quilt.Handler
 	}
 
-	export interface Async<T> extends State<T | undefined> {
+	interface AsyncBase<T> extends State<T | undefined> {
 		readonly settled: State<boolean>
 		readonly lastValue: State<T | undefined>
 		readonly error: State<Error | undefined>
@@ -482,7 +482,13 @@ namespace State {
 		readonly progress: State<AsyncProgress | undefined>
 	}
 
-	export function Async<FROM, T> (owner: State.Owner, from: State<FROM>, generator: (value: FROM, signal: AbortSignal, setProgress: (progress: number, message?: string | Quilt.Handler) => void) => Promise<T>): Async<T> {
+	export interface Async<T> extends AsyncBase<T> {
+		readonly promise: Promise<T>
+	}
+
+	export type AsyncGenerator<FROM, T> = (value: FROM, signal: AbortSignal, setProgress: (progress: number, message?: string | Quilt.Handler) => void) => Promise<T>
+
+	export function Async<FROM, T> (owner: State.Owner, from: State<FROM>, generator: AsyncGenerator<FROM, T>): Async<T> {
 		const state = State<AsyncState<T>>({
 			settled: false,
 			value: undefined,
@@ -497,6 +503,7 @@ namespace State {
 		const lastValue = state.mapManual(state => state.lastValue)
 		const progress = state.mapManual(state => state.progress)
 		let abortController: AbortController | undefined
+		let promise: Promise<T> | undefined
 
 		from.use(owner, async from => {
 			abortController?.abort()
@@ -510,15 +517,14 @@ namespace State {
 				progress: undefined,
 			}
 			abortController = new AbortController()
-			const { value, error } = await Promise
-				.resolve(generator(from, abortController.signal, (progress, message) => {
-					mutable(state.value).progress = { progress, message }
-					state.emit()
-				}))
-				.then(
-					value => ({ value, error: undefined }),
-					error => ({ error: new Error('Async state rejection:', { cause: error }), value: undefined }),
-				)
+			promise = Promise.resolve(generator(from, abortController.signal, (progress, message) => {
+				mutable(state.value).progress = { progress, message }
+				state.emit()
+			}))
+			const { value, error } = await promise.then(
+				value => ({ value, error: undefined }),
+				error => ({ error: new Error('Async state rejection:', { cause: error }), value: undefined }),
+			)
 
 			if (abortController.signal.aborted)
 				return
@@ -532,7 +538,7 @@ namespace State {
 			} as AsyncState<T>
 		})
 
-		return Object.assign(
+		const result: AsyncBase<T> = Object.assign(
 			value,
 			{
 				settled,
@@ -542,6 +548,12 @@ namespace State {
 				progress,
 			}
 		)
+
+		Object.defineProperty(result, 'promise', {
+			get: () => promise,
+		})
+
+		return result as Async<T>
 	}
 
 	export interface EndpointResult<T> extends Async<T> {

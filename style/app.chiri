@@ -28,6 +28,10 @@ $app-column-width: #{app-column-width}
 	&--has-banner:
 		$banner-height: $masthead-height
 
+	&--view-no-wrapper:
+		#after: .app
+		%block
+
 	&-banner-container:
 		%block
 		%fixed
@@ -38,6 +42,10 @@ $app-column-width: #{app-column-width}
 		#flush:
 			%relative
 			%top-auto
+
+		&--view-no-wrapper:
+			#after: .app-banner-container
+			%hidden
 
 	&-banner:
 		%flex
@@ -173,6 +181,10 @@ $app-column-width: #{app-column-width}
 				$padding-inline: 0px
 				$padding-block: 0px
 
+		&--view-no-wrapper:
+			#after: .app-footer
+			%hidden
+
 	&-qrcode:
 		%block
 		%fixed
@@ -190,6 +202,14 @@ $app-column-width: #{app-column-width}
 		%font-0
 		%colour-8
 		%unmargin-top-1
+
+	&-no-wrapper:
+		&-home-link:
+			&-button:
+				#after: .masthead-home
+				%font-5
+				%margin-inline-auto
+				%margin-top-3
 
 .masthead:
 	grid-area: masthead

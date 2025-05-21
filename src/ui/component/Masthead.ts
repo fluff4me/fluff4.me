@@ -28,8 +28,11 @@ const MASTHEAD_CLASS = '_masthead'
 
 const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Masthead => {
 	masthead.style('masthead').classes.add(MASTHEAD_CLASS)
+		.style.bind(view.wrapped.falsy, 'masthead--view-no-wrapper')
 
 	const sidebar = Sidebar()
+		.style.bind(view.wrapped.falsy, 'sidebar--view-no-wrapper')
+
 	const nav = PrimaryNav()
 
 	Button()
@@ -197,7 +200,8 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 
 	return masthead.extend<MastheadExtensions>(masthead => ({
 		sidebar,
-		flush: MastheadFlush(),
+		flush: MastheadFlush()
+			.style.bind(view.wrapped.falsy, 'masthead--view-no-wrapper'),
 	}))
 })
 
