@@ -12,6 +12,7 @@ prefix/currency: $
 
 ## popup
 danger-token/title: Re-authenticate Using {0}
+supporter/finishing: Waiting for transaction to process...
 
 ## prompt
 confirm: Are you sure?

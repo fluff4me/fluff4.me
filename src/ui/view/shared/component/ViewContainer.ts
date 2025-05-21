@@ -15,9 +15,11 @@ import State from 'utility/State'
 
 interface ViewContainerExtensions {
 	readonly state: State<View | undefined>
+	readonly wrapped: State<boolean>
 	show<VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined> (view: ViewDefinition<VIEW, PARAMS, LOAD_PARAMS>, params: PARAMS): Promise<VIEW | undefined>
 
 	ephemeral?: View
+	ephemeralOwner?: State.Owner.Removable
 	ephemeralDialog: Dialog
 	showEphemeral<VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined> (view: ViewDefinition<VIEW, PARAMS, LOAD_PARAMS>, params: PARAMS): Promise<VIEW | undefined>
 	hideEphemeral (): Promise<void>
@@ -30,6 +32,7 @@ const ViewContainer = (): ViewContainer => {
 	let cancelLogin: (() => void) | undefined
 
 	const state = State<View | undefined>(undefined)
+	const wrapped = State(true)
 
 	let loadingOwner: State.Owner.Removable | undefined
 
@@ -37,12 +40,14 @@ const ViewContainer = (): ViewContainer => {
 
 	const container = Component()
 		.style('view-container')
+		.style.bind(wrapped.falsy, 'view-container--no-wrapper')
 		.tabIndex('programmatic')
 		.ariaRole('main')
 		.ariaLabel.use('view/container/alt')
 		.append(viewStartAnchor)
 		.extend<ViewContainerExtensions>(container => ({
 			state,
+			wrapped,
 			show: async <VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined> (definition: ViewDefinition<VIEW, PARAMS, LOAD_PARAMS>, params: PARAMS) => {
 				const showingId = ++globalId
 				loadingOwner?.remove()
@@ -52,6 +57,8 @@ const ViewContainer = (): ViewContainer => {
 				let loadParams: LOAD_PARAMS | Errors.Redirecting | undefined = undefined
 
 				viewStartAnchor.element.scrollIntoView({ behavior: 'smooth' })
+
+				wrapped.value = definition.wrapper !== false
 
 				const needsLogin = definition.requiresLogin && !Session.Auth.loggedIn.value
 				if (needsLogin || definition.load) {
@@ -96,11 +103,15 @@ const ViewContainer = (): ViewContainer => {
 				}
 
 				let loadError: Error & Partial<ErrorResponse> | undefined
-				try {
-					loadParams = !definition.load ? undefined : await Promise.resolve(definition.load(params))
-				}
-				catch (err) {
-					loadError = err as never
+				if (definition.load) {
+					try {
+						const asyncState = State.Async(loadingOwner, State(params), definition.load)
+						loading?.use(asyncState)
+						loadParams = await asyncState.promise
+					}
+					catch (err) {
+						loadError = err as never
+					}
 				}
 
 				// throw new Error()
@@ -134,10 +145,10 @@ const ViewContainer = (): ViewContainer => {
 					hideEphemeral()
 				}
 
-				async function swapAdd (replacementDefinition: ViewDefinition<View, object | undefined, object | undefined> = definition) {
+				async function swapAdd (replacementDefinition = definition as any as ViewDefinition<View, object | undefined, object | undefined>) {
 					const shownView = await (loadError ? Promise.reject(loadError) : Promise.resolve(replacementDefinition.create(params, loadParams as object | undefined)))
 						.then(v => {
-							view = replacementDefinition === definition ? v as VIEW : undefined
+							view = replacementDefinition === definition as any ? v as VIEW : undefined
 							return v
 						})
 						.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({
@@ -147,7 +158,7 @@ const ViewContainer = (): ViewContainer => {
 					if (shownView) {
 						shownView.insertTo(container, 'after', viewStartAnchor)
 						state.value = shownView
-						if (replacementDefinition === definition)
+						if (replacementDefinition === definition as any)
 							shownView.params = params
 					}
 
@@ -189,12 +200,15 @@ const ViewContainer = (): ViewContainer => {
 	return container
 
 	async function showEphemeral<VIEW extends View> (definition: ViewDefinition<VIEW, any, any>, params: any) {
-		container.ephemeral?.remove()
+		container.ephemeral?.remove(); container.ephemeral = undefined
+		container.ephemeralOwner?.remove()
 
 		let view: VIEW | undefined
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		const loadParams = await definition.load?.(params)
+		container.ephemeralOwner = State.Owner.create()
+
+		const loadParams = !definition.load ? undefined
+			: State.Async(container.ephemeralOwner, State(params), definition.load).promise
 
 		const shownView = await Promise.resolve(definition.create(params, loadParams))
 			.then(v => view = v)
@@ -216,8 +230,8 @@ const ViewContainer = (): ViewContainer => {
 
 	function hideEphemeral () {
 		container.ephemeralDialog.close()
-		container.ephemeral?.remove()
-		delete container.ephemeral
+		container.ephemeral?.remove(); container.ephemeral = undefined
+		container.ephemeralOwner?.remove(); container.ephemeralOwner = undefined
 		container.attributes.remove('inert')
 	}
 

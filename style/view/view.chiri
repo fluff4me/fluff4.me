@@ -77,12 +77,19 @@
 			%row-1
 			%margin-inline-auto
 			padding-right: calc($app-column-width + $space-4)
+			max-width: calc(100vw - $space-5)
 
 			#tablet:
 				%padding-right-0
 
 		&--loading:
 			#after: .view-container
+			%padding-top-5
+
+		&--no-wrapper:
+			#after: .view-container
+			$app-column-width: 0px
+			%block
 
 	&--hidden:
 

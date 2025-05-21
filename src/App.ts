@@ -13,7 +13,7 @@ import AppFooter from 'ui/component/AppFooter'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Link from 'ui/component/core/Link'
 import ToastList from 'ui/component/core/toast/ToastList'
-import Masthead from 'ui/component/Masthead'
+import Masthead, { HomeLink } from 'ui/component/Masthead'
 import { registerMarkdownMentionHandler } from 'ui/component/Mention'
 import TagPopover from 'ui/component/popover/TagPopover'
 import InputBus from 'ui/InputBus'
@@ -149,6 +149,7 @@ async function App (): Promise<App> {
 
 	AppFooter()
 		.style.bind(masthead.sidebar.state.falsy, 'app-footer--no-sidebar')
+		.style.bind(view.wrapped.falsy, 'app-footer--view-no-wrapper')
 		.appendTo(view)
 
 	const content = Component()
@@ -160,9 +161,17 @@ async function App (): Promise<App> {
 	Component.getWindow().monitorScrollEvents()
 
 	const banner = AppBannerQueue()
+		.style.bind(view.wrapped.falsy, 'app-banner-container--view-no-wrapper')
+
+	const noWrapperHomeLink = HomeLink()
+		.style('app-no-wrapper-home-link')
+		.tweak(homeLink => homeLink.button.style('app-no-wrapper-home-link-button'))
+
 	const app: App = Component()
 		.style('app')
 		.style.bind(banner.state, 'app--has-banner')
+		.style.bind(view.wrapped.falsy, 'app--view-no-wrapper')
+		.appendWhen(view.wrapped.falsy, noWrapperHomeLink)
 		.append(masthead.flush, masthead, banner, masthead.sidebar, content)
 		.append(ToastList())
 		.extend<AppExtensions>(app => ({
@@ -171,6 +180,8 @@ async function App (): Promise<App> {
 		}))
 		.tweak(Navigator.setApp)
 		.appendTo(document.body)
+
+	Object.assign(window, { app })
 
 	if (Env.isNgrok)
 		Component()
@@ -184,8 +195,6 @@ async function App (): Promise<App> {
 	ToSManager.ensureAccepted()
 
 	await app.navigate.fromURL()
-
-	Object.assign(window, { app })
 	return app
 }
 
