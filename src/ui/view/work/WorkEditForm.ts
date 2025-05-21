@@ -117,7 +117,7 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 							synopsis: synopsisInput.useMarkdown(),
 							visibility: visibility.selection.value ?? 'Private',
 							...tagsEditor.state.value,
-							card_colours: cardGradientInput.value.value.length ? cardGradientInput.value.value.slice() : undefined,
+							card_colours: cardGradientInput.value.value.slice(),
 						},
 					})
 
@@ -141,7 +141,7 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 							synopsis: synopsisInput.useMarkdown(),
 							visibility: visibility.selection.value ?? 'Private',
 							...tagsEditor.state.value,
-							card_colours: cardGradientInput.value.value.length ? cardGradientInput.value.value.slice() : undefined,
+							card_colours: cardGradientInput.value.value.slice(),
 						},
 					})
 				}
