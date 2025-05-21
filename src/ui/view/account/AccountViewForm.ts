@@ -158,8 +158,8 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 				pronouns: pronounsInput.value,
 				support_link: supportLinkInput.value,
 				support_message: supportMessageInput.value,
-				username_colours: gradientInput.value.value.length ? gradientInput.value.value.slice() : undefined,
-				card_colours: cardGradientInput.value.value.length ? cardGradientInput.value.value.slice() : undefined,
+				username_colours: gradientInput.value.value.slice(),
+				card_colours: cardGradientInput.value.value.slice(),
 				age,
 			},
 		})
