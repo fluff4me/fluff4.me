@@ -150,6 +150,7 @@ $$button-background-highlight!colour
 		%justify-items-centre
 		%justify-content-centre
 		%align-content-centre
+		%style-normal
 		margin-top: -.05em
 		; vertical-align: bottom
 
