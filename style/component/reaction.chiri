@@ -1,10 +1,15 @@
 .reaction:
 	%flex
 	%gap-2
+	%padding-inline-1
+	%align-items-centre
+
+	:first:
+		%padding-left-0
 
 	&-button:
 		#after: .button
-		%padding-0
+		%padding-1-0
 
 		&--reacted:
 			#after: .reaction-button
