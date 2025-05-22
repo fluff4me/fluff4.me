@@ -105,12 +105,18 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	readonly nojit: Partial<this>
 
 	readonly hovered: State<boolean>
+	readonly hoveredTime: State<number | undefined>
 	readonly focused: State<boolean>
+	readonly focusedTime: State<number | undefined>
 	readonly hasFocused: State<boolean>
+	readonly hasFocusedTime: State<number | undefined>
 	readonly hadFocusedLast: State<boolean>
 	readonly hoveredOrFocused: State<boolean>
+	readonly hoveredOrFocusedTime: State<number | undefined>
 	readonly hoveredOrHasFocused: State<boolean>
+	readonly hoveredOrHasFocusedTime: State<number | undefined>
 	readonly active: State<boolean>
+	readonly activeTime: State<number | undefined>
 	readonly rooted: State<boolean>
 	readonly removed: State<boolean>
 	readonly id: State<string | undefined>
@@ -396,29 +402,47 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 
 		get hovered (): State<boolean> {
-			return Define.set(component, 'hovered', State(false))
+			return Define.set(component, 'hovered', component.hoveredTime.mapManual(time => !!time))
+		},
+		get hoveredTime (): State<number | undefined> {
+			return Define.set(component, 'hoveredTime', State(undefined))
 		},
 		get focused (): State<boolean> {
-			return Define.set(component, 'focused', State(false))
+			return Define.set(component, 'focused', component.focusedTime.mapManual(time => !!time))
+		},
+		get focusedTime (): State<number | undefined> {
+			return Define.set(component, 'focusedTime', State(undefined))
 		},
 		get hasFocused (): State<boolean> {
-			return Define.set(component, 'hasFocused', State(false))
+			return Define.set(component, 'hasFocused', component.hasFocusedTime.mapManual(time => !!time))
+		},
+		get hasFocusedTime (): State<number | undefined> {
+			return Define.set(component, 'hasFocusedTime', State(undefined))
 		},
 		get hadFocusedLast (): State<boolean> {
 			return Define.set(component, 'hadFocusedLast', State(false))
 		},
 		get hoveredOrFocused (): State<boolean> {
-			return Define.set(component, 'hoveredOrFocused',
-				State.Generator(() => component.hovered.value || component.focused.value)
-					.observe(component, component.hovered, component.focused))
+			return Define.set(component, 'hoveredOrFocused', component.hoveredOrFocusedTime.mapManual(time => !!time))
+		},
+		get hoveredOrFocusedTime (): State<number | undefined> {
+			return Define.set(component, 'hoveredOrFocusedTime',
+				State.Generator(() => Math.max(component.hoveredTime.value ?? 0, component.focusedTime.value ?? 0) || undefined)
+					.observe(component, component.hoveredTime, component.focusedTime))
 		},
 		get hoveredOrHasFocused (): State<boolean> {
-			return Define.set(component, 'hoveredOrHasFocused',
-				State.Generator(() => component.hovered.value || component.hasFocused.value)
-					.observe(component, component.hovered, component.hasFocused))
+			return Define.set(component, 'hoveredOrHasFocused', component.hoveredOrHasFocusedTime.mapManual(time => !!time))
+		},
+		get hoveredOrHasFocusedTime (): State<number | undefined> {
+			return Define.set(component, 'hoveredOrHasFocusedTime',
+				State.Generator(() => Math.max(component.hoveredTime.value ?? 0, component.hasFocusedTime.value ?? 0) || undefined)
+					.observe(component, component.hoveredTime, component.hasFocusedTime))
 		},
 		get active (): State<boolean> {
-			return Define.set(component, 'active', State(false))
+			return Define.set(component, 'active', component.activeTime.mapManual(time => !!time))
+		},
+		get activeTime (): State<number | undefined> {
+			return Define.set(component, 'activeTime', State(undefined))
 		},
 		get id (): State<string | undefined> {
 			return Define.set(component, 'id', State(undefined))

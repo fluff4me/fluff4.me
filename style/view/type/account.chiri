@@ -340,9 +340,10 @@
 			&-date:
 				%justify-self-end
 
-			::hover, ::focus:
-				%background-6-a50
-				%transition-focus
+			#can-hover:
+				::hover, ::focus:
+					%background-6-a50
+					%transition-focus
 
 
 		&-add-plan-button--hidden:

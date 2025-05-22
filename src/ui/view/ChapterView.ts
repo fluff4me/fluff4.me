@@ -280,13 +280,16 @@ export default ViewDefinition({
 
 		paginator.data.use(paginator, chapter => chapterState.value = chapter)
 
-		const commentState = chapterState.mapManual(chapter => chapter.insufficient_pledge ? undefined : chapter.root_comment as UUID)
+		const commentState = chapterState.mapManual(chapter => !chapter.root_comment || chapter.insufficient_pledge ? undefined : {
+			threadId: chapter.root_comment as UUID,
+			threadAuthor: chapter.author,
+		})
 		Slot()
-			.use(commentState, (slot, rootComment) => {
-				if (!rootComment)
+			.use(commentState, (slot, thread) => {
+				if (!thread)
 					return
 
-				return Comments(rootComment, true)
+				return Comments(thread.threadId, thread.threadAuthor, true)
 			})
 			.appendTo(view.content)
 

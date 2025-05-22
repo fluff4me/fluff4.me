@@ -1,13 +1,17 @@
 import Component from 'ui/Component'
+import Popover from 'ui/component/core/Popover'
 import PopoverBlock from 'ui/component/popover/PopoverBlock'
 import type { TagData } from 'ui/component/Tag'
 import Tag from 'ui/component/Tag'
 import TagBlock from 'ui/component/TagBlock'
 
 const TagPopover = Component.Builder((component, tag: TagData) => component
+	.and(Popover)
+	.setDelay(500)
 	.and(PopoverBlock)
-	.and(TagBlock, tag)
-	// .tweak(tagPopover => tagPopover.visible.awaitManual(true, tagPopover.loadFull))
+	.tweak(popover => popover.visible.awaitManual(true, () => {
+		popover.and(TagBlock, tag)
+	}))
 )
 
 export default Object.assign(

@@ -100,3 +100,14 @@
 		#flush:
 			%border-radius-0
 			%border-inline-none
+
+	&-author-heart:
+
+		&--not-author:
+			#after: .button
+			%cursor-help
+			#can-hover:
+				::hover, ::focus:
+					%translate-y-0
+					%filter-shadow
+					$colour-blue: $colour-blue-active

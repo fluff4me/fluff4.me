@@ -55,6 +55,10 @@ interface PopoverComponentExtensions {
 	hasPopoverSet (): boolean
 }
 
+declare module 'ui/Component' {
+	interface ComponentExtensions extends PopoverComponentExtensions { }
+}
+
 Component.extend(component => {
 	component.extend<PopoverComponentExtensions>((component: Component & PopoverComponentExtensions & Partial<PopoverComponentRegisteredExtensions> & Partial<InternalPopoverExtensions>) => ({
 		hasPopoverSet () {
@@ -81,13 +85,13 @@ Component.extend(component => {
 					return true
 				})
 				.event.subscribe('toggle', e => {
-					const event = e as ToggleEvent & { host: Popover }
-					if (event.newState === 'closed') {
+					if (!popover.element.matches(':popover-open')) {
 						isShown = false
 						component.clickState = false
 						Mouse.offMove(updatePopoverState)
 					}
 				})
+				.tweak(initialiser, component)
 				.appendTo(document.body)
 
 			let touchTimeout: number | undefined
@@ -184,7 +188,6 @@ Component.extend(component => {
 			)
 
 			popover.visible.await(component, true, async () => {
-				popover.tweak(initialiser, component)
 				if (popover.hasContent()) {
 					popover.show()
 					await Task.yield()
@@ -194,8 +197,15 @@ Component.extend(component => {
 
 			popover.style.bind(popover.anchor.state.mapManual(location => location?.preference?.yAnchor.side === 'bottom'), 'popover--anchored-top')
 
+			const hostHoveredOrFocusedForLongEnough = component.hoveredOrFocused.delay(popover, hoveredOrFocused => {
+				if (!hoveredOrFocused)
+					return 0 // no delay for mouseoff or blur
+
+				return popover.getDelay()
+			})
+
 			if (popoverEvent === 'hover' && !component.popover)
-				component.hoveredOrFocused.subscribe(component, updatePopoverState)
+				hostHoveredOrFocusedForLongEnough.subscribe(component, updatePopoverState)
 
 			const rawLabel = component.ariaLabel.state.value
 			const ariaLabel = popover.ariaLabel.state.map(popover, popoverLabel => rawLabel || popoverLabel)
@@ -291,7 +301,7 @@ Component.extend(component => {
 					return
 
 				const shouldShow = false
-					|| (component.hoveredOrFocused.value && !Viewport.tablet.value)
+					|| (hostHoveredOrFocusedForLongEnough.value && !Viewport.tablet.value)
 					|| reason === 'longpress'
 					|| (true
 						&& isShown
@@ -322,7 +332,7 @@ Component.extend(component => {
 				if (isShown === shouldShow)
 					return
 
-				if (component.hoveredOrFocused.value && !isShown)
+				if (hostHoveredOrFocusedForLongEnough.value && !isShown)
 					Mouse.onMove(updatePopoverState)
 
 				if (!shouldShow)
@@ -368,10 +378,6 @@ Component.extend(component => {
 	}))
 })
 
-declare module 'ui/Component' {
-	interface ComponentExtensions extends PopoverComponentExtensions { }
-}
-
 interface PopoverExtensions {
 	readonly visible: State<boolean>
 	readonly popoverChildren: State<readonly Popover[]>
@@ -382,6 +388,9 @@ interface PopoverExtensions {
 
 	/** Sets the distance the mouse can be from the popover before it hides, if it's shown due to hover */
 	setMousePadding (padding?: number): this
+	/** Sets the delay until this popover will show (only in hover mode) */
+	setDelay (ms: number): this
+	getDelay (): number
 	/** Disables using the popover API for this element, using normal stacking instead of the element going into the top layer */
 	setNormalStacking (): this
 
@@ -402,6 +411,7 @@ interface Popover extends Component, PopoverExtensions { }
 
 const Popover = Component.Builder((component): Popover => {
 	let mousePadding: number | undefined
+	let delay = 0
 	let unbind: UnsubscribeState | undefined
 	const visible = State(false)
 	let shouldCloseOnInput = true
@@ -434,6 +444,13 @@ const Popover = Component.Builder((component): Popover => {
 			setMousePadding: padding => {
 				mousePadding = padding
 				return popover
+			},
+			setDelay (ms) {
+				delay = ms
+				return popover
+			},
+			getDelay () {
+				return delay
 			},
 			setNormalStacking () {
 				Viewport.tablet.use(popover, isTablet => {

@@ -18,7 +18,7 @@ interface CommentsExtensions {
 
 interface Comments extends Block, CommentsExtensions { }
 
-const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: true): Comments => {
+const Comments = Component.Builder((rawComponent, threadId: UUID, threadAuthor: string, isRootComment?: true): Comments => {
 	const block = rawComponent
 		.and(Block)
 		.type('flush')
@@ -28,14 +28,14 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 
 	Slot()
 		.use(Session.Auth.author, AbortPromise.asyncFunction(async (signal, slot, author) => {
-			const comment: CommentData = { comment_id: under }
+			const comment: CommentData = { comment_id: threadId }
 			const comments = State<(CommentData | CommentEditor)[]>([comment])
 			const authors = State<Author[]>(!author ? [] : [author])
 
 			if (author)
 				comments.use(block, commentsData => {
 					if (!commentsData[0].edit) {
-						commentsData.unshift({ edit: true, parent_id: under, author: author.vanity } as CommentEditor)
+						commentsData.unshift({ edit: true, parent_id: threadId, author: author.vanity } as CommentEditor)
 						comments.emit()
 					}
 				})
@@ -43,9 +43,9 @@ const Comments = Component.Builder((rawComponent, under: UUID, isRootComment?: t
 			type CommentQueryFunction = EndpointReturn<'/comments/{under}'>
 
 			const query = State<CommentQueryFunction | undefined>(undefined)
-			query.value = EndpointCommentGetAllUnder.prep({ params: { under } }).query
+			query.value = EndpointCommentGetAllUnder.prep({ params: { under: threadId } }).query
 
-			Comment({ comments, authors }, comment, { isRootComment, noSiblings: true })
+			Comment({ comments, authors, threadAuthor }, comment, { isRootComment, noSiblings: true })
 				.appendTo(slot)
 
 			await loadMore()

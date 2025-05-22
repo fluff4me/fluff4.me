@@ -36,13 +36,16 @@ namespace HoverListener {
 				return
 
 			const newHovered = allHovered
-			for (const element of lastHovered)
-				if (element.component && !newHovered.includes(element))
-					element.component.hovered.asMutable?.setValue(false)
 
-			for (const element of newHovered)
-				if (element.component && !lastHovered.includes(element))
-					element.component.hovered.asMutable?.setValue(true)
+			const noLongerHovering = lastHovered.filter(element => !newHovered.includes(element))
+			for (const element of noLongerHovering)
+				if (element.component)
+					element.component.hoveredTime.asMutable?.setValue(undefined)
+
+			const nowHovering = newHovered.filter(element => !lastHovered.includes(element))
+			for (const element of nowHovering)
+				if (element.component)
+					element.component.hoveredTime.asMutable?.setValue(Date.now())
 
 			lastHovered = newHovered
 		})

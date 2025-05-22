@@ -36,11 +36,11 @@ namespace ActiveListener {
 			const newActive = [...allActive]
 			for (const element of lastActive)
 				if (element.component && !newActive.includes(element))
-					element.component.active.asMutable?.setValue(false)
+					element.component.activeTime.asMutable?.setValue(undefined)
 
 			for (const element of newActive)
 				if (element.component && !lastActive.includes(element))
-					element.component.active.asMutable?.setValue(true)
+					element.component.activeTime.asMutable?.setValue(Date.now())
 
 			lastActive = newActive
 		}
