@@ -41,7 +41,7 @@ const Reaction = Component.Builder((
 	return component
 		.style('reaction')
 		.append(icon)
-		.append(Component()
+		.appendWhen(reactions.truthy, Component()
 			.style('reaction-count')
 			.text.bind(reactions.map(component, reactions => reactions ? `${reactions}` : '')))
 		.extend<ReactionExtensions>(component => ({
