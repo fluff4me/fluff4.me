@@ -178,9 +178,6 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 				Slot()
 					.use(Session.Auth.author, (slot, author) => {
-						if (!author)
-							return
-
 						const footer = Component('footer')
 							.style('comment-footer')
 							.appendTo(content)
@@ -189,6 +186,9 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 						if (commentData.reactions || !commentData.reacted || !isThreadAuthor)
 							Reaction('love', commentData.reactions ?? 0, !!commentData.reacted)
 								.event.subscribe('click', async () => {
+									if (!author)
+										return
+
 									if (commentData.reacted) {
 										await unreact()
 									}
@@ -242,6 +242,10 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 							comments.emit()
 						}
+
+						if (!author)
+							// actions are not available to non-logged in users
+							return
 
 						Button()
 							.style('comment-footer-action')
