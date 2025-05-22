@@ -1,0 +1,6 @@
+.tooltip:
+	#after: .popover
+	%block
+	%padding-block-2
+	%font-2
+	%no-pointer-events

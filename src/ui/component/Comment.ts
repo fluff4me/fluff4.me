@@ -1,4 +1,4 @@
-import type { Author, CommentResolved as CommentDataRaw } from 'api.fluff4.me'
+import type { Author, Comment as CommentDataRaw } from 'api.fluff4.me'
 import EndpointCommentAdd from 'endpoint/comment/EndpointCommentAdd'
 import EndpointCommentDelete from 'endpoint/comment/EndpointCommentDelete'
 import EndpointCommentUpdate from 'endpoint/comment/EndpointCommentUpdate'
@@ -36,6 +36,7 @@ interface CommentExtensions {
 interface Comment extends Component, CommentExtensions { }
 
 interface CommentDataSource {
+	threadAuthor: string
 	comments: State.Mutable<(CommentData | CommentEditor)[]>
 	authors: State.Mutable<Author[]>
 }
@@ -184,32 +185,63 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 							.style('comment-footer')
 							.appendTo(content)
 
-						Reaction('love', commentData.reactions ?? 0, !!commentData.reacted)
-							.event.subscribe('click', async () => {
-								if (commentData.reacted) {
-									const response = await EndpointUnreactComment.query({ params: { comment_id: commentData.comment_id } })
-									if (toast.handleError(response))
-										return
+						const isThreadAuthor = source.threadAuthor === Session.Auth.author.value?.vanity
+						if (commentData.reactions || !commentData.reacted || !isThreadAuthor)
+							Reaction('love', commentData.reactions ?? 0, !!commentData.reacted)
+								.event.subscribe('click', async () => {
+									if (commentData.reacted) {
+										await unreact()
+									}
+									else {
+										const response = await EndpointReactComment.query({ params: { comment_id: commentData.comment_id, type: 'love' } })
+										if (toast.handleError(response))
+											return
 
-									delete commentData.reacted
-									commentData.reactions ??= 0
-									commentData.reactions--
-									if (commentData.reactions < 0)
-										delete commentData.reactions
-								}
-								else {
-									const response = await EndpointReactComment.query({ params: { comment_id: commentData.comment_id, type: 'love' } })
-									if (toast.handleError(response))
-										return
+										commentData.reacted = true
 
-									commentData.reacted = true
-									commentData.reactions ??= 0
-									commentData.reactions++
-								}
+										if (isThreadAuthor)
+											commentData.author_hearted = true
+										else {
+											commentData.reactions ??= 0
+											commentData.reactions++
+										}
+									}
 
-								comments.emit()
-							})
-							.appendTo(footer)
+									comments.emit()
+								})
+								.appendTo(footer)
+
+						if (commentData.author_hearted)
+							Reaction('author_heart', 0, true)
+								.tweak(heart => heart.icon
+									.style('comment-author-heart')
+									.style.toggle(!isThreadAuthor, 'comment-author-heart--not-author')
+								)
+								.setTooltip(tooltip => isThreadAuthor ? undefined : tooltip.text.use('comment/tooltip/author-heart'))
+								.event.subscribe('click', async () => {
+									if (isThreadAuthor)
+										await unreact()
+								})
+								.appendTo(footer)
+
+						async function unreact () {
+							const response = await EndpointUnreactComment.query({ params: { comment_id: (commentData as CommentDataRaw).comment_id } })
+							if (toast.handleError(response))
+								return
+
+							delete commentData.reacted
+
+							if (source.threadAuthor === Session.Auth.author.value?.vanity)
+								delete commentData.author_hearted
+							else {
+								commentData.reactions ??= 0
+								commentData.reactions--
+								if (commentData.reactions < 0)
+									delete commentData.reactions
+							}
+
+							comments.emit()
+						}
 
 						Button()
 							.style('comment-footer-action')

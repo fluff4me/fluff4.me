@@ -1,4 +1,5 @@
 #record!string colours = {
+	blue-active: "light-dark(#3a698f,#85c8f1)
 	blue-0: "#69b3e2
 	blue: "light-dark(#487aa3, #69b3e2)
 	blue-2: "#499FD5

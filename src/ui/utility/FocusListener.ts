@@ -109,15 +109,15 @@ namespace FocusListener {
 					// just in case anything is listening for hasFocused || hadFocusedLast
 					lastFocusedComponent.hadFocusedLast.asMutable?.setValue(true)
 
-				lastFocusedComponent.hasFocused.asMutable?.setValue(false)
+				lastFocusedComponent.hasFocusedTime.asMutable?.setValue(undefined)
 			}
 
-			lastFocusedComponent.focused.asMutable?.setValue(false)
+			lastFocusedComponent.focusedTime.asMutable?.setValue(undefined)
 		}
 
 		if (focusedComponent) {
-			focusedComponent.focused.asMutable?.setValue(true)
-			focusedComponent.hasFocused.asMutable?.setValue(true)
+			focusedComponent.focusedTime.asMutable?.setValue(Date.now())
+			focusedComponent.hasFocusedTime.asMutable?.setValue(Date.now())
 		}
 
 		if (oldAncestors)
@@ -129,13 +129,13 @@ namespace FocusListener {
 							// just in case anything is listening for hasFocused || hadFocusedLast
 							ancestor.hadFocusedLast.asMutable?.setValue(true)
 
-						ancestor.hasFocused.asMutable?.setValue(false)
+						ancestor.hasFocusedTime.asMutable?.setValue(undefined)
 					}
 
 		if (newAncestors)
 			for (const ancestor of newAncestors)
 				if (ancestor)
-					ancestor.hasFocused.asMutable?.setValue(true)
+					ancestor.hasFocusedTime.asMutable?.setValue(Date.now())
 
 		// updatingFocusState = false
 		// if (exhaustingQueue)

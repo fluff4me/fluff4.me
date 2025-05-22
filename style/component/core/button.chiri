@@ -159,7 +159,7 @@ $$button-background-highlight!colour
 		&--inline:
 			#after: .button-icon
 			%inline-block
-			%margin-right-1
+			%margin-inline-1
 
 		&--has-subtext:
 			#after: .button-icon
@@ -354,3 +354,39 @@ $$button-background-highlight!colour
 			font-size: .7em
 			%justify-self-centre
 			%align-self-centre
+
+	&-icon-author-heart:
+		#after: .button-icon
+		%grid
+		%stack
+		#icon name="heart
+		#icon after name="feather
+		translate: 0 .01em
+
+		@before, @after:
+			%stack-self
+			font-size: 1.15em
+			#transition: #{transition("color")}, #{transition("filter")}
+			%transition-focus
+
+		@before:
+			$left: -5%
+			$right: 105%
+			$top: -5%
+			$bottom: 105%
+			$middle: 50%
+			clip-path:
+				polygon(
+					$left $top,
+					25.5% $top, 
+					68% 37%,
+					3% $bottom, 
+					$right $bottom, 
+					$left $bottom,
+					$left $top
+				)
+
+		@after:
+			translate: .18em 0.02em
+			scale: 0.95
+			%colour-blue

@@ -282,6 +282,7 @@ action/edit=shared/action/edit
 action/cancel=shared/action/cancel
 action/save=shared/action/save
 action/delete=shared/action/delete
+tooltip/author-heart: A {#ICON.HEART:} from the author!
 
 # chapter
 action/index: Index

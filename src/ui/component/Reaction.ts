@@ -9,12 +9,13 @@ export type ReactionType = keyof ManifestReactionTypes
 
 const REACTION_MAP: Record<ReactionType, ButtonIcon> = {
 	love: 'heart',
-	author_heart: 'heart',
+	author_heart: 'author-heart',
 }
 
 interface ReactionExtensions {
 	readonly reactions: State<number>
 	readonly reacted: State<boolean>
+	readonly icon: Button
 }
 
 interface Reaction extends Component, ReactionExtensions { }
@@ -28,22 +29,25 @@ const Reaction = Component.Builder((
 	const reactions = State.get(reactionsIn)
 	const reacted = State.get(reactedIn)
 
+	const icon = Button()
+		.setIcon(REACTION_MAP[type])
+		.type('icon')
+		.style('reaction-button')
+		.style.bind(reacted, 'reaction-button--reacted')
+		.tweak(button => button.icon!
+			.style('reaction-button-icon')
+			.style.bind(reacted, 'reaction-button-icon--reacted'))
+
 	return component
 		.style('reaction')
-		.append(Button()
-			.setIcon(REACTION_MAP[type])
-			.type('icon')
-			.style('reaction-button')
-			.style.bind(reacted, 'reaction-button--reacted')
-			.tweak(button => button.icon!
-				.style('reaction-button-icon')
-				.style.bind(reacted, 'reaction-button-icon--reacted')))
+		.append(icon)
 		.append(Component()
 			.style('reaction-count')
 			.text.bind(reactions.map(component, reactions => reactions ? `${reactions}` : '')))
 		.extend<ReactionExtensions>(component => ({
 			reactions,
 			reacted,
+			icon,
 		}))
 })
 

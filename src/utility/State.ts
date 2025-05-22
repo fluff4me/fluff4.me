@@ -9,7 +9,7 @@ import { NonNullish as FilterNonNullish } from 'utility/Arrays'
 import Define from 'utility/Define'
 import Functions from 'utility/Functions'
 import { mutable } from 'utility/Objects'
-import type { Mutable as MakeMutable } from 'utility/Type'
+import type { Mutable as MakeMutable, SupplierOr } from 'utility/Type'
 
 export type StateOr<T> = State<T> | T
 export type MutableStateOr<T> = MutableState<T> | T
@@ -44,6 +44,9 @@ interface State<T, E = T> {
 	falsy: State.Generator<boolean>
 	not: State.Generator<boolean>
 	equals (value: T): State.Generator<boolean>
+
+	delay (owner: State.Owner, delay: SupplierOr<number, [T]>, mapper?: null, equals?: ComparatorFunction<T>): State<T>
+	delay<R> (owner: State.Owner, delay: SupplierOr<number, [T]>, mapper: (value: T) => StateOr<R>, equals?: ComparatorFunction<R>): State<R>
 
 	asMutable?: MutableState<T>
 }
@@ -197,6 +200,22 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 			equalsMap ??= new Map()
 			return equalsMap.compute(value, () => State.Generator(() => result.value === value)
 				.observeManual(result))
+		},
+		delay (owner: State.Owner, delay: SupplierOr<number, [T]>, mapper?: null | ((value: T) => StateOr<any>), equals?: ComparatorFunction<any>) {
+			const delayed = State(!mapper ? result.value : mapper(result.value), equals)
+			let timeout: number | undefined
+			result.subscribe(owner, value => {
+				window.clearTimeout(timeout)
+
+				const ms = Functions.resolve(delay, value)
+				if (!ms)
+					return delayed.value = !mapper ? value : mapper(value)
+
+				timeout = window.setTimeout(() => {
+					delayed.value = !mapper ? value : mapper(value)
+				}, ms)
+			})
+			return delayed
 		},
 	}
 	result.asMutable = result

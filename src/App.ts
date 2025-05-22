@@ -13,6 +13,7 @@ import AppFooter from 'ui/component/AppFooter'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Link from 'ui/component/core/Link'
 import ToastList from 'ui/component/core/toast/ToastList'
+import Tooltip from 'ui/component/core/Tooltip'
 import Masthead, { HomeLink } from 'ui/component/Masthead'
 import { registerMarkdownMentionHandler } from 'ui/component/Mention'
 import TagPopover from 'ui/component/popover/TagPopover'
@@ -57,6 +58,7 @@ registerMarkdownMentionHandler()
 MarkdownContent.registerMarkdownWeaveHandler()
 
 TagPopover.register()
+Tooltip.initExtension()
 
 interface AppExtensions {
 	navigate: Navigator
