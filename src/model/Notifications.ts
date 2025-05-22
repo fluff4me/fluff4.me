@@ -5,6 +5,7 @@ import EndpointNotificationMarkRead from 'endpoint/notification/EndpointNotifica
 import EndpointNotificationMarkUnread from 'endpoint/notification/EndpointNotificationMarkUnread'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
+import PageListener from 'ui/utility/PageListener'
 import State from 'utility/State'
 import Store from 'utility/Store'
 import Time from 'utility/Time'
@@ -141,7 +142,7 @@ namespace Notifications {
 	let activeCheck: Promise<void> | undefined
 
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises
-	setInterval(checkNotifications, Time.seconds(5))
+	setInterval(checkNotifications, Time.seconds(1))
 
 	async function checkNotifications () {
 		if (activeCheck)
@@ -149,6 +150,9 @@ namespace Notifications {
 
 		if (!Session.Auth.author.value)
 			return
+
+		if (!PageListener.visible.value)
+			return // only do this when the page is visible
 
 		let notifications = Store.items.notifications
 
