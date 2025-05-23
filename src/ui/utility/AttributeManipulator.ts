@@ -51,7 +51,7 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 	const unuseAttributeMap = new Map<string, UnsubscribeState>()
 	const attributeStates = new Map<string, State<string | undefined>>()
 
-	State.Owner.getOwnershipState(component)?.awaitManual(true, () => {
+	State.Owner.getOwnershipState(component)?.matchManual(true, () => {
 		removed = true
 
 		for (const registration of Object.values(translationHandlers ?? {}))

@@ -880,6 +880,7 @@ interface TextEditorExtensions {
 	/** Prevents this text editor's contents persisting, ie disables save/load */
 	disablePersistence (): this
 	importMarkdown (markdown: string): this
+	ready (): this
 }
 
 interface TextEditor extends Input, TextEditorExtensions { }
@@ -1026,6 +1027,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 
 				button.style.bind(popover.visible, 'text-editor-toolbar-button--has-popover-visible')
 			})
+			.receiveInsertEvents()
 			.receiveAncestorInsertEvents()
 			.event.subscribe(['insert', 'ancestorInsert'], event =>
 				event.host.style.toggle(!!event.host.closest(Popover), 'text-editor-toolbar-button--has-popover--within-popover'))
@@ -1353,6 +1355,10 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 			},
 			importMarkdown (markdown) {
 				loadFromMarkdown(markdown)
+				return editor
+			},
+			ready () {
+				(editor.mirror as any)?.domObserver?.flush()
 				return editor
 			},
 		}))

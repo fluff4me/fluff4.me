@@ -63,7 +63,7 @@ function Popup (baseDefinition: PopupDefinition): Popup {
 					const name = typeof translation === 'string' ? quilt[translation]() : translation?.(quilt, QuiltHelper)
 					const oauthPopup = window.open(url, name?.toString(), options)
 
-					const unsubscribe = State.Owner.getOwnershipState(owner).awaitManual(true, () => oauthPopup?.close())
+					const unsubscribe = State.Owner.getOwnershipState(owner).matchManual(true, () => oauthPopup?.close())
 
 					const interval = setInterval(() => {
 						if (oauthPopup?.closed) {

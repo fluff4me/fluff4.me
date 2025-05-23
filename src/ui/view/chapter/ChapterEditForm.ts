@@ -104,6 +104,12 @@ const ChapterEditFormContent = Component.Builder((component, state: State.Mutabl
 
 	const { threshold, visibility } = applyVisibilityOptions(table, state)
 
+	component.onRooted(() => {
+		notesBeforeInput.ready()
+		bodyInput.ready()
+		notesAfterInput.ready()
+	})
+
 	return table.extend<ChapterEditFormContentExtensions>(component => ({
 		numbered: type,
 		hasUnsavedChanges,

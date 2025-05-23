@@ -52,6 +52,7 @@ const Sortable = Object.assign(
 			.style('sortable-item')
 
 		updateOrder()
+		component.receiveChildrenInsertEvents()
 		component.event.subscribe('childrenInsert', (event, nodes) => {
 			for (const node of nodes)
 				if (node !== slot?.element)

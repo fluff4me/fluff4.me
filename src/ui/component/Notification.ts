@@ -121,7 +121,7 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 		read.value = !read.value
 		if (!read.value) {
 			justMarkedUnread.value = true
-			readButton.hoveredOrFocused.await(component, false, () => justMarkedUnread.value = false)
+			readButton.hoveredOrFocused.match(component, false, () => justMarkedUnread.value = false)
 		}
 	}
 })

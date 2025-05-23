@@ -157,7 +157,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				allData.value = data
 				const emitCursorUpdate = () => cursor.emit()
 				data.event.subscribe('DeletePage', emitCursorUpdate)
-				component.removed.awaitManual(true, () => data.event.unsubscribe('DeletePage', emitCursorUpdate))
+				component.removed.matchManual(true, () => data.event.unsubscribe('DeletePage', emitCursorUpdate))
 				return this as never
 			},
 			orElse (initialiser) {
@@ -192,7 +192,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				pages.splice(pageNumber, 1)
 			}
 			data?.event.subscribe('DeletePage', handleDelete)
-			slot.closed.awaitManual(true, () => data?.event.unsubscribe('DeletePage', handleDelete))
+			slot.closed.matchManual(true, () => data?.event.unsubscribe('DeletePage', handleDelete))
 			const handleUnset = (event: Event, startNumber: number, endNumberInclusive: number) => {
 				for (let pageNumber = startNumber; pageNumber <= endNumberInclusive; pageNumber++) {
 					pages[pageNumber]?.remove()
@@ -201,7 +201,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				}
 			}
 			data?.event.subscribe('UnsetPages', handleUnset)
-			slot.closed.awaitManual(true, () => data?.event.unsubscribe('UnsetPages', handleUnset))
+			slot.closed.matchManual(true, () => data?.event.unsubscribe('UnsetPages', handleUnset))
 			// const handleSet = (event: Event, page: number, data: T) => {
 			// 	if (cursor.value === page)
 			// 		currentData.emit()
@@ -309,8 +309,8 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 					pageContent.use(slot, async content => {
 						const hasContent = hasResults(content)
 						if (hasContent) {
-							ViewTransition.perform('subview', viewTransitionName, () => {
-								initialiser?.(newContent(), content as T, pageNumber, data, paginator)
+							ViewTransition.perform('subview', viewTransitionName, async () => {
+								await initialiser?.(newContent(), content as T, pageNumber, data, paginator)
 							})
 							return
 						}

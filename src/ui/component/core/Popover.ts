@@ -187,7 +187,7 @@ Component.extend(component => {
 				})
 			)
 
-			popover.visible.await(component, true, async () => {
+			popover.visible.match(component, true, async () => {
 				if (popover.hasContent()) {
 					popover.show()
 					await Task.yield()
@@ -216,7 +216,7 @@ Component.extend(component => {
 				(quilt, { arg }) => quilt['component/popover'](arg(ariaLabel))))
 
 			navigate.event.subscribe('Navigate', forceClose)
-			popover.removed.awaitManual(true, () => navigate.event.unsubscribe('Navigate', forceClose))
+			popover.removed.matchManual(true, () => navigate.event.unsubscribe('Navigate', forceClose))
 			function forceClose () {
 				component.clickState = false
 				popover.hide()
@@ -240,6 +240,7 @@ Component.extend(component => {
 						popover.hide()
 				})
 
+				component.receiveInsertEvents()
 				component.receiveAncestorInsertEvents()
 				component.event.subscribe(['insert', 'ancestorInsert'], updatePopoverParent)
 			}
@@ -515,7 +516,7 @@ const Popover = Component.Builder((component): Popover => {
 
 	popover.onRooted(() => {
 		InputBus.subscribe('down', onInputDown)
-		popover.removed.awaitManual(true, () => InputBus.unsubscribe('down', onInputDown))
+		popover.removed.matchManual(true, () => InputBus.unsubscribe('down', onInputDown))
 	})
 
 	return popover

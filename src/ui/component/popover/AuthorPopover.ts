@@ -10,5 +10,5 @@ export default Component.Builder((component, author: AuthorData & Partial<Author
 	.and(PopoverBlock)
 	.and(Author, author)
 	.tweak(author => author.bio.style('author-description--in-popover'))
-	.tweak(authorPopover => authorPopover.visible.awaitManual(true, authorPopover.loadFull))
+	.tweak(authorPopover => authorPopover.visible.matchManual(true, authorPopover.loadFull))
 )
