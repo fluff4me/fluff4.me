@@ -683,7 +683,7 @@ export default ViewDefinition({
 						details.style.bind(State.Every(component, hasSelectedChapter, selected.checked.falsy),
 							'view-type-chapter-bulk-create-chapter--has-selected-sibling')
 
-						details.state.awaitManual(true, async () => {
+						details.state.matchManual(true, async () => {
 							const chapterState = State<ChapterCreateBody | undefined>(chapter.body)
 							const form = ChapterEditForm.Content(chapterState)
 								.appendTo(details)

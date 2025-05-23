@@ -82,6 +82,7 @@ const Heading = Component.Builder('h1', (component): Heading => {
 
 	component.tabIndex('programmatic')
 
+	component.receiveInsertEvents()
 	component.receiveAncestorInsertEvents()
 	component.event.subscribe(['insert', 'ancestorInsert'], updateHeadingLevel)
 	component.rooted.subscribeManual(updateHeadingLevel)

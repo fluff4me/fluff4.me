@@ -9,7 +9,7 @@ const TagPopover = Component.Builder((component, tag: TagData) => component
 	.and(Popover)
 	.setDelay(500)
 	.and(PopoverBlock)
-	.tweak(popover => popover.visible.awaitManual(true, () => {
+	.tweak(popover => popover.visible.matchManual(true, () => {
 		popover.and(TagBlock, tag)
 	}))
 )

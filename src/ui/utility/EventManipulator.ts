@@ -148,17 +148,17 @@ function EventManipulator<T extends object> (host: T): EventManipulator<T, Nativ
 			initialiser({
 				subscribe (event, handler) {
 					manipulator.subscribe(event, handler)
-					State.Owner.getOwnershipState(owner).awaitManual(true, () => manipulator.unsubscribe(event, handler))
+					State.Owner.getOwnershipState(owner).matchManual(true, () => manipulator.unsubscribe(event, handler))
 					return this
 				},
 				subscribeCapture (event, handler) {
 					manipulator.subscribeCapture(event, handler)
-					State.Owner.getOwnershipState(owner).awaitManual(true, () => manipulator.unsubscribe(event, handler))
+					State.Owner.getOwnershipState(owner).matchManual(true, () => manipulator.unsubscribe(event, handler))
 					return this
 				},
 				subscribePassive (event, handler) {
 					manipulator.subscribePassive(event, handler)
-					State.Owner.getOwnershipState(owner).awaitManual(true, () => manipulator.unsubscribe(event, handler))
+					State.Owner.getOwnershipState(owner).matchManual(true, () => manipulator.unsubscribe(event, handler))
 					return this
 				},
 			})

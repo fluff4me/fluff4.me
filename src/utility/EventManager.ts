@@ -121,7 +121,7 @@ export class EventManager<HOST extends object, EVENTS = object, TARGET extends E
 				this.subscribe(type, listener)
 				const unsubscribe = () => this.unsubscribe(type, listener)
 				if (!(promise instanceof Promise))
-					State.Owner.getOwnershipState(promise)?.awaitManual(true, unsubscribe)
+					State.Owner.getOwnershipState(promise)?.matchManual(true, unsubscribe)
 				else
 					void (promise).then(unsubscribe)
 				return manager
@@ -130,7 +130,7 @@ export class EventManager<HOST extends object, EVENTS = object, TARGET extends E
 				this.subscribeOnce(type, listener)
 				const unsubscribe = () => this.unsubscribe(type, listener)
 				if (!(promise instanceof Promise))
-					State.Owner.getOwnershipState(promise)?.awaitManual(true, unsubscribe)
+					State.Owner.getOwnershipState(promise)?.matchManual(true, unsubscribe)
 				else
 					void (promise).then(() => this.unsubscribe(type, listener))
 				return manager

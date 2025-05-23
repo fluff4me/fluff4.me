@@ -101,8 +101,8 @@ const ConfirmDialog = Object.assign(
 					state.value = undefined
 					dialog.open()
 					return new Promise<boolean>(resolve => owner
-						? dialog.state.await(owner, [true, false], resolve)
-						: dialog.state.awaitManual([true, false], resolve)
+						? dialog.state.match(owner, [true, false], resolve)
+						: dialog.state.matchManual([true, false], resolve)
 					)
 				},
 				cancel () {

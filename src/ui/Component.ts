@@ -213,10 +213,13 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	remove (): void
 	removeContents (): this
 
+	receiveRootedEvents (): this
 	receiveAncestorInsertEvents (): this
+	receiveInsertEvents (): this
 	receiveDescendantInsertEvents (): this
 	receiveDescendantRemoveEvents (): this
 	receiveAncestorScrollEvents (): this
+	receiveChildrenInsertEvents (): this
 	emitInsert (): this
 	monitorScrollEvents (): this
 
@@ -239,10 +242,13 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 interface Component<ELEMENT extends HTMLElement = HTMLElement> extends BaseComponent<ELEMENT>, ComponentExtensions<ELEMENT>, WeavingRenderable { }
 
 enum Classes {
+	ReceiveRootedEvents = '_receive-rooted-events',
 	ReceiveAncestorInsertEvents = '_receieve-ancestor-insert-events',
 	ReceiveDescendantInsertEvents = '_receieve-descendant-insert-events',
 	ReceiveDescendantRemoveEvents = '_receieve-descendant-remove-events',
 	ReceiveAncestorRectDirtyEvents = '_receieve-ancestor-rect-dirty-events',
+	ReceiveChildrenInsertEvents = '_receive-children-insert-events',
+	ReceiveInsertEvents = '_receive-insert-events',
 	ReceiveScrollEvents = '_receieve-scroll-events',
 }
 
@@ -459,6 +465,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 					descendant.component?.event.emit('ancestorRectDirty')
 				return rectState
 			}
+			this.receiveInsertEvents()
 			this.receiveAncestorInsertEvents()
 			this.receiveAncestorScrollEvents()
 			this.classes.add(Classes.ReceiveAncestorRectDirtyEvents)
@@ -536,7 +543,8 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			component.element.remove()
 
 			emitRemove(component)
-			component.event.emit('unroot')
+			if (component.classes.has(Classes.ReceiveRootedEvents))
+				component.event.emit('unroot')
 			unuseOwnerRemove?.(); unuseOwnerRemove = undefined
 			unuseAriaControlsIdState?.(); unuseAriaControlsIdState = undefined
 			unuseAriaLabelledByIdState?.(); unuseAriaLabelledByIdState = undefined
@@ -576,7 +584,8 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			for (const element of elements)
 				(element as Element).component?.emitInsert()
 
-			component.event.emit('childrenInsert', elements)
+			if (component.classes.has(Classes.ReceiveChildrenInsertEvents))
+				component.event.emit('childrenInsert', elements)
 			return component
 		},
 		prepend (...contents) {
@@ -586,7 +595,8 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			for (const element of elements)
 				(element as Element).component?.emitInsert()
 
-			component.event.emit('childrenInsert', elements)
+			if (component.classes.has(Classes.ReceiveChildrenInsertEvents))
+				component.event.emit('childrenInsert', elements)
 			return component
 		},
 		insert (direction, sibling, ...contents) {
@@ -603,7 +613,8 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			for (const element of elements)
 				(element as Element).component?.emitInsert()
 
-			component.event.emit('childrenInsert', elements)
+			if (component.classes.has(Classes.ReceiveChildrenInsertEvents))
+				component.event.emit('childrenInsert', elements)
 			return component
 		},
 		removeContents () {
@@ -619,6 +630,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			component.receiveAncestorInsertEvents()
 			component.onRooted(() => {
 				state.markDirty()
+				component.receiveInsertEvents()
 				component.event.subscribe(['insert', 'ancestorInsert'], () => state.markDirty())
 			})
 			return state
@@ -699,6 +711,10 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return first
 		},
 
+		receiveRootedEvents () {
+			component.element.classList.add(Classes.ReceiveRootedEvents)
+			return component
+		},
 		receiveAncestorInsertEvents: () => {
 			component.element.classList.add(Classes.ReceiveAncestorInsertEvents)
 			return component
@@ -715,6 +731,14 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			component.element.classList.add(Classes.ReceiveScrollEvents)
 			return component
 		},
+		receiveChildrenInsertEvents () {
+			component.element.classList.add(Classes.ReceiveChildrenInsertEvents)
+			return component
+		},
+		receiveInsertEvents () {
+			component.element.classList.add(Classes.ReceiveInsertEvents)
+			return component
+		},
 		emitInsert: () => {
 			updateRooted(component)
 			emitInsert(component)
@@ -729,15 +753,15 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return component
 		},
 		onRooted (callback) {
-			component.rooted.awaitManual(true, () => callback(component))
+			component.rooted.matchManual(true, () => callback(component))
 			return component
 		},
 		onRemove (owner, callback) {
-			component.removed.await(owner, true, () => callback(component))
+			component.removed.match(owner, true, () => callback(component))
 			return component
 		},
 		onRemoveManual (callback) {
-			component.removed.awaitManual(true, () => callback(component))
+			component.removed.matchManual(true, () => callback(component))
 			return component
 		},
 
@@ -811,7 +835,9 @@ function emitInsert (component: Component | undefined) {
 	if (!component)
 		return
 
-	component.event.emit('insert')
+	if (component.classes.has(Classes.ReceiveInsertEvents))
+		component.event.emit('insert')
+
 	const descendantsListeningForEvent = component.element.getElementsByClassName(Classes.ReceiveAncestorInsertEvents)
 	for (const descendant of descendantsListeningForEvent)
 		descendant.component?.event.emit('ancestorInsert')
@@ -832,13 +858,15 @@ function updateRooted (component: Component | undefined) {
 			return
 
 		component.rooted.asMutable?.setValue(rooted)
-		component.event.emit(rooted ? 'root' : 'unroot')
+		if (component.classes.has(Classes.ReceiveRootedEvents))
+			component.event.emit(rooted ? 'root' : 'unroot')
 
 		for (const descendant of component.element.querySelectorAll<Element>('*')) {
 			const component = descendant.component
 			if (component) {
 				component.rooted.asMutable?.setValue(rooted)
-				component.event.emit(rooted ? 'root' : 'unroot')
+				if (component.classes.has(Classes.ReceiveRootedEvents))
+					component.event.emit(rooted ? 'root' : 'unroot')
 			}
 		}
 	}
@@ -942,7 +970,12 @@ namespace Component {
 			return completeComponent(component)
 		}
 
+		Object.defineProperty(builder, 'name', { value: name, configurable: true })
+		Object.defineProperty(builder, Symbol.toStringTag, { value: name, configurable: true })
+		Object.defineProperty(realBuilder, 'name', { value: name, configurable: true })
+		Object.defineProperty(realBuilder, Symbol.toStringTag, { value: name, configurable: true })
 		Object.defineProperty(simpleBuilder, 'name', { value: name, configurable: true })
+		Object.defineProperty(simpleBuilder, Symbol.toStringTag, { value: name, configurable: true })
 
 		const extensions: ((component: Component) => unknown)[] = []
 

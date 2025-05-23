@@ -197,7 +197,7 @@ export default ViewDefinition({
 
 		tabinator.bindURL(tab, tab => tab ? `/account/${tab}` : '/account')
 
-		state.equals('logged-in').await(view, false, () => navigate.toURL('/login'))
+		state.equals('logged-in').match(view, false, () => navigate.toURL('/login'))
 
 		return view
 	},

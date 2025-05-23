@@ -263,7 +263,7 @@ const Slot = Object.assign(
 					return slot
 				},
 			}))
-			.tweak(slot => slot.removed.awaitManual(true, () => cleanup?.()))
+			.tweak(slot => slot.removed.matchManual(true, () => cleanup?.()))
 
 		function handleSlotInitialiser (initialiser: SlotInitialiser) {
 			const component = Component()

@@ -106,6 +106,7 @@ export const AutoLabel = Component.Builder('label', (component): AutoLabel => {
 
 	let unuseFormName: UnsubscribeState | undefined
 
+	label.receiveInsertEvents()
 	label.receiveAncestorInsertEvents()
 	label.event.subscribe(['insert', 'ancestorInsert'], () => {
 		unuseFormName?.()

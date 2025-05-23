@@ -42,7 +42,7 @@ export const AppBannerQueue = Component.Builder((component): AppBannerQueue => {
 		const [initialiser, resolver] = queuedBanner
 		state.value = true
 		const banner = AppBanner().tweak(initialiser).appendTo(component)
-		banner.dismissed.await(component, true, () => {
+		banner.dismissed.match(component, true, () => {
 			resolver()
 			next()
 		})

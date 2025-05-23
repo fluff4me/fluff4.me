@@ -69,7 +69,7 @@ export default ViewDefinition({
 		Session.Auth.state.subscribe(view, () =>
 			ViewTransition.perform('subview', id, updateAuthState))
 
-		state.await(view, 'logged-in', () => navigate.toURL('/account'))
+		state.match(view, 'logged-in', () => navigate.toURL('/account'))
 
 		return view
 

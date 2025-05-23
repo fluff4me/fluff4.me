@@ -34,8 +34,9 @@ interface State<T, E = T> {
 	subscribeManual (subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
 	unsubscribe (subscriber: (value: E, oldValue?: E) => unknown): void
 	emit (oldValue?: E): void
-	await<R extends Arrays.Or<T>> (owner: State.Owner, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): UnsubscribeState
-	awaitManual<R extends Arrays.Or<T>> (value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): UnsubscribeState
+	match<R extends Arrays.Or<T>> (owner: State.Owner, value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): UnsubscribeState
+	matchManual<R extends Arrays.Or<T>> (value: R, then: (value: R extends (infer R)[] ? R : R) => unknown): UnsubscribeState
+	await (owner: State.Owner, value: T): Promise<T>
 
 	map<R> (owner: State.Owner, mapper: (value: T) => StateOr<R>, equals?: ComparatorFunction<R>): State.Generator<R>
 	mapManual<R> (mapper: (value: T) => StateOr<R>, equals?: ComparatorFunction<R>): State.Generator<R>
@@ -159,7 +160,7 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 			result[SYMBOL_SUBSCRIBERS].filterInPlace(s => s !== subscriber)
 			return result
 		},
-		await (owner, values, then) {
+		match (owner, values, then) {
 			return result.use(owner, function awaitValue (newValue) {
 				if (newValue !== values && (!Array.isArray(values) || !values.includes(newValue)))
 					return
@@ -168,7 +169,7 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 				then(newValue as never)
 			})
 		},
-		awaitManual (values, then) {
+		matchManual (values, then) {
 			return result.useManual(function awaitValue (newValue) {
 				if (newValue !== values && (!Array.isArray(values) || !values.includes(newValue)))
 					return
@@ -176,6 +177,11 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 				result.unsubscribe(awaitValue)
 				then(newValue as never)
 			})
+		},
+		await (owner, value) {
+			return new Promise<T>(resolve =>
+				result.match(owner, value, () => { resolve(result.value) })
+			)
 		},
 
 		map: (owner, mapper, equals) => State.Map(owner, [result], mapper, equals),

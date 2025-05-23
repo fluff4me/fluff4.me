@@ -19,7 +19,7 @@ const TextInputBlock = Component.Builder((component): TextInputBlock => {
 				const input: TextInput = TextInput()
 					.style('text-input-block-input')
 					.tweak(initialiser)
-					.tweak(input => input.removed.awaitManual(true, () => {
+					.tweak(input => input.removed.matchManual(true, () => {
 						inputs.filterInPlace(i => i !== input)
 						const firstInput = inputs.at(0)
 						firstInput?.style('text-input-block-input--first')

@@ -78,7 +78,7 @@ export default ViewDefinition({
 				window.scrollTo({ top: scrollY + (scrollHeight - previousScrollHeight), behavior: 'instant' })
 			})
 			.tweak(p => p.page.value = initialChapterResponse?.page ?? chapterCount.value - 1)
-			.set(chapters, (slot, pageData, page, source, paginator) => {
+			.set(chapters, async (slot, pageData, page, source, paginator) => {
 				pageOwners[page]?.remove()
 				const owner = pageOwners[page] = Component()
 

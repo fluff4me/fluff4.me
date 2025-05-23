@@ -202,7 +202,7 @@ function BaseStringApplicator<HOST> (
 	return result
 
 	function makeApplicator<HOST> (host: HOST): StringApplicator.Optional<HOST> {
-		State.Owner.getOwnershipState(host)?.awaitManual(true, () => {
+		State.Owner.getOwnershipState(host)?.matchManual(true, () => {
 			removed = true
 			unbind?.(); unbind = undefined
 			unown?.(); unown = undefined

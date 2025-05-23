@@ -37,7 +37,7 @@ const LabelledTable = Component.Builder((table): LabelledTable => {
 
 					if (state) {
 						const slot = Slot().appendTo(table)
-						state.await(table, true, () => {
+						state.match(table, true, () => {
 							create().appendToWhen(state!, slot)
 						})
 					}
