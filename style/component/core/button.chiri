@@ -391,3 +391,20 @@ $$button-background-highlight!colour
 			translate: .18em 0.02em
 			scale: 0.95
 			%colour-blue
+
+	&-icon-guest-heart:
+		#icon name="heart
+		$offset: -12%
+		padding: .05em
+		margin: -.05em
+		mask-image:
+			repeating-linear-gradient(45deg, 
+				#0008, 
+				#0008 calc(10% + $offset), #0005 calc(20% + $offset), 
+				#0005 calc(25% + $offset), #0008 calc(35% + $offset), 
+				#0008 calc(40% + $offset), #0005 calc(50% + $offset), 
+				#0005 calc(55% + $offset), #0008 calc(65% + $offset), 
+				#0008 calc(70% + $offset), #0005 calc(80% + $offset), 
+				#0005 calc(85% + $offset), #0008 calc(95% + $offset), 
+				#0008
+			)

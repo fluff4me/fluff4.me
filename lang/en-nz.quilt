@@ -293,6 +293,7 @@ action/label/delete=shared/action/delete
 action/label/reorder: Reorder
 action/label/reorder-cancel: Cancel Reordering
 action/delete/confirm: This will delete the chapter "**{0}**", and it will be gone for good!
+reaction/guest-heart: The ephemeral hearts left by guests in the last week.
 
 # notification
 comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}
