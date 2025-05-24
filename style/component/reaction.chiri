@@ -8,8 +8,9 @@
 		%padding-left-0
 
 	&-button:
-		#after: .button
+		#after: .button, .button--disabled
 		%padding-1-0
+		%opaque
 
 		&--reacted:
 			#after: .reaction-button

@@ -247,35 +247,77 @@ export default ViewDefinition({
 			.appendTo(paginator.footer.middle)
 
 		const reactions = chapterState.mapManual(chapter => chapter.reactions ?? 0)
-		const reacted = chapterState.mapManual(chapter => !!chapter.reacted)
+		const guestReactions = chapterState.mapManual(chapter => chapter.guest_reactions ?? 0)
+		const reactedNormal = chapterState.mapManual(chapter => !!chapter.reacted && !!Session.Auth.author.value)
+		const reactedGuest = chapterState.mapManual(chapter => !!chapter.reacted && !Session.Auth.author.value)
 		Slot()
-			.if(sufficientPledge, () => Reaction('love', reactions, reacted)
-				.event.subscribe('click', async () => {
-					if (!author?.vanity)
-						return
+			.if(sufficientPledge, slot => Slot()
+				.appendWhen(reactions.map(slot, reactions => !!reactions || !!Session.Auth.author.value),
+					Reaction('love', reactions, reactedNormal)
+						.tweak(reaction => reaction.icon.setDisabled(!Session.Auth.author.value, 'not logged in'))
+						.event.subscribe('click', async () => {
+							if (!Session.Auth.loggedIn.value)
+								return
 
-					const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
-					if (reacted.value) {
-						const response = await EndpointUnreactChapter.query({ params })
-						if (toast.handleError(response))
-							return
+							const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
+							if (reactedNormal.value) {
+								const response = await EndpointUnreactChapter.query({ params })
+								if (toast.handleError(response))
+									return
 
-						delete chapterState.value.reacted
-						if (chapterState.value.reactions)
-							chapterState.value.reactions--
-						chapterState.emit()
-					}
-					else {
-						const response = await EndpointReactChapter.query({ params })
-						if (toast.handleError(response))
-							return
+								delete chapterState.value.reacted
+								if (chapterState.value.reactions)
+									chapterState.value.reactions--
 
-						chapterState.value.reacted = true
-						chapterState.value.reactions ??= 0
-						chapterState.value.reactions++
-						chapterState.emit()
-					}
-				}))
+								chapterState.emit()
+							}
+							else {
+								const response = await EndpointReactChapter.query({ params })
+								if (toast.handleError(response))
+									return
+
+								chapterState.value.reacted = true
+								chapterState.value.reactions ??= 0
+								chapterState.value.reactions++
+
+								chapterState.emit()
+							}
+						})
+				)
+				.appendWhen(guestReactions.map(slot, reactions => !!reactions || !Session.Auth.author.value),
+					Reaction('guest_heart', guestReactions, reactedGuest)
+						.tweak(reaction => reaction.icon.setDisabled(!!Session.Auth.author.value, 'not a guest'))
+						.setTooltip(tooltip => tooltip.text.use('chapter/reaction/guest-heart'))
+						.event.subscribe('click', async () => {
+							if (Session.Auth.loggedIn.value)
+								return
+
+							const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
+							if (reactedGuest.value) {
+								const response = await EndpointUnreactChapter.query({ params })
+								if (toast.handleError(response))
+									return
+
+								delete chapterState.value.reacted
+								if (chapterState.value.guest_reactions)
+									chapterState.value.guest_reactions--
+
+								chapterState.emit()
+							}
+							else {
+								const response = await EndpointReactChapter.query({ params })
+								if (toast.handleError(response))
+									return
+
+								chapterState.value.reacted = true
+								chapterState.value.guest_reactions ??= 0
+								chapterState.value.guest_reactions++
+
+								chapterState.emit()
+							}
+						})
+				)
+			)
 			.appendTo(paginator.footer.middle)
 
 		paginator.data.use(paginator, chapter => chapterState.value = chapter)

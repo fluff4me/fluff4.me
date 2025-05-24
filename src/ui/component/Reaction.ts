@@ -10,6 +10,7 @@ export type ReactionType = keyof ManifestReactionTypes
 const REACTION_MAP: Record<ReactionType, ButtonIcon> = {
 	love: 'heart',
 	author_heart: 'author-heart',
+	guest_heart: 'guest-heart',
 }
 
 interface ReactionExtensions {
