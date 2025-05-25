@@ -145,10 +145,10 @@
 		#transition: #{transition("opacity")}, #{transition("translate")}, #{transition("display")}
 		%transition-discrete
 		%opaque
+		%min-width-0
 		%stack-self
 		%translate-x-0
 		%transition-blur
-		%overflow-auto-y
 		padding-block: round($space-1 / 2, 1px)
 
 		:start:

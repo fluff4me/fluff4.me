@@ -32,7 +32,7 @@
 			%transition-discrete
 
 			max-height: 100vh
-			%overflow-auto-y
+			%overflow-y-auto
 
 			@backdrop:
 				background: color-mix(in lch, #{background-highlight}, transparent 5%)

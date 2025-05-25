@@ -107,7 +107,7 @@
 			%relative
 			%flex
 			%flex-column
-			%overflow-auto-y
+			%overflow-y-auto
 			max-height: min($space-8, 100svh)
 			%background-1-a30
 
