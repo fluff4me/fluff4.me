@@ -252,7 +252,7 @@
 			%block
 			%sticky
 			%bottom-0
-			%overflow-auto-x
+			%overflow-x-auto
 			%border-bottom-radius-1
 			scrollbar-colour: $colour-5 transparent
 			@before:

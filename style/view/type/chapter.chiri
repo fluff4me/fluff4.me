@@ -99,7 +99,6 @@
 			%relative
 			%margin-block-4
 			%unmargin-inline-4
-			%padding-2-4
 			max-width: 100vw
 			%border-box
 
@@ -117,7 +116,8 @@
 
 		&-patreon-header:
 			%padding-bottom-5
-			%unmargin-bottom-5
+			%unmargin-bottom-3
+			%padding-2-4
 
 			@before:
 				%border-top-radius-2
