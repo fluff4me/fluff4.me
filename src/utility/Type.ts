@@ -38,6 +38,8 @@ namespace Type {
 	export function not<T extends keyof TypeMap, R> (type: T, value: R): R | undefined {
 		return typeof value === type ? undefined : value
 	}
+
+	export function assert<T> (): void { }
 }
 
 export default Type

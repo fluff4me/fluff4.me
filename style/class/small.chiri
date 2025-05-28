@@ -1,3 +1,5 @@
 .small:
 	%font-1
-	%colour-7
+	%colour-6
+	$markdown-paragraph-padding-top: round(up, $space-1, 1px)
+	$markdown-paragraph-padding-bottom: round(up, $space-2, 1px)

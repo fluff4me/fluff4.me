@@ -250,6 +250,8 @@ $$button-background-highlight!colour
 		"hand-holding-dollar
 		"font
 		"arrow-up-from-bracket
+		"flag
+		"reply
 
 	#each in icons as var icon:
 		&-icon-#{icon}:

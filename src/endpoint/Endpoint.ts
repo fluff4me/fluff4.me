@@ -290,6 +290,12 @@ export type EndpointResponse<ENDPOINT extends Endpoint<any, any> | PreparedQuery
 export type ResponseData<RESPONSE> = RESPONSE extends Response<infer DATA> ? DATA : never
 export type EndpointReturn<PATH extends keyof Paths> = () => ReturnType<Endpoint<PATH>['query']>
 
+export type EndpointRoutesWithBodies<BODY> = keyof {
+	[PATH in keyof Paths as (
+		Paths[PATH]['body'] extends BODY ? PATH : never
+	)]: Endpoint<PATH>
+}
+
 export type PaginatedEndpointRoutes = keyof {
 	[PATH in keyof Paths as (
 		EndpointResponse<Endpoint<PATH>> extends infer RESPONSE ?

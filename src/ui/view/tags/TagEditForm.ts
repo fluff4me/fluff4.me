@@ -69,7 +69,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 		.content((content, label) => content.append(nameInput = TextInput()
 			.setLabel(label)
 			.setRequired()
-			.setMaxLength(FormInputLengths.map(content, lengths => lengths?.global_tag.name))
+			.setMaxLength(FormInputLengths.map(content, lengths => lengths?.global_tag?.name))
 			.default.bind(tag.mapManual(tag => tag?.name))
 		))
 
@@ -78,7 +78,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			.setLabel(label)
 			.setRequired()
 			.disablePersistence()
-			.setMaxLength(FormInputLengths.map(content, lengths => lengths?.global_tag.description))
+			.setMaxLength(FormInputLengths.map(content, lengths => lengths?.global_tag?.description))
 			.default.bind(tag.mapManual(tag => tag?.description.body))
 		))
 
