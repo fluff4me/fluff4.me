@@ -1,5 +1,6 @@
-import type { Author as AuthorData, AuthorFull } from 'api.fluff4.me'
+import type { Author as AuthorData, AuthorFull, ReportAuthorBody } from 'api.fluff4.me'
 import EndpointAuthorGet from 'endpoint/author/EndpointAuthorGet'
+import EndpointReportAuthor from 'endpoint/report/EndpointReportAuthor'
 import Follows from 'model/Follows'
 import Session from 'model/Session'
 import Component from 'ui/Component'
@@ -14,8 +15,21 @@ import Slot from 'ui/component/core/Slot'
 import TextLabel from 'ui/component/core/TextLabel'
 import Timestamp from 'ui/component/core/Timestamp'
 import FollowingBookmark from 'ui/component/FollowingBookmark'
+import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import Async from 'utility/Async'
 import State from 'utility/State'
+
+const AUTHOR_REPORT = ReportDefinition<ReportAuthorBody>({
+	titleTranslation: 'shared/term/author',
+	reasons: {
+		'inappropriate-field': true,
+		'spam': true,
+		'harassment': true,
+		'impersonation': true,
+		'phishing': true,
+		'tos-violation': true,
+	},
+})
 
 interface AuthorExtensions {
 	readonly bio: Component
@@ -141,6 +155,19 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 								: quilt['author/action/label/ignore']()
 						))
 						.event.subscribe('click', () => Follows.toggleIgnoringAuthor(author.value.vanity))
+						.appendTo(popover)
+
+					Button()
+						.type('flush')
+						.setIcon('flag')
+						.text.use('work/action/label/report')
+						.event.subscribe('click', event => ReportDialog.prompt(event.host, AUTHOR_REPORT, {
+							reportedContentName: author.value.name,
+							async onReport (body) {
+								const response = await EndpointReportAuthor.query({ body, params: { vanity: author.value.vanity } })
+								toast.handleError(response)
+							},
+						}))
 						.appendTo(popover)
 				}
 			})

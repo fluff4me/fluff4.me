@@ -11,6 +11,10 @@
 
 .notification:
 	%relative
+	%flex
+	%flex-column
+	%justify-content-centre
+	min-height: $space-4
 	%font-1
 	%white-space-pre-wrap
 	%decoration-none
@@ -27,8 +31,10 @@
 		#after: .button
 		%z-index-fg
 		%absolute
-		%inset-block-0
-		%size-auto
+		top: 50%
+		translate: 0 -50%
+		%width-auto
+		%height-fit
 		%grid
 		%stack
 		%align-items-centre
@@ -41,8 +47,9 @@
 				%colour-3
 
 		&-icon:
-			#after: .button-icon
+			#after: .button-icon, .button-icon--type-icon
 			%stack-self
+			%unmargin-top-1
 
 		@after:
 			%block
@@ -50,7 +57,6 @@
 			%z-index-bg
 			%background-1-a30
 			%border-radius-1
-			%margin-top-1
 			%size-em
 
 		&--just-marked-unread:
@@ -61,6 +67,11 @@
 			#after: .notification-read-button
 			%colour-6
 
+	&-type-icon:
+		#after: .button-icon, .button-icon--inline
+		%margin-left-0
+		%margin-right-2
+
 	&-label:
 	&-timestamp:
 		%nowrap
@@ -69,8 +80,25 @@
 		%block
 		%font-2
 		%margin-0
-		%margin-top-2
 		%white-space-normal
+
+		&-wrapper:
+			%block
+			%margin-1-0
+
+	&-report-reason:
+		%flex
+		%gap-2
+		%italic
+
+		&-label:
+			%colour-5
+		&-text:
+			%colour-3
+
+	&-reporter:
+		#after: .link
+		%colour-inherit
 
 	@after:
 		%absolute
@@ -88,8 +116,7 @@
 	@before:
 		%block
 		%absolute
-		%top-0
-		%unbottom-1
+		%inset-block-0
 		%z-index-bg
 		inset-inline: calc(-1 * ${popover-padding: 0px})
 		#transition: #{transition("background")}

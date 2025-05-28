@@ -1,4 +1,5 @@
-import type { Author as AuthorData, Work as WorkData, WorkFull } from 'api.fluff4.me'
+import type { Author as AuthorData, ReportWorkBody, Work as WorkData, WorkFull } from 'api.fluff4.me'
+import EndpointReportWork from 'endpoint/report/EndpointReportWork'
 import Follows from 'model/Follows'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
@@ -12,8 +13,21 @@ import Slot from 'ui/component/core/Slot'
 import TextLabel from 'ui/component/core/TextLabel'
 import Timestamp from 'ui/component/core/Timestamp'
 import FollowingBookmark from 'ui/component/FollowingBookmark'
+import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
+
+const WORK_REPORT = ReportDefinition<ReportWorkBody>({
+	titleTranslation: 'shared/term/work',
+	reasons: {
+		'inadequate-tags': true,
+		'inappropriate-field': true,
+		'spam': true,
+		'harassment': true,
+		'plagiarism': true,
+		'tos-violation': true,
+	},
+})
 
 interface WorkExtensions {
 	work: WorkData
@@ -40,7 +54,7 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 	block.title
 		.style('work-name')
 		.text.set(work.name)
-		.setResizeRange(32, Math.min(FormInputLengths.value?.work.name ?? Infinity, 128))
+		.setResizeRange(32, Math.min(FormInputLengths.value?.work?.name ?? Infinity, 128))
 
 	FollowingBookmark(follows => follows.followingWork(work))
 		.appendTo(block.header)
@@ -124,10 +138,9 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 				if (isTablet)
 					return
 
-				if (author && author.vanity === Session.Auth.author.value?.vanity)
-					actionsMenu.anchor.reset()
-						.anchor.add('off right', 'centre', `.${BlockClasses.Main}`)
-						.anchor.orElseHide()
+				actionsMenu.anchor.reset()
+					.anchor.add('off right', 'centre', `.${BlockClasses.Main}`)
+					.anchor.orElseHide()
 			})
 
 			if (author && author.vanity === Session.Auth.author.value?.vanity) {
@@ -184,6 +197,19 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 							: quilt['work/action/label/ignore']()
 					))
 					.event.subscribe('click', () => Follows.toggleIgnoringWork(work))
+					.appendTo(popover)
+
+				Button()
+					.type('flush')
+					.setIcon('flag')
+					.text.use('work/action/label/report')
+					.event.subscribe('click', event => ReportDialog.prompt(event.host, WORK_REPORT, {
+						reportedContentName: work.name,
+						async onReport (body) {
+							const response = await EndpointReportWork.query({ body, params: Works.reference(work) })
+							toast.handleError(response)
+						},
+					}))
 					.appendTo(popover)
 			}
 		})

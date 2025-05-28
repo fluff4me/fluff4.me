@@ -30,7 +30,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 		.content((content, label) => content.append(nameInput = TextInput()
 			.setLabel(label)
 			.setRequired()
-			.setMaxLength(FormInputLengths.map(content, lengths => lengths?.global_tag.name))
+			.setMaxLength(FormInputLengths.map(content, lengths => lengths?.global_tag?.name))
 			.default.bind(category.mapManual(tag => tag?.name))
 		))
 
@@ -38,7 +38,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 		.content((content, label) => content.append(descriptionEditor = Textarea()
 			.setLabel(label)
 			.setRequired()
-			.setMaxLength(FormInputLengths.map(content, lengths => lengths?.global_tag.description))
+			.setMaxLength(FormInputLengths.map(content, lengths => lengths?.global_tag?.description))
 			.default.bind(category.mapManual(tag => tag?.description))
 		))
 

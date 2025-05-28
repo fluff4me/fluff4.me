@@ -3,7 +3,9 @@ import EndpointFormInputLengths from 'endpoint/manifest/EndpointFormInputLengths
 import Manifest from 'model/Manifest'
 import Time from 'utility/Time'
 
-export default Manifest<ManifestFormInputLengths>({
+type PartialFormInputLengths = { [KEY in keyof ManifestFormInputLengths]?: { [KEY2 in keyof ManifestFormInputLengths[KEY]]?: ManifestFormInputLengths[KEY][KEY2] } }
+
+export default Manifest<PartialFormInputLengths>({
 	cacheId: 'form-input-lengths',
 	valid: Time.minutes(5),
 	get () {

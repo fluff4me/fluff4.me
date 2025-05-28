@@ -1,9 +1,13 @@
-$markdown-paragraph-padding-bottom: round(up, $space-3, 1px)
 $markdown-paragraph-padding-top: round(up, $space-2, 1px)
+$markdown-paragraph-padding-bottom: round(up, $space-3, 1px)
 .markdown:
 	&& p, && li:
 		%wrap-words
 		margin-block: $markdown-paragraph-padding-top $markdown-paragraph-padding-bottom
+
+	&& ul, && ol:
+		%padding-left-4
+		margin-block: $markdown-paragraph-padding-bottom
 
 	&& hr:
 		; to match paragraph sizes

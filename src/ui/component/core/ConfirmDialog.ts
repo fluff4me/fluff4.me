@@ -7,7 +7,7 @@ import BlockDialog from 'ui/component/core/BlockDialog'
 import Button from 'ui/component/core/Button'
 import Paragraph from 'ui/component/core/Paragraph'
 import Placeholder from 'ui/component/core/Placeholder'
-import { QuiltHelper, type Quilt } from 'ui/utility/StringApplicator'
+import { type Quilt } from 'ui/utility/StringApplicator'
 import Errors from 'utility/Errors'
 import State from 'utility/State'
 
@@ -58,7 +58,7 @@ const ConfirmDialog = Object.assign(
 		const body = !definition?.bodyTranslation ? undefined
 			: Component()
 				.style('confirm-dialog-body')
-				.setMarkdownContent({ body: QuiltHelper.toString(definition.bodyTranslation) })
+				.useMarkdownContent({ body: definition.bodyTranslation })
 				.appendTo(dialog.content)
 
 		const cancelButton = definition?.cancelButtonTranslation === false ? undefined

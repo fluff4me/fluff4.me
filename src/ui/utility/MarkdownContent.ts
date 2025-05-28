@@ -7,9 +7,13 @@ import type { UnsubscribeState } from 'utility/State'
 import Markdown from 'utility/string/Markdown'
 import MarkdownItHTML from 'utility/string/MarkdownItHTML'
 
+interface TextBodyOrQuiltBody extends Pick<TextBody, 'mentions'> {
+	body: Quilt.SimpleKey | Quilt.Handler
+}
+
 interface MarkdownContentExtensions {
 	setMarkdownContent (markdown?: TextBody | string | null, maxLength?: number, simplify?: boolean): this
-	useMarkdownContent (markdownHandler: Quilt.SimpleKey | Quilt.Handler): this
+	useMarkdownContent (markdown?: TextBodyOrQuiltBody | Quilt.SimpleKey | null, maxLength?: number, simplify?: boolean): this
 }
 
 declare module 'ui/Component' {
@@ -59,16 +63,21 @@ Component.extend(component => {
 			setMarkdownContent(markdown, maxLength, simplify)
 			return component
 		},
-		useMarkdownContent (markdownHandler) {
-			unuseQuilt?.()
+		useMarkdownContent (markdown, maxLength, simplify) {
+			unuseQuilt?.(); unuseQuilt = undefined
 			unuseQuilt = Quilt.State.use(component, quilt => {
-				if (typeof markdownHandler === 'string') {
-					const key = markdownHandler
-					markdownHandler = quilt => quilt[key]()
-				}
+				const handler: Quilt.Handler = () =>
+					typeof markdown === 'string'
+						? quilt[markdown]()
+						: typeof markdown?.body === 'string'
+							? quilt[markdown.body]()
+							: markdown?.body(quilt, QuiltHelper)
 
-				const content = markdownHandler(quilt, QuiltHelper)?.content.map(stringify).join('')
-				setMarkdownContent(content)
+				const content = handler(quilt, QuiltHelper)?.content.map(stringify).join('')
+				setMarkdownContent(
+					!content || typeof markdown === 'string' ? content : { body: content, mentions: markdown?.mentions },
+					maxLength, simplify,
+				)
 
 				function stringify (weft: Weft): string {
 					if (!weft.tag) {

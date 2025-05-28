@@ -136,7 +136,7 @@ namespace Notifications {
 
 	const sortNotifs = [
 		(notif: Notification) => -+notif.read,
-		(notif: Notification) => -new Date(notif.created_time).getTime(),
+		(notif: Notification) => new Date(notif.created_time).getTime(),
 	]
 
 	let activeCheck: Promise<void> | undefined

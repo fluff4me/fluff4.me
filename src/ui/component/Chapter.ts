@@ -1,4 +1,5 @@
-import type { Author, ChapterLite, Work } from 'api.fluff4.me'
+import type { Author, ChapterLite, ReportChapterBody, Work } from 'api.fluff4.me'
+import EndpointReportChapter from 'endpoint/report/EndpointReportChapter'
 import type { AuthorReference } from 'model/Authors'
 import Chapters from 'model/Chapters'
 import Session from 'model/Session'
@@ -8,9 +9,22 @@ import type { ActionsMenu, HasActionsMenuExtensions } from 'ui/component/core/ex
 import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Link from 'ui/component/core/Link'
 import Timestamp from 'ui/component/core/Timestamp'
+import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import Maths from 'utility/maths/Maths'
 import type { StateOr } from 'utility/State'
 import State from 'utility/State'
+
+const CHAPTER_REPORT = ReportDefinition<ReportChapterBody>({
+	titleTranslation: 'shared/term/author',
+	reasons: {
+		'inadequate-tags': true,
+		'inappropriate-field': true,
+		'spam': true,
+		'harassment': true,
+		'plagiarism': true,
+		'tos-violation': true,
+	},
+})
 
 function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>, work: Work, author?: AuthorReference & Partial<Author>, isChapterView = false) {
 	return actions
@@ -43,6 +57,21 @@ function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>
 				.setIcon('trash')
 				.text.use('chapter/action/label/delete')
 				.event.subscribe('click', () => Chapters.delete(State.value(chapter))))
+
+		.appendAction('report', Session.Auth.author, (slot, self) => true
+			&& self
+			&& author?.vanity !== self?.vanity
+			&& Button()
+				.type('flush')
+				.setIcon('flag')
+				.text.use('work/action/label/report')
+				.event.subscribe('click', event => ReportDialog.prompt(event.host, CHAPTER_REPORT, {
+					reportedContentName: State.value(chapter).name,
+					async onReport (body) {
+						const response = await EndpointReportChapter.query({ body, params: Chapters.reference(State.value(chapter)) })
+						toast.handleError(response)
+					},
+				})))
 }
 
 interface ChapterExtensions {

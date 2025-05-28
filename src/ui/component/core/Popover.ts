@@ -1,4 +1,5 @@
 import Component from 'ui/Component'
+import Dialog from 'ui/component/core/Dialog'
 import type { IInputEvent } from 'ui/InputBus'
 import InputBus, { HandlesMouseEvents } from 'ui/InputBus'
 import FocusListener from 'ui/utility/FocusListener'
@@ -92,7 +93,10 @@ Component.extend(component => {
 					}
 				})
 				.tweak(initialiser, component)
-				.appendTo(document.body)
+
+			component.getStateForClosest(Dialog).use(popover, getDialog => {
+				popover.appendTo(getDialog() ?? document.body)
+			})
 
 			let touchTimeout: number | undefined
 			let touchStart: Vector2 | undefined

@@ -16,6 +16,7 @@ import OAuthService from 'ui/component/auth/OAuthService'
 import OAuthServices from 'ui/component/auth/OAuthServices'
 import Chapter from 'ui/component/Chapter'
 import Comments from 'ui/component/Comments'
+import { BlockClasses } from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import ExternalLink from 'ui/component/core/ExternalLink'
@@ -238,7 +239,18 @@ export default ViewDefinition({
 		paginator.content.style('view-type-chapter-block-content')
 		paginator.footer.style('view-type-chapter-block-paginator-actions')
 
-		paginator.setActionsMenu(popover => Chapter.initActions(popover, chapterState, workData, author, true))
+		paginator.setActionsMenu(popover => {
+			Chapter.initActions(popover, chapterState, workData, author, true)
+
+			popover.subscribeReanchor((actionsMenu, isTablet) => {
+				if (isTablet)
+					return
+
+				actionsMenu.anchor.reset()
+					.anchor.add('off right', 'centre', `>> .${BlockClasses.Header}`)
+					.anchor.orElseHide()
+			})
+		})
 
 		Link(`/work/${params.author}/${params.work}`)
 			.and(Button)

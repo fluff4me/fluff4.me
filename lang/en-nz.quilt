@@ -18,6 +18,28 @@ supporter/finishing: Waiting for transaction to process...
 confirm: Are you sure?
 reauth: To perform this action, reauthenticate to verify your identity:
 
+report/title: Report {0}
+report/body:
+	You're filing a report for **{0}**. Thanks for helping keep fluff safe!
+	{#SM:
+	- This report will be filed *permanently*, accessible by fluff4.me moderators.
+	- We cannot guarantee if or when action will be taken.
+	- Intentionally filing invalid reports will have consequences.
+	
+	}
+report/body/reason/label: Reason
+report/body/reason/option/impersonation: Impersonation
+report/body/reason/option/harassment: Harassment
+report/body/reason/option/plagiarism: Plagiarism
+report/body/reason/option/spam: Spam
+report/body/reason/option/phishing: Phishing
+report/body/reason/option/ban-evasion: Ban Evasion
+report/body/reason/option/inappropriate-field: Inappropriate Field
+report/body/reason/option/inappropriate: Inappropriate
+report/body/reason/option/inadequate-tags: Inadequate Tags
+report/body/reason/option/tos-violation: Terms of Service Violation
+report/body/details/label: Details
+
 ## term
 profile: Profile
 chapters: Chapters
@@ -31,6 +53,11 @@ word-count: Words
 work-count: Works
 time-join: Joined
 supporters: Supporters
+work: work
+author: author
+chapter: chapter
+comment: comment
+comment-by: a comment by {0}
 
 ## action
 auth: Authenticate
@@ -58,6 +85,7 @@ rename: Rename
 modify: Modify
 next: Next
 retry: Retry
+report: Report
 
 ## toast
 failed-to-save: Failed to save {0}
@@ -253,6 +281,7 @@ action/label/ignore=shared/action/ignore
 action/label/unignore=shared/action/unignore
 action/label/delete=shared/action/delete
 action/delete/confirm: This will delete your work "**{0}**", and there's no undoing it!
+action/label/report=shared/action/report
 
 # author
 time-join/label=shared/term/time-join
@@ -262,6 +291,7 @@ action/label/follow=shared/action/follow
 action/label/unfollow=shared/action/unfollow
 action/label/ignore=shared/action/ignore
 action/label/unignore=shared/action/unignore
+action/label/report=shared/action/report
 
 # tag
 label/aliases: Aliases
@@ -282,6 +312,7 @@ action/edit=shared/action/edit
 action/cancel=shared/action/cancel
 action/save=shared/action/save
 action/delete=shared/action/delete
+action/report=shared/action/report
 tooltip/author-heart: A {#ICON.HEART:} from the author!
 
 # chapter
@@ -292,6 +323,7 @@ action/label/edit=shared/action/edit
 action/label/delete=shared/action/delete
 action/label/reorder: Reorder
 action/label/reorder-cancel: Cancel Reordering
+action/label/report=shared/action/report
 action/delete/confirm: This will delete the chapter "**{0}**", and it will be gone for good!
 reaction/guest-heart: The ephemeral {#ICON.HEART:}s left by guests in the last week.
 
@@ -299,6 +331,17 @@ reaction/guest-heart: The ephemeral {#ICON.HEART:}s left by guests in the last w
 comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}
 comment-reply: {TRIGGERED_BY} has replied to your comment on {CHAPTER} of {WORK}
 comment-mention: {TRIGGERED_BY} has mentioned you in a comment on {CHAPTER} of {WORK}
+report/label/reason: Reason given:
+report-spam: {WORK??{CHAPTER}} has been reported as spam by {TRIGGERED_BY}
+report-impersonation: {AUTHOR} has been reported for impersonation by {TRIGGERED_BY}
+report-plagiarism: 
+report-phishing: {CHAPTER?{AUTHOR}'s comment on {CHAPTER} of {WORK} has been reported as phishing:{AUTHOR} has been reported for phishing} by {TRIGGERED_BY}
+report-ban-evasion: {AUTHOR} has been reported for ban evasion by {TRIGGERED_BY}
+report-inappropriate-field: A field on {AUTHOR?{AUTHOR}'s profile:{CHAPTER?{CHAPTER} of }{WORK}} has been reported as inappropriate by {TRIGGERED_BY}
+report-inappropriate: {AUTHOR}'s comment on {CHAPTER} of {WORK} has been reported as inappropriate by {TRIGGERED_BY}
+report-inadequate-tags: {CHAPTER?{CHAPTER} of }{WORK} has been reported for inadequate tags by {TRIGGERED_BY}
+report-tos-violation: {COMMENT?{AUTHOR}'s comment on {CHAPTER} of {WORK}:{CHAPTER?Chapter {CHAPTER} of {WORK}:{WORK??{AUTHOR}}}} has been reported for a Terms of Service violation by {TRIGGERED_BY}
+report-harassment: {AUTHOR} has been reported for harassment by {TRIGGERED_BY}{COMMENT? due to their comment on {CHAPTER} of {WORK}}
 
 # work-feed
 empty: And all was quiet...

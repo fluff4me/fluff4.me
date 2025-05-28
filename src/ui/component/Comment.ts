@@ -1,9 +1,10 @@
-import type { Author, Comment as CommentDataRaw } from 'api.fluff4.me'
+import type { Author, Comment as CommentDataRaw, ReportCommentBody } from 'api.fluff4.me'
 import EndpointCommentAdd from 'endpoint/comment/EndpointCommentAdd'
 import EndpointCommentDelete from 'endpoint/comment/EndpointCommentDelete'
 import EndpointCommentUpdate from 'endpoint/comment/EndpointCommentUpdate'
 import EndpointReactComment from 'endpoint/reaction/EndpointReactComment'
 import EndpointUnreactComment from 'endpoint/reaction/EndpointUnreactComment'
+import EndpointReportComment from 'endpoint/report/EndpointReportComment'
 import quilt from 'lang/en-nz'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
@@ -16,8 +17,20 @@ import TextEditor from 'ui/component/core/TextEditor'
 import Timestamp from 'ui/component/core/Timestamp'
 import AuthorPopover from 'ui/component/popover/AuthorPopover'
 import Reaction from 'ui/component/Reaction'
+import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import type State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
+
+const COMMENT_REPORT = ReportDefinition<ReportCommentBody>({
+	titleTranslation: 'shared/term/comment',
+	reasons: {
+		'inappropriate': true,
+		'spam': true,
+		'harassment': true,
+		'phishing': true,
+		'tos-violation': true,
+	},
+})
 
 export interface CommentData extends Omit<CommentDataRaw, 'comment_id' | 'parent_id'> {
 	comment_id: UUID
@@ -97,7 +110,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 				const textEditor = TextEditor()
 					.default.set(commentData.body?.body ?? '')
-					.setMaxLength(FormInputLengths.map(slot, lengths => lengths?.comment.body))
+					.setMaxLength(FormInputLengths.map(slot, lengths => lengths?.comment?.body))
 					.hint.use('comment/hint')
 					.appendTo(content)
 
@@ -176,6 +189,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 						: quilt['comment/deleted/body']().toString())
 					.appendTo(content)
 
+				const commentAuthor = author
 				Slot()
 					.use(Session.Auth.author, (slot, author) => {
 						const footer = Component('footer')
@@ -250,6 +264,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 						Button()
 							.style('comment-footer-action')
 							.type('flush')
+							.setIcon('reply')
 							.text.use('comment/action/reply')
 							.event.subscribe('click', () => {
 								source.comments.value.unshift({ edit: true, parent_id: commentData.comment_id, author: author.vanity })
@@ -261,11 +276,27 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 							Button()
 								.style('comment-footer-action')
 								.type('flush')
+								.setIcon('pencil')
 								.text.use('comment/action/edit')
 								.event.subscribe('click', () => {
 									(commentData as CommentDataRaw as CommentEditor).edit = true
 									comments.refresh()
 								})
+								.appendTo(footer)
+
+						else
+							Button()
+								.style('comment-footer-action')
+								.type('flush')
+								.setIcon('flag')
+								.text.use('comment/action/report')
+								.event.subscribe('click', event => ReportDialog.prompt(event.host, COMMENT_REPORT, {
+									reportedContentName: quilt => quilt['shared/term/comment-by'](commentAuthor?.name),
+									async onReport (body) {
+										const response = await EndpointReportComment.query({ body, params: { id: commentData.comment_id } })
+										toast.handleError(response)
+									},
+								}))
 								.appendTo(footer)
 					})
 					.appendTo(slot)
