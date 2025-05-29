@@ -35,6 +35,7 @@ const WORK_REPORT = ReportDefinition<ReportWorkBody>({
 		'harassment': true,
 		'plagiarism': true,
 		'tos-violation': true,
+		'work-unlock': false,
 	},
 })
 
