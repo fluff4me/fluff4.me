@@ -16,7 +16,7 @@ interface ReportBody<REASONS extends ReportReasonTypes> {
 	reason_body: string
 }
 
-export type ReportReasons<BODY extends ReportBody<ReportReasonTypes>> = Record<BODY extends ReportBody<infer REASONS> ? REASONS : never, true>
+export type ReportReasons<BODY extends ReportBody<ReportReasonTypes>> = Record<BODY extends ReportBody<infer REASONS> ? REASONS : never, boolean>
 
 // type ReportEndpoint =
 // 	EndpointRoutesWithBodies<ReportBody<ReportReasonTypes>> extends infer ROUTES extends keyof Paths
@@ -52,7 +52,10 @@ const ReportDialog = Component.Builder(async (component, definition: ReportDefin
 	const reasonDropdown = RadioDropdown()
 		.setRequired()
 		.tweak(dropdown => {
-			for (const reason of Objects.keys(definition.reasons)) {
+			for (const [reason, enabled] of Objects.entries(definition.reasons)) {
+				if (!enabled)
+					continue
+
 				dropdown.add(reason, {
 					translation: id => quilt => quilt[`shared/prompt/report/reason/option/${reason}`](),
 				})

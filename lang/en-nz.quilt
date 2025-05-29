@@ -41,6 +41,7 @@ inappropriate-field: Inappropriate Field
 inappropriate: Inappropriate
 inadequate-tags: Inadequate Tags
 tos-violation: Terms of Service Violation
+work-unlock: Request Work Unlock
 
 ### moderation
 title: Moderate {0}
@@ -379,6 +380,7 @@ report-inappropriate: {AUTHOR}'s comment on {CHAPTER} of {WORK} has been reporte
 report-inadequate-tags: {CHAPTER?{CHAPTER} of }{WORK} has been reported for inadequate tags by {TRIGGERED_BY}
 report-tos-violation: {COMMENT?{AUTHOR}'s comment on {CHAPTER} of {WORK}:{CHAPTER?Chapter {CHAPTER} of {WORK}:{WORK??{AUTHOR}}}} has been reported for a Terms of Service violation by {TRIGGERED_BY}
 report-harassment: {AUTHOR} has been reported for harassment by {TRIGGERED_BY}{COMMENT? due to their comment on {CHAPTER} of {WORK}}
+report-work-unlock: {TRIGGERED_BY} has requested their work {WORK} to be unlocked.
 
 # work-feed
 empty: And all was quiet...
