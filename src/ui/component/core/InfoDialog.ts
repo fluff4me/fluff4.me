@@ -7,7 +7,7 @@ import State from 'utility/State'
 interface InfoDialogExtensions {
 	readonly state: State<boolean | undefined>
 	readonly continueButton: Button
-	await (owner: Component | null): Promise<boolean>
+	await (owner: State.Owner | null): Promise<boolean>
 	continue (): void
 }
 

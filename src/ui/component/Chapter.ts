@@ -1,4 +1,5 @@
-import type { Author, ChapterLite, ReportChapterBody, Work } from 'api.fluff4.me'
+import type { Author, ChapterCensorBody, Chapter as ChapterData, ChapterLite, ReportChapterBody, Work } from 'api.fluff4.me'
+import EndpointModerateChapterCensor from 'endpoint/moderation/EndpointModerateChapterCensor'
 import EndpointReportChapter from 'endpoint/report/EndpointReportChapter'
 import type { AuthorReference } from 'model/Authors'
 import Chapters from 'model/Chapters'
@@ -9,6 +10,7 @@ import type { ActionsMenu, HasActionsMenuExtensions } from 'ui/component/core/ex
 import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Link from 'ui/component/core/Link'
 import Timestamp from 'ui/component/core/Timestamp'
+import ModerationDialog, { ModerationCensor, ModerationDefinition } from 'ui/component/ModerationDialog'
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import Maths from 'utility/maths/Maths'
 import type { StateOr } from 'utility/State'
@@ -25,6 +27,23 @@ const CHAPTER_REPORT = ReportDefinition<ReportChapterBody>({
 		'tos-violation': true,
 	},
 })
+
+const CHAPTER_MODERATION = ModerationDefinition((chapter: ChapterData): ModerationDefinition => ({
+	titleTranslation: 'shared/term/chapter',
+	moderatedContentName: chapter.name,
+	censor: ModerationCensor<ChapterCensorBody>({
+		properties: {
+			name: ModerationCensor.plaintext(chapter.name),
+			body: ModerationCensor.markdown(chapter.body),
+			notes_before: ModerationCensor.markdown(chapter.notes_before),
+			notes_after: ModerationCensor.markdown(chapter.notes_after),
+		},
+		async censor (censor) {
+			const response = await EndpointModerateChapterCensor.query({ params: Chapters.reference(chapter), body: censor })
+			toast.handleError(response)
+		},
+	}),
+}))
 
 function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>, work: Work, author?: AuthorReference & Partial<Author>, isChapterView = false) {
 	return actions
@@ -61,10 +80,11 @@ function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>
 		.appendAction('report', Session.Auth.author, (slot, self) => true
 			&& self
 			&& author?.vanity !== self?.vanity
+			&& !Session.Auth.isModerator.value
 			&& Button()
 				.type('flush')
 				.setIcon('flag')
-				.text.use('work/action/label/report')
+				.text.use('chapter/action/label/report')
 				.event.subscribe('click', event => ReportDialog.prompt(event.host, CHAPTER_REPORT, {
 					reportedContentName: State.value(chapter).name,
 					async onReport (body) {
@@ -72,6 +92,16 @@ function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>
 						toast.handleError(response)
 					},
 				})))
+
+		.appendAction('moderate', Session.Auth.author, (slot, self) => true
+			&& Session.Auth.isModerator.value
+			&& 'body' in State.value(chapter)
+			&& Button()
+				.type('flush')
+				.setIcon('shield-halved')
+				.text.use('chapter/action/label/moderate')
+				.event.subscribe('click', event => ModerationDialog.prompt(event.host, CHAPTER_MODERATION.create(State.value(chapter) as ChapterData)))
+		)
 }
 
 interface ChapterExtensions {

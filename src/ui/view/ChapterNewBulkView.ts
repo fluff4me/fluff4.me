@@ -4,7 +4,7 @@ import EndpointChapterCreateBulkFinish from 'endpoint/chapter/EndpointChapterCre
 import EndpointChapterCreateBulkQueue from 'endpoint/chapter/EndpointChapterCreateBulkQueue'
 import EndpointChapterGetAll from 'endpoint/chapter/EndpointChapterGetAll'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
-import type { Weave, WeavingArg } from 'lang/en-nz'
+import type { Weave } from 'lang/en-nz'
 import Chapters from 'model/Chapters'
 import PagedListData from 'model/PagedListData'
 import Patreon from 'model/Patreon'
@@ -954,7 +954,7 @@ export default ViewDefinition({
 										bodyTranslation: quilt => quilt['view/chapter-create-bulk/create/action/remove/confirm'](
 											selectedChapters
 												.map(chapter => chapter.body.name)
-												.slice(0, 5) as any as WeavingArg,
+												.slice(0, 5),
 											Math.max(0, selectedChapters.length - 5),
 										),
 									})

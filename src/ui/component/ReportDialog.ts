@@ -44,7 +44,7 @@ export interface ReportInstance<BODY extends ReportBody<ReportReasonTypes>> {
 const ReportDialog = Component.Builder(async (component, definition: ReportDefinition<ReportBody<ReportReasonTypes>>, instance: ReportInstance<ReportBody<ReportReasonTypes>>): Promise<ConfirmDialog> => {
 	const dialog = await component.and(ConfirmDialog, {
 		titleTranslation: quilt => quilt['shared/prompt/report/title'](quilt[definition.titleTranslation]()),
-		bodyTranslation: quilt => quilt['shared/prompt/report/body'](typeof instance.reportedContentName === 'string' ? instance.reportedContentName : instance.reportedContentName(quilt, QuiltHelper)),
+		bodyTranslation: quilt => quilt['shared/prompt/report/body'](QuiltHelper.arg(instance.reportedContentName)),
 	})
 
 	const table = LabelledTable().appendTo(dialog.content)
@@ -54,16 +54,16 @@ const ReportDialog = Component.Builder(async (component, definition: ReportDefin
 		.tweak(dropdown => {
 			for (const reason of Objects.keys(definition.reasons)) {
 				dropdown.add(reason, {
-					translation: id => quilt => quilt[`shared/prompt/report/body/reason/option/${reason}`](),
+					translation: id => quilt => quilt[`shared/prompt/report/reason/option/${reason}`](),
 				})
 			}
 		})
-	table.label(label => label.text.use('shared/prompt/report/body/reason/label'))
+	table.label(label => label.text.use('shared/prompt/report/reason/label'))
 		.content((content, label) => content.append(reasonDropdown.setLabel(label)))
 
 	const details = Textarea()
 		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.report?.reason_body))
-	table.label(label => label.text.use('shared/prompt/report/body/details/label'))
+	table.label(label => label.text.use('shared/prompt/report/details/label'))
 		.content((content, label) => content.append(details.setLabel(label)))
 
 	dialog.confirmButton?.event.subscribe('click', () => {

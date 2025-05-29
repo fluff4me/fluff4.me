@@ -18,8 +18,9 @@ supporter/finishing: Waiting for transaction to process...
 confirm: Are you sure?
 reauth: To perform this action, reauthenticate to verify your identity:
 
-report/title: Report {0}
-report/body:
+### report
+title: Report {0}
+body:
 	You're filing a report for **{0}**. Thanks for helping keep fluff safe!
 	{#SM:
 	- This report will be filed *permanently*, accessible by fluff4.me moderators.
@@ -27,18 +28,41 @@ report/body:
 	- Intentionally filing invalid reports will have consequences.
 	
 	}
-report/body/reason/label: Reason
-report/body/reason/option/impersonation: Impersonation
-report/body/reason/option/harassment: Harassment
-report/body/reason/option/plagiarism: Plagiarism
-report/body/reason/option/spam: Spam
-report/body/reason/option/phishing: Phishing
-report/body/reason/option/ban-evasion: Ban Evasion
-report/body/reason/option/inappropriate-field: Inappropriate Field
-report/body/reason/option/inappropriate: Inappropriate
-report/body/reason/option/inadequate-tags: Inadequate Tags
-report/body/reason/option/tos-violation: Terms of Service Violation
-report/body/details/label: Details
+details/label: Details
+reason/label: Reason
+#### reason/option
+impersonation: Impersonation
+harassment: Harassment
+plagiarism: Plagiarism
+spam: Spam
+phishing: Phishing
+ban-evasion: Ban Evasion
+inappropriate-field: Inappropriate Field
+inappropriate: Inappropriate
+inadequate-tags: Inadequate Tags
+tos-violation: Terms of Service Violation
+
+### moderation
+title: Moderate {0}
+subtitle: Moderating {#B:{0}}
+tab/general: General
+tab/censor: Censoring
+censor/key/name=shared/form/name/label
+censor/key/description=shared/form/description/label
+censor/key/vanity=shared/form/vanity/label
+censor/key/pronouns=shared/form/pronouns/label
+censor/key/support_link=shared/form/external-link/label
+censor/key/support_message=shared/form/external-label/label
+censor/key/body=shared/form/body/label
+censor/key/notes_before=shared/form/notes/label
+censor/key/notes_after=shared/form/notes/label
+censor/key/synopsis=shared/form/synopsis/label
+action/grant-supporter: Add Supporter Months
+action/grant-supporter/body: {#B:{0}} will be given {1} month(s) of supporter features, *permanently*.
+action/delete=shared/action/delete
+action/delete/body: {#B:{0}} will be *permanently removed* from the site.
+action/censor: Censor
+action/censor/body: The fields {1*, } of {#B:{0}} will be *permanently stripped*.
 
 ## term
 profile: Profile
@@ -86,6 +110,7 @@ modify: Modify
 next: Next
 retry: Retry
 report: Report
+moderate: Moderate
 
 ## toast
 failed-to-save: Failed to save {0}
@@ -100,6 +125,10 @@ category/label: Category
 name/label: Name
 vanity/label: Vanity
 description/label: Description
+synopsis/label: Synopsis
+external-link/label: External Link
+external-label/label: Link Text
+pronouns/label: Pronouns
 body/label: Body
 notes/label=shared/term/notes
 tags/label: Tags
@@ -282,6 +311,11 @@ action/label/unignore=shared/action/unignore
 action/label/delete=shared/action/delete
 action/delete/confirm: This will delete your work "**{0}**", and there's no undoing it!
 action/label/report=shared/action/report
+action/label/moderate=shared/action/moderate
+action/lock: Lock
+action/unlock: Unlock
+locked/label: Locked
+locked/description: To lift the lock, address the issues left by the moderators below:
 
 # author
 time-join/label=shared/term/time-join
@@ -292,6 +326,7 @@ action/label/unfollow=shared/action/unfollow
 action/label/ignore=shared/action/ignore
 action/label/unignore=shared/action/unignore
 action/label/report=shared/action/report
+action/label/moderate=shared/action/moderate
 
 # tag
 label/aliases: Aliases
@@ -313,6 +348,7 @@ action/cancel=shared/action/cancel
 action/save=shared/action/save
 action/delete=shared/action/delete
 action/report=shared/action/report
+action/label/moderate=shared/action/moderate
 tooltip/author-heart: A {#ICON.HEART:} from the author!
 
 # chapter
@@ -324,6 +360,7 @@ action/label/delete=shared/action/delete
 action/label/reorder: Reorder
 action/label/reorder-cancel: Cancel Reordering
 action/label/report=shared/action/report
+action/label/moderate=shared/action/moderate
 action/delete/confirm: This will delete the chapter "**{0}**", and it will be gone for good!
 reaction/guest-heart: The ephemeral {#ICON.HEART:}s left by guests in the last week.
 
@@ -440,11 +477,11 @@ vanity/hint: Your username, and what people use to {#B:@ping} you in comments. T
 vanity/url-preview=shared/preview
 description/label=shared/form/description/label
 description/hint: This bio will appear on your profile above any works.
-external-link/label: External Link
+external-link/label=shared/form/external-link/label
 external-link/hint: An optional link that you can use to link to your profile on another platform. You could use a service like Linktree, or if you're an author, you could link directly to a payment or subscription platform.
-external-label/label: Link Text
+external-label/label=shared/form/external-link/label
 external-label/hint: A label to display instead of the external link itself.
-pronouns/label: Pronouns
+pronouns/label=shared/form/pronouns/label
 pronouns/hint: The pronouns that others should refer to you with. These will appear next to your name, usually.
 vanity-colours/label: Name Colours
 card-colours/label=shared/form/card-colours/label
@@ -620,7 +657,7 @@ vanity/hint: The identifier for this work, which will appear in its URL.
 vanity/url-preview=shared/preview
 description/label=shared/form/description/label
 description/hint: A simple 1-2 sentence description of the work. This will be the only descriptive text shown when works are displayed in lists.
-synopsis/label: Synopsis
+synopsis/label=shared/form/synopsis/label
 synopsis/hint: The full text describing this work. This will only appear in the full work view.
 tags/label=shared/form/tags/label
 visibility/label=shared/form/visibility/label

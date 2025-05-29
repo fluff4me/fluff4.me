@@ -49,6 +49,34 @@
 	&-content:
 		%block
 
+	&-lock-reason:
+		%block
+		background: #fc02
+		%border-1
+		border-colour: #f90
+		%border-radius-1
+		%padding-1-2
+		%margin-top-3
+		%padding-left-3
+		%font-2
+		%colour-3
+
+		&--flush:
+			#after: .work-lock-reason
+			%margin-block-2
+
+		&-heading:
+			%block
+			%weight-bold
+			%unmargin-left-2
+			%colour-1
+
+		&-text:
+			%margin-top-1
+			%margin-left-2
+			%italic
+			%colour-2
+
 	&-synopsis:
 		%block
 		%padding-top-2

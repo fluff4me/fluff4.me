@@ -74,6 +74,7 @@
 	component/core/gradient-input
 	component/core/infinite-scroll
 	component/core/prefixed-input
+	component/core/button-row
 	component/vanity-input
 	component/masthead
 	component/sidebar
@@ -93,6 +94,7 @@
 	component/settings-dialog
 	component/tag-edit-form
 	component/supporter-label
+	component/moderation-dialog
 
 #import:
 	view/view

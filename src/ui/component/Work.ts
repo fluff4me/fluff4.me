@@ -1,4 +1,7 @@
-import type { Author as AuthorData, ReportWorkBody, Work as WorkData, WorkFull } from 'api.fluff4.me'
+import type { Author as AuthorData, ReportWorkBody, WorkCensorBody, Work as WorkData, WorkFull } from 'api.fluff4.me'
+import EndpointModerateWorkCensor from 'endpoint/moderation/EndpointModerateWorkCensor'
+import EndpointModerateWorkLock from 'endpoint/moderation/EndpointModerateWorkLock'
+import EndpointModerateWorkUnlock from 'endpoint/moderation/EndpointModerateWorkUnlock'
 import EndpointReportWork from 'endpoint/report/EndpointReportWork'
 import Follows from 'model/Follows'
 import FormInputLengths from 'model/FormInputLengths'
@@ -8,14 +11,20 @@ import Component from 'ui/Component'
 import AuthorLink from 'ui/component/AuthorLink'
 import Block, { BlockClasses } from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import ButtonRow from 'ui/component/core/ButtonRow'
+import ConfirmDialog from 'ui/component/core/ConfirmDialog'
+import Icon from 'ui/component/core/Icon'
 import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
+import Textarea from 'ui/component/core/Textarea'
 import TextLabel from 'ui/component/core/TextLabel'
 import Timestamp from 'ui/component/core/Timestamp'
 import FollowingBookmark from 'ui/component/FollowingBookmark'
+import ModerationDialog, { ModerationCensor, ModerationDefinition } from 'ui/component/ModerationDialog'
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
+import State from 'utility/State'
 
 const WORK_REPORT = ReportDefinition<ReportWorkBody>({
 	titleTranslation: 'shared/term/work',
@@ -28,6 +37,74 @@ const WORK_REPORT = ReportDefinition<ReportWorkBody>({
 		'tos-violation': true,
 	},
 })
+
+const WORK_MODERATION = ModerationDefinition((work: WorkData & Partial<WorkFull>): ModerationDefinition => ({
+	titleTranslation: 'shared/term/work',
+	moderatedContentName: work.name,
+	custom: [
+		{
+			type: 'general',
+			tweak (slot) {
+				const lockReason = State(work.lock_reason)
+
+				slot.use(lockReason, (slot, currentReason) => {
+					const row = ButtonRow().appendTo(slot)
+					const reasonInput = Textarea().text.set(currentReason).appendTo(row.content)
+					if (currentReason) {
+						reasonInput.attributes.set('disabled', 'disabled')
+						row.button
+							.text.use('work/action/unlock')
+							.event.subscribe('click', async event => {
+								const confirmed = await ConfirmDialog.prompt(event.host, {
+									bodyTranslation: null,
+									dangerToken: 'moderate',
+								})
+								if (!confirmed)
+									return
+
+								const response = await EndpointModerateWorkUnlock.query({ params: Works.reference(work) })
+								if (toast.handleError(response))
+									return
+
+								lockReason.value = undefined
+							})
+					}
+					else {
+						row.button
+							.text.use('work/action/lock')
+							.bindDisabled(reasonInput.state.falsy, 'no lock reason')
+							.event.subscribe('click', async event => {
+								const confirmed = await ConfirmDialog.prompt(event.host, {
+									bodyTranslation: null,
+									dangerToken: 'moderate',
+								})
+								if (!confirmed)
+									return
+
+								const response = await EndpointModerateWorkLock.query({ params: Works.reference(work), body: { reason: reasonInput.value } })
+								if (toast.handleError(response))
+									return
+
+								lockReason.value = reasonInput.value
+							})
+					}
+				})
+			},
+		},
+	],
+	censor: ModerationCensor<WorkCensorBody>({
+		properties: {
+			name: ModerationCensor.plaintext(work.name),
+			vanity: ModerationCensor.plaintext(work.vanity),
+			description: ModerationCensor.plaintext(work.description),
+			synopsis: ModerationCensor.markdown(work.synopsis?.body),
+		},
+		async censor (censor) {
+			const response = await EndpointModerateWorkCensor.query({ params: Works.reference(work), body: censor })
+			toast.handleError(response)
+		},
+	}),
+}))
 
 interface WorkExtensions {
 	work: WorkData
@@ -67,6 +144,20 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 				.style('work-author'))
 
 	block.content.style('work-content')
+
+	if (work.lock_reason)
+		Component()
+			.style('work-lock-reason')
+			.style.bind(isFlush, 'work-lock-reason--flush')
+			.classes.add('markdown')
+			.append(Component()
+				.style('work-lock-reason-heading')
+				.append(Icon('lock'))
+				.append(Component().text.use('work/locked/label'))
+			)
+			.append(Component().text.use('work/locked/description'))
+			.append(Component('blockquote').style('work-lock-reason-text').text.set(work.lock_reason))
+			.appendTo(block.content)
 
 	Slot()
 		.use(isFlush, (slot, isFlush) => {
@@ -199,19 +290,28 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 					.event.subscribe('click', () => Follows.toggleIgnoringWork(work))
 					.appendTo(popover)
 
+				if (!Session.Auth.isModerator.value)
+					Button()
+						.type('flush')
+						.setIcon('flag')
+						.text.use('work/action/label/report')
+						.event.subscribe('click', event => ReportDialog.prompt(event.host, WORK_REPORT, {
+							reportedContentName: work.name,
+							async onReport (body) {
+								const response = await EndpointReportWork.query({ body, params: Works.reference(work) })
+								toast.handleError(response)
+							},
+						}))
+						.appendTo(popover)
+			}
+
+			if (Session.Auth.isModerator.value)
 				Button()
 					.type('flush')
-					.setIcon('flag')
-					.text.use('work/action/label/report')
-					.event.subscribe('click', event => ReportDialog.prompt(event.host, WORK_REPORT, {
-						reportedContentName: work.name,
-						async onReport (body) {
-							const response = await EndpointReportWork.query({ body, params: Works.reference(work) })
-							toast.handleError(response)
-						},
-					}))
+					.setIcon('shield-halved')
+					.text.use('work/action/label/moderate')
+					.event.subscribe('click', event => ModerationDialog.prompt(event.host, WORK_MODERATION.create(work)))
 					.appendTo(popover)
-			}
 		})
 
 	return block.extend<WorkExtensions>(component => ({ work }))

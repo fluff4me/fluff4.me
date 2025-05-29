@@ -63,9 +63,11 @@
 		%flex
 		%justify-content-centre
 		%align-items-centre
+		%text-align-centre
 		%font-kanit
 		%font-3
 		%width-5
+		%borderless
 		%border-left-1
 		%background-3-a50
 		$border-colour: $colour-border-input

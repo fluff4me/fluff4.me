@@ -1,0 +1,9 @@
+.button-row:
+	%flex
+	%align-items-centre
+	%gap-3
+
+	&-content:
+		%flex-grow
+
+	&-button:
