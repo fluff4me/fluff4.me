@@ -18,6 +18,11 @@ namespace Objects {
 		return Object.values(object)
 	}
 
+	export function entries<O extends object> (object: O): { [K in keyof O]: [K, O[K]] }[keyof O][] {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		return Object.entries(object) as any
+	}
+
 	export function inherit<T extends { prototype: any }> (obj: any, inherits: T): T['prototype'] {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
 		Object.setPrototypeOf(obj, (inherits as any).prototype)

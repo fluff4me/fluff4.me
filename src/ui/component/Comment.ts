@@ -298,6 +298,18 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 									},
 								}))
 								.appendTo(footer)
+
+						if (commentData.author === author.vanity || source.threadAuthor === author.vanity || Session.Auth.isModerator.value)
+							Button()
+								.style('comment-footer-action')
+								.type('flush')
+								.setIcon(commentData.author === author.vanity || source.threadAuthor === author.vanity ? 'trash' : 'shield-halved')
+								.text.use('comment/action/delete')
+								.event.subscribe('click', async event => {
+									const response = await EndpointCommentDelete.query({ params: { id: commentData.comment_id } })
+									toast.handleError(response)
+								})
+								.appendTo(footer)
 					})
 					.appendTo(slot)
 

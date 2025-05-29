@@ -16,7 +16,7 @@ $$button-background-highlight!colour
 	%inline-flex
 	%column-gap-2
 	colour: $button-colour
-	$button-background: $background-interact-4
+	$button-background: $background-interact-5
 	$button-background-highlight: hsl(from $button-background h s calc(l + 6))
 	background: radial-gradient(ellipse at left 20% top 20%, $button-background-highlight, $button-background)
 	$button-transition:

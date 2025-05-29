@@ -127,6 +127,17 @@ namespace Session {
 			},
 		})
 
+		type ModerationTypes = keyof { [KEY in Privilege as KEY extends `Moderation${string}` ? KEY : never]: true }
+		const moderationPrivileges = Object.values({
+			ModerationCensor: privileged.ModerationCensor,
+			ModerationDelete: privileged.ModerationDelete,
+			ModerationGrantSupporter: privileged.ModerationGrantSupporter,
+			ModerationLock: privileged.ModerationLock,
+			ModerationViewReport: privileged.ModerationViewReport,
+		} satisfies Record<ModerationTypes, State.Generator<boolean>>)
+		export const isModerator = State.Generator(() => moderationPrivileges.some(privilege => privilege.value))
+			.observeManual(...moderationPrivileges)
+
 		export async function unauth (authOrId: Authorisation | string) {
 			const id = typeof authOrId === 'string' ? authOrId : authOrId.id
 			const response = await EndpointAuthRemove.query({ body: { id } })

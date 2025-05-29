@@ -1,22 +1,31 @@
-import type { Author as AuthorData, AuthorFull, ReportAuthorBody } from 'api.fluff4.me'
+import type { AuthorCensorBody, Author as AuthorData, AuthorFull, ReportAuthorBody } from 'api.fluff4.me'
 import EndpointAuthorGet from 'endpoint/author/EndpointAuthorGet'
+import EndpointModerateAuthorCensor from 'endpoint/moderation/EndpointModerateAuthorCensor'
+import EndpointModerateAuthorDelete from 'endpoint/moderation/EndpointModerateAuthorDelete'
+import EndpointModerateAuthorGrantSupporter from 'endpoint/moderation/EndpointModerateAuthorGrantSupporter'
 import EndpointReportAuthor from 'endpoint/report/EndpointReportAuthor'
 import Follows from 'model/Follows'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import ButtonRow from 'ui/component/core/ButtonRow'
+import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import GradientText from 'ui/component/core/ext/GradientText'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Loading from 'ui/component/core/Loading'
 import Placeholder from 'ui/component/core/Placeholder'
 import Popover from 'ui/component/core/Popover'
+import RangeInput from 'ui/component/core/RangeInput'
 import Slot from 'ui/component/core/Slot'
+import TextInput, { FilterFunction } from 'ui/component/core/TextInput'
 import TextLabel from 'ui/component/core/TextLabel'
 import Timestamp from 'ui/component/core/Timestamp'
 import FollowingBookmark from 'ui/component/FollowingBookmark'
+import ModerationDialog, { ModerationCensor, ModerationDefinition } from 'ui/component/ModerationDialog'
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import Async from 'utility/Async'
+import { mutable } from 'utility/Objects'
 import State from 'utility/State'
 
 const AUTHOR_REPORT = ReportDefinition<ReportAuthorBody>({
@@ -30,6 +39,73 @@ const AUTHOR_REPORT = ReportDefinition<ReportAuthorBody>({
 		'tos-violation': true,
 	},
 })
+
+const AUTHOR_MODERATION = ModerationDefinition((author: AuthorData & Partial<AuthorFull>): ModerationDefinition => ({
+	titleTranslation: 'shared/term/author',
+	moderatedContentName: author.name,
+	custom: [
+		{
+			type: 'general',
+			tweak (slot) {
+				const row = ButtonRow().appendTo(slot)
+
+				const rangeInput = RangeInput(0, 15)
+					.appendTo(row.content)
+
+				const months = TextInput()
+					.style.remove('text-input')
+					.style('range-input-display')
+					.filter(FilterFunction.NUMERIC)
+					.default.set('0')
+
+				rangeInput.display.element.replaceWith(months.element)
+				mutable(rangeInput).display = months
+
+				rangeInput.liveState.use(months, value => {
+					switch (value) {
+						case 15: months.value = '9999'; break
+						case 14: months.value = `${12 * 3}`; break
+						case 13: months.value = `${12 * 2}`; break
+						default: months.value = `${value ?? 0}`; break
+					}
+				})
+
+				row.button
+					.text.use('shared/prompt/moderation/action/grant-supporter')
+					.bindDisabled(months.state.map(slot, months => !+months), 'no months to give')
+					.event.subscribe('click', async event => {
+						const confirmed = await ConfirmDialog.prompt(event.host, {
+							bodyTranslation: quilt => quilt['shared/prompt/moderation/action/grant-supporter/body'](author.name, months.value),
+							dangerToken: 'moderate',
+						})
+						if (!confirmed)
+							return
+
+						const response = await EndpointModerateAuthorGrantSupporter.query({ params: { vanity: author.vanity }, body: { months: +months.value } })
+						toast.handleError(response)
+					})
+			},
+		},
+	],
+	async delete () {
+		const response = await EndpointModerateAuthorDelete.query({ params: { vanity: author.vanity } })
+		toast.handleError(response)
+	},
+	censor: ModerationCensor<AuthorCensorBody>({
+		properties: {
+			name: ModerationCensor.plaintext(author.name),
+			vanity: ModerationCensor.plaintext(author.vanity),
+			pronouns: ModerationCensor.plaintext(author.pronouns),
+			description: ModerationCensor.markdown(author.description?.body),
+			support_link: ModerationCensor.plaintext(author.support_link),
+			support_message: ModerationCensor.plaintext(author.support_message),
+		},
+		async censor (censor) {
+			const response = await EndpointModerateAuthorCensor.query({ params: { vanity: author.vanity }, body: censor })
+			toast.handleError(response)
+		},
+	}),
+}))
 
 interface AuthorExtensions {
 	readonly bio: Component
@@ -157,19 +233,28 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 						.event.subscribe('click', () => Follows.toggleIgnoringAuthor(author.value.vanity))
 						.appendTo(popover)
 
+					if (!Session.Auth.isModerator.value)
+						Button()
+							.type('flush')
+							.setIcon('flag')
+							.text.use('author/action/label/report')
+							.event.subscribe('click', event => ReportDialog.prompt(event.host, AUTHOR_REPORT, {
+								reportedContentName: author.value.name,
+								async onReport (body) {
+									const response = await EndpointReportAuthor.query({ body, params: { vanity: author.value.vanity } })
+									toast.handleError(response)
+								},
+							}))
+							.appendTo(popover)
+				}
+
+				if (Session.Auth.isModerator.value)
 					Button()
 						.type('flush')
-						.setIcon('flag')
-						.text.use('work/action/label/report')
-						.event.subscribe('click', event => ReportDialog.prompt(event.host, AUTHOR_REPORT, {
-							reportedContentName: author.value.name,
-							async onReport (body) {
-								const response = await EndpointReportAuthor.query({ body, params: { vanity: author.value.vanity } })
-								toast.handleError(response)
-							},
-						}))
+						.setIcon('shield-halved')
+						.text.use('author/action/label/moderate')
+						.event.subscribe('click', event => ModerationDialog.prompt(event.host, AUTHOR_MODERATION.create(author.value)))
 						.appendTo(popover)
-				}
 			})
 		})
 
