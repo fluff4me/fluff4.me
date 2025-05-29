@@ -1,15 +1,14 @@
-import type { Paths } from 'api.fluff4.me'
 import EndpointSupporterOrders from 'endpoint/supporter/EndpointSupporterOrders'
 import EndpointSupporterPollFull from 'endpoint/supporter/EndpointSupporterPollFull'
 import EndpointSupporterStatus from 'endpoint/supporter/EndpointSupporterStatus'
 import PagedListData from 'model/PagedListData'
+import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
-import ConfirmDialog from 'ui/component/core/ConfirmDialog'
+import ButtonRow from 'ui/component/core/ButtonRow'
 import Details from 'ui/component/core/Details'
 import Heading from 'ui/component/core/Heading'
-import LabelledRow from 'ui/component/core/LabelledRow'
 import Loading from 'ui/component/core/Loading'
 import Paginator from 'ui/component/core/Paginator'
 import Paragraph from 'ui/component/core/Paragraph'
@@ -17,7 +16,7 @@ import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import Small from 'ui/component/core/Small'
 import Timestamp from 'ui/component/core/Timestamp'
-import CurrencyInput from 'ui/component/CurrencyInput'
+import PatronAuthDialog from 'ui/component/PatronAuthDialog'
 import type { Quilt } from 'ui/utility/StringApplicator'
 import Env from 'utility/Env'
 import Popup from 'utility/Popup'
@@ -78,6 +77,103 @@ export default Component.Builder(component => {
 				)
 				.appendTo(slot)
 
+			////////////////////////////////////
+			//#region Patreon Paginator
+			if (statusState.value.patreon_subscriptions.length)
+				Paginator()
+					.type('flush')
+					.style('view-type-account-supporter-order-paginator')
+					.tweak(paginator => paginator.title.text.use('view/account/supporter/order/list-title'))
+					.tweak(paginator => paginator.header
+						.style('view-type-account-supporter-order-paginator-header')
+						.append(Button()
+							.setIcon('rotate')
+							.type('flush')
+							.event.subscribe('click', async () => {
+								const response = await EndpointSupporterPollFull.query()
+								if (toast.handleError(response))
+									return
+
+								status.refresh()
+							})
+						)
+					)
+					.tweak(paginator => paginator.content.style('view-type-account-supporter-order-paginator-content'))
+					.tweak(paginator => paginator.footer.style('view-type-account-supporter-order-paginator-footer'))
+					.set(PagedListData.fromArray(25, statusState.value.patreon_subscriptions), (slot, orders) => {
+						slot.style('view-type-account-supporter-order-list')
+
+						const HeaderCell = () => Component().style('view-type-account-supporter-order-list-header-label')
+						const HeaderCellAmount = () => HeaderCell().style('view-type-account-supporter-order-list-header-amount')
+						Component()
+							.style('view-type-account-supporter-order-list-header')
+							.style('view-type-account-supporter-order')
+							.append(HeaderCell().text.use('view/account/supporter/order/label/timestamp'))
+							.append(HeaderCellAmount().text.use('view/account/supporter/order/label/amount'))
+							.append(HeaderCell().text.use('view/account/supporter/order/label/type'))
+							.append(HeaderCell().text.use('view/account/supporter/order/label/status'))
+							.append(HeaderCellAmount().text.use('view/account/supporter/order/label/total'))
+							.appendTo(slot)
+
+						for (const order of orders) {
+							const orderURL = 'https://www.patreon.com/settings/memberships/fluff4me'
+							Component('a')
+								.attributes.set('href', orderURL)
+								.attributes.set('target', '_blank')
+								.style('view-type-account-supporter-order', 'view-type-account-supporter-order--patreon')
+								.append(Timestamp(order.timestamp)
+									.setSimple()
+									.style('view-type-account-supporter-order-date')
+								)
+								.append(
+									Component()
+									// .style('view-type-account-supporter-order-amount-value')
+									// .text.use(quilt => quilt['view/account/supporter/order/amount/subscription/value'](
+									// 	!order.interval_amount ? '?' : (order.interval_amount / 100).toFixed(2),
+									// ))
+									,
+									Component()
+									// .style('view-type-account-supporter-order-amount-unit')
+									// .text.use(quilt => quilt['view/account/supporter/order/amount/subscription/unit'](false)),
+								)
+								.append(Component())
+								.append(Component()
+									.style('view-type-account-supporter-order-status')
+									.text.use(quilt => {
+										/*
+										if (order.renewal_timestamp)
+											return quilt['view/account/supporter/order/renews'](
+												Timestamp(order.renewal_timestamp).setSimple().style.remove('timestamp')
+											)
+										*/
+
+										return quilt['view/account/supporter/order/status'](order.status)
+									})
+								)
+								.append(
+									Component().and(Small)
+										.style('view-type-account-supporter-order-amount-value')
+										.text.use(quilt => quilt['view/account/supporter/order/amount/total/value'](
+											(order.total_paid / 100).toFixed(2),
+										)),
+									Component().and(Small)
+										.style('view-type-account-supporter-order-amount-unit')
+										.text.use('view/account/supporter/order/amount/total/unit'),
+								)
+								.event.subscribe('click', async event => {
+									event.preventDefault()
+									await PopupSupporterManage.show(event.host, { url: orderURL }).toastError()
+									status.refresh()
+								})
+								.appendTo(slot)
+						}
+					})
+					.appendTo(slot)
+			//#endregion
+			////////////////////////////////////
+
+			////////////////////////////////////
+			//#region MoR Paginator
 			if (statusState.value.status)
 				Paginator()
 					.type('flush')
@@ -179,30 +275,48 @@ export default Component.Builder(component => {
 						}
 					})
 					.appendTo(slot)
+			//#endregion
+			////////////////////////////////////
 		}
 
-		const hasActiveSubscription = statusState.value.status === 'has_active_subscription'
+		const shouldCompressPlans = false
+			|| !!statusState.value.months_remaining
+			|| !!statusState.value.patreon_subscriptions.length
+			|| statusState.value.status === 'has_active_subscription'
+
 		const addProduct = Details().appendTo(slot)
 		addProduct.summary.type('primary').text.use('view/account/supporter/action/add-plan')
-		addProduct.state.value = !hasActiveSubscription
+		addProduct.state.value = !shouldCompressPlans
 
-		if (!hasActiveSubscription)
+		if (!shouldCompressPlans)
 			addProduct.summary.style('view-type-account-supporter-add-plan-button--hidden')
 
-		if (hasActiveSubscription)
+		if (shouldCompressPlans)
 			Paragraph().appendTo(addProduct)
 
 		const productList = Component()
 			.style('view-type-account-supporter-product-list')
 			.appendTo(addProduct)
 
-		const remainingTillFounder = 200 - (statusState.value.total_paid) / 100
+		// const remainingTillFounder = 200 - (statusState.value.total_paid) / 100
 		type Product = Extract<keyof Quilt, `view/account/supporter/product/${string}/name`> extends `view/account/supporter/product/${infer TYPE}/name` ? TYPE : never
-		const products = ['single', 'monthly', 'yearly', 'founder'] satisfies Product[]
+		const products = [/* 'single', */'monthly', 'yearly', 'founder'] satisfies Product[]
 		for (let i = 0; i < products.length; i++) {
 			const product = products[i]
-			const realProduct = product === 'founder' ? 'single' : product
-			const url = `${Env.API_ORIGIN}${(`/supporter/checkout/${realProduct}` satisfies keyof Paths).slice(1)}`
+
+			if (product === 'yearly')
+				Paragraph().and(Small)
+					.style('view-type-account-supporter-product-special-plans-hint')
+					.useMarkdownContent('view/account/supporter/product/special-plans-hint')
+					.appendTo(productList)
+
+			// const realProduct = product === 'founder' ? 'single' : product
+			const url = {
+				monthly: 'https://www.patreon.com/checkout/fluff4me?rid=25959404&slug=fluff4me',
+				yearly: 'https://www.patreon.com/checkout/fluff4me?rid=26004082&slug=fluff4me',
+				founder: 'https://www.patreon.com/checkout/fluff4me?rid=26004089&slug=fluff4me',
+			}[product]
+			// const url = `${Env.API_ORIGIN}${(`/supporter/checkout/${realProduct}` satisfies keyof Paths).slice(1)}`
 			Component('a')
 				.and(Button)
 				.attributes.set('href', url)
@@ -213,7 +327,7 @@ export default Component.Builder(component => {
 					event.preventDefault()
 					const transactionId = Strings.uid()
 					Store.items.supporterTransactionId = transactionId
-					await PopupSupporterStart.show(event.host, { url: `${url}?transaction_id=${transactionId}` }).toastError()
+					await PopupSupporterStart.show(event.host, { url: url /* `${url}?transaction_id=${transactionId}` */ }).toastError()
 					status.refresh()
 				})
 				.append(Heading()
@@ -226,9 +340,11 @@ export default Component.Builder(component => {
 					)
 					.append(Component()
 						.style('view-type-account-supporter-product-price')
-						.text.use(product === 'founder'
-							? quilt => quilt['view/account/supporter/product/founder/price'](remainingTillFounder)
-							: `view/account/supporter/product/${product}/default-price`
+						.text.use(
+							// product === 'founder'
+							// ? quilt => quilt['view/account/supporter/product/founder/price'](remainingTillFounder)
+							// :
+							`view/account/supporter/product/${product}/default-price`
 						)
 					)
 				)
@@ -237,6 +353,9 @@ export default Component.Builder(component => {
 					.text.use(product === 'founder'
 						? quilt => quilt['view/account/supporter/product/founder/description']()
 						: `view/account/supporter/product/${product}/description`))
+				////////////////////////////////////
+				//#region MoR product config
+				/*
 				.append(product === 'founder'
 					? Button()
 						.style('view-type-account-supporter-product-icon', 'view-type-account-supporter-product-heart')
@@ -282,8 +401,26 @@ export default Component.Builder(component => {
 							status.refresh()
 						})
 				)
+				*/
+				//#endregion
+				////////////////////////////////////
 				.appendTo(productList)
 		}
+
+		if (!statusState.value.patreon_subscriptions.length)
+			ButtonRow()
+				.style('view-type-account-supporter-patreon-row')
+				.tweak(row => row.content.append(Component().text.use('view/account/supporter/already-patron-hint')))
+				.tweak(row => row.button
+					.setIcon('patreon')
+					.style('view-type-account-supporter-patreon-row-button')
+					.text.bind(Session.Auth.author.map(slot, author =>
+						!author?.patreon_patron
+							? quilt => quilt['view/chapter/action/auth-to-patreon']()
+							: quilt => quilt['view/chapter/action/unlink-patreon'](author.patreon_patron!.display_name)))
+					.event.subscribe('click', () => PatronAuthDialog.auth(slot))
+				)
+				.appendTo(slot)
 	})
 
 	Component()

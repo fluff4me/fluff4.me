@@ -136,6 +136,7 @@ const PagedListData = Object.assign(
 	},
 	{
 		fromEndpoint,
+		fromArray,
 	}
 )
 
@@ -188,6 +189,24 @@ function fromEndpoint (pageSize: number, endpoint: PreparedPaginatedQueryReturni
 			return null
 		},
 	}) as PagedListData<any> & Record<string, State<any[]>>
+
+	return result
+}
+
+function fromArray<T> (pageSize: number, array: T[]): PagedListData<T> {
+	const result = PagedListData<T>(pageSize, {
+		get (page, pagedData) {
+			const start = page * pageSize
+			const end = (page + 1) * pageSize
+			const data = array.slice(start, end)
+
+			if (!data.length)
+				return null
+
+			pagedData.setPageCount(Math.ceil(array.length / pageSize))
+			return data
+		},
+	})
 
 	return result
 }
