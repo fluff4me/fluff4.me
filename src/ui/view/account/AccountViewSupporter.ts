@@ -127,25 +127,22 @@ export default Component.Builder(component => {
 								)
 								.append(
 									Component()
-									// .style('view-type-account-supporter-order-amount-value')
-									// .text.use(quilt => quilt['view/account/supporter/order/amount/subscription/value'](
-									// 	!order.interval_amount ? '?' : (order.interval_amount / 100).toFixed(2),
-									// ))
-									,
+										.style('view-type-account-supporter-order-amount-value')
+										.text.use(quilt => quilt['view/account/supporter/order/amount/subscription/value'](
+											!order.interval_amount ? '?' : (order.interval_amount / 100).toFixed(2),
+										)),
 									Component()
-									// .style('view-type-account-supporter-order-amount-unit')
-									// .text.use(quilt => quilt['view/account/supporter/order/amount/subscription/unit'](false)),
+										.style('view-type-account-supporter-order-amount-unit')
+										.text.use(quilt => quilt['view/account/supporter/order/amount/subscription/unit'](false)),
 								)
 								.append(Component())
 								.append(Component()
 									.style('view-type-account-supporter-order-status')
 									.text.use(quilt => {
-										/*
 										if (order.renewal_timestamp)
 											return quilt['view/account/supporter/order/renews'](
 												Timestamp(order.renewal_timestamp).setSimple().style.remove('timestamp')
 											)
-										*/
 
 										return quilt['view/account/supporter/order/status'](order.status)
 									})
@@ -154,7 +151,7 @@ export default Component.Builder(component => {
 									Component().and(Small)
 										.style('view-type-account-supporter-order-amount-value')
 										.text.use(quilt => quilt['view/account/supporter/order/amount/total/value'](
-											(order.total_paid / 100).toFixed(2),
+											(order.amount / 100).toFixed(2),
 										)),
 									Component().and(Small)
 										.style('view-type-account-supporter-order-amount-unit')
