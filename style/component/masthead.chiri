@@ -21,7 +21,7 @@
 		%flex
 		%justify-content-space-around
 		%top-auto
-		bottom: calc(100lvh - 100dvh)
+		bottom: 0
 		box-shadow:
 			#{box-shadow-inset-border-top-1},
 			#{box-shadow-top-inset-1}
