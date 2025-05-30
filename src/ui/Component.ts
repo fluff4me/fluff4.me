@@ -15,7 +15,7 @@ import Async from 'utility/Async'
 import Define from 'utility/Define'
 import Env from 'utility/Env'
 import Errors from 'utility/Errors'
-import { mutable } from 'utility/Objects'
+import Objects, { mutable } from 'utility/Objects'
 import SelfScript from 'utility/SelfScript'
 import SourceMapping from 'utility/SourceMapping'
 import type { UnsubscribeState } from 'utility/State'
@@ -820,6 +820,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 	} satisfies Pick<Component, keyof BaseComponent>) as any as Mutable<Component>
 
 	WeavingArg.setRenderable(component, () => component.element.textContent ?? '')
+	Objects.stringify.disable(component)
 
 	for (const extension of componentExtensionsRegistry)
 		extension(component)

@@ -65,12 +65,12 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 		const TRIGGERED_BY = !triggeredBy ? undefined : Link(`/author/${triggeredBy.vanity}`)
 			.style.toggle(data.type.startsWith('report-'), 'notification-reporter')
 			.text.set(triggeredBy.name)
-			.setPopover('hover', popover => popover.and(AuthorPopover, triggeredBy))
+			.setPopover('hover/longpress', popover => popover.and(AuthorPopover, triggeredBy))
 
 		const author = Authors.resolve(data.author, Notifications.authors.value)
 		const AUTHOR = !author ? undefined : Link(`/author/${author.vanity}`)
 			.text.set(author.name)
-			.setPopover('hover', popover => popover.and(AuthorPopover, author))
+			.setPopover('hover/longpress', popover => popover.and(AuthorPopover, author))
 
 		const work = Works.resolve(data.work, Notifications.works.value)
 		const WORK = !work ? undefined : Link(`/work/${work.author}/${work.vanity}`).text.set(work.name)

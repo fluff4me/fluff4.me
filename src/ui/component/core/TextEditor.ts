@@ -1016,7 +1016,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 		return Button()
 			.style('text-editor-toolbar-button', 'text-editor-toolbar-button--has-popover')
 			.clearPopover()
-			.setPopover('hover', (popover, button) => {
+			.setPopover('hover/click', (popover, button) => {
 				popover
 					.style('text-editor-toolbar-popover')
 					.style.bind(popover.popoverParent.nonNullish, 'text-editor-toolbar-popover-sub', `text-editor-toolbar-popover-sub--${align}`)

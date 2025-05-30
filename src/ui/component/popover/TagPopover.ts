@@ -21,7 +21,7 @@ export default Object.assign(
 			Tag.extend(tag => {
 				if (typeof tag.tag === 'object') {
 					const tagData = tag.tag
-					tag.clearPopover().setPopover('hover', popover => popover.and(TagPopover, tagData))
+					tag.clearPopover().setPopover('hover/longpress', popover => popover.and(TagPopover, tagData))
 				}
 				return {}
 			})

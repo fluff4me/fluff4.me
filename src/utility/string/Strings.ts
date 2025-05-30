@@ -304,6 +304,12 @@ namespace Strings {
 			.map(word => word[0].toUpperCase() + word.slice(1))
 			.join('')
 	}
+
+	export function indent (text: string, indent = '\t') {
+		return text.split('\n')
+			.map(line => indent + line)
+			.join('\n')
+	}
 }
 
 export default Strings

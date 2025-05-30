@@ -56,7 +56,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 			.style('masthead-left-hamburger', 'masthead-left-hamburger-popover')
 			.ariaLabel.use('masthead/primary-nav/alt')
 			.clearPopover()
-			.setPopover('hover', p => popover.value = p
+			.setPopover('hover/click', p => popover.value = p
 				.style('primary-nav-popover')
 				.anchor.add('aligned left', 'off top')
 				.ariaRole('navigation')))
@@ -101,7 +101,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 					: Component()
 						.style('masthead-user-notifications-badge')
 						.text.set(`${count}`)))
-				.setPopover('hover', popover => popover
+				.setPopover('hover/click', popover => popover
 					.style('masthead-user-notifications-popover')
 					.anchor.add('aligned right', 'off bottom')
 					.anchor.add('aligned left', `.${MASTHEAD_CLASS}`, 'off top')
@@ -140,7 +140,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 				.type('icon')
 				.clearPopover()
 				.ariaLabel.use('masthead/user/profile/alt')
-				.setPopover('hover', popover => popover
+				.setPopover('hover/click', popover => popover
 					.anchor.add('aligned right', 'off bottom')
 					.anchor.add('aligned right', 'off top')
 					.ariaRole('navigation')
