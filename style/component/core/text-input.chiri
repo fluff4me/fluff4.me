@@ -13,6 +13,7 @@
 	$border-colour: ${block-border-colour: $colour-border-input}
 	background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
 	%background-unclip
+	%colour-1
 
 	&--wrapped:
 		#after: .text-input
@@ -35,4 +36,4 @@
 		%stack-self
 		%margin-2-3
 		%width-fit
-		colour: fieldtext
+		%colour-1

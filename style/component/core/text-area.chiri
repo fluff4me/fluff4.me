@@ -2,6 +2,7 @@
 	%stack-self
 	%wrap-anywhere
 	%white-space-pre-wrap
+	%colour-1
 
 	&-wrapper:
 		%grid
