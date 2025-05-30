@@ -415,7 +415,10 @@ export default Component.Builder(component => {
 						!author?.patreon_patron
 							? quilt => quilt['view/chapter/action/auth-to-patreon']()
 							: quilt => quilt['view/chapter/action/unlink-patreon'](author.patreon_patron!.display_name)))
-					.event.subscribe('click', () => PatronAuthDialog.auth(slot))
+					.event.subscribe('click', async () => {
+						await PatronAuthDialog.auth(slot)
+						status.refresh()
+					})
 				)
 				.appendTo(slot)
 	})
