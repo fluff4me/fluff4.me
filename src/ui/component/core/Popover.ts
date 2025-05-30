@@ -361,7 +361,7 @@ Component.extend(component => {
 					return
 
 				FocusTrap.show()
-				component.popover.style.removeProperties('left', 'top')
+				// component.popover.style.removeProperties('left', 'top')
 				await Task.yield()
 				component.popover.anchor.apply()
 			}
