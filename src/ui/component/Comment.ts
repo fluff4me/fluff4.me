@@ -94,7 +94,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 			Link(!author?.vanity ? undefined : `/author/${author.vanity}`)
 				.style('comment-header-author')
 				.text.set(author?.name ?? quilt['comment/deleted/author']().toString())
-				.setPopover('hover', popover => author && popover.and(AuthorPopover, author))
+				.setPopover('hover/longpress', popover => author && popover.and(AuthorPopover, author))
 				.appendTo(header)
 
 			const time = commentData.edited_time ?? commentData.created_time

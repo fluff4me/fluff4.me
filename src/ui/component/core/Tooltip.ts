@@ -28,7 +28,7 @@ const Tooltip = Object.assign(
 			Component.extend(component => {
 				component.extend<TooltipComponentExtensions>((component: Component & TooltipComponentExtensions & Partial<PopoverComponentRegisteredExtensions>) => ({
 					setTooltip (initialiser) {
-						return component.setPopover('hover', (popover, host) => initialiser(popover.and(Tooltip), host))
+						return component.setPopover('hover/longpress', (popover, host) => initialiser(popover.and(Tooltip), host))
 					},
 				}))
 			})

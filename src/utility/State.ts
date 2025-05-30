@@ -8,7 +8,7 @@ import type Arrays from 'utility/Arrays'
 import { NonNullish as FilterNonNullish } from 'utility/Arrays'
 import Define from 'utility/Define'
 import Functions from 'utility/Functions'
-import { mutable } from 'utility/Objects'
+import Objects, { mutable } from 'utility/Objects'
 import type { Mutable as MakeMutable, SupplierOr } from 'utility/Type'
 
 export type StateOr<T> = State<T> | T
@@ -225,7 +225,7 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 		},
 	}
 	result.asMutable = result
-	return result
+	return Objects.stringify.disable(result)
 
 	function setValue (value: T) {
 		if (comparator !== false && (result[SYMBOL_VALUE] === value || comparator?.(result[SYMBOL_VALUE], value)))

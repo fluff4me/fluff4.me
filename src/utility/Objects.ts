@@ -1,3 +1,4 @@
+import Strings from 'utility/string/Strings'
 import type { PromiseOr } from 'utility/Type'
 
 export function mutable<T extends object> (object: T): { -readonly [P in keyof T]: T[P] } {
@@ -131,6 +132,88 @@ namespace Objects {
 
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return result
+	}
+
+	export function stringify (object: any, space?: string): string {
+		return stringifyInternal(object, space)
+	}
+
+	const SYMBOL_STRINGIFY_DISABLED = Symbol('STRINGIFY_DISABLED')
+	export namespace stringify {
+		export function disable<T> (object: T): T {
+			Object.defineProperty(object, SYMBOL_STRINGIFY_DISABLED, { value: true })
+			return object
+		}
+		disable(window)
+		disable(document)
+	}
+
+	function stringifyInternal (object: any, space: string | undefined, encountered: any[] = []): string {
+		if (object === undefined)
+			throw new Error('Cannot stringify undefined')
+
+		if (object === null || typeof object !== 'object')
+			return JSON.stringify(object)
+
+		if (encountered.includes(object))
+			return '[Circular]'
+
+		encountered.push(object)
+
+		if (Array.isArray(object)) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			const filtered = object.map(item => typeof item === 'object' && !!item && (item[SYMBOL_STRINGIFY_DISABLED] || item instanceof Node)
+				? '[Omitted]'
+				: typeof item === 'function'
+					? '[Function]'
+					: typeof item === 'symbol'
+						? item.description ?? '[Symbol]'
+						: stringifyInternal(item, space, encountered)
+			)
+			if (!space)
+				return `[${filtered.join(',')}]`
+
+			return `[\n${Strings.indent(filtered.join(',\n'), space)}\n]`
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+		const entries = getAllEntries(object)
+			.filter(([, value]) => true
+				&& value !== undefined
+				&& typeof value !== 'function'
+				&& typeof value !== 'symbol'
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				&& !(typeof value === 'object' && !!value && (value[SYMBOL_STRINGIFY_DISABLED] || value instanceof Node))
+			)
+			.sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+
+		if (!space)
+			return `{${entries.map(([key, value]) => `${JSON.stringify(key)}:${stringifyInternal(value, space, encountered)}`).join(',')}}`
+
+		return `{\n${Strings.indent(entries.map(([key, value]) => `${JSON.stringify(key)}: ${stringifyInternal(value, space, encountered)}`).join(',\n'))}\n}`
+	}
+
+	// get entries — for normal objects, just Object.entries; for ones with custom prototypes, recursively include all prototype properties
+	function getAllEntries (object: object) {
+		if (Object.getPrototypeOf(object) === Object.prototype)
+			return Object.entries(object)
+
+		const resultObject: Record<string, any> = {}
+		let current: any = object
+		while (current && current !== Object.prototype) {
+			for (const key of Object.getOwnPropertyNames(current)) {
+				try {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+					resultObject[key] ??= (object as any)[key]
+				}
+				catch { }
+			}
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			current = Object.getPrototypeOf(current)
+		}
+
+		return Object.entries(resultObject)
 	}
 }
 

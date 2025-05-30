@@ -52,7 +52,7 @@ export type PopoverInitialiser<HOST> = (popover: Popover, host: HOST) => unknown
 interface PopoverComponentExtensions {
 	/** Disallow any popovers to continue showing if this component is hovered */
 	clearPopover (): this
-	setPopover (event: 'hover' | 'click', initialiser: PopoverInitialiser<this>): this & PopoverComponentRegisteredExtensions
+	setPopover (event: 'hover/longpress' | 'hover/click' | 'click', initialiser: PopoverInitialiser<this>): this & PopoverComponentRegisteredExtensions
 	hasPopoverSet (): boolean
 }
 
@@ -208,7 +208,7 @@ Component.extend(component => {
 				return popover.getDelay()
 			})
 
-			if (popoverEvent === 'hover' && !component.popover)
+			if ((popoverEvent === 'hover/click' || popoverEvent === 'hover/longpress') && !component.popover)
 				hostHoveredOrFocusedForLongEnough.subscribe(component, updatePopoverState)
 
 			const rawLabel = component.ariaLabel.state.value
@@ -229,6 +229,9 @@ Component.extend(component => {
 			component.clickState = false
 			if (!component.popover) {
 				component.event.subscribe('click', async event => {
+					if ('webkitForce' in event && popoverEvent === 'hover/longpress')
+						return
+
 					const closestHandlesMouseEvents = (event.target as HTMLElement).component?.closest(HandlesMouseEvents)
 					if (closestHandlesMouseEvents && closestHandlesMouseEvents?.element !== component.element && component.element.contains(closestHandlesMouseEvents.element))
 						return

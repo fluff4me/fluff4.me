@@ -17,7 +17,7 @@ const Mention = Component.Builder('a', (component, author?: Author): Mention => 
 		.and(Link, author && `/author/${author.vanity}`)
 		.append(Component().style('mention-punctuation').text.set('@'))
 		.append(Component().style('mention-author-name').text.set(author?.name ?? (quilt => quilt['shared/mention/unresolved']())))
-		.setPopover('hover', popover => author && popover.and(AuthorPopover, author))
+		.setPopover('hover/longpress', popover => author && popover.and(AuthorPopover, author))
 		.style('mention')
 		.and(GradientText)
 		.useGradient(author?.supporter?.username_colours)
