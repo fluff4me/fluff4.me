@@ -6,7 +6,7 @@ import type { Quilt } from 'ui/utility/StringApplicator'
 import Settings from 'utility/Settings'
 import State from 'utility/State'
 
-const lastAccepted = Settings.registerGroup('footer/heading/legal', {
+const lastAccepted = Settings.registerHiddenGroup('footer/heading/legal', {
 	termsOfService: Settings.number({
 		name: 'document/legal/terms-of-service/title',
 		default: -1,

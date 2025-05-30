@@ -92,9 +92,24 @@ namespace Settings {
 	}
 
 	export function registerGroup<const SETTINGS extends Record<string, SettingDefinition>> (name: Quilt.SimpleKey, settings: SETTINGS) {
-		DEFS.push({
+		return registerGroupInternal({
 			name,
-			settings: Object.values(settings).map(setting => {
+			settings,
+		})
+	}
+
+	export function registerHiddenGroup<const SETTINGS extends Record<string, SettingDefinition>> (name: Quilt.SimpleKey, settings: SETTINGS) {
+		return registerGroupInternal({
+			name,
+			settings,
+			hidden: true,
+		})
+	}
+
+	function registerGroupInternal<const SETTINGS extends Record<string, SettingDefinition>> (group: Omit<SettingsGroup, 'settings'> & { settings: SETTINGS }) {
+		DEFS.push({
+			...group,
+			settings: Object.values(group.settings).map(setting => {
 				const id = () => `${setting.tag ? `${Functions.resolve(setting.tag)}:` : ''}${setting.name}`
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
 				const state = SETTINGS.mapManual(settings => settings[id()] ?? setting.default)
@@ -128,7 +143,7 @@ namespace Settings {
 			}),
 		})
 
-		return settings as any as {
+		return group.settings as any as {
 			[KEY in keyof SETTINGS]:
 			| SETTINGS[KEY] extends infer SETTING extends SettingDefinition
 			? SETTING & SettingValue<SETTING['default']>
