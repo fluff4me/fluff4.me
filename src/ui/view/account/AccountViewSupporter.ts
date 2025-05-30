@@ -83,7 +83,7 @@ export default Component.Builder(component => {
 				Paginator()
 					.type('flush')
 					.style('view-type-account-supporter-order-paginator')
-					.tweak(paginator => paginator.title.text.use('view/account/supporter/order/list-title'))
+					.tweak(paginator => paginator.title.text.use('view/account/supporter/order/list-title/patreon'))
 					.tweak(paginator => paginator.header
 						.style('view-type-account-supporter-order-paginator-header')
 						.append(Button()
@@ -110,7 +110,7 @@ export default Component.Builder(component => {
 							.style('view-type-account-supporter-order')
 							.append(HeaderCell().text.use('view/account/supporter/order/label/timestamp'))
 							.append(HeaderCellAmount().text.use('view/account/supporter/order/label/amount'))
-							.append(HeaderCell().text.use('view/account/supporter/order/label/type'))
+							.append(HeaderCell())
 							.append(HeaderCell().text.use('view/account/supporter/order/label/status'))
 							.append(HeaderCellAmount().text.use('view/account/supporter/order/label/total'))
 							.appendTo(slot)
