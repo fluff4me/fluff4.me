@@ -4,7 +4,7 @@ import Store from 'utility/Store'
 
 export default PopupRoute.collect(
 
-	PopupRoute(/\/auth\/([^/]*)\/error/, () => {
+	PopupRoute(/\/auth\/(.*)\/error/, () => {
 		const params = new URLSearchParams(location.search)
 		Store.items.popupError = {
 			code: +(params.get('code') ?? '500'),
@@ -16,7 +16,7 @@ export default PopupRoute.collect(
 		window.close()
 	}),
 
-	PopupRoute(/\/auth\/([^/]*)\/ok/, () => {
+	PopupRoute(/\/auth\/(.*)\/ok/, () => {
 		const params = new URLSearchParams(location.search)
 		DangerToken.handleAuthParams(params)
 
