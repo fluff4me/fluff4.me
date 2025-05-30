@@ -7,7 +7,6 @@ export interface IEnvironment {
 	URL_ORIGIN: string
 	BUILD_NUMBER?: string
 	BUILD_SHA?: string
-	DEBUG_ENABLE_SUPPORTER_SYSTEM?: 'true'
 }
 
 interface Env extends Readonly<IEnvironment> { }
