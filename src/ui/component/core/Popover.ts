@@ -77,6 +77,12 @@ Component.extend(component => {
 
 			const popover = Popover()
 				.anchor.from(component)
+				.tweak(popover => popover
+					.prepend(Component()
+						.style('popover-close-surface')
+						.event.subscribe('click', () => popover.hide())
+					)
+				)
 				.setOwner(component)
 				.setCloseDueToMouseInputFilter(event => {
 					const hovered = HoverListener.hovered() ?? null
