@@ -17,7 +17,7 @@ const PopupPatron = Popup({
 namespace PatronAuthDialog {
 
 	export function auth (owner: State.Owner) {
-		void ConfirmDialog.prompt(owner, {
+		return ConfirmDialog.prompt(owner, {
 			titleTranslation: 'view/chapter/dialog/patron/title',
 			bodyTranslation: 'view/chapter/dialog/patron/description',
 			confirmButtonTranslation: 'view/chapter/dialog/patron/done',
