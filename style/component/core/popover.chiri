@@ -8,6 +8,7 @@ $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 	%fixed
 	%border-radius-2
 	%inset-border-1
+	%overflow-visible
 	%borderless
 	%backdrop-blur
 	%flex-column
@@ -18,7 +19,6 @@ $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 	%transparent
 	%translate-down-3
 	%margin-0
-	%overflow-hidden
 	$popover-padding: $space-3
 	padding: $popover-padding
 	#block
@@ -76,3 +76,15 @@ $popover-max-width: min(100vw - $space-2 * 2, $space-5 * 6)
 		%box-shadow-none
 		%border-radius-0
 		%z-index-bg
+
+	&-close-surface:
+		%hidden
+
+		#flush:
+			%fixed
+			%block
+			%z-index-bg
+			%unbottom-100
+			%unleft-100
+			width: 300vw
+			height: 300vh
