@@ -12,6 +12,7 @@
 	background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})
 	%background-unclip
 	$fullscreen-padding-inline: round(up, 50vw - #{content-width} / 2, 1px)
+	%colour-1
 
 	::focus, ::active:
 		outline: -webkit-focus-ring-color auto 1px
