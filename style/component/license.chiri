@@ -1,0 +1,4 @@
+.license:
+	%block
+	%font-1
+	%italic

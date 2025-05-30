@@ -95,6 +95,8 @@
 	component/tag-edit-form
 	component/supporter-label
 	component/moderation-dialog
+	component/license-input
+	component/license
 
 #import:
 	view/view

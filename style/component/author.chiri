@@ -24,3 +24,12 @@
 	&-timestamp:
 		%colour-3
 		%style-normal
+
+	&-license:
+		#after: .labelled-row
+		%flex
+		%flex-column
+		%align-items-start
+		%gap-0
+		%font-1
+		%margin-top-3

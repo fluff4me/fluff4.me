@@ -98,3 +98,7 @@
 					transparent calc($space-4 * 4), 
 					transparent calc($space-4 * 7)
 				)
+
+	&-license:
+		margin-top: calc($space-3 + $space-2)
+		%unmargin-bottom-2

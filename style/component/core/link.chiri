@@ -28,6 +28,7 @@
 				%weight-bold
 				content: " #{get-icon("up-right-from-square")}"
 				font-size: .5em
+				%style-normal
 
 		&--is-masked:
 			#after: .link-external--has

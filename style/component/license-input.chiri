@@ -1,0 +1,15 @@
+.license-input:
+
+	&-dropdown-button:
+		%scroll-margin-top
+
+	&-dropdown-option:
+		&--has-link:
+			#after: .button
+			$dropdown-option-display: grid
+			grid-template-columns: 1fr auto
+
+		&-link-button:
+			%unmargin-block-2
+			%unmargin-right-3
+			%pointer-events-all

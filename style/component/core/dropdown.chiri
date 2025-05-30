@@ -4,6 +4,7 @@
 
 	&-button:
 		%stack-self
+		%text-align-left
 
 	&-validity-pipe-input:
 		%stack-self
@@ -13,6 +14,8 @@
 	&-popover:
 		%unmargin-top-3
 		%unmargin-left-3
+		max-height: calc(100svh - $space-5)
+		%border-box
 
 		&--is-bottom:
 			#after: .dropdown-popover
@@ -23,11 +26,13 @@
 		&-content:
 			%flex
 			%flex-column
+			%overflow-y-auto
 
 	&-option:
+		display: ${dropdown-option-display: flex}
 
 		&--selected:
 
 		&--filtered-out:
-			#after: .button
+			#after: .button, .dropdown-option
 			%hidden

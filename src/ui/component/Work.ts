@@ -20,6 +20,7 @@ import Textarea from 'ui/component/core/Textarea'
 import TextLabel from 'ui/component/core/TextLabel'
 import Timestamp from 'ui/component/core/Timestamp'
 import FollowingBookmark from 'ui/component/FollowingBookmark'
+import License from 'ui/component/License'
 import ModerationDialog, { ModerationCensor, ModerationDefinition } from 'ui/component/ModerationDialog'
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import Tags from 'ui/component/Tags'
@@ -99,6 +100,7 @@ const WORK_MODERATION = ModerationDefinition((work: WorkData & Partial<WorkFull>
 			vanity: ModerationCensor.plaintext(work.vanity),
 			description: ModerationCensor.plaintext(work.description),
 			synopsis: ModerationCensor.markdown(work.synopsis?.body),
+			license: ModerationCensor.plaintext(work.license && `${work.license.name}: ${work.license.link}`),
 		},
 		async censor (censor) {
 			const response = await EndpointModerateWorkCensor.query({ params: Works.reference(work), body: censor })
@@ -205,6 +207,11 @@ const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, a
 				.style.bind(isFlush, 'work-tags--flush'),
 		})
 		.appendTo(block.content)
+
+	if (work.synopsis)
+		License(author?.name, work.license ?? (author?.vanity === Session.Auth.author.value?.vanity ? Session.Auth.author.value?.license : undefined))
+			.style('work-license')
+			.appendTo(block.content)
 
 	TextLabel()
 		.tweak(textLabel => textLabel.label.text.use('work/chapters/label'))
