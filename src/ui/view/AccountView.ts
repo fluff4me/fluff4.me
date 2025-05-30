@@ -18,7 +18,6 @@ import AccountViewSupporter from 'ui/view/account/AccountViewSupporter'
 import AccountViewTOTP from 'ui/view/account/AccountViewTOTP'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
-import Env from 'utility/Env'
 import Errors from 'utility/Errors'
 import State from 'utility/State'
 
@@ -69,12 +68,11 @@ export default ViewDefinition({
 		////////////////////////////////////
 		//#region Supporter
 
-		if (Env.DEBUG_ENABLE_SUPPORTER_SYSTEM)
-			Tab('supporter')
-				.setIcon('heart')
-				.text.use('view/account/tab/supporter')
-				.tweak(tab => AccountViewSupporter().appendTo(tab.content))
-				.addTo(tabinator)
+		Tab('supporter')
+			.setIcon('heart')
+			.text.use('view/account/tab/supporter')
+			.tweak(tab => AccountViewSupporter().appendTo(tab.content))
+			.addTo(tabinator)
 
 		//#endregion
 		////////////////////////////////////
