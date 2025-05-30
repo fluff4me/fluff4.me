@@ -13,6 +13,7 @@ import ButtonRow from 'ui/component/core/ButtonRow'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import GradientText from 'ui/component/core/ext/GradientText'
 import ExternalLink from 'ui/component/core/ExternalLink'
+import LabelledRow from 'ui/component/core/LabelledRow'
 import Loading from 'ui/component/core/Loading'
 import Placeholder from 'ui/component/core/Placeholder'
 import Popover from 'ui/component/core/Popover'
@@ -22,6 +23,7 @@ import TextInput, { FilterFunction } from 'ui/component/core/TextInput'
 import TextLabel from 'ui/component/core/TextLabel'
 import Timestamp from 'ui/component/core/Timestamp'
 import FollowingBookmark from 'ui/component/FollowingBookmark'
+import License from 'ui/component/License'
 import ModerationDialog, { ModerationCensor, ModerationDefinition } from 'ui/component/ModerationDialog'
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import Async from 'utility/Async'
@@ -99,6 +101,7 @@ const AUTHOR_MODERATION = ModerationDefinition((author: AuthorData & Partial<Aut
 			description: ModerationCensor.markdown(author.description?.body),
 			support_link: ModerationCensor.plaintext(author.support_link),
 			support_message: ModerationCensor.plaintext(author.support_message),
+			license: ModerationCensor.plaintext(author.license && `${author.license.name}: ${author.license.link}`),
 		},
 		async censor (censor) {
 			const response = await EndpointModerateAuthorCensor.query({ params: { vanity: author.vanity }, body: censor })
@@ -194,6 +197,13 @@ const Author = Component.Builder((component, authorIn: AuthorData & Partial<Auth
 				.text.set(author.support_message || author.support_link)
 		)
 		.appendTo(block.content)
+
+	Slot().appendTo(block.content).use(author, (slot, author) => author.license
+		&& LabelledRow()
+			.style('author-license')
+			.tweak(row => row.label.text.use('author/default-license'))
+			.tweak(row => row.content.and(License, author.name, author.license))
+	)
 
 	if (!component.is(Popover))
 		block.setActionsMenu(popover => {

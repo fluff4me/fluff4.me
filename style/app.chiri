@@ -80,6 +80,9 @@ $app-column-width: #{app-column-width}
 			#tablet:
 				%hidden
 
+		#flush:
+			$masthead-height: 0px
+
 	&-footer:
 		%row-3
 		%grid

@@ -15,10 +15,13 @@ import Textarea from 'ui/component/core/Textarea'
 import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
+import LicenseFormFragment from 'ui/component/LicenseFormFragment'
 import SupportersOnlyLabel from 'ui/component/SupportersOnlyLabel'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
 import { FilterVanity } from 'ui/component/VanityInput'
+import type { License } from 'ui/utility/License'
+import { LICENSES } from 'ui/utility/License'
 import type State from 'utility/State'
 
 export default Component.Builder((component, state: State.Mutable<WorkFull | undefined>) => {
@@ -69,6 +72,16 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.work?.synopsis))
 	table.label(label => label.text.use('view/work-edit/shared/form/synopsis/label'))
 		.content((content, label) => content.append(synopsisInput.setLabel(label)))
+
+	const license = LicenseFormFragment(table, true)
+	license.dropdown.default.bind(state.map(component, (work): License | 'inherit' => {
+		const license = work?.license?.name as License | undefined
+		return !license ? 'inherit'
+			: LICENSES.includes(license) ? license
+				: 'custom'
+	}))
+	license.customLinkInput.default.bind(state.map(component, work => work?.license?.link))
+	license.customNameInput.default.bind(state.map(component, work => work?.license?.name))
 
 	const tagsEditor = TagsEditor()
 		.default.bind(state as State<TagsState>)
@@ -142,6 +155,7 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 							visibility: visibility.selection.value ?? 'Private',
 							...tagsEditor.state.value,
 							card_colours: cardGradientInput.value.value.slice(),
+							license: license.getFormData(),
 						},
 					})
 				}

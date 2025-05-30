@@ -58,6 +58,7 @@ censor/key/body=shared/form/body/label
 censor/key/notes_before=shared/form/notes/label
 censor/key/notes_after=shared/form/notes/label
 censor/key/synopsis=shared/form/synopsis/label
+censor/key/license=shared/form/license/label
 action/grant-supporter: Add Supporter Months
 action/grant-supporter/body: {#B:{0}} will be given {1} month(s) of supporter features, *permanently*.
 action/delete=shared/action/delete
@@ -152,6 +153,12 @@ visibility-patreon-tier/selection/tier-and-up: {0} {#I:(And All Higher Tiers)}
 time/label: Time
 time/placeholder: (Now)
 card-colours/label: Card Colours
+license/label: License
+license/aria-label: custom license
+license/link-view-text: view license text
+license/link: License Link
+license/name: License Name
+license/inherit: Inherit Default License
 
 invalid/too-long: This text is too long.
 invalid/required: This field is required.
@@ -321,6 +328,7 @@ locked/description: To lift the lock, address the issues left by the moderators 
 # author
 time-join/label=shared/term/time-join
 description/empty: This author prefers to remain elusive and mysterious...
+default-license: Default Work License
 action/label/edit=shared/action/edit
 action/label/follow=shared/action/follow
 action/label/unfollow=shared/action/unfollow
@@ -487,7 +495,7 @@ description/label=shared/form/description/label
 description/hint: This bio will appear on your profile above any works.
 external-link/label=shared/form/external-link/label
 external-link/hint: An optional link that you can use to link to your profile on another platform. You could use a service like Linktree, or if you're an author, you could link directly to a payment or subscription platform.
-external-label/label=shared/form/external-link/label
+external-label/label=shared/form/external-label/label
 external-label/hint: A label to display instead of the external link itself.
 pronouns/label=shared/form/pronouns/label
 pronouns/hint: The pronouns that others should refer to you with. These will appear next to your name, usually.
@@ -894,6 +902,36 @@ action/delete=shared/action/delete
 title: Changelog
 
 
+# license
+all-rights-reserved: {0?© {0}{ 1??} — }All Rights Reserved
+cc-by:
+	{0?© {0}{ 1??} — }CC BY 
+	{#SM:Creative Commons Attribution}
+cc-by/link: https://creativecommons.org/licenses/by/4.0/
+cc-by-sa:
+	{0?© {0}{ 1??} — }CC BY-SA 
+	{#SM:Creative Commons Attribution-ShareAlike}
+cc-by-sa/link: https://creativecommons.org/licenses/by-sa/4.0/
+cc-by-nc:
+	{0?© {0}{ 1??} — }CC BY-NC 
+	{#SM:Creative Commons Attribution-NonCommercial}
+cc-by-nc/link: https://creativecommons.org/licenses/by-nc/4.0/
+cc-by-nc-sa:
+	{0?© {0}{ 1??} — }CC BY-NC-SA 
+	{#SM: Creative Commons Attribution-NonCommercial-ShareAlike}
+cc-by-nc-sa/link: https://creativecommons.org/licenses/by-nc-sa/4.0/
+cc-by-nd:
+	{0?© {0}{ 1??} — }CC BY-ND 
+	{#SM: Creative Commons Attribution-NoDerivatives}
+cc-by-nd/link: https://creativecommons.org/licenses/by-nd/4.0/
+cc-by-nc-nd:
+	{0?© {0}{ 1??} — }CC BY-NC-ND 
+	{#SM: Creative Commons Attribution-NonCommercial-NoDerivatives}
+cc-by-nc-nd/link: https://creativecommons.org/licenses/by-nc-nd/4.0/
+cc0: {#B:CC0}: Public Domain Dedication
+cc0/link: https://creativecommons.org/publicdomain/zero/1.0/
+custom: Custom
+
 # document
 about/title: About fluff4.me
 about:
@@ -1031,29 +1069,6 @@ roadmap:
 	## Up Next
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Supporters
-	*Become a paid supporter of fluff4.me and gain access to aeshetic features!*
-	</WEAVE>
-	
-	<WEAVE TAG=".MINIBLOCK">
-	#### Reporting
-	*Report content to bring it to moderator's attention.*
-	</WEAVE>
-	
-	<WEAVE TAG=".MINIBLOCK">
-	#### Work licenses
-	*Set a license for your work with a dedicated field, instead of needing to put it in the work's description. Will come with default licenses that you can choose between, or the ability to link to a different license.*
-	</WEAVE>
-	
-	<WEAVE TAG=".MINIBLOCK">
-	#### Launch!!!
-	*When the above features are done, this will be considered fluff4me's main launch!*
-	</WEAVE>
-
-	---
-	## Soon
-	
-	<WEAVE TAG=".MINIBLOCK">
 	#### Work statuses
 	*Set the status of your work — Completed, Ongoing, Hiatus, or Cancelled.*
 	</WEAVE>
@@ -1062,6 +1077,9 @@ roadmap:
 	#### Patron-only works
 	*Instead of setting individual chapters as patron-only, instead set the work as a whole.*
 	</WEAVE>
+	
+	---
+	## Soon
 	
 	<WEAVE TAG=".MINIBLOCK">
 	#### Chapter scheduling

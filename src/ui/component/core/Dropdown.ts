@@ -31,6 +31,8 @@ interface DropdownExtensions<ID extends string, BUTTON extends DropdownButton> {
 	readonly touched: State<boolean>
 	readonly default: Applicator.Optional<this, BUTTON extends RadioButton ? ID : ID[]>
 	readonly options: Record<string, DropdownOption<ID, BUTTON>>
+	readonly button: Button
+	readonly popover: State<Popover | undefined>
 	add<NEW_ID extends string> (id: NEW_ID, definition: DropdownOptionDefinition<NEW_ID, BUTTON>): Dropdown<ID | NEW_ID>
 	clear (): Dropdown<never>
 }
@@ -63,7 +65,7 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 		.style('dropdown-popover-content')
 
 	const popover = State<Popover | undefined>(undefined)
-	Button()
+	const button = Button()
 		.style('dropdown-button')
 		.text.bind(selection.mapManual(state => state === undefined
 			? quilt => quilt['shared/form/dropdown/selection/none']()
@@ -76,10 +78,13 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 			)
 		))
 		.setPopover('click', p => {
+			const oldPopover = popover.value
+
 			popover.value = p
 				.style('dropdown-popover')
 				.anchor.add('aligned left', 'aligned top')
 				.anchor.add('aligned left', 'aligned bottom')
+				.anchor.add('aligned left', 'sticky centre')
 				.anchor.orElseHide()
 
 			popover.value.appendTo(dropdown)
@@ -101,6 +106,8 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 				else
 					input.prependTo(popover.value)
 			})
+
+			oldPopover?.remove()
 		})
 		.appendTo(dropdown)
 
@@ -121,12 +128,13 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 			selection: selection as never,
 			touched,
 			default: Applicator(dropdown, (id?: string) => selection.value = id),
+			button,
+			popover,
 			add (id, optionDefinition: DropdownOptionDefinition<string, DropdownButton>) {
 				const button = definition.createButton()
 					.style('dropdown-option')
 					.tweak(button => button.is(RadioButton) && button.setIcon(undefined))
 					.type('flush')
-					.tweak(optionDefinition.tweakButton, id)
 					.setId(id)
 					.setName(labelFor)
 					.text.bind(Functions.resolve(optionDefinition.translation, id))
@@ -156,6 +164,7 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 						touched.value = true
 						updateValidity()
 					}))
+					.tweak(optionDefinition.tweakButton, id)
 					.appendTo(content)
 
 				options[id] = Object.assign(optionDefinition, {
@@ -165,7 +174,7 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 
 				button.style.bind(button.checked, 'dropdown-option--selected')
 				const filteredOut = State.Map(button, [input.state, button.checked], (filter, selected) =>
-					!selected && !!filter && !button.element.textContent?.includes(filter))
+					!selected && !!filter && !button.element.textContent?.toLowerCase()?.includes(filter.toLowerCase()))
 				button.style.bind(filteredOut, 'dropdown-option--filtered-out')
 
 				if (button.is(RadioButton))

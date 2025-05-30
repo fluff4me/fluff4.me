@@ -14,8 +14,11 @@ import LabelledTextInputBlock from 'ui/component/core/LabelledTextInputBlock'
 import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
+import LicenseFormFragment from 'ui/component/LicenseFormFragment'
 import SupportersOnlyLabel from 'ui/component/SupportersOnlyLabel'
 import VanityInput, { FilterVanity } from 'ui/component/VanityInput'
+import type { License } from 'ui/utility/License'
+import { LICENSES } from 'ui/utility/License'
 
 type AccountViewFormType =
 	| 'create'
@@ -105,6 +108,16 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 
 	block.useGradient(cardGradientInput.value)
 
+	const license = LicenseFormFragment(table)
+	license.dropdown.default.bind(Session.Auth.author.map(component, (author): License => {
+		const license = author?.license?.name as License | undefined
+		return !license ? 'all-rights-reserved'
+			: LICENSES.includes(license) ? license
+				: 'custom'
+	}))
+	license.customLinkInput.default.bind(Session.Auth.author.map(component, author => author?.license?.link))
+	license.customNameInput.default.bind(Session.Auth.author.map(component, author => author?.license?.name))
+
 	let sixteenPlus!: Checkbutton
 	let eighteenPlus!: Checkbutton
 	table.label(label => label.text.use('view/account/age/label'))
@@ -161,6 +174,7 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 				username_colours: gradientInput.value.value.slice(),
 				card_colours: cardGradientInput.value.value.slice(),
 				age,
+				license: license.getFormData(),
 			},
 		})
 
