@@ -525,6 +525,7 @@ already-patron-hint: Already a patron?
 order/created: Created {0}
 order/renews: Renewing {0}
 order/list-title: Order History
+order/list-title/patreon: Patronage
 order/type/order: One-Time
 order/type/subscription: Subscription
 order/status: {0}
