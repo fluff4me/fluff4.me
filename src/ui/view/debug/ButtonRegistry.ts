@@ -10,7 +10,7 @@ export interface IButtonImplementation<ARGS extends any[]> {
 export const BUTTON_REGISTRY = {
 	createAuthor: {
 		name: 'Create Author',
-		async execute (name: string, vanity: string, description?: string, pronouns?: string, feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean) {
+		async execute (name: string, vanity: string, age: string, description?: string, pronouns?: string, feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean, license?: { name: string, link: string }) {
 			const response = await fetch(`${Env.API_ORIGIN}author/create`, {
 				method: 'POST',
 				credentials: 'include',
@@ -21,11 +21,13 @@ export const BUTTON_REGISTRY = {
 				body: JSON.stringify({
 					name: name,
 					vanity: vanity,
+					age: age,
 					description: description,
 					pronouns: pronouns,
 					feedback_preference_critique,
 					feedback_preference_dont_hold_back,
 					feedback_preference_typos,
+					license,
 				}),
 			}).then(response => response.json())
 			console.log(response)
@@ -35,7 +37,7 @@ export const BUTTON_REGISTRY = {
 
 	updateAuthor: {
 		name: 'Update Author',
-		async execute (name?: string, description?: string, vanity?: string, support_link?: string, support_message?: string, feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean) {
+		async execute (name?: string, description?: string, age?: string, vanity?: string, support_link?: string, support_message?: string, feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean, license?: { name: string, link: string }) {
 			await fetch(`${Env.API_ORIGIN}author/update`, {
 				method: 'POST',
 				credentials: 'include',
@@ -46,12 +48,14 @@ export const BUTTON_REGISTRY = {
 				body: JSON.stringify({
 					name: name,
 					description: description,
+					age: age,
 					vanity: vanity,
 					support_link: support_link,
 					support_message: support_message,
 					feedback_preference_critique,
 					feedback_preference_dont_hold_back,
 					feedback_preference_typos,
+					license,
 				}),
 			})
 		},
@@ -98,7 +102,7 @@ export const BUTTON_REGISTRY = {
 
 	createWork: {
 		name: 'Create Work',
-		async execute (name: string, synopsis: string, description: string, vanity: string, status?: string, visibility?: string, globalTags?: string[], customTags?: string[], feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean) {
+		async execute (name: string, synopsis: string, description: string, vanity: string, status?: string, visibility?: string, globalTags?: string[], customTags?: string[], feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean, license?: { name: string, link: string }) {
 			const response = await fetch(`${Env.API_ORIGIN}work/create`, {
 				method: 'POST',
 				credentials: 'include',
@@ -117,6 +121,7 @@ export const BUTTON_REGISTRY = {
 					feedback_preference_critique,
 					feedback_preference_dont_hold_back,
 					feedback_preference_typos,
+					license,
 				}),
 			}).then(response => response.json())
 			console.log(response)
@@ -125,7 +130,7 @@ export const BUTTON_REGISTRY = {
 
 	updateWork: {
 		name: 'Update Work',
-		async execute (author: string, url: string, name?: string, description?: string, vanity?: string, status?: string, visibility?: string, feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean) {
+		async execute (author: string, url: string, name?: string, description?: string, vanity?: string, status?: string, visibility?: string, feedback_preference_critique?: boolean, feedback_preference_dont_hold_back?: boolean, feedback_preference_typos?: boolean, license?: { name: string, link: string }) {
 			await fetch(`${Env.API_ORIGIN}work/${author}/${url}/update`, {
 				method: 'POST',
 				credentials: 'include',
@@ -141,6 +146,7 @@ export const BUTTON_REGISTRY = {
 					feedback_preference_critique,
 					feedback_preference_dont_hold_back,
 					feedback_preference_typos,
+					license,
 				}),
 			})
 		},
@@ -980,6 +986,95 @@ export const BUTTON_REGISTRY = {
 		async execute () {
 			const response = await fetch(`${Env.API_ORIGIN}feed/get`, {
 				method: 'GET',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	grantSupporter: {
+		name: 'Grant supporter',
+		async execute (author: string, months: number) {
+			const response = await fetch(`${Env.API_ORIGIN}moderation/supporter/grant/${author}`, {
+				method: 'POST',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					months,
+				}),
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	supporterTest: {
+		name: 'supporter test',
+		async execute (price: number) {
+			console.log('button is working')
+			const searchParams = new URLSearchParams({
+				amount: `${price}`,
+			})
+			const response = await fetch(`${Env.API_ORIGIN}supporter/checkout/single?${searchParams.toString()}`, {
+				method: 'GET',
+				credentials: 'include',
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	supporterStatusPatreon: {
+		name: 'supporter status patreon',
+		async execute () {
+			console.log('button is working')
+			const response = await fetch(`${Env.API_ORIGIN}supporter/status/patreon`, {
+				method: 'GET',
+				credentials: 'include',
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	workLock: {
+		name: 'work lock',
+		async execute (author: string, vanity: string, reason: string) {
+			const response = await fetch(`${Env.API_ORIGIN}moderation/work/${author}/${vanity}/lock`, {
+				method: 'POST',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					reason,
+				}),
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	workUnlock: {
+		name: 'work unlock',
+		async execute (author: string, vanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}moderation/work/${author}/${vanity}/unlock`, {
+				method: 'POST',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			}).then(response => response.json())
+			console.log(response)
+		},
+	},
+
+	workCensor: {
+		name: 'work unlock',
+		async execute (author: string, vanity: string) {
+			const response = await fetch(`${Env.API_ORIGIN}moderation/work/${author}/${vanity}/unlock`, {
+				method: 'POST',
 				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json',

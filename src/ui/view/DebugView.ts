@@ -87,7 +87,7 @@ export default ViewDefinition({
 		profileButtons.append(createButton({
 			name: 'Create Profile 1',
 			async execute () {
-				await BUTTON_REGISTRY.createAuthor.execute('prolific author', 'somanystories', 'wow a description that mentions <mention vanity="somanystories">', 'she/her pronies m8')
+				await BUTTON_REGISTRY.createAuthor.execute('prolific author', 'somanystories', 'sixteen_plus', 'wow a description that mentions <mention vanity="somanystories">', 'she/her pronies m8')
 				await BUTTON_REGISTRY.createWork.execute('a debut work', 'pretty decent by <mention vanity="somanystories">', 'short description', 'debut', 'Complete', 'Public')
 				await BUTTON_REGISTRY.createChapter.execute('somanystories', 'debut', 'chapter 1', 'woo look it\'s prolific author\'s first story!', 'Public')
 				await BUTTON_REGISTRY.createWork.execute('sequel to debut', 'wow they wrote a sequel', 'sequel short description', 'sequel', 'Ongoing', 'Public')
@@ -112,7 +112,7 @@ export default ViewDefinition({
 		profileButtons.append(createButton({
 			name: 'Create Profile 2',
 			async execute () {
-				await BUTTON_REGISTRY.createAuthor.execute('single story author', 'justonestory', '<mention vanity="somanystories"> writes so much', 'she/her', false, undefined, true)
+				await BUTTON_REGISTRY.createAuthor.execute('single story author', 'justonestory', 'sixteen_plus', '<mention vanity="somanystories"> writes so much', 'she/her', false, undefined, true)
 				await BUTTON_REGISTRY.createWork.execute('one big work', 'made by <mention vanity="justonestory">', 'wow description', 'bigstory', 'Ongoing', 'Public', ['Protagonist: Transgender', 'Genre: Fantasy', 'Genre: Romance', 'Setting: Urban Fantasy'], ['Just A Test Work lmao', 'Gotta Add Some custom tags', 'apparently (these) are allowed?'], undefined, undefined, false)
 				await BUTTON_REGISTRY.getWorkFeedback.execute('feedback:', 'justonestory', 'bigstory')
 				await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', 'big story 1', 'start of a long story', 'Public')
@@ -126,13 +126,7 @@ export default ViewDefinition({
 					await BUTTON_REGISTRY.createChapter.execute('justonestory', 'bigstory', `big story ${i}`, 'aaaaaaaaaaaaaaaaaaa', 'Public')
 				}
 				await BUTTON_REGISTRY.updateChapter.execute('justonestory', 'bigstory', 4, undefined, undefined, undefined, false)
-				await BUTTON_REGISTRY.viewChapter.execute('', 'justonestory', 'bigstory', 1)
-				await BUTTON_REGISTRY.viewWork.execute('big story five chapters', 'justonestory', 'bigstory')
-				await BUTTON_REGISTRY.getAllChapters.execute('justonestory', 'bigstory', 0)
-				await BUTTON_REGISTRY.viewChapterPaginated.execute('0', 'justonestory', 'bigstory', 0)
-				await BUTTON_REGISTRY.viewChapterPaginated.execute('4 (3.1)', 'justonestory', 'bigstory', 4)
-				await BUTTON_REGISTRY.viewChapterPaginated.execute('6 (private)', 'justonestory', 'bigstory', 6)
-				// await BUTTON_REGISTRY.follow.execute("work", "debut");
+				await BUTTON_REGISTRY.updateAuthor.execute(undefined, undefined, 'eighteen_plus')
 			},
 		}))
 
@@ -155,19 +149,31 @@ export default ViewDefinition({
 			},
 		}))
 
-		// profileButtons.append(createButton({
-		// 	name: "Set Chiri Patreon chapters",
-		// 	async execute () {
-		// 		await BUTTON_REGISTRY.patreonSetThresholds.execute("justonestory", "bigstory", "Patreon", ["8", "9"], "4392761")
-		// 	},
-		// }))
+		profileButtons.append(createButton({
+			name: 'Create licensed work',
+			async execute () {
+				await BUTTON_REGISTRY.createWork.execute('licensed work', 'wowowow', 'wawaawaw', 'licensed', 'Ongoing', 'Public', [], [], undefined, undefined, undefined, { name: 'Test License', link: 'https://fluff4.me' })
+				await BUTTON_REGISTRY.updateWork.execute('justonestory', 'licensed', 'post-update', undefined, undefined, undefined, undefined, undefined, undefined, undefined, { name: 'wowowie', link: 'https://www.youtube.com/' })
+				await BUTTON_REGISTRY.updateAuthor.execute(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, { name: 'default license', link: 'hasdfasjd' })
+				await BUTTON_REGISTRY.createWork.execute('licensed work 2', 'wowowow', 'wawaawaw', 'licensed2', 'Ongoing', 'Public', [], [], undefined, undefined, undefined)
+			},
+		}))
+
+		profileButtons.append(createButton({
+			name: 'Grant Supporter',
+			async execute () {
+				await BUTTON_REGISTRY.grantSupporter.execute('brushly', 5)
+				await BUTTON_REGISTRY.grantSupporter.execute('lunafirewalk', -5)
+				await BUTTON_REGISTRY.grantSupporter.execute('justonestory', 9999)
+			},
+		}))
 
 		const followButtons = Block().appendTo(view.content)
 
 		followButtons.append(createButton({
 			name: 'Test New Following',
 			async execute () {
-				await BUTTON_REGISTRY.createAuthor.execute('new follows', 'thefollower')
+				await BUTTON_REGISTRY.createAuthor.execute('new follows', 'thefollower', 'sixteen_plus')
 				await BUTTON_REGISTRY.createWork.execute('wow a work', 'test pls ignore', 'pls ignore', 'wowawork', 'Ongoing', 'Public')
 				await BUTTON_REGISTRY.getAllFollows.execute('work')
 				await BUTTON_REGISTRY.getAllFollows.execute('work')
@@ -208,7 +214,7 @@ export default ViewDefinition({
 		followButtons.append(createButton({
 			name: 'Spam Create Follow Work Test',
 			async execute () {
-				await BUTTON_REGISTRY.createAuthor.execute('spam create works', 'manyworks')
+				await BUTTON_REGISTRY.createAuthor.execute('spam create works', 'manyworks', 'sixteen_plus')
 				for (let i = 0; i < 100; i++) {
 					await BUTTON_REGISTRY.createWork.execute(`rapid story ${i}`, 'aaaaaaaaa', 'rapid story aaaaa', `rapidstory${i}`, 'Ongoing', 'Public')
 					await BUTTON_REGISTRY.follow.execute('work', `rapidstory${i}`)
@@ -219,7 +225,7 @@ export default ViewDefinition({
 		followButtons.append(createButton({
 			name: 'Test Ignore Endpoints',
 			async execute () {
-				await BUTTON_REGISTRY.createAuthor.execute('ignoring myself', 'ignorepls')
+				await BUTTON_REGISTRY.createAuthor.execute('ignoring myself', 'ignorepls', 'sixteen_plus')
 				await BUTTON_REGISTRY.createWork.execute('to ignore', 'testing ignoring', 'test ignoring', 'worktoignore', 'Ongoing', 'Public')
 				await BUTTON_REGISTRY.ignore.execute('author', 'ignorepls')
 				await BUTTON_REGISTRY.ignore.execute('work', 'worktoignore')
@@ -304,7 +310,7 @@ export default ViewDefinition({
 		moreRoleButtons.append(createButton({
 			name: 'Make ten billion works',
 			async execute () {
-				await BUTTON_REGISTRY.createAuthor.execute('lots of works test', 'manyworks', 'test description')
+				await BUTTON_REGISTRY.createAuthor.execute('lots of works test', 'manyworks', 'sixteen_plus', 'test description')
 				await BUTTON_REGISTRY.privilegeGrantAuthor.execute('manyworks', 'TagGlobalCreate', 'TagGlobalDelete', 'TagGlobalUpdate', 'TagCategoryCreate', 'TagCategoryUpdate', 'TagCategoryDelete', 'TagPromote', 'TagDemote')
 				await BUTTON_REGISTRY.tagCreateCategory.execute('Category One', 'the first test category')
 				await BUTTON_REGISTRY.tagCreateCategory.execute('Category Two', 'the second test category')
@@ -435,7 +441,7 @@ export default ViewDefinition({
 		patreonButtons.append(createButton({
 			name: 'create patreon author',
 			async execute () {
-				await BUTTON_REGISTRY.createAuthor.execute('has a campaign', 'patreonuser')
+				await BUTTON_REGISTRY.createAuthor.execute('has a campaign', 'patreonuser', 'sixteen_plus')
 				await BUTTON_REGISTRY.createWork.execute('patreon only story', 'test', 'short description test', 'exclusive', 'Ongoing', 'Public')
 				await BUTTON_REGISTRY.createChapter.execute('patreonuser', 'exclusive', 'chapter 1', 'hewwo', 'Private')
 				await BUTTON_REGISTRY.createChapter.execute('patreonuser', 'exclusive', 'chapter 2', 'hewwoo', 'Private')
@@ -498,7 +504,7 @@ export default ViewDefinition({
 		tagButtons.append(createButton({
 			name: 'Create Tag Author',
 			async execute () {
-				await BUTTON_REGISTRY.createAuthor.execute('tagging test', 'thetagger', 'test description')
+				await BUTTON_REGISTRY.createAuthor.execute('tagging test', 'thetagger', 'sixteen_plus', 'test description')
 				await BUTTON_REGISTRY.privilegeGrantAuthor.execute('thetagger', 'TagGlobalCreate', 'TagGlobalDelete', 'TagGlobalUpdate', 'TagCategoryCreate', 'TagCategoryUpdate', 'TagCategoryDelete', 'TagPromote', 'TagDemote')
 			},
 		}))
@@ -620,6 +626,53 @@ export default ViewDefinition({
 			name: 'Get Front Page Feed',
 			async execute () {
 				await BUTTON_REGISTRY.feedGet.execute()
+			},
+		}))
+
+		notifButtons.append(createButton({
+			name: 'supporter test',
+			async execute () {
+				console.log('wow button')
+				await BUTTON_REGISTRY.supporterTest.execute(2000)
+			},
+		}))
+
+		notifButtons.append(createButton({
+			name: 'work lock',
+			async execute () {
+				await BUTTON_REGISTRY.workLock.execute('brushly', 'weirddrink', 'too stimulating')
+				await BUTTON_REGISTRY.workLock.execute('justonestory', 'bigstory', 'i dont like it')
+			},
+		}))
+
+		notifButtons.append(createButton({
+			name: 'work unlock',
+			async execute () {
+				await BUTTON_REGISTRY.workUnlock.execute('brushly', 'weirddrink')
+				await BUTTON_REGISTRY.workUnlock.execute('justonestory', 'bigstory')
+			},
+		}))
+
+		const fluffCampaign = Block().appendTo(view.content)
+
+		const FluffCampaignOAuth = Popup({
+			translation: Quilt.fake('Fluff Campaign OAuth'),
+			url: `${Env.API_ORIGIN}admin/auth/campaign/begin`,
+			width: 600,
+			height: 900,
+		})
+		Button()
+			.text.set('Fluff Campaign Test')
+			.event.subscribe('click', async () => {
+				await FluffCampaignOAuth.show(fluffCampaign).toastError()
+				await Session.refresh()
+			})
+			.appendTo(fluffCampaign)
+
+		fluffCampaign.append(createButton({
+			name: 'patreon status',
+			async execute () {
+				await BUTTON_REGISTRY.supporterStatusPatreon.execute()
 			},
 		}))
 
