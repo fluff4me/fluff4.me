@@ -1108,8 +1108,12 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	}
 
 	function wrapper (node: NodeType, attrs?: Attrs) {
+		return wrapCmd(wrap(node, attrs))
+	}
+
+	function wrap (node: NodeType, attrs?: Attrs): Command {
 		if (node === schema.nodes.text_align)
-			return wrapCmd((state, dispatch) => {
+			return (state, dispatch) => {
 				const { $from, $to } = state.selection
 				let range = $from.blockRange($to)
 				if (range) {
@@ -1145,9 +1149,9 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 					dispatch(tr)
 				}
 				return true
-			})
+			}
 
-		return wrapCmd(wrapIn(node, attrs))
+		return wrapIn(node, attrs)
 	}
 
 	function blockTypeToggler (node: NodeType, attrs?: Attrs) {
@@ -1518,6 +1522,9 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 						'Mod-.': toggleMark(schema.marks.superscript),
 						'Mod-,': toggleMark(schema.marks.subscript),
 						'Alt-Ctrl-0': setBlockType(schema.nodes.paragraph),
+						'Alt-ArrowLeft': wrap(schema.nodes.text_align, { align: 'left' }),
+						'Alt-ArrowDown': wrap(schema.nodes.text_align, { align: 'center' }),
+						'Alt-ArrowRight': wrap(schema.nodes.text_align, { align: 'right' }),
 						...Arrays.range(1, 7)
 							.toObject(i => [`Alt-Ctrl-${i}`, setBlockType(schema.nodes.heading, { level: i })]),
 					}),
