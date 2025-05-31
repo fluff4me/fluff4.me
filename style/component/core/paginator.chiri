@@ -119,6 +119,7 @@
 		%grid
 		%stack
 		%overflow-hidden
+		%user-select-text
 
 		&--has-header:
 			#after: .paginator-content
