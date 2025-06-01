@@ -373,6 +373,7 @@
 			%row-gap-0
 
 			&-summary:
+				%width-fit
 				%margin-left-auto
 
 			&-details:

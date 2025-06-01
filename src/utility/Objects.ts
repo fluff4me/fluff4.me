@@ -215,6 +215,60 @@ namespace Objects {
 
 		return Object.entries(resultObject)
 	}
+
+	export function deepEquals (a: unknown, b: unknown): boolean {
+		return deepEqualsInternal(a, b, [])
+	}
+
+	function deepEqualsInternal (a: unknown, b: unknown, encountered: any[]): boolean {
+		if (a === b)
+			return true
+
+		if (typeof a !== typeof b)
+			return false
+
+		if (typeof a !== 'object')
+			return false // non-objects can only be equal if they are strictly equal, which is already checked above
+
+		if (!a || !b)
+			return false
+
+		if (encountered.includes(a) || encountered.includes(b))
+			return false
+
+		encountered.push(a, b)
+
+		const isArray = Array.isArray(a)
+		if (isArray !== Array.isArray(b))
+			return false
+
+		if (isArray) {
+			const ba = b as unknown as unknown[]
+			if (a.length !== ba.length)
+				return false
+
+			for (let i = 0; i < a.length; i++)
+				if (!deepEqualsInternal(a[i], ba[i], encountered))
+					return false
+
+			return true
+		}
+
+		const keysA = Object.keys(a)
+		const keysB = Object.keys(b)
+		if (keysA.length !== keysB.length)
+			return false
+
+		for (const key of keysA) {
+			if (!keysB.includes(key))
+				return false
+
+			if (!deepEqualsInternal((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key], encountered))
+				return false
+		}
+
+		return true
+	}
 }
 
 export default Objects
