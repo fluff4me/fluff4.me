@@ -235,7 +235,7 @@ Component.extend(component => {
 			component.clickState = false
 			if (!component.popover) {
 				component.event.subscribe('click', async event => {
-					if ('webkitForce' in event && popoverEvent === 'hover/longpress')
+					if (popoverEvent === 'hover/longpress')
 						return
 
 					const closestHandlesMouseEvents = (event.target as HTMLElement).component?.closest(HandlesMouseEvents)

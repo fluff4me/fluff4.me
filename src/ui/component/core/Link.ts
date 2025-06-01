@@ -39,6 +39,9 @@ const Link = Component.Builder('a', (component, route: RoutePath | undefined): L
 		link.attributes.set('href', `${Env.URL_ORIGIN}${route.slice(1)}`)
 
 		link.event.subscribe('click', event => {
+			if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey || event.button !== 0)
+				return
+
 			event.preventDefault()
 
 			// const closestButtonOrLink = (event.target as Partial<HTMLElement>).component?.closest([Button, Link])
