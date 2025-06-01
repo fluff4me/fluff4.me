@@ -68,7 +68,10 @@ const SlotArray = Component.Builder((component): SlotArray => {
 					else
 						children.splice(nextChildIndex, 0, newSlot)
 
-					item.value.removed.match(slot, true, newSlot.remove)
+					item.value.removed.match(slot, true, () => {
+						newSlot.remove()
+						children.filterInPlace(c => c !== newSlot)
+					})
 				},
 				onMove (startIndex, endIndex, newStartIndex) {
 					const toMove = children.splice(startIndex, endIndex - startIndex)

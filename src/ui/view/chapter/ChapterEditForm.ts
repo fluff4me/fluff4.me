@@ -19,7 +19,7 @@ import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
-import Arrays, { NonNullish } from 'utility/Arrays'
+import { NonNullish } from 'utility/Arrays'
 import Functions from 'utility/Functions'
 import Objects from 'utility/Objects'
 import State from 'utility/State'
@@ -29,18 +29,18 @@ import State from 'utility/State'
 
 interface ChapterEditFormContentExtensions {
 	readonly numbered: RadioRow<'numbered' | 'other'>
+	readonly state: State<ChapterCreateBody>
 	hasUnsavedChanges (): boolean
-	getFormData (): ChapterCreateBody
 }
 
 interface ChapterEditFormContent extends LabelledTable, ChapterEditFormContentExtensions { }
 
-const ChapterEditFormContent = Component.Builder((component, state: State.Mutable<ChapterData | undefined>): ChapterEditFormContent => {
+const ChapterEditFormContent = Component.Builder((component, inputState: State<ChapterData | undefined>): ChapterEditFormContent => {
 	const table = component.and(LabelledTable)
 
 	const nameInput = TextInput()
 		.setRequired()
-		.default.bind(state.map(component, work => work?.name))
+		.default.bind(inputState.map(component, chapter => chapter?.name))
 		.hint.use('view/chapter-edit/shared/form/name/hint')
 		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.chapter?.name))
 	table.label(label => label.text.use('view/chapter-edit/shared/form/name/label'))
@@ -52,7 +52,7 @@ const ChapterEditFormContent = Component.Builder((component, state: State.Mutabl
 			.append(Placeholder()
 				.style('view-type-chapter-edit-type-example')
 				.text.use(quilt => quilt['view/chapter-edit/shared/form/type/numbered/example'](Functions.resolve(() => {
-					const chapter = getChapter(state.value)
+					const chapter = getChapter(inputState.value)
 					if (!chapter)
 						return 'N'
 
@@ -69,19 +69,19 @@ const ChapterEditFormContent = Component.Builder((component, state: State.Mutabl
 				.style('view-type-chapter-edit-type-example')
 				.text.use('view/chapter-edit/shared/form/type/other/example'))
 		)
-		.default.bind(state.map(component, chapter => chapter?.is_numbered === false ? 'other' : 'numbered'))
+		.default.bind(inputState.map(component, chapter => chapter?.is_numbered === false ? 'other' : 'numbered'))
 	table.label(label => label.text.use('view/chapter-edit/shared/form/type/label'))
 		.content((content, label) => content.append(type.setLabel(label)))
 
 	const tagsEditor = TagsEditor()
-		.default.bind(state as State<TagsState>)
+		.default.bind(inputState as State<TagsState>)
 		.setMaxLengthGlobal(FormInputLengths.map(table, lengths => lengths?.work_tags?.global))
 		.setMaxLengthCustom(FormInputLengths.map(table, lengths => lengths?.work_tags?.custom))
 	table.label(label => label.text.use('view/chapter-edit/shared/form/tags/label'))
 		.content((content, label) => content.append(tagsEditor.setLabel(label)))
 
 	const notesBeforeInput = TextEditor()
-		.default.bind(state.map(component, chapter => chapter?.notes_before ?? undefined))
+		.default.bind(inputState.map(component, chapter => chapter?.notes_before ?? undefined))
 		.hint.use('view/chapter-edit/shared/form/notes/hint')
 		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.chapter?.notes))
 		.setMinimalByDefault()
@@ -89,20 +89,20 @@ const ChapterEditFormContent = Component.Builder((component, state: State.Mutabl
 		.content((content, label) => content.append(notesBeforeInput.setLabel(label)))
 
 	const bodyInput = TextEditor()
-		.default.bind(state.map(component, chapter => chapter?.body ?? undefined))
+		.default.bind(inputState.map(component, chapter => chapter?.body ?? undefined))
 		.hint.use('view/chapter-edit/shared/form/body/hint')
 	table.label(label => label.text.use('view/chapter-edit/shared/form/body/label'))
 		.content((content, label) => content.append(bodyInput.setLabel(label)))
 
 	const notesAfterInput = TextEditor()
-		.default.bind(state.map(component, chapter => chapter?.notes_after ?? undefined))
+		.default.bind(inputState.map(component, chapter => chapter?.notes_after ?? undefined))
 		.hint.use('view/chapter-edit/shared/form/notes/hint')
 		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.chapter?.notes))
 		.setMinimalByDefault()
 	table.label(label => label.text.use('view/chapter-edit/shared/form/notes/label'))
 		.content((content, label) => content.append(notesAfterInput.setLabel(label)))
 
-	const { threshold, visibility } = applyVisibilityOptions(table, state)
+	const { threshold, visibility } = applyVisibilityOptions(table, inputState)
 
 	component.onRooted(() => {
 		notesBeforeInput.ready()
@@ -110,36 +110,35 @@ const ChapterEditFormContent = Component.Builder((component, state: State.Mutabl
 		notesAfterInput.ready()
 	})
 
+	const state = State.Use(component, {
+		name: nameInput.state,
+		body: bodyInput.content,
+		notes_before: notesBeforeInput.content,
+		notes_after: notesAfterInput.content,
+		visibility: visibility.selection.coalesce('Private'),
+		global_tags: tagsEditor.state.mapManual(tags => tags.global_tags),
+		custom_tags: tagsEditor.state.mapManual(tags => tags.custom_tags),
+		is_numbered: type.selection.equals('numbered'),
+		tier_id: threshold?.selection.mapManual(selection => selection?.[0]),
+		tier_ids: threshold?.selection,
+	} satisfies { [KEY in keyof ChapterCreateBody]: State<ChapterCreateBody[KEY]> })
+
 	return table.extend<ChapterEditFormContentExtensions>(component => ({
+		state,
 		numbered: type,
 		hasUnsavedChanges,
-		getFormData,
 	}))
 
-	function getFormData () {
-		return {
-			name: nameInput.value,
-			...tagsEditor.state.value,
-			body: bodyInput.useMarkdown(),
-			notes_before: notesBeforeInput.useMarkdown(),
-			notes_after: notesAfterInput.useMarkdown(),
-			visibility: visibility.selection.value ?? 'Private',
-			is_numbered: type.selection.value === 'numbered',
-			tier_id: Arrays.resolve(threshold?.selection.value)[0],
-			tier_ids: threshold?.selection.value,
-		} satisfies ChapterCreateBody
-	}
-
 	function hasUnsavedChanges () {
-		if (!state.value)
+		if (!inputState.value)
 			return true
 
-		const data = getFormData()
+		const data = state.value
 
-		const basicFields = Objects.keys(getFormData()).filter(key => key !== 'custom_tags' && key !== 'global_tags' && key !== 'tier_id' && key !== 'tier_ids')
+		const basicFields = Objects.keys(data).filter(key => key !== 'custom_tags' && key !== 'global_tags' && key !== 'tier_id' && key !== 'tier_ids')
 		for (const field of basicFields) {
 			let dataValue = data[field]
-			let stateValue = state.value[field]
+			let stateValue = inputState.value[field]
 
 			if (dataValue === '') stateValue ??= ''
 			if (stateValue === '') dataValue ??= ''
@@ -153,8 +152,8 @@ const ChapterEditFormContent = Component.Builder((component, state: State.Mutabl
 
 		const dataTiers = data.tier_ids ?? [data.tier_id].filter(NonNullish)
 		const stateTiers = _
-			?? getChapter(state.value)?.patreon?.tiers.map(tier => tier.tier_id)
-			?? [getChapter(state.value)?.patreon?.tier.tier_id].filter(NonNullish)
+			?? getChapter(inputState.value)?.patreon?.tiers.map(tier => tier.tier_id)
+			?? [getChapter(inputState.value)?.patreon?.tier.tier_id].filter(NonNullish)
 
 		if (dataTiers.length !== stateTiers.length)
 			return true
@@ -162,16 +161,16 @@ const ChapterEditFormContent = Component.Builder((component, state: State.Mutabl
 		if (dataTiers.some(tier => !stateTiers.includes(tier)))
 			return true
 
-		if ((data.custom_tags?.length ?? 0) !== (state.value.custom_tags?.length ?? 0))
+		if ((data.custom_tags?.length ?? 0) !== (inputState.value.custom_tags?.length ?? 0))
 			return true
 
-		if (data.custom_tags?.some(tag => !state.value?.custom_tags?.includes(tag)))
+		if (data.custom_tags?.some(tag => !inputState.value?.custom_tags?.includes(tag)))
 			return true
 
-		if ((data.global_tags?.length ?? 0) !== (state.value.global_tags?.length ?? 0))
+		if ((data.global_tags?.length ?? 0) !== (inputState.value.global_tags?.length ?? 0))
 			return true
 
-		if (data.global_tags?.some(tag => !state.value?.global_tags?.includes(tag)))
+		if (data.global_tags?.some(tag => !inputState.value?.global_tags?.includes(tag)))
 			return true
 
 		return false
@@ -305,7 +304,6 @@ const ChapterEditForm = Object.assign(
 
 		return form.extend<ChapterEditFormExtensions>(component => ({
 			hasUnsavedChanges: content.hasUnsavedChanges,
-			getFormData: content.getFormData,
 			save,
 		}))
 
@@ -315,7 +313,7 @@ const ChapterEditForm = Object.assign(
 					case 'create':
 						return EndpointChapterCreate.query({
 							params: workParams,
-							body: content.getFormData(),
+							body: content.state.value,
 						})
 
 					case 'update': {
@@ -333,7 +331,7 @@ const ChapterEditForm = Object.assign(
 								work: workParams.vanity,
 								url: chapter.url,
 							},
-							body: content.getFormData(),
+							body: content.state.value,
 						})
 					}
 				}

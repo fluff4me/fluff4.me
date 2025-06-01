@@ -785,6 +785,9 @@ action/clear: Clear Chapters
 action/create: Create Chapters
 action/actions: Actions
 action/tab/visibility=shared/form/visibility/label
+action/tab/movement: Movement
+action/move-up: Move Selected Up
+action/move-down: Move Selected Down
 action/apply: Apply
 action/remove: Remove
 action/remove/confirm: The following queued chapters will be removed: {0***&**:, }{1?, *...and {1} more chapters...*}

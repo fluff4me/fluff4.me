@@ -45,6 +45,7 @@ interface State<T, E = T> {
 	falsy: State.Generator<boolean>
 	not: State.Generator<boolean>
 	equals (value: T): State.Generator<boolean>
+	coalesce<R> (right: StateOr<R>): State.Generator<Exclude<T, null | undefined> | R>
 
 	delay (owner: State.Owner, delay: SupplierOr<number, [T]>, mapper?: null, equals?: ComparatorFunction<T>): State<T>
 	delay<R> (owner: State.Owner, delay: SupplierOr<number, [T]>, mapper: (value: T) => StateOr<R>, equals?: ComparatorFunction<R>): State<R>
@@ -206,6 +207,16 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 			equalsMap ??= new Map()
 			return equalsMap.compute(value, () => State.Generator(() => result.value === value)
 				.observeManual(result))
+		},
+		coalesce (right) {
+			const rightState = State.get(right)
+			return State.Generator(() => {
+				const leftValue = result.value
+				if (leftValue !== undefined && leftValue !== null)
+					return leftValue as Exclude<T, null | undefined>
+
+				return rightState.value
+			}).observeManual(result, rightState)
 		},
 		delay (owner: State.Owner, delay: SupplierOr<number, [T]>, mapper?: null | ((value: T) => StateOr<any>), equals?: ComparatorFunction<any>) {
 			const delayed = State(!mapper ? result.value : mapper(result.value), equals)

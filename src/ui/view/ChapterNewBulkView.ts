@@ -29,6 +29,7 @@ import Small from 'ui/component/core/Small'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import TextInput from 'ui/component/core/TextInput'
 import Work from 'ui/component/Work'
+import type { IInputEvent } from 'ui/InputBus'
 import InputBus from 'ui/InputBus'
 import type { Quilt } from 'ui/utility/StringApplicator'
 import ChapterEditForm from 'ui/view/chapter/ChapterEditForm'
@@ -36,6 +37,7 @@ import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import Documents from 'utility/Documents'
 import Maths from 'utility/maths/Maths'
+import Objects from 'utility/Objects'
 import State from 'utility/State'
 import Strings from 'utility/string/Strings'
 import Task from 'utility/Task'
@@ -545,11 +547,11 @@ export default ViewDefinition({
 								chapterFormData.push({
 									open: false,
 									selected: false,
-									body: {
+									body: State({
 										name: getChapterName(file),
 										body: file.body,
 										visibility: 'Private',
-									},
+									}),
 								})
 							}
 
@@ -572,7 +574,7 @@ export default ViewDefinition({
 		interface ChapterForm {
 			open: boolean
 			selected: boolean
-			body: ChapterCreateBody
+			body: State<ChapterCreateBody>
 		}
 
 		const chapterFormData = State.Array<ChapterForm>()
@@ -633,16 +635,16 @@ export default ViewDefinition({
 							.style('view-type-chapter-bulk-create-chapter-summary')
 							.style.bind(details.state, 'view-type-chapter-bulk-create-chapter-summary--open')
 							.style.bind(details.state.falsy, 'view-type-chapter-bulk-create-chapter-summary--closed')
-							.style.toggle(chapter.body.visibility === 'Patreon', 'view-type-chapter-bulk-create-chapter-summary--patreon')
-							.style.toggle(chapter.body.visibility === 'Private', 'view-type-chapter-bulk-create-chapter-summary--private')
-							.append(Slot.using(api.number, (slot, number) => ChapterDisplay(number.url, chapter.body.name)
+							.style.bind(chapter.body.map(details.summary, body => body.visibility === 'Patreon'), 'view-type-chapter-bulk-create-chapter-summary--patreon')
+							.style.bind(chapter.body.map(details.summary, body => body.visibility === 'Private'), 'view-type-chapter-bulk-create-chapter-summary--private')
+							.append(Slot.using(State.Use(details.summary, { number: api.number, body: chapter.body }), (slot, { number, body }) => ChapterDisplay(number.url, body.name)
 								.style.remove('slot')
-								.append(chapter.body.visibility !== 'Patreon' || !chapter.body.tier_ids?.length ? undefined
+								.append(body.visibility !== 'Patreon' || !body.tier_ids?.length ? undefined
 									: Component()
 										.style('view-type-chapter-bulk-create-chapter-summary-patreon', 'patreon-icon-before')
-										.text.use(Patreon.translateTiers(chapter.body.tier_ids, Session.Auth.author?.value?.patreon_campaign?.tiers ?? []))
+										.text.use(Patreon.translateTiers(body.tier_ids, Session.Auth.author?.value?.patreon_campaign?.tiers ?? []))
 								)
-								.append(chapter.body.visibility !== 'Private' ? undefined
+								.append(body.visibility !== 'Private' ? undefined
 									: Placeholder()
 										.style('view-type-chapter-bulk-create-chapter-summary-private')
 										.text.use('view/chapter-create-bulk/create/visibility/private')
@@ -684,16 +686,19 @@ export default ViewDefinition({
 							'view-type-chapter-bulk-create-chapter--has-selected-sibling')
 
 						details.state.matchManual(true, async () => {
-							const chapterState = State<ChapterCreateBody | undefined>(chapter.body)
-							const form = ChapterEditForm.Content(chapterState)
+							const form = ChapterEditForm.Content(chapter.body)
 								.appendTo(details)
 
+							form.state.useManual(state => {
+								if (Objects.deepEquals(state, chapter.body.value))
+									return
+
+								chapter.body.asMutable?.setValue(state)
+								chapterFormData.emit()
+							})
+
 							form.numbered.selection.subscribe(details, selection => {
-								const newIsNumbered = !selection || selection === 'numbered'
-								if (chapter.body.is_numbered !== newIsNumbered) {
-									chapter.body.is_numbered = newIsNumbered
-									chosenPosition.emit() // trigger all details to update their numbers
-								}
+								chosenPosition.emit() // trigger all details to update their numbers
 							})
 
 							await Task.yield()
@@ -762,7 +767,7 @@ export default ViewDefinition({
 
 							for (let i = 0; i <= ownIndex; i++) {
 								const chapter = chapterFormData.value[i]
-								if (chapter.body.is_numbered ?? true)
+								if (chapter.body.value.is_numbered ?? true)
 									chapterN++, interludeN = 0
 								else
 									interludeN++
@@ -852,118 +857,150 @@ export default ViewDefinition({
 										tabinator.showNone()
 								})
 
+								////////////////////////////////////
+								//#region Visibility
+
+								tabinator.addTab(Tab()
+									.text.use('view/chapter-create-bulk/create/action/tab/visibility')
+									.tweak(tab => {
+										tab.content.style('view-type-chapter-bulk-create-selection-actions-details-tabinator-tab-content')
+
+										const table = LabelledTable()
+											.appendTo(tab.content)
+
+										const { visibility, threshold } = ChapterEditForm.applyVisibilityOptions(table, State(undefined))
+
+										chapterFormData.use(visibility, chapters => {
+											const visibilities = chapters.filter(chapter => chapter.selected).map(chapter => chapter.body.value.visibility).distinct()
+											visibility.default.set(visibilities.length === 1 ? visibilities[0] : null)
+										})
+
+										ActionRow()
+											.style('view-type-chapter-bulk-create-selection-actions-details-tabinator-tab-content-actions')
+											.tweak(row => row.right.append(Button()
+												.type('primary')
+												.text.use('view/chapter-create-bulk/create/action/apply')
+												.event.subscribe('click', () => {
+													if (!visibility.selection.value)
+														return
+
+													for (let i = 0; i < chapterFormData.length.value; i++) {
+														const chapter = chapterFormData.value[i]
+														if (!chapter.selected)
+															continue
+
+														chapter.body.value.visibility = visibility.selection.value
+														chapter.body.value.tier_ids = threshold?.selection.value
+														chapterFormData.emitItem(i)
+													}
+
+													chapterFormData.emit()
+												})
+											))
+											.appendTo(tab.content)
+									}))
+
+								//#endregion
+								////////////////////////////////////
+
+								////////////////////////////////////
+								//#region Movement
+
+								tabinator.addTab(Tab()
+									.text.use('view/chapter-create-bulk/create/action/tab/movement')
+									.tweak(tab => {
+										tab.content.style('view-type-chapter-bulk-create-selection-actions-details-tabinator-tab-content')
+
+										ActionRow()
+											.tweak(row => row.left.append(Button()
+												.type('primary')
+												.setIcon('arrow-up')
+												.text.use('view/chapter-create-bulk/create/action/move-up')
+												.event.subscribe('click', () => moveSelectionUp())
+											))
+											.tweak(row => row.left.append(Button()
+												.type('primary')
+												.setIcon('arrow-down')
+												.text.use('view/chapter-create-bulk/create/action/move-down')
+												.event.subscribe('click', () => moveSelectionDown())
+											))
+											.appendTo(tab.content)
+									}))
+
+								//#endregion
+								////////////////////////////////////
+
+								////////////////////////////////////
+								//#region Remove
+
+								tabinator.header.append(Button()
+									.style('view-type-chapter-bulk-create-selection-actions-details-right-button')
+									.setIcon('xmark')
+									.type('flush')
+									.text.use('view/chapter-create-bulk/create/action/remove')
+									.event.subscribe('click', async event => {
+										const selectedChapters = chapterFormData.value
+											.filter(chapter => chapter.selected)
+										const confirmed = await ConfirmDialog.prompt(event.host, {
+											bodyTranslation: quilt => quilt['view/chapter-create-bulk/create/action/remove/confirm'](
+												selectedChapters
+													.map(chapter => chapter.body.value.name)
+													.slice(0, 5),
+												Math.max(0, selectedChapters.length - 5),
+											),
+										})
+										if (!confirmed)
+											return
+
+										chapterFormData.filterInPlace(chapter => !chapter.selected)
+									})
+								)
+
+								//#endregion
+								////////////////////////////////////
+
 								InputBus.until(tabinator, bus => bus.subscribe('down', event => {
-									const selection = getSelection()
+									if (event.use('ArrowUp', 'ctrl'))
+										moveSelectionUp(event)
 
-									if (event.use('ArrowUp', 'ctrl')) {
-										const moveTo = Math.max(0,
-											Maths.isIncrementing(selection)
-												? Math.min(...selection) - 1
-												: Math.min(...selection)
-										)
-										restoreFocusTo = { index: moveTo, time: Date.now() }
-										chapterFormData.moveAt(selection, moveTo)
-									}
-
-									if (event.use('ArrowDown', 'ctrl')) {
-										const selection = getSelection()
-										const moveTo = Math.min(chapterFormData.length.value - 1,
-											Maths.isIncrementing(selection)
-												? Math.min(...selection) + 1
-												: Math.max(...selection) - selection.length + 1
-										)
-										restoreFocusTo = { index: moveTo, time: Date.now() }
-										chapterFormData.moveAt(selection, moveTo)
-									}
-
-									function getSelection () {
-										const focusedChapter = event.targetComponent?.parent?.as(ChapterDetails)?.chapter
-										const focusedChapterIndex = chapterFormData.value.indexOf(focusedChapter!)
-										return chapterFormData.value.entries()
-											.filter(([, chapter]) => chapter.selected)
-											.map(([i]) => i)
-											.toArray()
-											.concat(...focusedChapterIndex === -1 ? [] : [focusedChapterIndex])
-											.distinctInPlace()
-											.sort((a, b) => a - b)
-									}
+									if (event.use('ArrowDown', 'ctrl'))
+										moveSelectionDown(event)
 								}))
+
+								function moveSelectionUp (event?: Event & IInputEvent) {
+									const selection = getSelection(event)
+									const moveTo = Math.max(0,
+										Maths.isIncrementing(selection)
+											? Math.min(...selection) - 1
+											: Math.min(...selection)
+									)
+									restoreFocusTo = { index: moveTo, time: Date.now() }
+									chapterFormData.moveAt(selection, moveTo)
+								}
+
+								function moveSelectionDown (event?: Event & IInputEvent) {
+									const selection = getSelection(event)
+									const moveTo = Math.min(chapterFormData.length.value - 1,
+										Maths.isIncrementing(selection)
+											? Math.min(...selection) + 1
+											: Math.max(...selection) - selection.length + 1
+									)
+									restoreFocusTo = { index: moveTo, time: Date.now() }
+									chapterFormData.moveAt(selection, moveTo)
+								}
+
+								function getSelection (event?: Event & IInputEvent) {
+									const focusedChapter = event?.targetComponent?.parent?.as(ChapterDetails)?.chapter
+									const focusedChapterIndex = chapterFormData.value.indexOf(focusedChapter!)
+									return chapterFormData.value.entries()
+										.filter(([, chapter]) => chapter.selected)
+										.map(([i]) => i)
+										.toArray()
+										.concat(...focusedChapterIndex === -1 ? [] : [focusedChapterIndex])
+										.distinctInPlace()
+										.sort((a, b) => a - b)
+								}
 							})
-
-							//#endregion
-							////////////////////////////////////
-
-							////////////////////////////////////
-							//#region Visibility
-
-							.addTab(Tab()
-								.text.use('view/chapter-create-bulk/create/action/tab/visibility')
-								.tweak(tab => {
-									tab.content.style('view-type-chapter-bulk-create-selection-actions-details-tabinator-tab-content')
-
-									const table = LabelledTable()
-										.appendTo(tab.content)
-
-									const { visibility, threshold } = ChapterEditForm.applyVisibilityOptions(table, State(undefined))
-
-									chapterFormData.use(visibility, chapters => {
-										const visibilities = chapters.filter(chapter => chapter.selected).map(chapter => chapter.body.visibility).distinct()
-										visibility.default.set(visibilities.length === 1 ? visibilities[0] : null)
-									})
-
-									ActionRow()
-										.style('view-type-chapter-bulk-create-selection-actions-details-tabinator-tab-content-actions')
-										.tweak(row => row.right.append(Button()
-											.type('primary')
-											.text.use('view/chapter-create-bulk/create/action/apply')
-											.event.subscribe('click', () => {
-												if (!visibility.selection.value)
-													return
-
-												for (let i = 0; i < chapterFormData.length.value; i++) {
-													const chapter = chapterFormData.value[i]
-													if (!chapter.selected)
-														continue
-
-													chapter.body.visibility = visibility.selection.value
-													chapter.body.tier_ids = threshold?.selection.value
-													chapterFormData.emitItem(i)
-												}
-
-												chapterFormData.emit()
-											})
-										))
-										.appendTo(tab.content)
-								}))
-
-							//#endregion
-							////////////////////////////////////
-
-							////////////////////////////////////
-							//#region Remove
-
-							.tweak(tabinator => tabinator.header.append(Button()
-								.style('view-type-chapter-bulk-create-selection-actions-details-right-button')
-								.setIcon('xmark')
-								.type('flush')
-								.text.use('view/chapter-create-bulk/create/action/remove')
-								.event.subscribe('click', async event => {
-									const selectedChapters = chapterFormData.value
-										.filter(chapter => chapter.selected)
-									const confirmed = await ConfirmDialog.prompt(event.host, {
-										bodyTranslation: quilt => quilt['view/chapter-create-bulk/create/action/remove/confirm'](
-											selectedChapters
-												.map(chapter => chapter.body.name)
-												.slice(0, 5),
-											Math.max(0, selectedChapters.length - 5),
-										),
-									})
-									if (!confirmed)
-										return
-
-									chapterFormData.filterInPlace(chapter => !chapter.selected)
-								})
-							))
 
 							//#endregion
 							////////////////////////////////////
@@ -1012,16 +1049,16 @@ export default ViewDefinition({
 
 						const chapter = currentState.chapters[i]
 
-						setProgress(i / (currentState.chapters.length + 2), quilt => quilt['view/chapter-create-bulk/upload/loading/queuing'](chapter.body.name, i, currentState.chapters.length))
+						setProgress(i / (currentState.chapters.length + 2), quilt => quilt['view/chapter-create-bulk/upload/loading/queuing'](chapter.body.value.name, i, currentState.chapters.length))
 						const response = await EndpointChapterCreateBulkQueue.query({
 							params: work,
 							body: {
-								name: chapter.body.name,
-								body: chapter.body.body,
-								visibility: chapter.body.visibility,
-								is_numbered: chapter.body.is_numbered,
-								notes_before: chapter.body.notes_before,
-								notes_after: chapter.body.notes_after,
+								name: chapter.body.value.name,
+								body: chapter.body.value.body,
+								visibility: chapter.body.value.visibility,
+								is_numbered: chapter.body.value.is_numbered,
+								notes_before: chapter.body.value.notes_before,
+								notes_after: chapter.body.value.notes_after,
 							},
 						})
 						if (toast.handleError(response))
@@ -1045,9 +1082,9 @@ export default ViewDefinition({
 								position: currentState.position.position,
 							},
 							chapters: currentState.chapters.map(chapter => ({
-								tier_ids: chapter.body.tier_ids,
-								custom_tags: chapter.body.custom_tags,
-								global_tags: chapter.body.global_tags,
+								tier_ids: chapter.body.value.tier_ids,
+								custom_tags: chapter.body.value.custom_tags,
+								global_tags: chapter.body.value.global_tags,
 							}) as QueuedChapterFinalise),
 						},
 					})

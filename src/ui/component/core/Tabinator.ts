@@ -150,7 +150,14 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 					.setOwner(tabinator)
 					.attributes.bind(selected, 'aria-selected', 'true', 'false')
 					.style.bind(selected, 'tabinator-tab--active')
-					.event.subscribe('click', () => activeTab.value = newTab)
+					.event.subscribe('click', () => {
+						if (activeTab.value === newTab && !shouldForceSelect) {
+							activeTab.value = undefined
+							return
+						}
+
+						activeTab.value = newTab
+					})
 					.appendTo(tabinator.header)
 
 				newTab.content
