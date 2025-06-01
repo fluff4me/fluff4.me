@@ -35,6 +35,7 @@
 
 		&-progress:
 			%background-pink
+			width: calc(100% * $fundraiser-progress)
 
 		&-amount:
 			%width-fit
