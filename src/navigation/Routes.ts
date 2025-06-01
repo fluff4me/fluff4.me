@@ -10,6 +10,7 @@ import ContactView from 'ui/view/ContactView'
 import DebugView from 'ui/view/DebugView'
 import FeedView from 'ui/view/FeedView'
 import FollowingView from 'ui/view/FollowingView'
+import FundraiserView from 'ui/view/FundraiserView'
 import HistoryView from 'ui/view/HistoryView'
 import IgnoringView from 'ui/view/IgnoringView'
 import LegalView from 'ui/view/LegalView'
@@ -60,6 +61,8 @@ const Routes = [
 	Route('/manage/tags', ManageTagsView.navigate),
 
 	Route('/supporter/finish', SupporterFinishView.navigate),
+
+	Route('/fundraiser', FundraiserView.navigate),
 ]
 
 RoutePath.setRoutes(Routes)

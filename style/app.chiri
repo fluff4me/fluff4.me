@@ -32,45 +32,6 @@ $app-column-width: #{app-column-width}
 		#after: .app
 		%block
 
-	&-banner-container:
-		%block
-		%fixed
-		top: $masthead-height
-		%width-100
-		%z-index-fg-2
-
-		#flush:
-			%relative
-			%top-auto
-
-		&--view-no-wrapper:
-			#after: .app-banner-container
-			%hidden
-
-	&-banner:
-		%flex
-		%background-pink-2-a50
-		%backdrop-blur
-		%justify-content-centre
-		%width-100
-		%padding-2-3
-		%border-box
-		%box-shadow-1
-		%colour-1
-		%border-block-1
-		$border-colour: $colour-pink-2
-		%font-1
-		#transition: #{transition("opacity")}, #{transition("translate")}
-
-		&-body:
-			%flex
-			%width-content
-
-		&--dismissed:
-			%opacity-0
-			%translate-up-4
-			%transition-focus
-
 	&-content:
 		%contents
 

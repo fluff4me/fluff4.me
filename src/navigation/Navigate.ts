@@ -5,6 +5,7 @@ import EventManipulator from 'ui/utility/EventManipulator'
 import ErrorView from 'ui/view/ErrorView'
 import type ViewContainer from 'ui/view/shared/component/ViewContainer'
 import Env from 'utility/Env'
+import State from 'utility/State'
 
 declare global {
 	export const navigate: Navigator
@@ -15,7 +16,8 @@ export interface NavigatorEvents {
 }
 
 interface Navigator {
-	event: EventManipulator<this, NavigatorEvents>
+	readonly state: State<string>
+	readonly event: EventManipulator<this, NavigatorEvents>
 	isURL (glob: string): boolean
 	fromURL (): Promise<void>
 	toURL (route: RoutePath): Promise<void>
@@ -25,8 +27,10 @@ interface Navigator {
 }
 
 function Navigator (): Navigator {
+	const state = State<string>(location.href)
 	let lastURL: URL | undefined
 	const navigate = {
+		state,
 		event: undefined! as Navigator['event'],
 		isURL: (glob: string) => {
 			const pattern = glob
@@ -43,6 +47,7 @@ function Navigator (): Navigator {
 
 			const oldURL = lastURL
 			lastURL = new URL(location.href)
+			state.value = location.href
 
 			let matchedRoute: RoutePath | undefined
 			let errored = false
@@ -125,7 +130,9 @@ function Navigator (): Navigator {
 		},
 	}
 
-	navigate.event = EventManipulator(navigate)
+	Object.assign(navigate, {
+		event: EventManipulator(navigate),
+	})
 
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises
 	window.addEventListener('popstate', navigate.fromURL)

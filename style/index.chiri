@@ -97,6 +97,7 @@
 	component/moderation-dialog
 	component/license-input
 	component/license
+	component/app-banner
 
 #import:
 	view/view
@@ -123,5 +124,6 @@
 	view/type/about
 	view/type/contact
 	view/type/legal
+	view/type/fundraiser
 
 #import: app

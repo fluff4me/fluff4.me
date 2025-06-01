@@ -1,0 +1,41 @@
+#view type="fundraiser":
+
+	&-banner:
+		#after: .app-banner-body
+		%grid
+		grid-template-columns: 1fr auto
+		%gap-1
+
+		&-dismiss-button:
+			%row-1-2
+			%column-2
+
+	&-progress-bar:
+		%relative
+		%flex
+		%justify-content-space-between
+		%z-index-fg
+		height: calc($space-3 + $space-2)
+		%align-items-centre
+		%padding-inline-2
+
+		&-background, &-progress:
+			%absolute
+			%left-0
+			%top-0
+			%height-100
+			%z-index-bg
+
+		&-background:
+			%background-0-a30
+			%border-radius-1
+			%overflow-hidden
+			%column-1-3
+			%width-100
+
+		&-progress:
+			%background-pink
+
+		&-amount:
+			%width-fit
+			%font-kanit
