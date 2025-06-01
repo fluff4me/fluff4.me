@@ -24,6 +24,7 @@ import FontsListener from 'ui/utility/FontsListener'
 import HoverListener from 'ui/utility/HoverListener'
 import MarkdownContent from 'ui/utility/MarkdownContent'
 import Mouse from 'ui/utility/Mouse'
+import SiteStatusListener from 'ui/utility/SiteStatusListener'
 import { QuiltHelper } from 'ui/utility/StringApplicator'
 import Viewport from 'ui/utility/Viewport'
 import ViewContainer from 'ui/view/shared/component/ViewContainer'
@@ -195,6 +196,7 @@ async function App (): Promise<App> {
 			.appendTo(document.body)
 
 	ToSManager.ensureAccepted()
+	SiteStatusListener.listen()
 
 	await app.navigate.fromURL()
 	return app
