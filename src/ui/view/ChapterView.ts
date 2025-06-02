@@ -34,6 +34,7 @@ import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import ViewTitle from 'ui/view/shared/ext/ViewTitle'
 import Maths from 'utility/maths/Maths'
+import Objects from 'utility/Objects'
 import Random from 'utility/Random'
 import Settings from 'utility/Settings'
 import State from 'utility/State'
@@ -414,7 +415,7 @@ export default ViewDefinition({
 		const commentState = chapterState.mapManual(chapter => !chapter.root_comment || chapter.insufficient_pledge ? undefined : {
 			threadId: chapter.root_comment as UUID,
 			threadAuthor: chapter.author,
-		})
+		}, Objects.deepEquals)
 		Slot()
 			.use(commentState, (slot, thread) => {
 				if (!thread)
