@@ -208,3 +208,22 @@
 
 			@before:
 				%backdrop-filter-none
+
+		&-supporter-reaction-list:
+			%style-normal
+			&--detailed:
+				%flex
+				%flex-column
+			&--compressed:
+				%flex
+				%flex-wrap
+
+		&-supporter-reaction:
+			#after: .gradient-text
+			%font-3
+			%weight-bold
+
+			&-detailed:
+				%flex
+				%gap-1
+				%align-items-centre

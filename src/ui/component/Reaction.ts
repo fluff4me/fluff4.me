@@ -5,12 +5,13 @@ import Button from 'ui/component/core/Button'
 import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 
-export type ReactionType = keyof ManifestReactionTypes
+export type ReactionType = keyof ManifestReactionTypes | 'supporter_heart'
 
 const REACTION_MAP: Record<ReactionType, ButtonIcon> = {
 	love: 'heart',
 	author_heart: 'author-heart',
 	guest_heart: 'guest-heart',
+	supporter_heart: 'supporter-heart',
 }
 
 interface ReactionExtensions {
