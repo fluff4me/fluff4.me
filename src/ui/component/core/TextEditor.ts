@@ -357,7 +357,11 @@ const schema = new Schema({
 			group: 'block',
 			defining: true,
 			parseDOM: [
-				{ tag: 'center', getAttrs: () => ({ align: 'center' }) },
+				{
+					tag: 'center',
+					getAttrs: () => ({ align: 'center' }),
+					consuming: false,
+				},
 				{
 					tag: '*',
 					getAttrs: (element: HTMLElement) => {
@@ -371,6 +375,7 @@ const schema = new Schema({
 									: textAlign,
 						}
 					},
+					consuming: false,
 					priority: 51,
 				},
 			],
@@ -378,6 +383,25 @@ const schema = new Schema({
 				class: node.attrs.align === 'left' ? 'align-left' : undefined,
 				style: `text-align:${node.attrs.align as string}`,
 			}), 0] as const,
+		},
+		id_block: {
+			attrs: { id: { validate: (value: any) => typeof value === 'string' && value.length > 0 && !value.startsWith('docs-internal-guid') } },
+			content: 'block+',
+			group: 'block',
+			defining: true,
+			parseDOM: [{
+				tag: '*',
+				getAttrs: (element: HTMLElement) => {
+					const id = element.getAttribute('id')
+					if (!id?.length || id.startsWith('docs-internal-guid'))
+						return false
+
+					return { id }
+				},
+				consuming: false,
+				priority: 51,
+			}],
+			toDOM: (node: Node) => ['div', { id: node.attrs.id }, 0] as const,
 		},
 	}),
 	marks: {
@@ -435,6 +459,27 @@ const schema = new Schema({
 				return link
 			},
 		},
+		id_mark: {
+			attrs: { id: { validate: value => typeof value === 'string' && value.length > 0 && !value.startsWith('docs-internal-guid') } },
+			parseDOM: [{
+				tag: '*',
+				getAttrs: (element: HTMLElement) => {
+					const id = element.getAttribute('id')
+					if (!id?.length || id.startsWith('docs-internal-guid'))
+						return false
+
+					return { id }
+				},
+				consuming: false,
+				priority: 51,
+			}],
+			toDOM: (mark: Mark) => {
+				const span = document.createElement('span')
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				span.id = mark.attrs.id
+				return span
+			},
+		},
 	},
 })
 
@@ -475,6 +520,15 @@ const markdownHTMLNodeRegistry: PartialRecord<Nodes, MarkdownHTMLTokenRemapSpec>
 			return { align }
 		},
 	},
+	id_block: {
+		getAttrs: token => {
+			const id = token.attrGet('id')
+			if (!id?.length)
+				return undefined
+
+			return { id }
+		},
+	},
 }
 
 const markdownHTMLMarkRegistry: PartialRecord<Marks, MarkdownHTMLTokenRemapSpec> = {
@@ -502,6 +556,15 @@ const markdownHTMLMarkRegistry: PartialRecord<Marks, MarkdownHTMLTokenRemapSpec>
 			textToken.content = `@${vanity}`
 			textToken.type = 'text'
 			return [textToken]
+		},
+	},
+	id_mark: {
+		getAttrs: token => {
+			const id = token.attrGet('id')
+			if (!id?.length)
+				return undefined
+
+			return { id }
 		},
 	},
 	link: {
@@ -720,6 +783,12 @@ const markdownSerializer = new MarkdownSerializer(
 			state.write('</div>')
 			state.closeBlock(node)
 		},
+		id_block: (state, node, parent, index) => {
+			state.write(`<div id="${node.attrs.id}">\n`)
+			state.renderContent(node)
+			state.write('</div>')
+			state.closeBlock(node)
+		},
 		paragraph: (state, node, parent, index) => {
 			if (node.content.size === 0)
 				state.write('<br>\n')
@@ -754,6 +823,13 @@ const markdownSerializer = new MarkdownSerializer(
 				realState.out = realState.out.slice(0, indexOfOpen + openTag.length)
 				return ''
 			},
+		},
+		id_mark: {
+			open: (state, mark, parent, index) => {
+				return `<span id="${mark.attrs.id}">`
+			},
+			close: '</span>',
+			expelEnclosingWhitespace: true,
 		},
 		subscript: {
 			open: '<sub>',
@@ -915,6 +991,9 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 
 			let hadActive = false
 			for (const type of markTypes) {
+				if (type === 'id_mark')
+					continue
+
 				if (!isMarkActive(schema.marks[type], $pos))
 					continue
 
@@ -942,7 +1021,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	////////////////////////////////////
 	//#region Types
 
-	const ToolbarButtonTypeMark = Component.Extension((component, type: Exclude<Marks, 'mention'>) => {
+	const ToolbarButtonTypeMark = Component.Extension((component, type: Exclude<Marks, 'mention' | 'id_mark'>) => {
 		const mark = schema.marks[type]
 		return component
 			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
@@ -1040,7 +1119,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	////////////////////////////////////
 	//#region Specifics
 
-	const ToolbarButtonMark = Component.Builder((_, type: Exclude<Marks, 'mention'>) => {
+	const ToolbarButtonMark = Component.Builder((_, type: Exclude<Marks, 'mention' | 'id_mark'>) => {
 		const mark = schema.marks[type]
 		const toggler = markToggler(mark)
 		const markActive = state.map(component, state => isMarkActive(mark))
