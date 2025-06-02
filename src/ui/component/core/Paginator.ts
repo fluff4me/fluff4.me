@@ -239,17 +239,18 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				const hasContent = content?.value === false || hasResults(content?.value)
 				if (hasContent) {
 					newPage.style.remove('paginator-page--hidden')
-					const newScrollHeight = document.documentElement.scrollHeight
-					if (newScrollHeight > previousScrollRect.height)
-						scrollIntoView(direction)
-					else {
-						const doScrollIntoView = () => scrollIntoView(direction)
-						previousPage?.element.addEventListener('transitionend', doScrollIntoView, { once: true })
-						removeLastScrollIntoViewHandler = () => {
-							previousPage?.element.removeEventListener('transitionend', doScrollIntoView)
-							removeLastScrollIntoViewHandler = undefined
-						}
-					}
+					// waiting for transition end is broken by some kind of transition bug causing the event to never fire
+					// const newScrollHeight = document.documentElement.scrollHeight
+					// if (newScrollHeight > previousScrollRect.height)
+					scrollIntoView(direction)
+					// else {
+					// 	const doScrollIntoView = () => scrollIntoView(direction)
+					// 	previousPage?.element.addEventListener('transitionend', doScrollIntoView, { once: true })
+					// 	removeLastScrollIntoViewHandler = () => {
+					// 		previousPage?.element.removeEventListener('transitionend', doScrollIntoView)
+					// 		removeLastScrollIntoViewHandler = undefined
+					// 	}
+					// }
 					return
 				}
 
