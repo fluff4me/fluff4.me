@@ -8,15 +8,15 @@ interface GradientTextExtensions {
 
 interface GradientText extends Component, GradientTextExtensions { }
 
-export default Component.Extension((component): GradientText => {
+export default Component.Extension((component, variable?: string, angle = 'to right'): GradientText => {
 	let unuseGradient: UnsubscribeState | undefined
 	return component.extend<GradientTextExtensions>(component => ({
 		useGradient (gradient) {
 			unuseGradient?.()
 			unuseGradient = State.get(gradient).use(component, stops => component
 				.style.toggle(!!stops?.length, 'gradient-text')
-				.style.setProperty('background-image', !stops?.length ? undefined
-					: `linear-gradient(to right in oklch, ${(stops
+				.style.setProperty(variable ? `--${variable}` : 'background-image', !stops?.length ? undefined
+					: `linear-gradient(${angle} in oklch, ${(stops
 						.map(colour => `#${colour.toString(16).padStart(6, '0')}`)
 						.map(colour => `light-dark(
 							oklch(from ${colour} min(0.5, L) C H),

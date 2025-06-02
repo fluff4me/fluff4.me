@@ -371,7 +371,9 @@ action/label/reorder-cancel: Cancel Reordering
 action/label/report=shared/action/report
 action/label/moderate=shared/action/moderate
 action/delete/confirm: This will delete the chapter "**{0}**", and it will be gone for good!
-reaction/guest-heart: The ephemeral {#ICON.HEART:}s left by guests in the last week.
+reaction/normal-heart: The {#ICON.HEART:}s left by community members!
+reaction/guest-heart: The ephemeral {#ICON.HEART:}s left by guests in the last week!
+reaction/supporter-heart: The colourful {#ICON.HEART:}s left by fluff4.me supporters!
 
 # notification
 comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}

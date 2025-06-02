@@ -3,6 +3,8 @@ import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
 import EndpointHistoryAddChapter from 'endpoint/history/EndpointHistoryAddChapter'
 import EndpointReactChapter from 'endpoint/reaction/EndpointReactChapter'
+import EndpointSupporterReactChapter from 'endpoint/reaction/EndpointSupporterReactChapter'
+import EndpointSupporterUnreactChapter from 'endpoint/reaction/EndpointSupporterUnreactChapter'
 import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import Chapters from 'model/Chapters'
@@ -10,12 +12,15 @@ import PagedData from 'model/PagedData'
 import Session from 'model/Session'
 import TextBody from 'model/TextBody'
 import Component from 'ui/Component'
+import AuthorLink from 'ui/component/AuthorLink'
 import Chapter from 'ui/component/Chapter'
 import Comments from 'ui/component/Comments'
 import { BlockClasses } from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import GradientText from 'ui/component/core/ext/GradientText'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Heading from 'ui/component/core/Heading'
+import Icon from 'ui/component/core/Icon'
 import Link from 'ui/component/core/Link'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
@@ -29,6 +34,7 @@ import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import ViewTitle from 'ui/view/shared/ext/ViewTitle'
 import Maths from 'utility/maths/Maths'
+import Random from 'utility/Random'
 import Settings from 'utility/Settings'
 import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
@@ -255,13 +261,89 @@ export default ViewDefinition({
 
 		const reactions = chapterState.mapManual(chapter => chapter.reactions ?? 0)
 		const guestReactions = chapterState.mapManual(chapter => chapter.guest_reactions ?? 0)
+		const supporterReactions = chapterState.mapManual(chapter => chapter.supporter_reactions?.length ?? 0)
 		const reactedNormal = chapterState.mapManual(chapter => !!chapter.reacted && !!Session.Auth.author.value)
 		const reactedGuest = chapterState.mapManual(chapter => !!chapter.reacted && !Session.Auth.author.value)
+		const reactedSupporter = chapterState.mapManual(chapter => !!chapter.supporter_reactions?.some(reaction => reaction?.author === Session.Auth.author.value?.vanity))
 		Slot()
 			.if(sufficientPledge, slot => Slot()
+				.appendWhen(supporterReactions.map(slot, reactions => !!reactions || !!Session.Auth.author.value?.supporter?.tier),
+					Reaction('supporter_heart', supporterReactions, reactedSupporter)
+						.tweak(reaction => reaction.icon.setDisabled(!Session.Auth.author.value?.supporter?.tier, 'not a supporter'))
+						.and(GradientText, 'heart-gradient', '115deg')
+						.useGradient(Session.Auth.author.map(slot, author => author?.supporter?.username_colours))
+						.setTooltip(tooltip => {
+							Component().text.use('chapter/reaction/supporter-heart').appendTo(tooltip)
+							const list = Slot().style.remove('slot').appendTo(tooltip)
+							list.use(chapterState, (slot, chapter) => {
+								if (!chapter.supporter_reactions?.length)
+									return
+
+								const reactions = Random.shuffle(chapter.supporter_reactions)
+								const detailed = chapter.supporter_reactions.length < 5
+
+								list.style('view-type-chapter-block-supporter-reaction-list')
+									.style.toggle(detailed, 'view-type-chapter-block-supporter-reaction-list--detailed')
+									.style.toggle(!detailed, 'view-type-chapter-block-supporter-reaction-list--compressed')
+
+								if (detailed)
+									for (const reaction of reactions) {
+										const author = chapter.mentions?.find(author => author.vanity === reaction?.author)
+										if (!author)
+											continue
+
+										Component()
+											.style('view-type-chapter-block-supporter-reaction-detailed')
+											.append(Icon('supporter-heart')
+												.style('view-type-chapter-block-supporter-reaction')
+												.and(GradientText, 'heart-gradient', '115deg')
+												.useGradient(author?.supporter?.username_colours)
+											)
+											.append(AuthorLink(author))
+											.appendTo(slot)
+									}
+								else
+									for (const reaction of reactions)
+										Icon('supporter-heart')
+											.style('view-type-chapter-block-supporter-reaction')
+											.and(GradientText, 'heart-gradient', '115deg')
+											.useGradient(chapter.mentions?.find(author => author.vanity === reaction?.author)?.supporter?.username_colours)
+											.appendTo(slot)
+							})
+						})
+						.event.subscribe('click', async () => {
+							if (!Session.Auth.loggedIn.value)
+								return
+
+							const params = { ...Chapters.reference(chapterState.value), type: 'heart' } as const
+							if (reactedSupporter.value) {
+								const response = await EndpointSupporterUnreactChapter.query({ params })
+								if (toast.handleError(response))
+									return
+
+								chapterState.value.supporter_reactions?.filterInPlace(reaction => reaction?.author !== Session.Auth.author.value?.vanity)
+
+								chapterState.emit()
+							}
+							else {
+								const response = await EndpointSupporterReactChapter.query({ params })
+								if (toast.handleError(response))
+									return
+
+								const supporterReactions = chapterState.value.supporter_reactions ??= []
+								supporterReactions.push({
+									author: Session.Auth.author.value!.vanity,
+									reaction_type: 'heart',
+								})
+
+								chapterState.emit()
+							}
+						})
+				)
 				.appendWhen(reactions.map(slot, reactions => !!reactions || !!Session.Auth.author.value),
 					Reaction('love', reactions, reactedNormal)
 						.tweak(reaction => reaction.icon.setDisabled(!Session.Auth.author.value, 'not logged in'))
+						.setTooltip(tooltip => tooltip.text.use('chapter/reaction/normal-heart'))
 						.event.subscribe('click', async () => {
 							if (!Session.Auth.loggedIn.value)
 								return
