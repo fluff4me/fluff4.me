@@ -36,7 +36,9 @@ const html = Object.assign(
 			state.i = state.block.bMarks[state.l] + state.block.tShift[state.l]
 			state.e = state.src.length
 			state.silent = silent
+			const blkIndent = state.block.blkIndent
 			const result = html.consumeBlock(state)
+			state.block.blkIndent = blkIndent // reset indent to allow parent termination
 			state.block = undefined
 			return result
 		}, { alt: ['paragraph'] })
