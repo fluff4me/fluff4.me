@@ -646,7 +646,7 @@ markdown.parse = (src, env) => {
 
 				token.type = `${opening.type.slice(0, -5)}_close`
 				tokens.push(token)
-				level = token.level
+				level = token.level + token.nesting
 				continue
 			}
 
