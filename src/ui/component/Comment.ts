@@ -18,7 +18,7 @@ import Timestamp from 'ui/component/core/Timestamp'
 import AuthorPopover from 'ui/component/popover/AuthorPopover'
 import Reaction from 'ui/component/Reaction'
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
-import type State from 'utility/State'
+import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
 
 const COMMENT_REPORT = ReportDefinition<ReportCommentBody>({
@@ -196,9 +196,11 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 							.style('comment-footer')
 							.appendTo(content)
 
+						const changingReactionState = State(false)
 						const isThreadAuthor = source.threadAuthor === Session.Auth.author.value?.vanity
+						const changingAuthorHeartState = isThreadAuthor ? changingReactionState : State(false)
 						if (commentData.reactions || !commentData.reacted || !isThreadAuthor)
-							Reaction('love', commentData.reactions ?? 0, !!commentData.reacted)
+							Reaction('love', commentData.reactions ?? 0, !!commentData.reacted, changingReactionState)
 								.event.subscribe('click', async () => {
 									if (!author)
 										return
@@ -207,7 +209,9 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 										await unreact()
 									}
 									else {
+										changingReactionState.value = true
 										const response = await EndpointReactComment.query({ params: { comment_id: commentData.comment_id, type: 'love' } })
+										changingReactionState.value = false
 										if (toast.handleError(response))
 											return
 
@@ -226,12 +230,12 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 								.appendTo(footer)
 
 						if (commentData.author_hearted)
-							Reaction('author_heart', 0, true)
+							Reaction('author_heart', 0, true, changingAuthorHeartState)
 								.tweak(heart => heart.icon
 									.style('comment-author-heart')
 									.style.toggle(!isThreadAuthor, 'comment-author-heart--not-author')
 								)
-								.setTooltip(tooltip => isThreadAuthor ? undefined : tooltip.text.use('comment/tooltip/author-heart'))
+								.setTooltip(tooltip => tooltip.text.use('comment/tooltip/author-heart'))
 								.event.subscribe('click', async () => {
 									if (isThreadAuthor)
 										await unreact()
@@ -239,7 +243,9 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 								.appendTo(footer)
 
 						async function unreact () {
+							changingReactionState.value = true
 							const response = await EndpointUnreactComment.query({ params: { comment_id: (commentData as CommentDataRaw).comment_id } })
+							changingReactionState.value = false
 							if (toast.handleError(response))
 								return
 

@@ -266,10 +266,13 @@ export default ViewDefinition({
 		const reactedNormal = chapterState.mapManual(chapter => !!chapter.reacted && !!Session.Auth.author.value)
 		const reactedGuest = chapterState.mapManual(chapter => !!chapter.reacted && !Session.Auth.author.value)
 		const reactedSupporter = chapterState.mapManual(chapter => !!chapter.supporter_reactions?.some(reaction => reaction?.author === Session.Auth.author.value?.vanity))
+		const reactingNormal = State(false)
+		const reactingSupporter = State(false)
+		const reactingGuest = State(false)
 		Slot()
 			.if(sufficientPledge, slot => Slot()
 				.appendWhen(supporterReactions.map(slot, reactions => !!reactions || !!Session.Auth.author.value?.supporter?.tier),
-					Reaction('supporter_heart', supporterReactions, reactedSupporter)
+					Reaction('supporter_heart', supporterReactions, reactedSupporter, reactingSupporter)
 						.tweak(reaction => reaction.icon.setDisabled(!Session.Auth.author.value?.supporter?.tier, 'not a supporter'))
 						.and(GradientText, 'heart-gradient', '115deg')
 						.useGradient(Session.Auth.author.map(slot, author => author?.supporter?.username_colours))
@@ -318,7 +321,9 @@ export default ViewDefinition({
 
 							const params = { ...Chapters.reference(chapterState.value), type: 'heart' } as const
 							if (reactedSupporter.value) {
+								reactingSupporter.value = true
 								const response = await EndpointSupporterUnreactChapter.query({ params })
+								reactingSupporter.value = false
 								if (toast.handleError(response))
 									return
 
@@ -327,7 +332,9 @@ export default ViewDefinition({
 								chapterState.emit()
 							}
 							else {
+								reactingSupporter.value = true
 								const response = await EndpointSupporterReactChapter.query({ params })
+								reactingSupporter.value = false
 								if (toast.handleError(response))
 									return
 
@@ -342,7 +349,7 @@ export default ViewDefinition({
 						})
 				)
 				.appendWhen(reactions.map(slot, reactions => !!reactions || !!Session.Auth.author.value),
-					Reaction('love', reactions, reactedNormal)
+					Reaction('love', reactions, reactedNormal, reactingNormal)
 						.tweak(reaction => reaction.icon.setDisabled(!Session.Auth.author.value, 'not logged in'))
 						.setTooltip(tooltip => tooltip.text.use('chapter/reaction/normal-heart'))
 						.event.subscribe('click', async () => {
@@ -351,7 +358,9 @@ export default ViewDefinition({
 
 							const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
 							if (reactedNormal.value) {
+								reactingNormal.value = true
 								const response = await EndpointUnreactChapter.query({ params })
+								reactingNormal.value = false
 								if (toast.handleError(response))
 									return
 
@@ -362,7 +371,9 @@ export default ViewDefinition({
 								chapterState.emit()
 							}
 							else {
+								reactingNormal.value = true
 								const response = await EndpointReactChapter.query({ params })
+								reactingNormal.value = false
 								if (toast.handleError(response))
 									return
 
@@ -375,7 +386,7 @@ export default ViewDefinition({
 						})
 				)
 				.appendWhen(guestReactions.map(slot, reactions => !!reactions || !Session.Auth.author.value),
-					Reaction('guest_heart', guestReactions, reactedGuest)
+					Reaction('guest_heart', guestReactions, reactedGuest, reactingGuest)
 						.tweak(reaction => reaction.icon.setDisabled(!!Session.Auth.author.value, 'not a guest'))
 						.setTooltip(tooltip => tooltip.text.use('chapter/reaction/guest-heart'))
 						.event.subscribe('click', async () => {
@@ -384,7 +395,9 @@ export default ViewDefinition({
 
 							const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
 							if (reactedGuest.value) {
+								reactingGuest.value = true
 								const response = await EndpointUnreactChapter.query({ params })
+								reactingGuest.value = false
 								if (toast.handleError(response))
 									return
 
@@ -395,7 +408,9 @@ export default ViewDefinition({
 								chapterState.emit()
 							}
 							else {
+								reactingGuest.value = true
 								const response = await EndpointReactChapter.query({ params })
+								reactingGuest.value = false
 								if (toast.handleError(response))
 									return
 

@@ -11,6 +11,8 @@
 		#after: .button, .button--disabled
 		%padding-1-0
 		%opaque
+		perspective: 2em
+		transform-style: preserve-3d
 
 		&--reacted:
 			#after: .reaction-button
@@ -23,6 +25,11 @@
 			&--reacted:
 				#after: .reaction-button-icon
 				%weight-bolder
+
+			&--changing-state:
+				transform-style: preserve-3d
+				#animate .5s linear infinite:
+					100%: rotate: y 360deg
 
 	&-count:
 		%font-2
