@@ -27,6 +27,7 @@ const Reaction = Component.Builder((
 	type: ReactionType,
 	reactionsIn: StateOr<number> = State(0),
 	reactedIn: StateOr<boolean> = State(false),
+	changingState: State<boolean> = State(false),
 ): Reaction => {
 	const reactions = State.get(reactionsIn)
 	const reacted = State.get(reactedIn)
@@ -38,6 +39,7 @@ const Reaction = Component.Builder((
 		.style.bind(reacted, 'reaction-button--reacted')
 		.tweak(button => button.icon!
 			.style('reaction-button-icon')
+			.style.bind(changingState, 'reaction-button-icon--changing-state')
 			.style.bind(reacted, 'reaction-button-icon--reacted'))
 
 	return component
