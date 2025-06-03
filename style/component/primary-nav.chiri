@@ -5,11 +5,17 @@
 	%max-height-100
 	%overflow-y-auto
 
+	#string popover-max-height = "calc(100vh - $space-2 * 2 + $space-1 - $masthead-height)
+
+	#tablet:
+		%block
+		max-height: calc(#{popover-max-height} - $popover-padding * 2)
+
 	#flush:
 		%gap-3
 
 	&-popover:
-		max-height: calc(100vh - $space-2 * 2 + $space-1 - $masthead-height)
+		max-height: #{popover-max-height}
 		max-width: min(100vw - $space-2 * 2 + $space-1 / 3, $space-5 * 6)
 		%border-box
 
