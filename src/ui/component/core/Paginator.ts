@@ -1,5 +1,6 @@
 import type PagedData from 'model/PagedData'
 import Component from 'ui/Component'
+import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import Loading from 'ui/component/core/Loading'
@@ -25,6 +26,7 @@ interface ScrollContext {
 }
 
 interface PaginatorExtensions<DATA = any> {
+	readonly headerActions: ActionRow
 	readonly page: State.Mutable<number>
 	readonly data: State<DATA>
 	readonly scrollAnchorBottom: Component
@@ -64,17 +66,9 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 		.style('paginator-content')
 		.style.bind(isFlush, 'paginator-content--flush')
 
-	block.footer
-		.style('paginator-footer')
-		.style.bind(isFlush, 'paginator-footer--flush')
-
 	const scrollAnchorBottom = Component()
 		.style('paginator-after-anchor')
 		.appendTo(block)
-
-	block.footer.left.style('paginator-footer-left')
-	block.footer.right.style('paginator-footer-right')
-	block.footer.middle.style('paginator-footer-middle')
 
 	const cursor = State(0)
 	const allData = State<PagedData<T> | undefined>(undefined, false)
@@ -99,46 +93,58 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 	const isFirstPage = cursor.mapManual(cursor => cursor <= 0)
 	const isLastPage = State.Map(component, [cursor, pageCount], (cursor, pageCount) => cursor + 1 >= (pageCount ?? Infinity))
 
-	// first
-	Button()
-		.setIcon('angles-left')
-		.type('icon')
-		.style('paginator-button')
-		.style.bind(isFirstPage, 'paginator-button--disabled')
-		.ariaLabel.use('component/paginator/first/label')
-		.event.subscribe('click', () => cursor.value = 0)
-		.appendTo(block.footer.left)
+	initPaginatorActions(block.footer)
+	function initPaginatorActions (actions: ActionRow) {
+		actions
+			.style('paginator-actions')
+			.style.bind(isFlush, 'paginator-actions--flush')
+			.style.bind(isMultiPage.not, 'paginator-actions--hidden')
 
-	// prev
-	Button()
-		.setIcon('angle-left')
-		.type('icon')
-		.style('paginator-button')
-		.style.bind(isFirstPage, 'paginator-button--disabled')
-		.ariaLabel.use('component/paginator/previous/label')
-		.event.subscribe('click', () => cursor.value = Math.max(cursor.value - 1, 0))
-		.appendTo(block.footer.left)
+		actions.left.style('paginator-actions-left')
+		actions.right.style('paginator-actions-right')
+		actions.middle.style('paginator-actions-middle')
 
-	// next
-	Button()
-		.setIcon('angle-right')
-		.type('icon')
-		.style('paginator-button')
-		.style.bind(isLastPage, 'paginator-button--disabled')
-		.ariaLabel.use('component/paginator/next/label')
-		.event.subscribe('click', () => cursor.value = Math.min(cursor.value + 1, pageCount.value === undefined ? Infinity : pageCount.value - 1))
-		.appendTo(block.footer.right)
+		// first
+		Button()
+			.setIcon('angles-left')
+			.type('icon')
+			.style('paginator-button')
+			.style.bind(isFirstPage, 'paginator-button--disabled')
+			.ariaLabel.use('component/paginator/first/label')
+			.event.subscribe('click', () => cursor.value = 0)
+			.appendTo(actions.left)
 
-	// last
-	Button()
-		.setIcon('angles-right')
-		.type('icon')
-		.style('paginator-button')
-		.style.bind(isLastPage, 'paginator-button--disabled')
-		.style.bind(hasNoPageCount, 'paginator-button--hidden')
-		.ariaLabel.use('component/paginator/last/label')
-		.event.subscribe('click', () => cursor.value = !pageCount.value ? cursor.value : pageCount.value - 1)
-		.appendTo(block.footer.right)
+		// prev
+		Button()
+			.setIcon('angle-left')
+			.type('icon')
+			.style('paginator-button')
+			.style.bind(isFirstPage, 'paginator-button--disabled')
+			.ariaLabel.use('component/paginator/previous/label')
+			.event.subscribe('click', () => cursor.value = Math.max(cursor.value - 1, 0))
+			.appendTo(actions.left)
+
+		// next
+		Button()
+			.setIcon('angle-right')
+			.type('icon')
+			.style('paginator-button')
+			.style.bind(isLastPage, 'paginator-button--disabled')
+			.ariaLabel.use('component/paginator/next/label')
+			.event.subscribe('click', () => cursor.value = Math.min(cursor.value + 1, pageCount.value === undefined ? Infinity : pageCount.value - 1))
+			.appendTo(actions.right)
+
+		// last
+		Button()
+			.setIcon('angles-right')
+			.type('icon')
+			.style('paginator-button')
+			.style.bind(isLastPage, 'paginator-button--disabled')
+			.style.bind(hasNoPageCount, 'paginator-button--hidden')
+			.ariaLabel.use('component/paginator/last/label')
+			.event.subscribe('click', () => cursor.value = !pageCount.value ? cursor.value : pageCount.value - 1)
+			.appendTo(actions.right)
+	}
 
 	let initialiser: ((slot: Slot, data: T, page: number, source: PagedData<T>, paginator: Paginator<T>) => unknown) | undefined
 	let orElseInitialiser: ((slot: Slot, paginator: Paginator<T>) => unknown) | undefined
@@ -149,6 +155,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 		.viewTransition('paginator')
 		.style('paginator')
 		.extend<PaginatorExtensions>(component => ({
+			headerActions: undefined!,
 			page: cursor,
 			data: currentData,
 			scrollAnchorBottom,
@@ -169,8 +176,11 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				return this
 			},
 		}))
-
-	paginator.footer.style.bind(isMultiPage.not, 'paginator-footer--hidden')
+		.extendJIT('headerActions', paginator => ActionRow()
+			.tweak(initPaginatorActions)
+			.style('paginator-actions--header')
+			.style.bind(isFlush, 'paginator-actions--header--flush')
+			.prependTo(paginator))
 
 	let bouncedFrom: number | undefined
 	let scrollAnchorBottomPreviousRect: DOMRect | undefined

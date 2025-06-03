@@ -14,8 +14,10 @@ type BlockType = keyof { [KEY in ComponentName as KEY extends `block--type-${inf
 	: KEY extends `block--type-${infer TYPE}` ? TYPE
 	: never]: string[] }
 
+interface BlockHeader extends Component, CanHasActionsMenu { }
+
 export interface BlockExtensions {
-	readonly header: Component
+	readonly header: BlockHeader
 	readonly title: Heading
 	readonly primaryActions: Component
 	readonly description: Paragraph
@@ -91,7 +93,22 @@ const Block = Component.Builder((component): Block => {
 			.style('block-header')
 			.style.bindFrom(block.type.state.mapManual(types => [...types].map(t => `block--type-${t}-header` as const)))
 			.classes.add(BlockClasses.Header)
-			.prependTo(block))
+			.prependTo(block)
+			.and(CanHasActionsMenu, actionsMenu => actionsMenu
+				.subscribeReanchor((actionsMenu, isTablet) => {
+					if (isTablet)
+						return
+
+					actionsMenu.anchor.reset()
+						.anchor.add('off right', 'centre')
+						.anchor.add('off right', 'centre')
+						.anchor.orElseHide()
+				})
+			)
+			.setActionsMenuButton(button => button
+				.style('block-actions-menu-button')
+				.appendTo(block.primaryActions))
+		)
 		.extendJIT('title', block => Heading().style('block-title').prependTo(block.header))
 		.extendJIT('primaryActions', block => Component().style('block-actions-primary').appendTo(block.header))
 		.extendJIT('description', block => Paragraph().style('block-description').appendTo(block.header))

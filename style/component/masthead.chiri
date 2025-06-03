@@ -199,7 +199,7 @@
 					%unmargin-top-1
 
 				&-footer:
-					#after: .paginator-footer, .paginator-footer--flush
+					#after: .paginator-actions, .paginator-actions--flush
 					margin-inline: calc(-1 * $popover-padding)
 					width: calc(100% + $block-padding * 2 + $popover-padding * 2)
 					%padding-inline-0

@@ -201,7 +201,7 @@
 					calc($markdown-paragraph-padding-bottom * $chapter-paragraph-gap-multiplier)
 
 		&-paginator-actions:
-			#after: .paginator-footer--hidden, .paginator-footer--flush, .block--type-flush-footer
+			#after: .paginator-actions--hidden, .paginator-actions--flush, .block--type-flush-footer
 			%flex
 			%padding-inline-0
 			%scheme-light-dark
