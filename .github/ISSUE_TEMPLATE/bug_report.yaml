@@ -1,0 +1,48 @@
+name: Bug Report
+description: Something went wrong!!!!
+labels: ["Is: Issue"]
+body:
+  - type: textarea
+    id: overview
+    attributes:
+      label: Overview of the bug
+      description: Give a short overview of what the bug is, including the behaviour you expected.
+      placeholder: "ex. This should happen, but that happens instead."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: To Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      description: desktop, iphone, android, etc
+      placeholder: ex. desktop, iPhone 12 Pro
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      description: firefox, chrome, edge, opera, safari, etc
+      placeholder: ex. Chrome
+    validations:
+      required: true
+  - type: input
+    id: browser_version
+    attributes:
+      label: Browser Version
+      description: for most browsers this is in "help", "about", or "settings"
+      placeholder: ex. 137.0.7151.57
+    validations:
+      required: true
