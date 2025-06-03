@@ -29,6 +29,7 @@ import type Label from 'ui/component/core/Label'
 import Popover from 'ui/component/core/Popover'
 import RadioButton from 'ui/component/core/RadioButton'
 import Slot from 'ui/component/core/Slot'
+import TextEditorMSWordHandler from 'ui/component/core/text-editor/TextEditorMSWordHandler'
 import { HandlesKeyboardEvents } from 'ui/InputBus'
 import MarkdownContent from 'ui/utility/MarkdownContent'
 import type { Quilt } from 'ui/utility/StringApplicator'
@@ -1544,6 +1545,9 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	function createDefaultView (slot: Slot) {
 		const view = new EditorView(slot.element, {
 			transformPastedHTML (html, view) {
+				if (TextEditorMSWordHandler.isPasteHTML(html))
+					html = TextEditorMSWordHandler.fixPasteHTML(html)
+
 				return html
 					.replaceAll(/(?<=<\/\s*p\s*>\s*)<\s*br\s*\/?\s*>(?=\s*<\s*p\b)/g, '<p></p>')
 					.replaceAll(/<\s*br\s*class="Apple-interchange-newline"\s*\/?\s*>/g, '')
