@@ -1,5 +1,4 @@
 import type { ChapterReference, Work as WorkData, WorkFull } from 'api.fluff4.me'
-import EndpointChapterDelete from 'endpoint/chapter/EndpointChapterDelete'
 import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
@@ -110,13 +109,13 @@ export default ViewDefinition({
 					Button()
 						.setIcon('trash')
 						.text.use('view/chapter-edit/update/action/delete')
-						.event.subscribe('click', async () => {
+						.event.subscribe('click', async event => {
 							const chapter = state.value
 							if (!chapter)
 								return
 
-							const response = await EndpointChapterDelete.query({ params: chapter })
-							if (toast.handleError(response))
+							const deleted = await Chapters.delete(chapter, event.host)
+							if (!deleted)
 								return
 
 							chapters.delete(page)
