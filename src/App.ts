@@ -55,8 +55,8 @@ QuiltHelper.init({
 	ExternalLink,
 })
 
+MarkdownContent.registerMarkdownHandlers()
 registerMarkdownMentionHandler()
-MarkdownContent.registerMarkdownWeaveHandler()
 
 TagPopover.register()
 Tooltip.initExtension()

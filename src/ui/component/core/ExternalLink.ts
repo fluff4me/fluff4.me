@@ -44,6 +44,9 @@ MarkdownContent.handle((element, context) => {
 	if (href?.startsWith(Env.URL_ORIGIN))
 		href = href.slice(Env.URL_ORIGIN.length - 1)
 
+	if (href?.startsWith('#'))
+		return
+
 	if (!href || RoutePath.is(href))
 		return
 
