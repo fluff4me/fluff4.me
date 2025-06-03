@@ -63,6 +63,9 @@ $app-column-width: #{app-column-width}
 		grid-template-columns: 0px 1fr repeat(3, calc(($content-width - $space-4 * 2) / 3)) 1fr $app-column-width
 		grid-template-rows: 1fr
 
+		#laptop:
+			grid-template-columns: 0px 1fr repeat(3, calc(($content-width - $space-4 * 2) / 3)) 1fr
+
 		#tablet:
 			%padding-inline-3
 			%margin-left-0

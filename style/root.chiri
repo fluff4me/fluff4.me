@@ -11,6 +11,7 @@ $caret-colour: $colour-0
 caret-colour: $caret-colour
 $masthead-height: calc(round(up, $font-4 * 1.2, 1px) + $space-1 * 2 + $space-2 * 2)
 $content-width: #{content-width}
+$laptop-width: #{laptop-width}
 $tablet-width: #{tablet-width}
 
 #flush:
