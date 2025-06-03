@@ -51,7 +51,7 @@
 		:empty:
 			%hidden
 
-	&-footer:
+	&-actions:
 		#after: .block-footer
 		%sticky
 		%padding-block-1
@@ -92,7 +92,7 @@
 			inset: 1px
 
 		&--flush:
-			#after: .paginator-footer, .block--type-flush-footer
+			#after: .paginator-actions, .block--type-flush-footer
 			%relative
 			%margin-top-4
 			%background-none
@@ -100,6 +100,12 @@
 
 		&--hidden:
 			%hidden
+
+		&--header:
+			&--flush:
+				#after: .paginator-actions, .block--type-flush-footer, .paginator-actions--flush
+				%margin-bottom-4
+				%margin-top-0
 
 	&-button:
 		#transition: $button-transition, #{transition("opacity")}
