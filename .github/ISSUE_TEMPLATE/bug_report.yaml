@@ -7,7 +7,7 @@ body:
     attributes:
       label: Overview of the bug
       description: Give a short overview of what the bug is, including the behaviour you expected.
-      placeholder: ""
+      placeholder: "ex. This should happen, but that happens instead."
     validations:
       required: true
   - type: textarea
