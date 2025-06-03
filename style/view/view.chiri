@@ -19,6 +19,7 @@
 
 	#flush:
 		%padding-inline-0
+		%padding-top-1
 
 	&-container:
 		%grid
