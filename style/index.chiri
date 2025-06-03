@@ -23,6 +23,7 @@
 	class/patreon-icon-before
 	class/small
 	class/miniblock
+	class/link-anchor
 
 #import:
 	component/core/break

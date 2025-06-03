@@ -149,6 +149,7 @@ const html = Object.assign(
 			allTagsAllowedAttributes: [
 				'title',
 				'name',
+				'id',
 				'style',
 				'aria-label',
 				'aria-labelledby',

@@ -224,7 +224,7 @@ namespace MarkdownContent {
 			.replace(/(?:\s|<br>)+$/, '')
 	}
 
-	export function registerMarkdownWeaveHandler () {
+	export function registerMarkdownHandlers () {
 		MarkdownItHTML.defaultOptions.allowedTags.push('weave')
 		MarkdownItHTML.defaultOptions.perTagAllowedAttributes.weave = ['tag']
 
@@ -242,6 +242,15 @@ namespace MarkdownContent {
 					newElement.replaceChildren(...element.childNodes)
 
 				element.replaceWith(newElement)
+			}
+		})
+
+		MarkdownContent.handle((element, context) => {
+			if (!element.getAttribute('id')?.length)
+				return
+
+			return () => {
+				element.classList.add('link-anchor')
 			}
 		})
 	}
