@@ -202,12 +202,16 @@
 
 		&-paginator-actions:
 			#after: .paginator-footer--hidden, .paginator-footer--flush, .block--type-flush-footer
+			%flex
 			%padding-inline-0
 			%scheme-light-dark
 			%box-shadow-none
 
 			@before:
 				%backdrop-filter-none
+
+			#flush:
+				%grid
 
 		&-supporter-reaction-list:
 			%style-normal
