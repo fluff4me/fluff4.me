@@ -144,6 +144,9 @@ export default Component.Builder(component => {
 							.tweak(block => block.footer.left.and(Placeholder).and(Small).text.set(`v${item.version}`))
 							.tweak(block => block.footer.right.and(Placeholder).and(Small).text.set(new Date(item.time).toLocaleDateString(navigator.language)))
 							.setActionsMenu(popover => {
+								if (!Session.Auth.privileged.ChangelogModify.value)
+									return
+
 								Button()
 									.type('flush')
 									.setIcon('pencil')
