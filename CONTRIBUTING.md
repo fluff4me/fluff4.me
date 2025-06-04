@@ -16,7 +16,7 @@ URL_REWRITE=(not starts_with(http.request.uri.path, "/image/") and not starts_wi
 ```
 3. Run `npm ci` to grab initial copies of dependencies, which allows our custom tasks to work.
 4. Run `npm run ci:dev` to *fully* install dependencies and set up the project.  
-You'll need to do this again whenever it's been a bit since your last contribution that you run this again, because this also makes sure you're using the latest version of our lint configuration.
+You'll need to run this again whenever dependencies are updated (which is pretty common, I update chirilang a lot.)
 5. Have eslint enabled in your editor. If you're using VSCode, you can use the [ESLint extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).
 6. Run `npm run watch` to start the development server in watch mode. You can also separately, manually run `npm run build` and `npm run serve` if you like. This won't be watched for file changes.
 
@@ -34,7 +34,7 @@ NPM_LINK=(chiri:"./chiri" weaving:"./weaving/build")
 # if you intend to be making changes to chiri's default library, you might want chirilang to watch for changes to that folder:
 CHIRI_ENV=dev
 ```
-4. Run `npm run ci:dev` again. You'll need to run this again whenever dependencies are updated (which is pretty common, I update the chirilang lib a lot) — this runs `npm ci` and then links your local copies of the `chiri` and `weaving` projects.
+4. Run `npm run ci:dev` again. You shouldn't have to run this quite as often as with just the basic setup since you have your own copy of chirilang now.
 5. You can use the `npm run watch`, `npm run build`, and `npm run serve` commands as described in the basic project setup. `npm run watch` will watch the chirilang lib for changes as well if you've set that environment variable.
 
 # Contributing
