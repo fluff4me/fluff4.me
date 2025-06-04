@@ -12,7 +12,7 @@ export default Task('ci:dev', async () => {
 	const packageJsonString = await fs.readFile('./package.json', 'utf8')
 
 	type Link = [name: string, path: string]
-	const linkModules = (Env.NPM_LINK ?? '')
+	const linkModules = !Env.NPM_LINK ? [] : Env.NPM_LINK
 		.slice(1, -1)
 		.split(' ')
 		.map(module => module.split(':') as Link)
@@ -30,18 +30,21 @@ export default Task('ci:dev', async () => {
 	await Task.cli('NPM:PATH:npm', 'ci', '--no-audit', '--no-fund')
 
 	////////////////////////////////////
-	//#region Update lint config
+	//#region Update GitHub packages
 
-	Log.info(`Fetching ${ansi.lightCyan('lint@latest')}...`)
-	let response = ''
-	await Task.cli({ stdout: data => response += data.toString() }, 'PATH:git', 'ls-remote', 'https://github.com/fluff4me/lint.git', 'HEAD')
-	const lintSHA = response.trim().split(/\s+/)[0]
-	if (!lintSHA)
-		throw new Error('Failed to get SHA of latest commit of lint repository')
+	await updateGitHubPackage('lint', 'fluff4me/lint')
 
-	Log.info(`Installing ${ansi.lightCyan(`lint#${lintSHA}`)}...`)
-	const lintPackageVersionString = `github:fluff4me/lint#${lintSHA}`
-	await Task.cli('NPM:PATH:npm', 'install', lintPackageVersionString, '--save-dev', '--no-audit', '--no-fund')
+	const githubPackages: [packageName: string, githubName: string, branch?: string][] = [
+		['chiri', 'fluff4me/chiri', 'package'],
+		['weaving', 'ChiriVulpes/weaving', 'package'],
+	]
+
+	for (const [name, path, branch] of githubPackages) {
+		if (linkModules.some(([linkName]) => linkName === name))
+			continue
+
+		await updateGitHubPackage(name, path, branch)
+	}
 
 	//#endregion
 	////////////////////////////////////
@@ -74,3 +77,17 @@ export default Task('ci:dev', async () => {
 		process.exit(1)
 	}
 })
+
+async function updateGitHubPackage (packageName: string, path: string, branch?: string) {
+	Log.info(`Fetching ${ansi.lightCyan(`${packageName}@latest`)}...`)
+	let response = ''
+	const branchArg = branch ? `refs/heads/${branch}` : 'HEAD'
+	await Task.cli({ stdout: data => response += data.toString() }, 'PATH:git', 'ls-remote', `https://github.com/${path}.git`, branchArg)
+	const sha = response.trim().split(/\s+/)[0]
+	if (!sha)
+		throw new Error(`Failed to get SHA of latest commit of ${packageName} repository`)
+
+	Log.info(`Installing ${ansi.lightCyan(`${packageName}#${sha}`)}...`)
+	const packageVersionString = `github:${path}#${sha}`
+	await Task.cli('NPM:PATH:npm', 'install', packageVersionString, '--save-dev', '--no-audit', '--no-fund')
+}
