@@ -47,8 +47,8 @@ namespace Task {
 				? command.slice(5)
 				: path.resolve(`node_modules/.bin/${command}`)
 
-			const childProcess = spawn(command, [...args],
-				{ stdio: [process.stdin, options.stdout ? 'pipe' : process.stdout, options.stderr ? 'pipe' : process.stderr], cwd: options.cwd, env: options.env })
+			const childProcess = spawn(wrapQuotes(command), args.map(wrapQuotes),
+				{ shell: true, stdio: [process.stdin, options.stdout ? 'pipe' : process.stdout, options.stderr ? 'pipe' : process.stderr], cwd: options.cwd, env: options.env })
 
 			if (options.stdout)
 				childProcess.stdout?.on('data', options.stdout)
@@ -66,3 +66,15 @@ namespace Task {
 }
 
 export default Task
+
+function wrapQuotes (value: string): string {
+	if (!value.includes(' '))
+		return value
+
+	if (!value.startsWith('"'))
+		value = `"${value}`
+	if (!value.endsWith('"'))
+		value = `${value}"`
+
+	return value
+}
