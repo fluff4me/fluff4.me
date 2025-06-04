@@ -1,3 +1,4 @@
+import quilt from 'lang/en-nz'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import type ComponentInsertionTransaction from 'ui/component/core/ext/ComponentInsertionTransaction'
@@ -7,7 +8,7 @@ import type { SlotInitialiserReturn } from 'ui/component/core/Slot'
 import Slot from 'ui/component/core/Slot'
 import Viewport from 'ui/utility/Viewport'
 import { mutable } from 'utility/Objects'
-import type State from 'utility/State'
+import State from 'utility/State'
 
 export type ReanchorTweaker<MENU extends ActionsMenuExtensions<string>> = (actionsMenu: MENU, isTablet: boolean) => unknown
 
@@ -92,14 +93,24 @@ interface CanHasActionsMenu extends Component, CanHasActionsMenuExtensions { }
 
 const CanHasActionsMenu = Component.Extension((component, popoverInitialiser?: ActionsMenuInitialiser<never, Component, unknown>): CanHasActionsMenu => {
 	let actionsMenu: ActionsMenu<never> | undefined
+	const hasContent = State(false)
+
+	function updateHasContent () {
+		const empyText = quilt['shared/actions/empy']().toString()
+		hasContent.value = !!actionsMenu?.element.textContent?.replace(empyText, '').trim()
+	}
+
 	let hasActionsMenu = false
 	let actionsMenuButtonInserter: true | ((button: Button) => unknown) | undefined
 	let actionsMenuInitHandlers: ((popover: ActionsMenu<never>) => unknown)[] | undefined
 	const onActionsMenu = (initialiser: (popover: ActionsMenu<never>) => unknown) => {
-		if (actionsMenu)
-			initialiser(actionsMenu)
-		else
+		if (!actionsMenu) {
 			(actionsMenuInitHandlers ??= []).push(initialiser)
+			return
+		}
+
+		initialiser(actionsMenu)
+		updateHasContent()
 	}
 	return (component as Component & PopoverComponentRegisteredExtensions)
 		.extend<CanHasActionsMenuExtensions & HasActionsMenuExtensions>(component => ({
@@ -114,9 +125,14 @@ const CanHasActionsMenu = Component.Extension((component, popoverInitialiser?: A
 					actionsMenu = mutable(component).actionsMenu = popover
 						.and(ActionsMenu)
 						.style('actions-menu-popover')
+						.style.bind(hasContent.falsy, 'actions-menu-popover--empy')
 						.prepend(Component()
 							.style('actions-menu-popover-close-surface')
 							.event.subscribe('click', () => popover.hide())
+						)
+						.appendWhen(hasContent.falsy, Component()
+							.style('actions-menu-popover-empy-text')
+							.text.use('shared/actions/empy')
 						)
 						.append(Slot().style.remove('slot').style('actions-menu-popover-arrow'))
 						.tweak(popoverInitialiser, button)
@@ -124,6 +140,8 @@ const CanHasActionsMenu = Component.Extension((component, popoverInitialiser?: A
 
 					for (const onActionMenu of actionsMenuInitHandlers ?? [])
 						onActionMenu(actionsMenu)
+
+					updateHasContent()
 
 					Viewport.tablet.use(actionsMenu, isTablet => {
 						const tablet = isTablet()
