@@ -166,7 +166,7 @@ void (async () => {
 			}
 
 			await new Promise<void>((resolve, reject) => {
-				const p = spawn('npx', ['ts-node', __filename, task], { shell: true, stdio: 'inherit' })
+				const p = spawn('npx', ['ts-node', `"${__filename}"`, task], { shell: true, stdio: 'inherit' })
 				p.on('error', reject)
 				p.on('close', code => {
 					if (code) errors = code
