@@ -9,6 +9,7 @@ preview: Preview
 mention/unresolved: unknown
 prefix/vanity: @
 prefix/currency: $
+actions/empy: No actions available on this content.
 
 ## popup
 danger-token/title: Re-authenticate Using {0}

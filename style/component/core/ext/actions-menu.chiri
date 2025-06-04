@@ -85,3 +85,15 @@
 				right: calc(100% + 1px - ($arrow-width / 2))
 				border-top-colour: transparent
 				border-right-colour: transparent
+
+		&-empy-text:
+			%padding-1-2
+			%italic
+			%colour-3
+			%font-2
+			%text-align-centre
+
+		&--empy:
+			#after: .popover, .actions-menu-popover
+			#not-tablet:
+				%hidden
