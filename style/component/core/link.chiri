@@ -1,6 +1,7 @@
 .link:
 	%weight-bold
 	%colour-blue
+	%wrap-words
 	text-decoration-color: transparent
 	#transition: #{transition("color")}, #{transition("text-decoration-color")}
 
