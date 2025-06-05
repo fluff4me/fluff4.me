@@ -14,7 +14,7 @@ export default Component.Extension((component, variable?: string, angle = 'to ri
 		useGradient (gradient) {
 			unuseGradient?.()
 			unuseGradient = State.get(gradient).use(component, stops => component
-				.style.toggle(!!stops?.length, 'gradient-text')
+				.style.toggle(!!stops?.length && !variable, 'gradient-text')
 				.style.setProperty(variable ? `--${variable}` : 'background-image', !stops?.length ? undefined
 					: `linear-gradient(${angle} in oklch, ${(stops
 						.map(colour => `#${colour.toString(16).padStart(6, '0')}`)
