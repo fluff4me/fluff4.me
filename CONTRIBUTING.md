@@ -25,7 +25,7 @@ Advanced project setup is only necessary if you want to also potentially contrib
 1. Perform the basic project setup as described above.
 2. Clone the [`chiri`](https://github.com/fluff4me/chiri) and [`weaving`](https://github.com/ChiriVulpes/weaving) repositories. It'll be easiest if they're cloned in the same parent directory as this project.  
 When you're about to do dev, make sure to pull the latest changes from those repositories as well as they won't be automatically updated.
-2. Add the following to your `.env` file:
+3. Add the following to your `.env` file:
 ```env
 # this needs to include relative paths to the "chiri" project and the "weaving" project which must both be on your machine
 # this example assumes you have the chiri and weaving projects in the same parent directory as this project
