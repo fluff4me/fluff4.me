@@ -11,6 +11,7 @@ import Component from 'ui/Component'
 import { AppBannerQueue } from 'ui/component/AppBanner'
 import AppFooter from 'ui/component/AppFooter'
 import ExternalLink from 'ui/component/core/ExternalLink'
+import HashLink from 'ui/component/core/HashLink'
 import Link from 'ui/component/core/Link'
 import ToastList from 'ui/component/core/toast/ToastList'
 import Tooltip from 'ui/component/core/Tooltip'
@@ -54,6 +55,8 @@ QuiltHelper.init({
 	Link,
 	ExternalLink,
 })
+
+void HashLink // ensure this is loaded because it isn't imported otherwise
 
 MarkdownContent.registerMarkdownHandlers()
 registerMarkdownMentionHandler()

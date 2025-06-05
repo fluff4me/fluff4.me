@@ -244,15 +244,6 @@ namespace MarkdownContent {
 				element.replaceWith(newElement)
 			}
 		})
-
-		MarkdownContent.handle((element, context) => {
-			if (!element.getAttribute('id')?.length)
-				return
-
-			return () => {
-				element.classList.add('link-anchor')
-			}
-		})
 	}
 
 }

@@ -51,8 +51,7 @@ MarkdownContent.handle((element, context) => {
 		return
 
 	return () => {
-		const link = ExternalLink(href).text.set(element.textContent ?? '')
-		element.replaceWith(link.element)
+		Component().replaceElement(element, true).and(ExternalLink, href)
 	}
 })
 

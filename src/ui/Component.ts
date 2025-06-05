@@ -145,7 +145,7 @@ interface BaseComponent<ELEMENT extends HTMLElement = HTMLElement> extends Compo
 	/**
 	 * **Warning:** Replacing an element will leave any subscribed events on the original element, and not re-subscribe them on the new element.
 	 */
-	replaceElement (elementOrType: HTMLElement | keyof HTMLElementTagNameMap): this
+	replaceElement (elementOrType: HTMLElement | keyof HTMLElementTagNameMap, keepContent?: true): this
 
 	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.BuilderAsync<PARAMS, COMPONENT>, ...params: NoInfer<PARAMS>): Promise<this & COMPONENT>
 	and<PARAMS extends any[], COMPONENT extends Component> (builder: Component.ExtensionAsync<PARAMS, COMPONENT>, ...params: NoInfer<PARAMS>): Promise<this & COMPONENT>
@@ -291,7 +291,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 			return component
 		},
 
-		replaceElement: newElement => {
+		replaceElement: (newElement, keepContent) => {
 			if (typeof newElement === 'string' && newElement.toUpperCase() === component.element.tagName.toUpperCase())
 				return component // already correct tag type
 
@@ -300,8 +300,11 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 
 			const oldElement = component.element
 
-			Component.removeContents(newElement)
-			newElement.replaceChildren(...component.element.childNodes)
+			if (!keepContent) {
+				Component.removeContents(newElement)
+				newElement.replaceChildren(...component.element.childNodes)
+			}
+
 			if (component.element.parentNode)
 				component.element.replaceWith(newElement)
 

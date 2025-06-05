@@ -44,6 +44,7 @@ export type ComponentNameType<PREFIX extends string> = keyof { [KEY in Component
 interface StyleManipulatorFunctions<HOST> {
 	get (): ComponentName[]
 	has (name: ComponentName): boolean
+	getState (owner: State.Owner, name: ComponentName): State<boolean> | undefined
 	remove (...names: ComponentName[]): HOST
 	toggle (...names: ComponentName[]): HOST
 	toggle (enabled: boolean, ...names: ComponentName[]): HOST
@@ -79,6 +80,8 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 	const stateUnsubscribers = new WeakMap<State<boolean> | State<ComponentName[] | ComponentName | undefined>, [UnsubscribeState, ComponentName[]]>()
 	const unbindPropertyState: Record<string, UnsubscribeState | undefined> = {}
 
+	const styleState = State.JIT(() => styles)
+
 	interface Combination {
 		combined: ComponentName
 		requirements: ComponentName[]
@@ -100,6 +103,9 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 			get: () => [...styles].sort(),
 			has (name) {
 				return styles.has(name)
+			},
+			getState (owner, name) {
+				return styleState.map(owner, styles => styles.has(name))
 			},
 			remove (...names) {
 				for (const name of names)
@@ -269,6 +275,7 @@ function StyleManipulator (component: Component): StyleManipulator<Component> {
 
 		component.element.classList.add(...toAdd)
 		currentClasses.push(...toAdd)
+		styleState.markDirty()
 		return component
 	}
 

@@ -8,6 +8,7 @@ import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
 import type EventManipulator from 'ui/utility/EventManipulator'
 import type { Events } from 'ui/utility/EventManipulator'
+import MarkdownContent from 'ui/utility/MarkdownContent'
 import ViewTransition from 'ui/view/shared/ext/ViewTransition'
 import Async from 'utility/Async'
 import type { UnsubscribeState } from 'utility/State'
@@ -25,6 +26,10 @@ interface ScrollContext {
 	scrollAnchorBottomPreviousRect?: DOMRect
 }
 
+interface Page<T> extends Slot {
+	content: PromiseOr<State<T | false | null>>
+}
+
 interface PaginatorExtensions<DATA = any> {
 	readonly headerActions: ActionRow
 	readonly page: State.Mutable<number>
@@ -33,6 +38,7 @@ interface PaginatorExtensions<DATA = any> {
 	set<DATA_SOURCE extends PagedData<DATA>> (data: DATA_SOURCE, initialiser: (slot: Slot, data: DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never, page: number, source: DATA_SOURCE, paginator: this) => unknown): Paginator<DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never>
 	orElse (initialiser: (slot: Slot, paginator: this) => unknown): this
 	setScroll (scroll: boolean | ((target: HTMLElement, direction: 'forward' | 'backward', context: ScrollContext) => unknown)): this
+	getPages (): (Page<DATA> | undefined)[]
 }
 
 interface PaginatorEvents {
@@ -175,6 +181,9 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				scrollOption = scroll
 				return this
 			},
+			getPages () {
+				return pages
+			},
 		}))
 		.extendJIT('headerActions', paginator => ActionRow()
 			.tweak(initPaginatorActions)
@@ -189,12 +198,14 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 	let previousScrollRect: DOMRect | undefined
 	let removeLastScrollIntoViewHandler: (() => void) | undefined
 	let unuseCursor: UnsubscribeState | undefined
+	const pages: (Page<T> | undefined)[] = []
 
 	Slot()
 		.use(allData, (slot, data) => {
 			const wrapper = Slot().appendTo(slot)
 
-			const pages: (Page | undefined)[] = []
+			pages.splice(0, Infinity)
+
 			const handleDelete = (event: Event, pageNumber: number) => {
 				const page = pages[pageNumber]
 				page?.style.remove('paginator-page--initial-load', 'paginator-page--bounce')
@@ -292,11 +303,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				}
 			})
 
-			interface Page extends Slot {
-				content: PromiseOr<State<T | false | null>>
-			}
-
-			function Page (pageNumber: number): Page | undefined {
+			function Page (pageNumber: number): Page<T> | undefined {
 				const viewTransitionName = `paginator-page${Strings.uid()}`
 				const page = Slot()
 					.style('paginator-page')
@@ -427,5 +434,29 @@ function hasResults (result: unknown) {
 
 	return false
 }
+
+MarkdownContent.handle((element, context) => {
+	if (!element.getAttribute('id')?.length)
+		return
+
+	return () => {
+		const anchor = Component().replaceElement(element, true)
+			.style('link-anchor')
+
+		anchor.onRooted(() => {
+			const pageHidden = anchor.getStateForClosest(Paginator)
+				.map(anchor, paginator => paginator
+					?.getPages()
+					.find(page => page?.element.contains(anchor.element))
+					?.style.getState(anchor, 'paginator-page--hidden')
+				)
+
+			const id = anchor.element.id
+			anchor.attributes.remove('id')
+
+			anchor.attributes.bind(pageHidden.falsy, 'id', id)
+		})
+	}
+})
 
 export default Paginator
