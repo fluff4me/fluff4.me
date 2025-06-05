@@ -29,35 +29,38 @@ namespace SiteStatusListener {
 		navigate.state.subscribeManual(setActive)
 
 		bannerState.useManual(async shown => {
-			if (shown)
-				await banner.queue(banner => {
-					banner.body.style('view-type-fundraiser-banner')
-					Slot().appendTo(banner.body).use(SiteStatus, (slot, status) => {
-						const fundraiser = status?.fundraisers[0]
-						if (!fundraiser)
-							return
+			if (!shown)
+				return
 
-						Link('/fundraiser')
-							.text.use('fundraiser/title')
-							.event.subscribe('Navigate', () => { banner.dismiss() })
-							.appendTo(slot)
+			await SiteStatus.getManifest()
+			await banner.queue(banner => {
+				banner.body.style('view-type-fundraiser-banner')
+				Slot().appendTo(banner.body).use(SiteStatus, (slot, status) => {
+					const fundraiser = status?.fundraisers[0]
+					if (!fundraiser)
+						return
 
-						FundraiserBar(fundraiser)
-							.appendTo(slot)
-					})
+					Link('/fundraiser')
+						.text.use('fundraiser/title')
+						.event.subscribe('Navigate', () => { banner.dismiss() })
+						.appendTo(slot)
 
-					Button()
-						.style('view-type-fundraiser-banner-dismiss-button')
-						.type('icon', 'flush')
-						.setIcon('xmark')
-						.event.subscribe('click', banner.dismiss)
-						.appendTo(banner.body)
-
-					banner.dismissed.matchManual(true, () => {
-						Store.items.status = { dismissed: true, lastActive: Date.now() }
-						bannerState.value = false
-					})
+					FundraiserBar(fundraiser)
+						.appendTo(slot)
 				})
+
+				Button()
+					.style('view-type-fundraiser-banner-dismiss-button')
+					.type('icon', 'flush')
+					.setIcon('xmark')
+					.event.subscribe('click', banner.dismiss)
+					.appendTo(banner.body)
+
+				banner.dismissed.matchManual(true, () => {
+					Store.items.status = { dismissed: true, lastActive: Date.now() }
+					bannerState.value = false
+				})
+			})
 		})
 	}
 
