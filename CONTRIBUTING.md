@@ -42,3 +42,6 @@ CHIRI_ENV=dev
 2. Make sure your changes have been linted according to our lint rules.
 3. Do not commit changes to `package.json` or `package-lock.json`. We'll be in charge of that. If you need a dependency updated, let us know on Discord.
 4. Give me some time to review your PR, especially if it touches a lot of files. Thanks!
+
+# Other Tips
+- If you hold F4 when a hover-based popover/tooltip/whatever is shown, it won't close when you move your mouse away. You can use this to more easily look inside the popover's element tree.
