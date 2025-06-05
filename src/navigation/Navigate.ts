@@ -88,12 +88,15 @@ function Navigator (): Navigator {
 			navigate.event.emit('Navigate', matchedRoute)
 		},
 		toURL: async (url: string) => {
-			navigate.setURL(url)
+			navigate.setURL(url, false)
 			return navigate.fromURL()
 		},
-		setURL: (url: string) => {
-			if (url !== location.pathname)
+		setURL: (url: string, updateLast = true) => {
+			if (url !== location.pathname) {
 				history.pushState({}, '', `${Env.URL_ORIGIN}${url.slice(1)}`)
+				if (updateLast)
+					lastURL = new URL(location.href)
+			}
 		},
 		toRawURL: (url: string) => {
 			if (url.startsWith('http')) {
