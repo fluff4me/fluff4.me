@@ -14,14 +14,14 @@ namespace Elements {
 
 		if (!Element.prototype.computedStyleMap) { 
 			Define.set(Element.prototype, 'computedStyleMap', function (this: Element) {
-			const css = getComputedStyle(this)
-			return {
-				get (p: string) {
-					const v = css.getPropertyValue(p)
-					return v ? { toString: () => v } : undefined
-				},
-				// PUT OTHER METHODS DOWN HERE, only get() done for now because I can't find any uses of the other ones in the code
-			} as unknown as StylePropertyMapReadOnly
+				const css = getComputedStyle(this)
+				return {
+					get (p: string) {
+						const v = css.getPropertyValue(p)
+						return v ? { toString: () => v } : undefined
+					},
+					// PUT OTHER METHODS DOWN HERE, only get() done for now because I can't find any uses of the other ones in the code
+				} as unknown as StylePropertyMapReadOnly
 			})
 		}
 	}
