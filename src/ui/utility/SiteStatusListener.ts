@@ -4,6 +4,7 @@ import Link from 'ui/component/core/Link'
 import Slot from 'ui/component/core/Slot'
 import FundraiserBar from 'ui/component/FundraiserBar'
 import PageListener from 'ui/utility/PageListener'
+import Env from 'utility/Env'
 import State from 'utility/State'
 import Store from 'utility/Store'
 import Time from 'utility/Time'
@@ -30,6 +31,9 @@ namespace SiteStatusListener {
 
 		bannerState.useManual(async shown => {
 			if (!shown)
+				return
+
+			if (Env.isDev)
 				return
 
 			await SiteStatus.getManifest()
