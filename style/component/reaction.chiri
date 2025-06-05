@@ -3,6 +3,8 @@
 	%gap-2
 	%padding-inline-1
 	%align-items-centre
+	$gradient-offset-start: 25%
+	$gradient-offset-end: 25%
 
 	:first:
 		%padding-left-0

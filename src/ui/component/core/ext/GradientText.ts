@@ -22,6 +22,15 @@ export default Component.Extension((component, variable?: string, angle = 'to ri
 							oklch(from ${colour} min(0.5, L) C H),
 							oklch(from ${colour} max(0.75, L) C H)
 						)`)
+						.map((colour, index) => {
+							if (index === 0)
+								return `${colour} var(--gradient-offset-start, 0%)`
+
+							if (index === stops.length - 1)
+								return `${colour} calc(100% - var(--gradient-offset-end, 0%))`
+
+							return colour
+						})
 						.join(', ')
 					)})`)
 			)
