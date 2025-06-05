@@ -180,6 +180,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			.tweak(initPaginatorActions)
 			.style('paginator-actions--header')
 			.style.bind(isFlush, 'paginator-actions--header--flush')
+			.tweak(actions => actions.middle.style('paginator-actions-middle--header'))
 			.prependTo(paginator))
 
 	let bouncedFrom: number | undefined

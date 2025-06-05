@@ -53,13 +53,16 @@
 
 	&-footer:
 		%flex
-		%gap-3
+		%flex-wrap
+		%column-gap-3
 		%align-items-centre
-		%unmargin-top-3
+		margin-top: calc($space-3 * -1 + $space-1)
 		%margin-bottom-2
+		%unmargin-inline-2
 
 		#flush:
 			%align-items-end
+			%gap-0
 
 		&-action:
 			#after: .button
@@ -70,6 +73,16 @@
 			#after: .comment-footer
 			%margin-top-2
 			%margin-bottom-0
+
+		&-section:
+			%flex
+			%gap-3
+			#flush: %gap-0
+
+			&--reactions:
+				#after: .comment-footer-section
+				%padding-inline-2
+				%gap-2
 
 	&-children:
 		%flex

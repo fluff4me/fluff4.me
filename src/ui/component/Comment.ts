@@ -196,6 +196,18 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 							.style('comment-footer')
 							.appendTo(content)
 
+						const reactionsWrapper = Component()
+							.style('comment-footer-section', 'comment-footer-section--reactions')
+							.appendTo(footer)
+
+						const primaryActionsWrapper = Component()
+							.style('comment-footer-section')
+							.appendTo(footer)
+
+						const secondaryActionsWrapper = Component()
+							.style('comment-footer-section')
+							.appendTo(footer)
+
 						const changingReactionState = State(false)
 						const isThreadAuthor = source.threadAuthor === Session.Auth.author.value?.vanity
 						const changingAuthorHeartState = isThreadAuthor ? changingReactionState : State(false)
@@ -227,7 +239,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 									comments.emit()
 								})
-								.appendTo(footer)
+								.appendTo(reactionsWrapper)
 
 						if (commentData.author_hearted)
 							Reaction('author_heart', 0, true, changingAuthorHeartState)
@@ -240,7 +252,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 									if (isThreadAuthor)
 										await unreact()
 								})
-								.appendTo(footer)
+								.appendTo(reactionsWrapper)
 
 						async function unreact () {
 							changingReactionState.value = true
@@ -267,18 +279,22 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 							// actions are not available to non-logged in users
 							return
 
-						Button()
-							.style('comment-footer-action')
-							.type('flush')
-							.setIcon('reply')
-							.text.use('comment/action/reply')
-							.event.subscribe('click', () => {
-								source.comments.value.unshift({ edit: true, parent_id: commentData.comment_id, author: author.vanity })
-								comments.refresh()
-							})
-							.appendTo(footer)
+						const isOwnComment = commentData.author === author.vanity
+						let appendedDeleteButton = false
+						const DeleteButton = () => appendedDeleteButton === true ? undefined : (
+							appendedDeleteButton = true,
+							Button()
+								.style('comment-footer-action')
+								.type('flush')
+								.setIcon(commentData.author === author.vanity || source.threadAuthor === author.vanity ? 'trash' : 'shield-halved')
+								.text.use('comment/action/delete')
+								.event.subscribe('click', async event => {
+									const response = await EndpointCommentDelete.query({ params: { id: commentData.comment_id } })
+									toast.handleError(response)
+								})
+						)
 
-						if (commentData.author === author.vanity)
+						if (isOwnComment)
 							Button()
 								.style('comment-footer-action')
 								.type('flush')
@@ -288,9 +304,24 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 									(commentData as CommentDataRaw as CommentEditor).edit = true
 									comments.refresh()
 								})
-								.appendTo(footer)
+								.appendTo(primaryActionsWrapper)
 
-						else
+						if (isOwnComment)
+							DeleteButton()
+								?.appendTo(primaryActionsWrapper)
+
+						Button()
+							.style('comment-footer-action')
+							.type('flush')
+							.setIcon('reply')
+							.text.use('comment/action/reply')
+							.event.subscribe('click', () => {
+								source.comments.value.unshift({ edit: true, parent_id: commentData.comment_id, author: author.vanity })
+								comments.refresh()
+							})
+							.appendTo(isOwnComment ? secondaryActionsWrapper : primaryActionsWrapper)
+
+						if (!isOwnComment)
 							Button()
 								.style('comment-footer-action')
 								.type('flush')
@@ -303,19 +334,11 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 										toast.handleError(response)
 									},
 								}))
-								.appendTo(footer)
+								.appendTo(secondaryActionsWrapper)
 
-						if (commentData.author === author.vanity || source.threadAuthor === author.vanity || Session.Auth.isModerator.value)
-							Button()
-								.style('comment-footer-action')
-								.type('flush')
-								.setIcon(commentData.author === author.vanity || source.threadAuthor === author.vanity ? 'trash' : 'shield-halved')
-								.text.use('comment/action/delete')
-								.event.subscribe('click', async event => {
-									const response = await EndpointCommentDelete.query({ params: { id: commentData.comment_id } })
-									toast.handleError(response)
-								})
-								.appendTo(footer)
+						if (source.threadAuthor === author.vanity || Session.Auth.isModerator.value)
+							DeleteButton()
+								?.appendTo(secondaryActionsWrapper)
 					})
 					.appendTo(slot)
 
