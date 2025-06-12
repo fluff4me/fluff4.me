@@ -1,4 +1,4 @@
-import type { Author } from 'api.fluff4.me'
+import type { AuthorMetadata } from 'api.fluff4.me'
 import EndpointCommentGetAllUnder from 'endpoint/comment/EndpointCommentGetAllUnder'
 import type { EndpointReturn } from 'endpoint/Endpoint'
 import Session from 'model/Session'
@@ -30,7 +30,7 @@ const Comments = Component.Builder((rawComponent, threadId: UUID, threadAuthor: 
 		.use(Session.Auth.author, AbortPromise.asyncFunction(async (signal, slot, author) => {
 			const comment: CommentData = { comment_id: threadId }
 			const comments = State<(CommentData | CommentEditor)[]>([comment])
-			const authors = State<Author[]>(!author ? [] : [author])
+			const authors = State<AuthorMetadata[]>(!author ? [] : [author])
 
 			if (author)
 				comments.use(block, commentsData => {

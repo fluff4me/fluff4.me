@@ -1,4 +1,4 @@
-import type { ChapterCreateBody, ChapterLite, ChapterReference, ChapterRelativePosition, QueuedChapterFinalise, Work as WorkData, WorkFull } from 'api.fluff4.me'
+import type { ChapterBulkQueueFinishChapterData, ChapterCreateBody, ChapterMetadata, ChapterReference, ChapterRelativePosition, Work as WorkData, WorkMetadata } from 'api.fluff4.me'
 import EndpointChapterCreateBulkCancel from 'endpoint/chapter/EndpointChapterCreateBulkCancel'
 import EndpointChapterCreateBulkFinish from 'endpoint/chapter/EndpointChapterCreateBulkFinish'
 import EndpointChapterCreateBulkQueue from 'endpoint/chapter/EndpointChapterCreateBulkQueue'
@@ -52,7 +52,7 @@ export default ViewDefinition({
 			throw workResponse
 
 		const author = workResponse.data.synopsis?.mentions.find(author => author.vanity === params.author)
-		return { work: workResponse.data as WorkData & Partial<WorkFull>, author }
+		return { work: workResponse.data as WorkMetadata & Partial<WorkData>, author }
 	},
 	create (params: Params, { work, author }) {
 		const id = 'chapter-bulk'
@@ -176,7 +176,7 @@ export default ViewDefinition({
 									MoveSlot('after', chapterData).appendTo(slot)
 								}
 
-								function MoveSlot (direction: 'before' | 'after', chapter: ChapterLite) {
+								function MoveSlot (direction: 'before' | 'after', chapter: ChapterMetadata) {
 									const position: InsertPosition = {
 										relative_to: chapter.url,
 										position: direction,
@@ -1085,7 +1085,7 @@ export default ViewDefinition({
 								tier_ids: chapter.body.value.tier_ids,
 								custom_tags: chapter.body.value.custom_tags,
 								global_tags: chapter.body.value.global_tags,
-							}) as QueuedChapterFinalise),
+							}) as ChapterBulkQueueFinishChapterData),
 						},
 					})
 					if (toast.handleError(finishResponse))

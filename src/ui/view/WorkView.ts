@@ -1,4 +1,4 @@
-import type { ChapterLite } from 'api.fluff4.me'
+import type { ChapterMetadata } from 'api.fluff4.me'
 import EndpointChapterGetAll from 'endpoint/chapter/EndpointChapterGetAll'
 import EndpointChapterReorder from 'endpoint/chapter/EndpointChapterReorder'
 import EndpointHistoryAddWork from 'endpoint/history/EndpointHistoryAddWork'
@@ -43,7 +43,7 @@ export default ViewDefinition({
 			.setContainsHeading()
 			.appendTo(view.content)
 
-		const movingChapter = State<ChapterLite | undefined>(undefined)
+		const movingChapter = State<ChapterMetadata | undefined>(undefined)
 
 		const chaptersListState = State(null)
 		Slot()
@@ -128,7 +128,7 @@ export default ViewDefinition({
 							MoveSlot('after', chapterData).appendTo(slot)
 						}
 
-						function MoveSlot (direction: 'before' | 'after', chapter: ChapterLite) {
+						function MoveSlot (direction: 'before' | 'after', chapter: ChapterMetadata) {
 							return Component()
 								.style('view-type-work-chapter-slot-wrapper')
 								.style.bind(movingChapter.truthy, 'view-type-work-chapter-slot-wrapper--has-moving-chapter')

@@ -1,4 +1,4 @@
-import type { Chapter, ChapterCreateBody, ChapterLite } from 'api.fluff4.me'
+import type { Chapter, ChapterCreateBody, ChapterMetadata } from 'api.fluff4.me'
 import EndpointChapterCreate from 'endpoint/chapter/EndpointChapterCreate'
 import EndpointChapterUpdate from 'endpoint/chapter/EndpointChapterUpdate'
 import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
@@ -151,9 +151,7 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 		}
 
 		const dataTiers = data.tier_ids ?? [data.tier_id].filter(NonNullish)
-		const stateTiers = _
-			?? getChapter(inputState.value)?.patreon?.tiers.map(tier => tier.tier_id)
-			?? [getChapter(inputState.value)?.patreon?.tier.tier_id].filter(NonNullish)
+		const stateTiers = getChapter(inputState.value)?.patreon?.tiers.map(tier => tier.tier_id) ?? []
 
 		if (dataTiers.length !== stateTiers.length)
 			return true
@@ -178,7 +176,7 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 })
 
 const applyVisibilityOptions = (table: LabelledTable, state: State<ChapterData | undefined>) => {
-	type Visibility = ChapterLite['visibility']
+	type Visibility = ChapterMetadata['visibility']
 	const VisibilityRadioInitialiser = (radio: RadioButton, id: Visibility) => radio
 		.text.use(`view/chapter-edit/shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
 
@@ -232,10 +230,7 @@ const applyVisibilityOptions = (table: LabelledTable, state: State<ChapterData |
 						dropdown.selection.value = [...selection, ...higherTiers.map(tier => tier.tier_id)]
 				})
 			})
-				.default.bind(state.map(table, chapter => _
-					?? getPatreon(chapter)?.tier_ids
-					?? [getPatreon(chapter)?.tier_id].filter(NonNullish)
-				))
+				.default.bind(state.map(table, chapter => getPatreon(chapter)?.tier_ids ?? []))
 				.setLabel(label)
 		))
 
@@ -268,12 +263,10 @@ const getPatreon = (chapterIn?: ChapterData) => {
 	const chapter = chapterIn as Partial<Chapter> & Partial<ChapterCreateBody>
 	if (chapter.patreon)
 		return {
-			tier_id: chapter.patreon.tier.tier_id,
 			tier_ids: chapter.patreon.tiers.map(tier => tier.tier_id),
 		}
 
 	return {
-		tier_id: chapter.tier_id,
 		tier_ids: chapter.tier_ids,
 	}
 }

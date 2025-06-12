@@ -1,4 +1,4 @@
-import type { ChapterReference, Work as WorkData, WorkFull } from 'api.fluff4.me'
+import type { ChapterReference, Work as WorkData, WorkMetadata } from 'api.fluff4.me'
 import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
 import EndpointHistoryAddChapter from 'endpoint/history/EndpointHistoryAddChapter'
@@ -87,7 +87,7 @@ export default ViewDefinition({
 		if (initialChapterResponse instanceof Error)
 			throw initialChapterResponse
 
-		return { workData: response.data as WorkData & Partial<WorkFull>, initialChapterResponse }
+		return { workData: response.data as WorkMetadata & Partial<WorkData>, initialChapterResponse }
 	},
 	create (params: ChapterReference, { workData, initialChapterResponse }) {
 		const view = PaginatedView('chapter')

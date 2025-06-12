@@ -1,4 +1,4 @@
-import type { ChapterReference, Work as WorkData, WorkFull } from 'api.fluff4.me'
+import type { ChapterReference, Work as WorkData, WorkMetadata } from 'api.fluff4.me'
 import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
@@ -32,7 +32,7 @@ export default ViewDefinition({
 		if (workResponse instanceof Error)
 			throw workResponse
 
-		return { initialChapterResponse, work: workResponse.data as WorkData & Partial<WorkFull> }
+		return { initialChapterResponse, work: workResponse.data as WorkMetadata & Partial<WorkData> }
 	},
 	create (params: ChapterEditViewParams, { initialChapterResponse, work }) {
 		const id = 'chapter-edit'

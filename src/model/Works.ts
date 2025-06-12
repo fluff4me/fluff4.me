@@ -1,10 +1,10 @@
-import type { Work, WorkReference } from 'api.fluff4.me'
+import type { WorkMetadata, WorkReference } from 'api.fluff4.me'
 import EndpointWorkDelete from 'endpoint/work/EndpointWorkDelete'
 import type Component from 'ui/Component'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 
 namespace Works {
-	export function resolve (reference: WorkReference | null | undefined, works: Work[]): Work | undefined {
+	export function resolve (reference: WorkReference | null | undefined, works: WorkMetadata[]): WorkMetadata | undefined {
 		return !reference ? undefined : works.find(work => work.author === reference.author && work.vanity === reference.vanity)
 	}
 
@@ -22,7 +22,7 @@ namespace Works {
 export default Object.assign(
 	Works,
 	{
-		async delete (work?: Work, owner?: Component): Promise<boolean> {
+		async delete (work?: WorkMetadata, owner?: Component): Promise<boolean> {
 			if (!work)
 				return true
 

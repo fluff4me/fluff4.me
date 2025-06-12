@@ -1,4 +1,4 @@
-import type { Author } from 'api.fluff4.me'
+import type { AuthorMetadata } from 'api.fluff4.me'
 import Component from 'ui/Component'
 import GradientText from 'ui/component/core/ext/GradientText'
 import Link from 'ui/component/core/Link'
@@ -12,7 +12,7 @@ interface MentionExtensions {
 
 interface Mention extends Component, MentionExtensions { }
 
-const Mention = Component.Builder('a', (component, author?: Author): Mention => {
+const Mention = Component.Builder('a', (component, author?: AuthorMetadata): Mention => {
 	return component
 		.and(Link, author && `/author/${author.vanity}`)
 		.append(Component().style('mention-punctuation').text.set('@'))

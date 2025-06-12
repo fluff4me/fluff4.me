@@ -1,4 +1,4 @@
-import type { Author } from 'api.fluff4.me'
+import type { AuthorMetadata } from 'api.fluff4.me'
 import EndpointWorksResolveReferences from 'endpoint/work/EndpointWorksResolveReferences'
 import Follows from 'model/Follows'
 import PagedListData from 'model/PagedListData'
@@ -36,7 +36,7 @@ const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ign
 	let page = 0
 	Slot()
 		.use(works, AbortPromise.asyncFunction(async (signal, slot, follows) => {
-			const authors = State<Author[]>([])
+			const authors = State<AuthorMetadata[]>([])
 			const works = PagedListData(25, {
 				async get (page) {
 					const slice = follows.slice(page * 25, (page + 1) * 25) ?? []

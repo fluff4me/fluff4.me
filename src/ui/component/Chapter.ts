@@ -1,4 +1,4 @@
-import type { Author, ChapterCensorBody, Chapter as ChapterData, ChapterLite, ReportChapterBody, Work } from 'api.fluff4.me'
+import type { AuthorMetadata, ChapterCensorBody, Chapter as ChapterData, ChapterMetadata, ReportChapterBody, WorkMetadata } from 'api.fluff4.me'
 import EndpointModerateChapterCensor from 'endpoint/moderation/EndpointModerateChapterCensor'
 import EndpointReportChapter from 'endpoint/report/EndpointReportChapter'
 import type { AuthorReference } from 'model/Authors'
@@ -45,7 +45,7 @@ const CHAPTER_MODERATION = ModerationDefinition((chapter: ChapterData): Moderati
 	}),
 }))
 
-function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>, work: Work, author?: AuthorReference & Partial<Author>, isChapterView = false) {
+function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterMetadata>, work: WorkMetadata, author?: AuthorReference & Partial<AuthorMetadata>, isChapterView = false) {
 	return actions
 
 		.appendAction('patreon', State.get(chapter), (slot, chapter) => true
@@ -105,7 +105,7 @@ function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterLite>
 }
 
 interface ChapterExtensions {
-	readonly chapter: ChapterLite
+	readonly chapter: ChapterMetadata
 	readonly number: Component
 	readonly chapterName: Component
 	readonly timestamp?: Component
@@ -114,7 +114,7 @@ interface ChapterExtensions {
 interface Chapter extends Component, ChapterExtensions, HasActionsMenuExtensions<'edit' | 'delete'> { }
 
 const Chapter = Object.assign(
-	Component.Builder((component, chapter: ChapterLite, work: Work, author: AuthorReference & Partial<Author>): Chapter => {
+	Component.Builder((component, chapter: ChapterMetadata, work: WorkMetadata, author: AuthorReference & Partial<AuthorMetadata>): Chapter => {
 		component = Link(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}`)
 			.style('chapter')
 			.style.toggle(chapter.visibility === 'Private', 'chapter--private')

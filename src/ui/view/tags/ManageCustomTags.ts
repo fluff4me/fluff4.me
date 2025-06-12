@@ -1,4 +1,4 @@
-import type { CustomTagData } from 'api.fluff4.me'
+import type { CustomTagUsage } from 'api.fluff4.me'
 import EndpointTagCustomDelete from 'endpoint/tag/EndpointTagCustomDelete'
 import EndpointTagCustomPromote from 'endpoint/tag/EndpointTagCustomPromote'
 import EndpointTagCustomRename from 'endpoint/tag/EndpointTagCustomRename'
@@ -23,7 +23,7 @@ import AbortPromise from 'utility/AbortPromise'
 import Arrays from 'utility/Arrays'
 import State from 'utility/State'
 
-export default Component.Builder((component, manifest: Tags, customTags: State<CustomTagData[]>) => {
+export default Component.Builder((component, manifest: Tags, customTags: State<CustomTagUsage[]>) => {
 	const block = component.and(Block)
 	block.content.style('view-type-manage-tags-tag-block')
 
@@ -31,7 +31,7 @@ export default Component.Builder((component, manifest: Tags, customTags: State<C
 		.placeholder.use('view/manage-tags/shared/hint/filter')
 		.appendTo(block.content)
 
-	const filteredIn = (tag: CustomTagData) => !filter.state.value.length || tag.name.includes(filter.state.value)
+	const filteredIn = (tag: CustomTagUsage) => !filter.state.value.length || tag.name.includes(filter.state.value)
 
 	const tagList = Component()
 		.style('view-type-manage-tags-tag-list')

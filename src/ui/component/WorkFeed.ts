@@ -1,4 +1,4 @@
-import type { Author, FeedResponse, Work as WorkData } from 'api.fluff4.me'
+import type { AuthorMetadata, FeedResponse, WorkMetadata } from 'api.fluff4.me'
 import type { PreparedPaginatedQueryReturning } from 'endpoint/Endpoint'
 import PagedListData from 'model/PagedListData'
 import Component from 'ui/Component'
@@ -9,7 +9,7 @@ import State from 'utility/State'
 
 interface WorkFeedExtensions {
 	setFromEndpoint (endpoint: PreparedPaginatedQueryReturning<FeedResponse>): this
-	setFromWorks (pagedData: PagedListData<WorkData>, authors: Author[]): this
+	setFromWorks (pagedData: PagedListData<WorkMetadata>, authors: AuthorMetadata[]): this
 }
 
 interface WorkFeed extends Paginator, WorkFeedExtensions { }
@@ -22,7 +22,7 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 
 	const feed = paginator.extend<WorkFeedExtensions>(feed => ({
 		setFromEndpoint (endpoint) {
-			const authors = State<Author[]>([])
+			const authors = State<AuthorMetadata[]>([])
 			const data = PagedListData(endpoint.getPageSize?.() ?? 25, {
 				async get (page) {
 					const response = await endpoint.query(undefined, { page })

@@ -1,5 +1,5 @@
-import EndpointSupporterOrders from 'endpoint/supporter/EndpointSupporterOrders'
-import EndpointSupporterPollFull from 'endpoint/supporter/EndpointSupporterPollFull'
+// import EndpointSupporterOrders from 'endpoint/supporter/EndpointSupporterOrders'
+// import EndpointSupporterPollFull from 'endpoint/supporter/EndpointSupporterPollFull'
 import EndpointSupporterStatus from 'endpoint/supporter/EndpointSupporterStatus'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
@@ -18,11 +18,8 @@ import Small from 'ui/component/core/Small'
 import Timestamp from 'ui/component/core/Timestamp'
 import PatronAuthDialog from 'ui/component/PatronAuthDialog'
 import type { Quilt } from 'ui/utility/StringApplicator'
-import Env from 'utility/Env'
 import Popup from 'utility/Popup'
 import State from 'utility/State'
-import Store from 'utility/Store'
-import Strings from 'utility/string/Strings'
 
 const PopupSupporterStart = Popup({
 	translation: 'view/account/supporter/popup/start/title',
@@ -90,9 +87,9 @@ export default Component.Builder(component => {
 							.setIcon('rotate')
 							.type('flush')
 							.event.subscribe('click', async () => {
-								const response = await EndpointSupporterPollFull.query()
-								if (toast.handleError(response))
-									return
+								// const response = await EndpointSupporterPollFull.query()
+								// if (toast.handleError(response))
+								// 	return
 
 								status.refresh()
 							})
@@ -171,107 +168,107 @@ export default Component.Builder(component => {
 
 			////////////////////////////////////
 			//#region MoR Paginator
-			if (statusState.value.status)
-				Paginator()
-					.type('flush')
-					.style('view-type-account-supporter-order-paginator')
-					.tweak(paginator => paginator.title.text.use('view/account/supporter/order/list-title'))
-					.tweak(paginator => paginator.header
-						.style('view-type-account-supporter-order-paginator-header')
-						.append(Button()
-							.setIcon('rotate')
-							.type('flush')
-							.event.subscribe('click', async () => {
-								const response = await EndpointSupporterPollFull.query()
-								if (toast.handleError(response))
-									return
+			// if (statusState.value.status)
+			// 	Paginator()
+			// 		.type('flush')
+			// 		.style('view-type-account-supporter-order-paginator')
+			// 		.tweak(paginator => paginator.title.text.use('view/account/supporter/order/list-title'))
+			// 		.tweak(paginator => paginator.header
+			// 			.style('view-type-account-supporter-order-paginator-header')
+			// 			.append(Button()
+			// 				.setIcon('rotate')
+			// 				.type('flush')
+			// 				.event.subscribe('click', async () => {
+			// 					// const response = await EndpointSupporterPollFull.query()
+			// 					// if (toast.handleError(response))
+			// 					// 	return
 
-								status.refresh()
-							})
-						)
-					)
-					.tweak(paginator => paginator.content.style('view-type-account-supporter-order-paginator-content'))
-					.tweak(paginator => paginator.footer.style('view-type-account-supporter-order-paginator-footer'))
-					.set(PagedListData.fromEndpoint(25, EndpointSupporterOrders.prep()), (slot, orders) => {
-						slot.style('view-type-account-supporter-order-list')
+			// 					status.refresh()
+			// 				})
+			// 			)
+			// 		)
+			// 		.tweak(paginator => paginator.content.style('view-type-account-supporter-order-paginator-content'))
+			// 		.tweak(paginator => paginator.footer.style('view-type-account-supporter-order-paginator-footer'))
+			// 		.set(PagedListData.fromEndpoint(25, EndpointSupporterOrders.prep()), (slot, orders) => {
+			// 			slot.style('view-type-account-supporter-order-list')
 
-						const HeaderCell = () => Component().style('view-type-account-supporter-order-list-header-label')
-						const HeaderCellAmount = () => HeaderCell().style('view-type-account-supporter-order-list-header-amount')
-						Component()
-							.style('view-type-account-supporter-order-list-header')
-							.style('view-type-account-supporter-order')
-							.append(HeaderCell().text.use('view/account/supporter/order/label/timestamp'))
-							.append(HeaderCellAmount().text.use('view/account/supporter/order/label/amount'))
-							.append(HeaderCell().text.use('view/account/supporter/order/label/type'))
-							.append(HeaderCell().text.use('view/account/supporter/order/label/status'))
-							.append(HeaderCellAmount().text.use('view/account/supporter/order/label/total'))
-							.appendTo(slot)
+			// 			const HeaderCell = () => Component().style('view-type-account-supporter-order-list-header-label')
+			// 			const HeaderCellAmount = () => HeaderCell().style('view-type-account-supporter-order-list-header-amount')
+			// 			Component()
+			// 				.style('view-type-account-supporter-order-list-header')
+			// 				.style('view-type-account-supporter-order')
+			// 				.append(HeaderCell().text.use('view/account/supporter/order/label/timestamp'))
+			// 				.append(HeaderCellAmount().text.use('view/account/supporter/order/label/amount'))
+			// 				.append(HeaderCell().text.use('view/account/supporter/order/label/type'))
+			// 				.append(HeaderCell().text.use('view/account/supporter/order/label/status'))
+			// 				.append(HeaderCellAmount().text.use('view/account/supporter/order/label/total'))
+			// 				.appendTo(slot)
 
-						for (const order of orders) {
-							const orderURL = `${Env.API_ORIGIN}supporter/order/${order.uuid}`
-							Component('a')
-								.attributes.set('href', orderURL)
-								.attributes.set('target', '_blank')
-								.style('view-type-account-supporter-order')
-								.style(`view-type-account-supporter-order--${order.type}`)
-								.append(Timestamp(order.timestamp)
-									.setSimple()
-									.style('view-type-account-supporter-order-date')
-								)
-								.append(
-									Component()
-										.style('view-type-account-supporter-order-amount-value')
-										.text.use(order.type === 'subscription'
-											? quilt => quilt['view/account/supporter/order/amount/subscription/value'](
-												!order.interval_amount ? '?' : (order.interval_amount / 100).toFixed(2),
-											)
-											: quilt => quilt['view/account/supporter/order/amount/total/value'](
-												(order.amount / 100).toFixed(2),
-											)
-										),
-									Component()
-										.style('view-type-account-supporter-order-amount-unit')
-										.text.use(order.type === 'subscription'
-											? quilt => quilt['view/account/supporter/order/amount/subscription/unit'](
-												order.interval === 'yearly',
-											)
-											: 'view/account/supporter/order/amount/total/unit'
-										),
-								)
-								.append(Component()
-									.style('view-type-account-supporter-order-type')
-									.text.use(`view/account/supporter/order/type/${order.type}`)
-								)
-								.append(Component()
-									.style('view-type-account-supporter-order-status')
-									.text.use(quilt => {
-										if (order.renewal_timestamp)
-											return quilt['view/account/supporter/order/renews'](
-												Timestamp(order.renewal_timestamp).setSimple().style.remove('timestamp')
-											)
+			// 			for (const order of orders) {
+			// 				const orderURL = `${Env.API_ORIGIN}supporter/order/${order.uuid}`
+			// 				Component('a')
+			// 					.attributes.set('href', orderURL)
+			// 					.attributes.set('target', '_blank')
+			// 					.style('view-type-account-supporter-order')
+			// 					.style(`view-type-account-supporter-order--${order.type}`)
+			// 					.append(Timestamp(order.timestamp)
+			// 						.setSimple()
+			// 						.style('view-type-account-supporter-order-date')
+			// 					)
+			// 					.append(
+			// 						Component()
+			// 							.style('view-type-account-supporter-order-amount-value')
+			// 							.text.use(order.type === 'subscription'
+			// 								? quilt => quilt['view/account/supporter/order/amount/subscription/value'](
+			// 									!order.interval_amount ? '?' : (order.interval_amount / 100).toFixed(2),
+			// 								)
+			// 								: quilt => quilt['view/account/supporter/order/amount/total/value'](
+			// 									(order.amount / 100).toFixed(2),
+			// 								)
+			// 							),
+			// 						Component()
+			// 							.style('view-type-account-supporter-order-amount-unit')
+			// 							.text.use(order.type === 'subscription'
+			// 								? quilt => quilt['view/account/supporter/order/amount/subscription/unit'](
+			// 									order.interval === 'yearly',
+			// 								)
+			// 								: 'view/account/supporter/order/amount/total/unit'
+			// 							),
+			// 					)
+			// 					.append(Component()
+			// 						.style('view-type-account-supporter-order-type')
+			// 						.text.use(`view/account/supporter/order/type/${order.type}`)
+			// 					)
+			// 					.append(Component()
+			// 						.style('view-type-account-supporter-order-status')
+			// 						.text.use(quilt => {
+			// 							if (order.renewal_timestamp)
+			// 								return quilt['view/account/supporter/order/renews'](
+			// 									Timestamp(order.renewal_timestamp).setSimple().style.remove('timestamp')
+			// 								)
 
-										return quilt['view/account/supporter/order/status'](order.status)
-									})
-								)
-								.append(
-									Component().and(Small)
-										.style('view-type-account-supporter-order-amount-value')
-										.text.use(quilt => quilt['view/account/supporter/order/amount/total/value'](
-											(order.amount / 100).toFixed(2),
-										)),
-									Component().and(Small)
-										.style('view-type-account-supporter-order-amount-unit')
-										.text.use('view/account/supporter/order/amount/total/unit'),
-								)
-								.event.subscribe('click', async event => {
-									event.preventDefault()
-									await PopupSupporterManage.show(event.host, { url: orderURL }).toastError()
-									status.refresh()
-								})
-								.appendTo(slot)
-						}
-					})
-					.appendTo(slot)
+			// 							return quilt['view/account/supporter/order/status'](order.status)
+			// 						})
+			// 					)
+			// 					.append(
+			// 						Component().and(Small)
+			// 							.style('view-type-account-supporter-order-amount-value')
+			// 							.text.use(quilt => quilt['view/account/supporter/order/amount/total/value'](
+			// 								(order.amount / 100).toFixed(2),
+			// 							)),
+			// 						Component().and(Small)
+			// 							.style('view-type-account-supporter-order-amount-unit')
+			// 							.text.use('view/account/supporter/order/amount/total/unit'),
+			// 					)
+			// 					.event.subscribe('click', async event => {
+			// 						event.preventDefault()
+			// 						await PopupSupporterManage.show(event.host, { url: orderURL }).toastError()
+			// 						status.refresh()
+			// 					})
+			// 					.appendTo(slot)
+			// 			}
+			// 		})
+			// 		.appendTo(slot)
 			//#endregion
 			////////////////////////////////////
 		}
@@ -322,8 +319,8 @@ export default Component.Builder(component => {
 				.style.setVariable('colour-rotation-index', i)
 				.event.subscribe('click', async event => {
 					event.preventDefault()
-					const transactionId = Strings.uid()
-					Store.items.supporterTransactionId = transactionId
+					// const transactionId = Strings.uid()
+					// Store.items.supporterTransactionId = transactionId
 					await PopupSupporterStart.show(event.host, { url: url /* `${url}?transaction_id=${transactionId}` */ }).toastError()
 					status.refresh()
 				})

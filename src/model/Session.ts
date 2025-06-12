@@ -1,4 +1,4 @@
-import type { AuthorFull, AuthorSelf, Privilege } from 'api.fluff4.me'
+import type { Author, AuthorSelf, Privilege } from 'api.fluff4.me'
 import { type Authorisation, type AuthService, type Session } from 'api.fluff4.me'
 import EndpointAuthRemove from 'endpoint/auth/EndpointAuthDelete'
 import EndpointSessionGet from 'endpoint/session/EndpointSessionGet'
@@ -62,7 +62,7 @@ namespace Session {
 		await refresh()
 	}
 
-	export function setAuthor (author: AuthorFull & Partial<AuthorSelf>) {
+	export function setAuthor (author: Author & Partial<AuthorSelf>) {
 		const session = Store.items.session
 		if (!session)
 			return void refresh()
@@ -134,6 +134,7 @@ namespace Session {
 			ModerationGrantSupporter: privileged.ModerationGrantSupporter,
 			ModerationLock: privileged.ModerationLock,
 			ModerationViewReport: privileged.ModerationViewReport,
+			ModerationViewPatronOnly: privileged.ModerationViewPatronOnly,
 		} satisfies Record<ModerationTypes, State.Generator<boolean>>)
 		export const isModerator = State.Generator(() => moderationPrivileges.some(privilege => privilege.value))
 			.observeManual(...moderationPrivileges)

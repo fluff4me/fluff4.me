@@ -1,4 +1,4 @@
-import type { AuthorCensorBody, Author as AuthorData, AuthorFull, ReportAuthorBody } from 'api.fluff4.me'
+import type { AuthorCensorBody, Author as AuthorData, AuthorMetadata, ReportAuthorBody } from 'api.fluff4.me'
 import EndpointAuthorGet from 'endpoint/author/EndpointAuthorGet'
 import EndpointModerateAuthorCensor from 'endpoint/moderation/EndpointModerateAuthorCensor'
 import EndpointModerateAuthorDelete from 'endpoint/moderation/EndpointModerateAuthorDelete'
@@ -42,7 +42,7 @@ const AUTHOR_REPORT = ReportDefinition<ReportAuthorBody>({
 	},
 })
 
-const AUTHOR_MODERATION = ModerationDefinition((author: AuthorData & Partial<AuthorFull>): ModerationDefinition => ({
+const AUTHOR_MODERATION = ModerationDefinition((author: AuthorMetadata & Partial<AuthorData>): ModerationDefinition => ({
 	titleTranslation: 'shared/term/author',
 	moderatedContentName: author.name,
 	custom: [
@@ -117,7 +117,7 @@ interface AuthorExtensions {
 
 interface Author extends Block, AuthorExtensions { }
 
-const Author = Component.Builder((component, authorIn: AuthorData & Partial<AuthorFull>): Author => {
+const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<AuthorData>): Author => {
 	const author = State(authorIn)
 
 	component

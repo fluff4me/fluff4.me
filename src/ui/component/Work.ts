@@ -1,4 +1,4 @@
-import type { Author as AuthorData, ReportWorkBody, WorkCensorBody, Work as WorkData, WorkFull } from 'api.fluff4.me'
+import type { AuthorMetadata, ReportWorkBody, WorkCensorBody, Work as WorkData, WorkMetadata } from 'api.fluff4.me'
 import EndpointModerateWorkCensor from 'endpoint/moderation/EndpointModerateWorkCensor'
 import EndpointModerateWorkLock from 'endpoint/moderation/EndpointModerateWorkLock'
 import EndpointModerateWorkUnlock from 'endpoint/moderation/EndpointModerateWorkUnlock'
@@ -40,7 +40,7 @@ const WORK_REPORT = ReportDefinition<ReportWorkBody>({
 	},
 })
 
-const WORK_MODERATION = ModerationDefinition((work: WorkData & Partial<WorkFull>): ModerationDefinition => ({
+const WORK_MODERATION = ModerationDefinition((work: WorkMetadata & Partial<WorkData>): ModerationDefinition => ({
 	titleTranslation: 'shared/term/work',
 	moderatedContentName: work.name,
 	custom: [
@@ -110,12 +110,12 @@ const WORK_MODERATION = ModerationDefinition((work: WorkData & Partial<WorkFull>
 }))
 
 interface WorkExtensions {
-	work: WorkData
+	work: WorkMetadata
 }
 
 interface Work extends Block, WorkExtensions { }
 
-const Work = Component.Builder((component, work: WorkData & Partial<WorkFull>, author?: AuthorData, notFullOverride?: true): Work => {
+const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData>, author?: AuthorMetadata, notFullOverride?: true): Work => {
 	author = author ?? work.synopsis?.mentions[0]
 
 	component

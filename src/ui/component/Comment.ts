@@ -1,4 +1,4 @@
-import type { Author, Comment as CommentDataRaw, ReportCommentBody } from 'api.fluff4.me'
+import type { AuthorMetadata, Comment as CommentDataRaw, ReportCommentBody } from 'api.fluff4.me'
 import EndpointCommentAdd from 'endpoint/comment/EndpointCommentAdd'
 import EndpointCommentDelete from 'endpoint/comment/EndpointCommentDelete'
 import EndpointCommentUpdate from 'endpoint/comment/EndpointCommentUpdate'
@@ -51,7 +51,7 @@ interface Comment extends Component, CommentExtensions { }
 interface CommentDataSource {
 	threadAuthor: string
 	comments: State.Mutable<(CommentData | CommentEditor)[]>
-	authors: State.Mutable<Author[]>
+	authors: State.Mutable<AuthorMetadata[]>
 }
 
 interface CommentMetadata {

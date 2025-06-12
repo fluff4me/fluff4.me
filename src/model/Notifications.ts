@@ -1,4 +1,4 @@
-import type { Author, ChapterLite, Comment, Notification, Work } from 'api.fluff4.me'
+import type { AuthorMetadata, ChapterMetadata, Comment, Notification, WorkMetadata } from 'api.fluff4.me'
 import EndpointNotificationGetAll from 'endpoint/notification/EndpointNotificationGetAll'
 import EndpointNotificationGetCount from 'endpoint/notification/EndpointNotificationGetCount'
 import EndpointNotificationMarkRead from 'endpoint/notification/EndpointNotificationMarkRead'
@@ -14,9 +14,9 @@ interface NotificationsCache {
 	lastCheck?: number
 	lastUpdate?: number
 	cache?: Notification[]
-	authors?: Author[]
-	works?: Work[]
-	chapters?: ChapterLite[]
+	authors?: AuthorMetadata[]
+	works?: WorkMetadata[]
+	chapters?: ChapterMetadata[]
 	comments?: Comment[]
 	hasMore?: boolean
 	unreadCount?: number

@@ -1,4 +1,4 @@
-import type { Work, WorkFull } from 'api.fluff4.me'
+import type { Work, WorkMetadata } from 'api.fluff4.me'
 import EndpointWorkCreate from 'endpoint/work/EndpointWorkCreate'
 import EndpointWorkUpdate from 'endpoint/work/EndpointWorkUpdate'
 import quilt from 'lang/en-nz'
@@ -24,7 +24,7 @@ import type { License } from 'ui/utility/License'
 import { LICENSES } from 'ui/utility/License'
 import type State from 'utility/State'
 
-export default Component.Builder((component, state: State.Mutable<WorkFull | undefined>) => {
+export default Component.Builder((component, state: State.Mutable<Work | undefined>) => {
 	const block = component.and(Block)
 	const form = block.and(Form, block.title)
 	form.viewTransition('work-edit-form')
@@ -90,7 +90,7 @@ export default Component.Builder((component, state: State.Mutable<WorkFull | und
 	table.label(label => label.text.use('view/work-edit/shared/form/tags/label'))
 		.content((content, label) => content.append(tagsEditor.setLabel(label)))
 
-	type Visibility = Work['visibility']
+	type Visibility = WorkMetadata['visibility']
 	const VisibilityRadioInitialiser = (radio: RadioButton, id: Visibility) => radio
 		.text.use(`view/work-edit/shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
 

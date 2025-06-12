@@ -1,3 +1,2 @@
-import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint('/supporter/poll/full', 'post')
+// export default Endpoint('/supporter/poll/full', 'post')

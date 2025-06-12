@@ -1,4 +1,4 @@
-import type { WorkFull } from 'api.fluff4.me'
+import type { Work } from 'api.fluff4.me'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import Works from 'model/Works'
 import ActionRow from 'ui/component/core/ActionRow'
@@ -29,8 +29,8 @@ export default ViewDefinition({
 		const id = 'work-edit'
 		const view = View(id)
 
-		const state = State<WorkFull | undefined>(work)
-		const editFormState = State<WorkFull | undefined>(work)
+		const state = State<Work | undefined>(work)
+		const editFormState = State<Work | undefined>(work)
 
 		state.use(view, work => view.breadcrumbs.setBackButton(
 			work && `/work/${work.author}/${work.vanity}`,

@@ -1,10 +1,10 @@
-import type { ChapterLite, ChapterReference, WorkReference } from 'api.fluff4.me'
+import type { ChapterMetadata, ChapterReference, WorkReference } from 'api.fluff4.me'
 import EndpointChapterDelete from 'endpoint/chapter/EndpointChapterDelete'
 import type Component from 'ui/Component'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 
 namespace Chapters {
-	export function resolve (reference: ChapterReference | null | undefined, chapters: ChapterLite[]): ChapterLite | undefined {
+	export function resolve (reference: ChapterReference | null | undefined, chapters: ChapterMetadata[]): ChapterMetadata | undefined {
 		return !reference ? undefined : chapters.find(chapter => chapter.author === reference.author && chapter.work === reference.work && chapter.url === reference.url)
 	}
 
@@ -24,7 +24,7 @@ namespace Chapters {
 export default Object.assign(
 	Chapters,
 	{
-		async delete (chapter?: ChapterLite, owner?: Component): Promise<boolean> {
+		async delete (chapter?: ChapterMetadata, owner?: Component): Promise<boolean> {
 			if (!chapter)
 				return true
 
