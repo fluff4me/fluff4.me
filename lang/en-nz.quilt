@@ -85,6 +85,12 @@ author: author
 chapter: chapter
 comment: comment
 comment-by: a comment by {0}
+interval/daily: daily
+interval/every-x-days: every {0} days
+interval/weekly: weekly
+interval/every-x-weeks: every {0} weeks
+interval/monthly: monthly
+interval/every-x-months: every {0} months
 
 ## action
 auth: Authenticate
@@ -305,6 +311,9 @@ other/copyright: © fluff4.me {YEAR}
 
 # work
 chapters/label=shared/term/chapters
+chapters/value: {0}{1?\xa0 {#SM:(~{1} {2})}}
+cadence/label: Cadence
+cadence/value: ~{0} {1}
 word-count/label=shared/term/word-count
 work-count/label=shared/term/work-count
 description/empty: This work has no description.

@@ -25,6 +25,7 @@ import ModerationDialog, { ModerationCensor, ModerationDefinition } from 'ui/com
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
+import { Quilt } from 'ui/utility/StringApplicator'
 import State from 'utility/State'
 
 const WORK_REPORT = ReportDefinition<ReportWorkBody>({
@@ -213,16 +214,79 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 			.style('work-license')
 			.appendTo(block.content)
 
+	block.footer.left.style('work-footer-left')
+
+	TextLabel()
+		.tweak(textLabel => textLabel.label.text.use('work/chapters/label'))
+		.tweak(textLabel => {
+			const chapterCount = work.chapter_count_public.toLocaleString(navigator.language)
+			if (!work.frequency)
+				return textLabel.content.text.set(chapterCount)
+
+			let intervalSize: number
+			let interval: Quilt.KeyPrefixed<'shared/term/interval'>
+			switch (work.frequency.interval) {
+				case 1: interval = 'daily', intervalSize = 1; break
+				case 7: interval = 'weekly', intervalSize = 7; break
+				case 30: interval = 'monthly', intervalSize = 30; break
+				default:
+					if (work.frequency.interval < 7)
+						interval = 'every-x-days', intervalSize = work.frequency.interval
+					else if (work.frequency.interval < 30)
+						interval = 'every-x-weeks', intervalSize = work.frequency.interval / 7
+					else
+						interval = 'every-x-months', intervalSize = work.frequency.interval / 30
+			}
+
+			textLabel.content.text.use(quilt => quilt['work/chapters/value'](
+				chapterCount,
+				work.frequency!.amount.toLocaleString(navigator.language),
+				quilt[`shared/term/interval/${interval}`](intervalSize.toLocaleString(navigator.language)),
+			))
+		})
+		.appendTo(block.footer.left)
+
+	/*
 	TextLabel()
 		.tweak(textLabel => textLabel.label.text.use('work/chapters/label'))
 		.tweak(textLabel => textLabel.content.text.set(work.chapter_count_public.toLocaleString(navigator.language)))
 		.appendTo(block.footer.left)
+
+	const frequency = work.frequency
+	if (frequency)
+		TextLabel()
+			.tweak(textLabel => textLabel.label.text.use('work/cadence/label'))
+			.tweak(textLabel => {
+				let intervalSize: number
+				let interval: Quilt.KeyPrefixed<'shared/term/interval'>
+				switch (frequency.interval) {
+					case 1: interval = 'daily', intervalSize = 1; break
+					case 7: interval = 'weekly', intervalSize = 7; break
+					case 30: interval = 'monthly', intervalSize = 30; break
+					default:
+						if (frequency.interval < 7)
+							interval = 'every-x-days', intervalSize = frequency.interval
+						else if (frequency.interval < 30)
+							interval = 'every-x-weeks', intervalSize = frequency.interval / 7
+						else
+							interval = 'every-x-months', intervalSize = frequency.interval / 30
+				}
+
+				textLabel.content.text.use(quilt => quilt['work/cadence/value'](
+					frequency.amount.toLocaleString(navigator.language),
+					quilt[`shared/term/interval/${interval}`](intervalSize.toLocaleString(navigator.language)),
+				))
+			})
+			.appendTo(block.footer.left)
+	*/
 
 	if (work.word_count)
 		TextLabel()
 			.tweak(textLabel => textLabel.label.text.use('work/word-count/label'))
 			.tweak(textLabel => textLabel.content.text.set(work.word_count.toLocaleString(navigator.language)))
 			.appendTo(block.footer.left)
+
+	block.footer.right.style('work-footer-right')
 
 	if (work.visibility === 'Private')
 		block.footer.right.append(Component().style('timestamp', 'work-timestamp').text.use('work/state/private'))

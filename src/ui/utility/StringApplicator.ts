@@ -27,6 +27,8 @@ export namespace Quilt {
 	export type SimpleKey = QuiltBase.SimpleKey
 	export type Handler = (quilt: Quilt, helper: typeof QuiltHelper) => Weave | null | undefined
 
+	export type KeyPrefixed<PREFIX extends string> = keyof { [KEY in keyof QuiltBase as KEY extends `${PREFIX}/${infer TYPE}` ? TYPE : never]: true }
+
 	export function fake (text: string): () => Weave {
 		const weave: Weave = { content: [{ content: text }], toString: () => text }
 		return () => weave
