@@ -262,6 +262,184 @@ export default ViewDefinition({
 		const reactingSupporter = State(false)
 		const reactingGuest = State(false)
 
+		const ReactionButtons = () => Slot()
+			.style.remove('slot')
+			.style('reaction-button-list')
+			.if(sufficientPledge, slot => Slot()
+
+				////////////////////////////////////
+				//#region Reaction Buttons
+
+				////////////////////////////////////
+				//#region Supporter Reaction
+				.appendWhen(supporterReactions.map(slot, reactions => !!reactions || !!Session.Auth.author.value?.supporter?.tier),
+					Reaction('supporter_heart', supporterReactions, reactedSupporter, reactingSupporter)
+						.tweak(reaction => reaction.icon.setDisabled(!Session.Auth.author.value?.supporter?.tier, 'not a supporter'))
+						.and(GradientText, 'heart-gradient', '115deg')
+						.useGradient(Session.Auth.author.map(slot, author => author?.supporter?.username_colours))
+						.setTooltip(tooltip => {
+							Component().text.use('chapter/reaction/supporter-heart').appendTo(tooltip)
+							const list = Slot().style.remove('slot').appendTo(tooltip)
+							list.use(chapterState, (slot, chapter) => {
+								if (!chapter.supporter_reactions?.length)
+									return
+
+								const reactions = Random.shuffle(chapter.supporter_reactions)
+								const detailed = chapter.supporter_reactions.length < 5
+
+								list.style('view-type-chapter-block-supporter-reaction-list')
+									.style.toggle(detailed, 'view-type-chapter-block-supporter-reaction-list--detailed')
+									.style.toggle(!detailed, 'view-type-chapter-block-supporter-reaction-list--compressed')
+
+								if (detailed)
+									for (const reaction of reactions) {
+										const author = chapter.mentions?.find(author => author.vanity === reaction?.author)
+										if (!author)
+											continue
+
+										Component()
+											.style('view-type-chapter-block-supporter-reaction-detailed')
+											.append(Icon('supporter-heart')
+												.style('view-type-chapter-block-supporter-reaction')
+												.and(GradientText, 'heart-gradient', '115deg')
+												.useGradient(author?.supporter?.username_colours)
+											)
+											.append(AuthorLink(author))
+											.appendTo(slot)
+									}
+								else
+									for (const reaction of reactions)
+										Icon('supporter-heart')
+											.style('view-type-chapter-block-supporter-reaction')
+											.and(GradientText, 'heart-gradient', '115deg')
+											.useGradient(chapter.mentions?.find(author => author.vanity === reaction?.author)?.supporter?.username_colours)
+											.appendTo(slot)
+							})
+						})
+						.event.subscribe('click', async () => {
+							if (!Session.Auth.loggedIn.value)
+								return
+
+							const params = { ...Chapters.reference(chapterState.value), type: 'heart' } as const
+							if (reactedSupporter.value) {
+								reactingSupporter.value = true
+								const response = await EndpointSupporterUnreactChapter.query({ params })
+								reactingSupporter.value = false
+								if (toast.handleError(response))
+									return
+
+								chapterState.value.supporter_reactions?.filterInPlace(reaction => reaction?.author !== Session.Auth.author.value?.vanity)
+
+								chapterState.emit()
+							}
+							else {
+								reactingSupporter.value = true
+								const response = await EndpointSupporterReactChapter.query({ params })
+								reactingSupporter.value = false
+								if (toast.handleError(response))
+									return
+
+								const supporterReactions = chapterState.value.supporter_reactions ??= []
+								supporterReactions.push({
+									author: Session.Auth.author.value!.vanity,
+									reaction_type: 'heart',
+								})
+
+								chapterState.emit()
+							}
+						})
+				)
+				//#endregion
+				////////////////////////////////////
+
+				////////////////////////////////////
+				//#region Normal Reaction
+				.appendWhen(reactions.map(slot, reactions => !!reactions || !!Session.Auth.author.value),
+					Reaction('love', reactions, reactedNormal, reactingNormal)
+						.tweak(reaction => reaction.icon.setDisabled(!Session.Auth.author.value, 'not logged in'))
+						.setTooltip(tooltip => tooltip.text.use('chapter/reaction/normal-heart'))
+						.event.subscribe('click', async () => {
+							if (!Session.Auth.loggedIn.value)
+								return
+
+							const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
+							if (reactedNormal.value) {
+								reactingNormal.value = true
+								const response = await EndpointUnreactChapter.query({ params })
+								reactingNormal.value = false
+								if (toast.handleError(response))
+									return
+
+								delete chapterState.value.reacted
+								if (chapterState.value.reactions)
+									chapterState.value.reactions--
+
+								chapterState.emit()
+							}
+							else {
+								reactingNormal.value = true
+								const response = await EndpointReactChapter.query({ params })
+								reactingNormal.value = false
+								if (toast.handleError(response))
+									return
+
+								chapterState.value.reacted = true
+								chapterState.value.reactions ??= 0
+								chapterState.value.reactions++
+
+								chapterState.emit()
+							}
+						})
+				)
+				//#endregion
+				////////////////////////////////////
+
+				////////////////////////////////////
+				//#region Guest Reaction
+				.appendWhen(guestReactions.map(slot, reactions => !!reactions || !Session.Auth.author.value),
+					Reaction('guest_heart', guestReactions, reactedGuest, reactingGuest)
+						.tweak(reaction => reaction.icon.setDisabled(!!Session.Auth.author.value, 'not a guest'))
+						.setTooltip(tooltip => tooltip.text.use('chapter/reaction/guest-heart'))
+						.event.subscribe('click', async () => {
+							if (Session.Auth.loggedIn.value)
+								return
+
+							const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
+							if (reactedGuest.value) {
+								reactingGuest.value = true
+								const response = await EndpointUnreactChapter.query({ params })
+								reactingGuest.value = false
+								if (toast.handleError(response))
+									return
+
+								delete chapterState.value.reacted
+								if (chapterState.value.guest_reactions)
+									chapterState.value.guest_reactions--
+
+								chapterState.emit()
+							}
+							else {
+								reactingGuest.value = true
+								const response = await EndpointReactChapter.query({ params })
+								reactingGuest.value = false
+								if (toast.handleError(response))
+									return
+
+								chapterState.value.reacted = true
+								chapterState.value.guest_reactions ??= 0
+								chapterState.value.guest_reactions++
+
+								chapterState.emit()
+							}
+						})
+				)
+				//#endregion
+				////////////////////////////////////
+
+				//#endregion
+				////////////////////////////////////
+			)
+
 		for (const actions of [paginator.footer, paginator.headerActions]) {
 			actions.style('view-type-chapter-block-paginator-actions')
 
@@ -271,181 +449,12 @@ export default ViewDefinition({
 				.text.use('chapter/action/index')
 				.appendTo(actions.middle)
 
-			////////////////////////////////////
-			//#region Reactions Buttons
+			ReactionButtons()
+				.appendToWhen(Viewport.mobile.falsy, actions.middle)
 
-			Slot()
-				.if(sufficientPledge, slot => Slot()
-					////////////////////////////////////
-					//#region Supporter Reaction
-					.appendWhen(supporterReactions.map(slot, reactions => !!reactions || !!Session.Auth.author.value?.supporter?.tier),
-						Reaction('supporter_heart', supporterReactions, reactedSupporter, reactingSupporter)
-							.tweak(reaction => reaction.icon.setDisabled(!Session.Auth.author.value?.supporter?.tier, 'not a supporter'))
-							.and(GradientText, 'heart-gradient', '115deg')
-							.useGradient(Session.Auth.author.map(slot, author => author?.supporter?.username_colours))
-							.setTooltip(tooltip => {
-								Component().text.use('chapter/reaction/supporter-heart').appendTo(tooltip)
-								const list = Slot().style.remove('slot').appendTo(tooltip)
-								list.use(chapterState, (slot, chapter) => {
-									if (!chapter.supporter_reactions?.length)
-										return
-
-									const reactions = Random.shuffle(chapter.supporter_reactions)
-									const detailed = chapter.supporter_reactions.length < 5
-
-									list.style('view-type-chapter-block-supporter-reaction-list')
-										.style.toggle(detailed, 'view-type-chapter-block-supporter-reaction-list--detailed')
-										.style.toggle(!detailed, 'view-type-chapter-block-supporter-reaction-list--compressed')
-
-									if (detailed)
-										for (const reaction of reactions) {
-											const author = chapter.mentions?.find(author => author.vanity === reaction?.author)
-											if (!author)
-												continue
-
-											Component()
-												.style('view-type-chapter-block-supporter-reaction-detailed')
-												.append(Icon('supporter-heart')
-													.style('view-type-chapter-block-supporter-reaction')
-													.and(GradientText, 'heart-gradient', '115deg')
-													.useGradient(author?.supporter?.username_colours)
-												)
-												.append(AuthorLink(author))
-												.appendTo(slot)
-										}
-									else
-										for (const reaction of reactions)
-											Icon('supporter-heart')
-												.style('view-type-chapter-block-supporter-reaction')
-												.and(GradientText, 'heart-gradient', '115deg')
-												.useGradient(chapter.mentions?.find(author => author.vanity === reaction?.author)?.supporter?.username_colours)
-												.appendTo(slot)
-								})
-							})
-							.event.subscribe('click', async () => {
-								if (!Session.Auth.loggedIn.value)
-									return
-
-								const params = { ...Chapters.reference(chapterState.value), type: 'heart' } as const
-								if (reactedSupporter.value) {
-									reactingSupporter.value = true
-									const response = await EndpointSupporterUnreactChapter.query({ params })
-									reactingSupporter.value = false
-									if (toast.handleError(response))
-										return
-
-									chapterState.value.supporter_reactions?.filterInPlace(reaction => reaction?.author !== Session.Auth.author.value?.vanity)
-
-									chapterState.emit()
-								}
-								else {
-									reactingSupporter.value = true
-									const response = await EndpointSupporterReactChapter.query({ params })
-									reactingSupporter.value = false
-									if (toast.handleError(response))
-										return
-
-									const supporterReactions = chapterState.value.supporter_reactions ??= []
-									supporterReactions.push({
-										author: Session.Auth.author.value!.vanity,
-										reaction_type: 'heart',
-									})
-
-									chapterState.emit()
-								}
-							})
-					)
-					//#endregion
-					////////////////////////////////////
-
-					////////////////////////////////////
-					//#region Normal Reaction
-					.appendWhen(reactions.map(slot, reactions => !!reactions || !!Session.Auth.author.value),
-						Reaction('love', reactions, reactedNormal, reactingNormal)
-							.tweak(reaction => reaction.icon.setDisabled(!Session.Auth.author.value, 'not logged in'))
-							.setTooltip(tooltip => tooltip.text.use('chapter/reaction/normal-heart'))
-							.event.subscribe('click', async () => {
-								if (!Session.Auth.loggedIn.value)
-									return
-
-								const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
-								if (reactedNormal.value) {
-									reactingNormal.value = true
-									const response = await EndpointUnreactChapter.query({ params })
-									reactingNormal.value = false
-									if (toast.handleError(response))
-										return
-
-									delete chapterState.value.reacted
-									if (chapterState.value.reactions)
-										chapterState.value.reactions--
-
-									chapterState.emit()
-								}
-								else {
-									reactingNormal.value = true
-									const response = await EndpointReactChapter.query({ params })
-									reactingNormal.value = false
-									if (toast.handleError(response))
-										return
-
-									chapterState.value.reacted = true
-									chapterState.value.reactions ??= 0
-									chapterState.value.reactions++
-
-									chapterState.emit()
-								}
-							})
-					)
-					//#endregion
-					////////////////////////////////////
-
-					////////////////////////////////////
-					//#region Guest Reaction
-					.appendWhen(guestReactions.map(slot, reactions => !!reactions || !Session.Auth.author.value),
-						Reaction('guest_heart', guestReactions, reactedGuest, reactingGuest)
-							.tweak(reaction => reaction.icon.setDisabled(!!Session.Auth.author.value, 'not a guest'))
-							.setTooltip(tooltip => tooltip.text.use('chapter/reaction/guest-heart'))
-							.event.subscribe('click', async () => {
-								if (Session.Auth.loggedIn.value)
-									return
-
-								const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
-								if (reactedGuest.value) {
-									reactingGuest.value = true
-									const response = await EndpointUnreactChapter.query({ params })
-									reactingGuest.value = false
-									if (toast.handleError(response))
-										return
-
-									delete chapterState.value.reacted
-									if (chapterState.value.guest_reactions)
-										chapterState.value.guest_reactions--
-
-									chapterState.emit()
-								}
-								else {
-									reactingGuest.value = true
-									const response = await EndpointReactChapter.query({ params })
-									reactingGuest.value = false
-									if (toast.handleError(response))
-										return
-
-									chapterState.value.reacted = true
-									chapterState.value.guest_reactions ??= 0
-									chapterState.value.guest_reactions++
-
-									chapterState.emit()
-								}
-							})
-					)
-					//#endregion
-					////////////////////////////////////
-				)
-				.appendTo(actions.middle)
-
-			//#endregion
-			////////////////////////////////////
+			ReactionButtons()
+				.style.toggle(actions === paginator.footer, 'reaction-button-list--footer')
+				.appendToWhen(Viewport.mobile.truthy, actions)
 		}
 
 		paginator.data.use(paginator, chapter => chapterState.value = chapter)

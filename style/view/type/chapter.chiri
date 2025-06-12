@@ -213,6 +213,9 @@
 			#flush:
 				%grid
 
+			&-right:
+				%flex-wrap
+
 		&-supporter-reaction-list:
 			%style-normal
 			&--detailed:

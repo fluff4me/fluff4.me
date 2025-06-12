@@ -9,6 +9,18 @@
 	:first:
 		%padding-left-0
 
+	&-button-list:
+		%gap-3
+		%justify-self-end
+		%column-3
+		%padding-inline-3
+		%margin-block-2
+		%row-3
+
+		&--footer:
+			#after: .reaction-button-list
+			%row-1
+
 	&-button:
 		#after: .button, .button--disabled
 		%padding-1-0
@@ -30,8 +42,8 @@
 
 			&--changing-state:
 				transform-style: preserve-3d
-				#animate .5s linear infinite:
-					100%: rotate: y 360deg
+				#animate 5s cubic-bezier(.16,-0.21,.01,1.16):
+					100%: rotate: y 1200deg
 
 	&-count:
 		%font-2

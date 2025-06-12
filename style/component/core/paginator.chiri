@@ -64,7 +64,11 @@
 			%unmargin-inline-3
 			%width-auto
 			%grid
-			grid-template-columns: 1fr 1fr
+			grid-template-columns: repeat(3, 1fr)
+			%row-gap-0
+
+		&-left, &-right, &-middle:
+			%row-2
 
 		&-left:
 			#after: .action-row-left
@@ -74,20 +78,10 @@
 				%justify-content-start
 
 		&-right:
+			#after: .action-row-right
 			%gap-0
 
 		&-middle:
-			#after: .action-row-right
-
-			#flush:
-				%row-2
-				%column-1-2
-				%justify-content-centre
-
-			&--header:
-				#after: .paginator-actions-middle
-				#flush:
-					%row-1
 
 		@before:
 			%absolute
