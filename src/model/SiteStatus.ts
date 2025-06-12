@@ -7,7 +7,6 @@ export default Manifest<SiteStatus>({
 	valid: Time.minutes(30),
 	refresh: true,
 	cacheId: 'status',
-	requiresAuthor: true,
 	get () {
 		return EndpointSiteStatus.query()
 	},
