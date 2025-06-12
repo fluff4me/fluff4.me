@@ -317,7 +317,7 @@ export default ViewDefinition({
 							})
 						})
 						.event.subscribe('click', async () => {
-							if (!Session.Auth.loggedIn.value)
+							if (!Session.Auth.loggedIn.value || reactingSupporter.value)
 								return
 
 							const params = { ...Chapters.reference(chapterState.value), type: 'heart' } as const
@@ -359,7 +359,7 @@ export default ViewDefinition({
 						.tweak(reaction => reaction.icon.setDisabled(!Session.Auth.author.value, 'not logged in'))
 						.setTooltip(tooltip => tooltip.text.use('chapter/reaction/normal-heart'))
 						.event.subscribe('click', async () => {
-							if (!Session.Auth.loggedIn.value)
+							if (!Session.Auth.loggedIn.value || reactingNormal.value)
 								return
 
 							const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
@@ -401,7 +401,7 @@ export default ViewDefinition({
 						.tweak(reaction => reaction.icon.setDisabled(!!Session.Auth.author.value, 'not a guest'))
 						.setTooltip(tooltip => tooltip.text.use('chapter/reaction/guest-heart'))
 						.event.subscribe('click', async () => {
-							if (Session.Auth.loggedIn.value)
+							if (Session.Auth.loggedIn.value || reactingGuest.value)
 								return
 
 							const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
