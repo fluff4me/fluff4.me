@@ -10,6 +10,7 @@
 		%padding-left-0
 
 	&-button-list:
+		%flex
 		%gap-3
 		%justify-self-end
 		%column-3
