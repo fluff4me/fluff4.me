@@ -36,7 +36,7 @@ namespace SiteStatusListener {
 			if (Env.isDev)
 				return
 
-			await SiteStatus.getManifest()
+			await SiteStatus.getManifest(true)
 			await banner.queue(banner => {
 				banner.body.style('view-type-fundraiser-banner')
 				Slot().appendTo(banner.body).use(SiteStatus, (slot, status) => {
