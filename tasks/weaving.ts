@@ -1,7 +1,10 @@
+import { readFileSync } from 'fs'
 import Task from './utility/Task'
 
-export default Task('weave', () =>
-	Task.cli('NPM:weaving', './lang', '--out', './docs', '--outTypes', './src'))
+export default Task('weave', async () => {
+	await Task.cli('NPM:weaving', './lang', '--out', './docs', '--outTypes', './src', '--outWhitespace')
+	console.log(readFileSync('src/lang/en-nz.d.ts', 'utf8'))
+})
 
 export const weavewatch = Task('weavewatch', () =>
 	Task.cli(
