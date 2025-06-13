@@ -3,7 +3,10 @@ import Task from './utility/Task'
 
 export default Task('weave', async () => {
 	await Task.cli('NPM:weaving', './lang', '--out', './docs', '--outTypes', './src', '--outWhitespace')
+	console.log('\n\n\ndefinitions:\n\n')
 	console.log(readFileSync('src/lang/en-nz.d.ts', 'utf8'))
+	console.log('\n\n\njs:\n\n')
+	console.log(readFileSync('docs/lang/en-nz.js', 'utf8'))
 })
 
 export const weavewatch = Task('weavewatch', () =>
