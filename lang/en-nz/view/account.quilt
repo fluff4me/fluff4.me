@@ -1,0 +1,167 @@
+## account
+name/label=shared/form/name/label
+name/hint: Your display name or penname — the name your comments and works are attributed to. This can be changed whenever you like, and doesn't have to be unique.
+vanity/label=shared/form/vanity/label
+vanity/hint: Your username, and what people use to {#B:@ping} you in comments. This {#I:can} be changed whenever you like, but {#B:must always be unique}.
+vanity/url-preview=shared/preview
+description/label=shared/form/description/label
+description/hint: This bio will appear on your profile above any works.
+external-link/label=shared/form/external-link/label
+external-link/hint: An optional link that you can use to link to your profile on another platform. You could use a service like Linktree, or if you're an author, you could link directly to a payment or subscription platform.
+external-label/label=shared/form/external-label/label
+external-label/hint: A label to display instead of the external link itself.
+pronouns/label=shared/form/pronouns/label
+pronouns/hint: The pronouns that others should refer to you with. These will appear next to your name, usually.
+vanity-colours/label: Name Colours
+card-colours/label=shared/form/card-colours/label
+age/label: Age
+age/option/sixteen-plus: I am 16 or older
+age/option/eighteen-plus: I am 18 or older
+age/invalid: You must be 16 or older to use fluff4.me
+terms/label: Terms
+terms/button: I agree to the {#LINK(/legal/terms-of-service):Terms of Service} and {#LINK(/legal/privacy-policy):Privacy Policy}
+terms/invalid: You must agree to the Terms of Service and Privacy Policy
+
+action/logout: Log Out
+action/delete: Delete Account
+action/delete/confirm: This will permanently delete your account and all your content. There's no going back!
+
+toast/failed-to-save=shared/toast/failed-to-save | account data
+toast/saved=shared/toast/saved | account data
+
+### tab
+profile: Profile
+patreon: Patreon
+supporter: Supporter
+security: Security
+more: More
+
+### supporter
+title: Support fluff4.me
+description: Help the site exist, and gain aesthetic or promotional features as rewards!
+about/title: About supporters
+status/supporter:
+	#### {#ICON.HEART:} You're a fluff4.me supporter!
+	Thank you so much!
+status/end-date: Your supporter features will lapse {#B:{0}}.
+status/total: In total, you have given {#B:${0} US} in support.
+status/error: Unable to get supporter status: {0}
+status/action/retry=shared/action/retry
+already-patron-hint: Already a patron?
+
+order/created: Created {0}
+order/renews: Renewing {0}
+order/list-title: Order History
+order/list-title/patreon: Patronage
+order/type/order: One-Time
+order/type/subscription: Subscription
+order/status: {0}
+order/amount/subscription/value: {#B:${0}}
+order/amount/subscription/unit: {#B: US}/{0?y:mo}
+order/amount/total/value: {#B:${0}}
+order/amount/total/unit: {#B: US}
+order/label/timestamp: Created
+order/label/amount: Amount
+order/label/type: Type
+order/label/status: Status
+order/label/total: Total
+
+dialog/amount/label: Amount
+
+action/add-plan: Add Another Plan
+action/checkout: Checkout
+
+popup/start/title: Become a Supporter
+popup/manage/title: Manage Payments
+
+#### product
+single/name: One-Time Supporter
+single/description: Support fluff4.me with a one-time payment.
+single/default-price: $5 US
+monthly/name: Monthly Supporter
+monthly/description: Support fluff4.me with a monthly plan.
+monthly/default-price: $5 US
+yearly/name: Yearly Supporter
+yearly/description: Each payment on this plan adds a year of supporter features.
+yearly/default-price: $50 US
+founder/name: Founder
+founder/description: A single payment on this plan adds lifetime supporter features.
+founder/default-price: $200 US
+special-plans-hint: The following plans provide benefits that **last longer than their renewal period**. If you don't want to keep supporting after this, make sure to cancel your plan before the next month's payment!
+
+### patreon/campaign
+title: Patreon Campaign
+description: Link your Patreon campaign to create patron-only chapters or works.
+tiers: Tiers
+popup/title: Link Patreon Campaign
+
+#### unlink
+title: Unlink Patreon Campaign
+description: Are you sure you want to unlink your Patreon campaign? All tier information for works and chapters will be removed. **Patron-only works and chapters will become public.**
+confirm: Unlink
+
+## account/auth
+service/accessibility/connect: connect {0}
+service/accessibility/disconnect: disconnect {0} account {1}
+service/disconnect/confirm: This will disconnect your {0} account "**{1}**".
+popup/title: Login Using {0}
+
+### none
+title: Log in or sign up
+description: fluff4.me does not store an email address or password for your account. You must authenticate with a third-party service to begin.
+needs-session: You must have a session in order to log in. Try refreshing the page?
+
+### has-authorisations
+title: Authorisations
+description: Your authorisation(s) are not currently associated with a fluff4.me account. You may authenticate with additional third-party services to log in or sign up.
+
+### partial-login
+title: Log in
+
+### logged-in
+title: Authorisations
+description: These third party service accounts are linked to your fluff4.me account and may be used to log in.
+
+#### mfa
+title: Multi-factor authentication
+description: Change the number of auth services you need to reauth with to log in. The more you require, the more secure your account.
+label/required-count: Required to Log In
+action/save=shared/action/save
+
+## account/totp
+title: TOTP
+
+### none
+description: Secure your account with a Time-based One-Time Passcode.
+action/setup: Setup TOTP
+
+### starting
+description: Scan this QR code with your authenticator app.
+or-enter-key: ...Or enter the key manually.
+key-placeholder: (Key Hidden)
+action/reveal-key: Reveal Key
+action/hide-key: Hide Key
+action/continue=shared/action/continue
+action/cancel=shared/action/cancel
+
+### enter
+description: Enter the 6 digit code shown in your authenticator app to finish setup.
+action/enable: Enable TOTP
+action/cancel=shared/action/cancel
+
+### secured
+description: Your account is secured with a Time-based One-Time Passcode.
+action/disable: Disable TOTP
+
+### login
+description: Log in by entering your Time-based One-Time Passcode.
+action/login: Log In
+
+## account/create
+title: Create account
+description: The {#LINK(#authorisations):connected third party service accounts} will be used for login.
+submit: Sign Up!
+
+## account/update
+title: Update profile
+submit=shared/action/save

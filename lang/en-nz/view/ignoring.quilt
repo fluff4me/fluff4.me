@@ -1,0 +1,8 @@
+## ignoring
+main/title: Ignoring
+main/description: The content you're ignoring. Ignored content is hidden everywhere on the site.
+panel/shared/empty: You are not ignoring any {0}.
+panel/works/empty=view/ignoring/panel/shared/empty | works
+panel/authors/empty=view/ignoring/panel/shared/empty | authors
+panel/tags/empty=view/ignoring/panel/shared/empty | tags
+panel/categories/empty=view/ignoring/panel/shared/empty | tag categories

@@ -1,0 +1,7 @@
+## work
+
+### chapters
+title=shared/term/chapters
+content/empty: This work does not contain any chapters.
+action/label/new=shared/action/new-chapter
+action/label/new-bulk: Add in Bulk

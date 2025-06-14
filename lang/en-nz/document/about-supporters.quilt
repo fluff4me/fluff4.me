@@ -1,0 +1,30 @@
+about-supporters/title: Supporters
+about-supporters/unused: Supporter plans come in three variations: one-time payments, monthly subscriptions, and yearly subscriptions. Cancelling a subscription will not take away supporter benefits you've already paid for.
+about-supporters:
+	fluff4.me funds itself through the support of its users. In order to pay back to the users more than simply just maintaining the platform, we provide aesthetic benefits, early access to some new features, or the ability to "promote" content on the site.
+	
+	Every **$5 US** paid is equivalent to one month of supporter benefits.  
+	Every **$50 US** gives a bonus additional two months of supporter benefits.  
+	Upon reaching **$200 US**, supporter benefits will no longer lapse.
+	
+	Plans are currently handled through Patreon, which means at the moment in order to do a payment larger than $5 US, you have to do a monthly plan for a higher amount, and then cancel or reduce your patronage. (The supporter features you've paid for will, of course, be preserved.)
+
+	#### Features
+	{#ICON.PAINTBRUSH:} Custom username colours
+	
+	{#ICON.PAINTBRUSH:} Custom author card colours
+	
+	{#ICON.PAINTBRUSH:} Custom work card colours
+
+	#### Planned Features
+	{#ICON.CLOCK:} Early access to custom avatars, when implemented
+	
+	{#ICON.CLOCK:} Early access to custom work covers, when implemented
+	
+	{#ICON.PAINTBRUSH:} Custom profile backgrounds
+	
+	{#ICON.PAINTBRUSH:} Custom work backgrounds
+	
+	{#ICON.BULLHORN:} Work promotion, to pull in new viewers
+	
+	{#ICON.WRENCH:} Reduced API rate limits

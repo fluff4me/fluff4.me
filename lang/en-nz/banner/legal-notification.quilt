@@ -1,0 +1,4 @@
+# legal-notification
+initial: {#B:Welcome to fluff4.me!} Please take a look at our {#LINK(/legal/terms-of-service):Terms of Service} and {#LINK(/legal/privacy-policy):Privacy Policy}. By continuing to use the site, you state that you, or your legal guardian, agrees to these terms.
+update-logged-out: {#B:Welcome back!} The {#LINK(/legal/terms-of-service):Terms of Service} and {#LINK(/legal/privacy-policy):Privacy Policy} have updated since your last visit on this device. By continuing to access and use fluff4.me, you agree to the revised terms.
+update-logged-in: The {#LINK(/legal/terms-of-service):Terms of Service} and {#LINK(/legal/privacy-policy):Privacy Policy} have updated since your last visit. By continuing to access and use fluff4.me, you agree to the revised terms.

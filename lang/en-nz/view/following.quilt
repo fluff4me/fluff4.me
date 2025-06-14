@@ -1,0 +1,12 @@
+## following
+main/title: Following
+main/description: The content you're following. Latest updates for matching works appear in your {#LINK(/feed):Feed}.
+tab/works: Works
+tab/authors: Authors
+tab/tags: Tags
+tab/categories: Tag Categories
+panel/shared/empty: You are not following any {0}.
+panel/works/empty=view/following/panel/shared/empty | works
+panel/authors/empty=view/following/panel/shared/empty | authors
+panel/tags/empty=view/following/panel/shared/empty | tags
+panel/categories/empty=view/following/panel/shared/empty | tag categories

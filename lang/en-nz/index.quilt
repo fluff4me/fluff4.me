@@ -1,0 +1,56 @@
+fluff4me/title: {NOTIFICATIONS?({NOTIFICATIONS}) }{PAGE?{PAGE} / }{PAGE2?{PAGE2} / }fluff4.me / Tell your story!
+fluff4me/name: fluff4.me
+fluff4me/tagline: Tell your story!
+
+home/label: home
+
+~shared
+~license
+~utility
+~component/author
+~component/chapter
+~component/comment
+~component/feed
+~component/footer
+~component/fundraiser
+~component/masthead
+~component/notification
+~component/paginator
+~component/popover
+~component/settings
+~component/sidebar
+~component/tag
+~component/text-editor
+~component/work
+
+# banner
+~banner/legal-notification
+
+# view
+container/alt: main content
+
+~view/shared
+
+~view/about
+~view/account
+~view/author
+~view/chapter-create-bulk
+~view/chapter-edit
+~view/chapter
+~view/error
+~view/feed
+~view/following
+~view/history
+~view/ignoring
+~view/legal
+~view/manage-tags
+~view/new
+~view/work-edit
+~view/work
+
+# document
+~document/about
+~document/about-supporters
+~document/contact
+~document/legal
+~document/roadmap

@@ -1,0 +1,114 @@
+v0:
+	*Last updated May 10th, 2025*
+	
+	This document is mostly written in plain English to ensure you understand how and why fluff4.me ("**fluff**", "**we**", "**us**", or "**our**") collects and uses information about you when you use our websites or APIs (collectively, the "**Services**").
+	
+	
+	## What info is collected & used?
+	### 1. Login Services
+	Account creation and login on fluff4.me is done exclusively through third party services, using a standard protocol called OAuth (Open Authorisation). When signing in with a third party service, that service provides basic information about you to us. fluff4.me stores and uses *very little* of the information given to it by third parties.
+	
+	#### Display Name
+	We store your third party service account's display name. This is used *only* in display to *you*, so that you can tell which third party service account you're using for login, in the case of third party services that allow people to have multiple accounts.
+	
+	#### Account Identifier
+	In order to be able to log you in on subsequent visits, we need to store a unique bit of information associated with your third party service account. The bit of information we use is a unique "identifier" for your account on the third party service. 
+	
+	Instead of storing and using the identifier itself, we instead store and use a "hash" of it. "Hashing" in this case means taking some data, such as text, and performing a one-way operation on it that makes it nearly impossible to know the original data again.
+	
+	This means that if, for whatever reason, someone got ahold of the data stored by fluff4.me, they wouldn't be able to easily see the connection between your fluff4.me account and your linked third party service account(s).
+	
+	### 2. Account Information
+	Any information in your [Profile Settings](/account/profile), for example your display name, "vanity" name (i.e., username), and any description of yourself. Unless otherwise stated, this information is publicly accessible. You may modify or remove this information at any time, assuming fluff4.me is not undergoing maintenance.
+	
+	### 3. Preferences
+	While using the fluff4.me website, some preferences (for example, preferences related to how content is displayed) are sent to our servers. This information is stored only to be later returned to you, for using the fluff4.me website (such as on another device). These preferences are specific to unique device resolutions, and as a result this data may identify what kind of device you're using, if you're using, for example, a phone with a very specific screen size.
+	
+	### 4. Your Content
+	You can provide both public and private content to fluff4.me. Private content is visible only to you, and only when you are signed in to the Services.
+	
+	Public content can include your profile information, works (such as stories, blogs, articles, or poetry), chapters within works, and comments you leave on your own or others' content. Content may contain text, links, and/or images.
+	
+	Content such as works and chapters that you have not explicitly set to "Public" are set to "Private" by default.
+	
+	### 5. Your Actions
+	We collect information about actions you take while using the Services, such as "favouriting" content (using the heart button), following content, ignoring content, and reporting content.
+	
+	### 6. Patreon
+	Patreon is a third party service that we have provided an integration with. Authors may link their Patreon campaign so that they can use fluff4.me as a host of their patron-only content.
+
+	#### Campaigns
+	If you're an author with a Patreon campaign, you can link your Patreon account in [Patreon Campaign Settings](/account/patreon), which, again, uses OAuth to give fluff4.me permission to request data about your Patreon account from the Patreon API. 
+	
+	We store information related to your campaign from Patreon, such as the display name, relevant URLs, and information about the tiers that patrons can pledge at.
+	
+	We do not store the ability to request data about your Patreon account, and as a result you may need to re-link your Patreon campaign at a later date to use any updated information, such as new or modified tiers.
+	
+	#### Readers
+	If you're a reader who pledges to Patreon campaigns, you can link your Patreon account when prompted on a patron-only chapter, which, again, uses OAuth to give fluff4.me permission to request data about your Patreon account from the Patreon API.
+	
+	In this case, we *do* store the ability to request data about your Patreon account (specifically, whether you're pledged to a campaign, and if so, at what tier), in order to reduce the number of times you have to authenticate with Patreon. This ability to request data about your Patreon account is "encrypted" before it's stored, meaning that in the case of a data breach, a malicious party would not have the ability to request your information from the Patreon API without first breaking the encryption, which is unlikely.
+	
+	We do not request data related to your account from the Patreon API when not attempting to fulfil a request you make to our Services, and as such, our ability to request data may lapse after a period of time has passed. In this case, you will have to re-link your Patreon account when prompted on a patron-only chapter.
+	
+	### 7. Supporters
+	If you decide to "support" fluff4.me with a one-time purchase or a subscription, these transactions are processed through a third party service called Lemon Squeezy, which itself works through Stripe. These services are subject to separate terms and conditions and privacy policies. 
+	
+	As these transactions are made and updated, we collect information about them, allowing you to use the fluff4.me website to keep track of your order and subscription history, and then manage it through Lemon Squeezy when needed. Information collected includes, but is not necessarily limited to: the "products" purchased (i.e., the specific supporter plan you selected, whether a one-time purchase or a subscription), the amount paid, the dates of purchases or renewals or expiries.
+
+	### 8. Cookies
+	fluff4.me is split into two applications, under two different web addresses: `https://fluff4.me`, and `https://api.fluff4.me`. When you visit the main fluff4.me website, your request is served by third party services including Cloudflare and GitHub Pages. We do not have a server here.
+	
+	While *using* the main fluff4.me website, or "app", requests are made to the fluff4.me API, `https://api.fluff4.me`. These requests *are* handled by our server.
+	
+	When making requests with the fluff4.me API, the API must first create a "session" with your device. This is done by creating a unique string of text called a "Session Token", and then sending this token back to your device as a "cookie". This cookie is then saved by your browser (under the name `Session-Token`), and subsequent requests to the fluff4.me API send that same cookie back so that the API can recognise who you are. This is considered a "necessary" cookie, as it's what allows you to stay logged in. The cookie persists for 5 days by default, but will be extended as you continue to use the API.
+	
+	fluff4.me — neither the main website, nor the API — uses cookies for any other reason. There is no tracking, and there is no advertising.
+
+	### 8. Logging
+	As you access and use the fluff4.me API, a one-way hash of your IP will be used to perform rate limiting. It will not be stored.
+	
+	When you encounter errors while browsing (400 errors, which generally mean something going wrong on your end, and 500 errors, which means something going wrong on ours), these errors are collected and saved permanently, and are used to address any issues. These errors do not contain identifying information *except* in the case of when an error is shown while browsing your private content, in which case we *do* see the API endpoint that the error was thrown on. Usually, this simply identifies a particular work or chapter that the error occurred on.
+	
+	
+	## Is information shared?
+	No, not unless required by law.
+	
+	
+	## How is information protected?
+	Traffic between you and the fluff4.me API is handled over HTTPS, which means it's "secured" — in other words, it's not plaintext, and can't be easily deciphered.
+	
+	fluff4.me very intentionally does not allow signup with an email address and password, as most platforms do, as our development team is small. We do our best to protect what sensitive information we do store, but focusing on limiting the amount of sensitive data is in our opinion the best way to prevent the typical bad consequences of a data breach.
+	
+	In order to protect your account outside of a data breach, login is handled through third party services via OAuth, as described in the "Login Services" section above. In your [Security Settings](/account/security), you can configure how many of your linked login service accounts are required to be re-linked in order to login. Because login in this case would require multiple separate "factors" that *all* must have been taken over by a malicious actor, this is considered a form of "multi-factor authentication". The more "factors" you require, the safer your account will be. Consider also enabling TOTP (Time-based One-Time Passcodes) for your account, which counts as an extra factor without requiring you to link another third party service.
+	
+	
+	## How can info be managed?
+	
+	### Requesting Data
+	If you'd like to request a copy of the data collected for your account, please send an email to [support@fluff4.me](mailto:support@fluff4.me). We don't currently have the capability to compile this data, but by law we have 30 days to comply with the request, and we'll use that time to implement that capability and, when finished, reply to your email with instructions on how to proceed.
+	
+	### Deleting Data
+	Works, chapters, and comments can all be deleted while viewing the content in question.
+	
+	Deleting your account can be done in [Account Settings](/account/more). Note that in the case of comments you've left with your account, this *will* retain an empty space where your comment used to be in order to preserve other users' replies. However, it won't be possible for users to tell that you were the author of the removed comment.
+	
+	If you are unable to delete your account (this is a common place for errors to occur due to technical reasons), please send an email to [support@fluff4.me](mailto:support@fluff4.me). We'll work out what's going on and get your data removed.
+	
+	
+	## International Data Transfers
+	We are located in New Zealand, but the fluff4.me API server and database are located in Europe, hosted by a third party service called Heroku, by Salesforce, Inc, which is a company based in the United States. Information you provide to us may be stored on servers and devices in other countries. By accessing or using the Services or otherwise providing information to us, you consent to the processing, transfer, and storage of information in and to other countries, which may have different rights and protections as those in your country of residence.
+	
+	
+	## Policy Changes
+	This Privacy Policy will almost assuredly change over time. When we do, we'll let you know in these ways:
+	1. The date at the top of the policy will change.
+	2. The next time you visit fluff4.me after a Privacy Policy update, it will prompt you to reaffirm that you have read and agree with the revised policy.
+	
+	Since we do not collect email addresses, we do not have a way to contact you about policy changes outside of when you're using the application. When we update these policies, we'll try to give you a bit of notice before they come into effect. 
+	
+	By continuing to use the Services after policy changes go into effect, you agree to be bound by the revised policy.
+	
+	
+	## Contact us!
+	If you have questions or concerns, please feel free to email us at [support@fluff4.me](mailto:support@fluff4.me), and we'd love to help.

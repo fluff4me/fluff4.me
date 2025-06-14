@@ -1,0 +1,25 @@
+# work
+chapters/label=shared/term/chapters
+chapters/value: {0}{1?\xa0 {#SM:(~{1} {2})}}
+cadence/label: Cadence
+cadence/value: ~{0} {1}
+word-count/label=shared/term/word-count
+work-count/label=shared/term/work-count
+description/empty: This work has no description.
+state/private: Private
+state/private-no-chapters: Hidden (No Chapters)
+action/label/edit=shared/action/edit
+action/label/new-chapter=shared/action/new-chapter
+action/label/bulk-chapters=shared/action/bulk-chapters
+action/label/follow=shared/action/follow
+action/label/unfollow=shared/action/unfollow
+action/label/ignore=shared/action/ignore
+action/label/unignore=shared/action/unignore
+action/label/delete=shared/action/delete
+action/delete/confirm: This will delete your work "**{0}**", and there's no undoing it!
+action/label/report=shared/action/report
+action/label/moderate=shared/action/moderate
+action/lock: Lock
+action/unlock: Unlock
+locked/label: Locked
+locked/description: To lift the lock, address the issues left by the moderators below:

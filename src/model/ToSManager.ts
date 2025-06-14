@@ -46,10 +46,10 @@ namespace ToSManager {
 			await banner.queue(banner => {
 				banner.body.append(
 					Component().text.use(lastAcceptedToS < 0
-						? 'banner/tos-and-privacy-policy-notification-initial'
+						? 'banner/legal-notification/initial'
 						: Session.Auth.loggedIn.value
-							? 'banner/tos-and-privacy-policy-notification-update-logged-in'
-							: 'banner/tos-and-privacy-policy-notification-update-logged-out',
+							? 'banner/legal-notification/update-logged-in'
+							: 'banner/legal-notification/update-logged-out',
 					),
 					Button().type('icon', 'flush').setIcon('xmark')
 						.event.subscribe('click', banner.dismiss),

@@ -1,0 +1,34 @@
+## work-edit
+
+### shared
+toast/failed-to-save=shared/toast/failed-to-save
+toast/saved=shared/toast/saved
+
+#### form
+name/label=shared/form/name/label
+name/hint: The name of your work. This does not have to be unique.
+vanity/label=shared/form/vanity/label
+vanity/hint: The identifier for this work, which will appear in its URL.
+vanity/url-preview=shared/preview
+description/label=shared/form/description/label
+description/hint: A simple 1-2 sentence description of the work. This will be the only descriptive text shown when works are displayed in lists.
+synopsis/label=shared/form/synopsis/label
+synopsis/hint: The full text describing this work. This will only appear in the full work view.
+tags/label=shared/form/tags/label
+visibility/label=shared/form/visibility/label
+visibility/hint: When set to public, a work will not be visible until it has a public chapter as well.
+visibility/public=shared/form/visibility/public
+visibility/patreon=shared/form/visibility/patreon
+visibility/private=shared/form/visibility/private
+card-colours/label=shared/form/card-colours/label
+
+## work-edit/create
+title: Create work
+submit=shared/action/create
+
+## work-edit/update
+title: Edit work
+submit=shared/action/save
+action/delete: Delete Work
+action/new-chapter=shared/action/new-chapter
+action/bulk-chapters=shared/action/bulk-chapters

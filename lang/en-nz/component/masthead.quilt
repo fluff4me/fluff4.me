@@ -1,0 +1,19 @@
+# masthead
+skip-navigation: Skip Navigation
+
+primary-nav/alt: primary
+action/login=shared/action/login-or-signup
+label/beta: beta
+
+## user/settings
+alt: settings
+
+## user/notifications
+alt: notifications
+title: Notifications
+link/label: View All
+
+## user/profile
+alt=shared/term/profile
+popover/profile=shared/action/view-profile
+popover/account=shared/term/account-settings

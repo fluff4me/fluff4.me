@@ -1,0 +1,13 @@
+# comment
+timestamp/edited: Edited {0}
+deleted/body: *This comment has been deleted...*
+deleted/author: unknown
+hint: Make sure to be nice! Nobody wants pure critique.
+action/reply: Reply
+action/edit=shared/action/edit
+action/cancel=shared/action/cancel
+action/save=shared/action/save
+action/delete=shared/action/delete
+action/report=shared/action/report
+action/label/moderate=shared/action/moderate
+tooltip/author-heart: A {#ICON.HEART:} from the author!

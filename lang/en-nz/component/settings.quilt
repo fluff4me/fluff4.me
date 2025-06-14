@@ -1,0 +1,20 @@
+# settings
+title=shared/term/settings
+description: Settings related to the way the fluff4.me application behaves.
+hint/account: Looking for account settings? See your {#LINK(/account):Account} page.
+chapter/name: Chapter
+chapter/font-size/name: Font Size
+chapter/font-size/description: A multiplier for the default chapter text font size.
+chapter/line-height/name: Line Height
+chapter/line-height/description: The height of a line of text, relative to the font size.
+chapter/paragraph-gap/name: Paragraph Gap
+chapter/paragraph-gap/description: A multiplier for the default distance between paragraphs.
+chapter/text-align/name: Text Align
+chapter/text-align/description: Justified
+chapter/font-family/name: Font Family
+chapter/font-family/option/author/name: Set by Author
+chapter/font-family/option/author/description: Use the font family set by the author.
+chapter/font-family/option/default/name: Default
+chapter/font-family/option/default/description: Use fluff4.me's default font family.
+chapter/font-family/option/custom/name: Custom
+chapter/font-family/option/custom/description: Use a custom font family.

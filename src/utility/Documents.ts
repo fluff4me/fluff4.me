@@ -57,7 +57,7 @@ namespace Documents {
 				if (signal.aborted)
 					return
 
-				setProgress(0.1 * (i / fileList.length), quilt => quilt['load/documents/discovering'](i, fileList.length))
+				setProgress(0.1 * (i / fileList.length), quilt => quilt['utility/documents/load/discovering'](i, fileList.length))
 				await Task.yield()
 				await queueFile('', file.name, {
 					text: () => file.text().then(text => ({ text, error: undefined }), error => ({ text: undefined, error })),
@@ -109,7 +109,7 @@ namespace Documents {
 				if (signal.aborted)
 					return
 
-				setProgress(0.1 + 0.9 * (i / queue.length), quilt => quilt['load/documents/processing'](i, queue.length))
+				setProgress(0.1 + 0.9 * (i / queue.length), quilt => quilt['utility/documents/load/processing'](i, queue.length))
 				await Task.yield()
 				await onFile(dir, path, file, path)
 			}

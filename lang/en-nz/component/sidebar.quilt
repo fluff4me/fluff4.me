@@ -1,0 +1,19 @@
+# sidebar
+section/browse: Browse
+link/new=view/new/main/title
+link/feed=view/feed/main/title
+link/history=view/history/main/title
+
+section/create: Create
+link/create-work: Create Work
+
+section/manage: Manage
+link/tags: Tags
+
+section/profile=shared/term/profile
+link/login: Log In/Sign up
+link/profile=shared/action/view-profile
+link/settings=shared/term/account-settings
+
+section/dev: Dev
+link/debug: Debug

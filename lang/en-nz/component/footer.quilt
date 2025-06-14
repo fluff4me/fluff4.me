@@ -1,0 +1,17 @@
+# footer
+heading/site=fluff4me/name
+link/about=view/about/main/tab
+link/roadmap=view/about/roadmap/tab
+link/supporters=view/about/supporters/tab
+
+heading/support: Support
+link/contact: Contact
+link/bug-reports: Bug Reports
+link/feature-requests: Feature Requests
+link/responsible-disclosure: Responsible Disclosure
+
+heading/legal: Legal
+link/terms-of-service=view/legal/terms-of-service/tab
+link/privacy-policy=view/legal/privacy-policy/tab
+
+other/copyright: © fluff4.me {YEAR}

@@ -1,0 +1,22 @@
+# notification
+comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}
+comment-reply: {TRIGGERED_BY} has replied to your comment on {CHAPTER} of {WORK}
+comment-mention: {TRIGGERED_BY} has mentioned you in a comment on {CHAPTER} of {WORK}
+report/label/reason: Reason given:
+report-spam: {CHAPTER?{CHAPTER} of }{WORK} has been reported as spam by {TRIGGERED_BY}
+report-impersonation: {AUTHOR} has been reported for impersonation by {TRIGGERED_BY}
+report-plagiarism: {CHAPTER?{CHAPTER} of }{WORK} has been reported as plagiarism by {TRIGGERED_BY}
+report-phishing: {CHAPTER?{AUTHOR}'s comment on {CHAPTER} of {WORK} has been reported as phishing:{AUTHOR} has been reported for phishing} by {TRIGGERED_BY}
+report-ban-evasion: {AUTHOR} has been reported for ban evasion by {TRIGGERED_BY}
+report-inappropriate-field: A field on {AUTHOR?{AUTHOR}'s profile:{CHAPTER?{CHAPTER} of }{WORK}} has been reported as inappropriate by {TRIGGERED_BY}
+report-inappropriate: {AUTHOR}'s comment on {CHAPTER} of {WORK} has been reported as inappropriate by {TRIGGERED_BY}
+report-inadequate-tags: {CHAPTER?{CHAPTER} of }{WORK} has been reported for inadequate tags by {TRIGGERED_BY}
+report-tos-violation: {COMMENT?{AUTHOR}'s comment on {CHAPTER} of {WORK}:{CHAPTER?Chapter {CHAPTER} of {WORK}:{WORK??{AUTHOR}}}} has been reported for a Terms of Service violation by {TRIGGERED_BY}
+report-harassment: {AUTHOR} has been reported for harassment by {TRIGGERED_BY}{COMMENT? due to their comment on {CHAPTER} of {WORK}}
+report-work-unlock: {TRIGGERED_BY} has requested their work {WORK} to be unlocked
+work-locked: Your work {WORK} has been locked due to a Terms of Service violation
+work-unlocked: Your work {WORK} is no longer locked
+author-censored: One or more fields in your profile have been removed due to Terms of Service violations
+work-censored: One or more fields in your work {WORK} have been removed due to Terms of Service violations
+chapter-censored: One or more fields in your chapter {CHAPTER} of work {WORK} have been removed due to Terms of Service violations
+patreon-needs-reauth: The fluff4.me campaign must be [reauthenticated](https://api.fluff4.me/admin/auth/campaign/begin)

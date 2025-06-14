@@ -1,0 +1,29 @@
+# license
+all-rights-reserved: {0?© {0}{ 1??} — }All Rights Reserved
+cc-by:
+	{0?© {0}{ 1??} — }CC BY 
+	{#SM:Creative Commons Attribution}
+cc-by/link: https://creativecommons.org/licenses/by/4.0/
+cc-by-sa:
+	{0?© {0}{ 1??} — }CC BY-SA 
+	{#SM:Creative Commons Attribution-ShareAlike}
+cc-by-sa/link: https://creativecommons.org/licenses/by-sa/4.0/
+cc-by-nc:
+	{0?© {0}{ 1??} — }CC BY-NC 
+	{#SM:Creative Commons Attribution-NonCommercial}
+cc-by-nc/link: https://creativecommons.org/licenses/by-nc/4.0/
+cc-by-nc-sa:
+	{0?© {0}{ 1??} — }CC BY-NC-SA 
+	{#SM: Creative Commons Attribution-NonCommercial-ShareAlike}
+cc-by-nc-sa/link: https://creativecommons.org/licenses/by-nc-sa/4.0/
+cc-by-nd:
+	{0?© {0}{ 1??} — }CC BY-ND 
+	{#SM: Creative Commons Attribution-NoDerivatives}
+cc-by-nd/link: https://creativecommons.org/licenses/by-nd/4.0/
+cc-by-nc-nd:
+	{0?© {0}{ 1??} — }CC BY-NC-ND 
+	{#SM: Creative Commons Attribution-NonCommercial-NoDerivatives}
+cc-by-nc-nd/link: https://creativecommons.org/licenses/by-nc-nd/4.0/
+cc0: {#B:CC0}: Public Domain Dedication
+cc0/link: https://creativecommons.org/publicdomain/zero/1.0/
+custom: Custom

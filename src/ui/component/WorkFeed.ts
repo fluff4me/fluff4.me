@@ -58,7 +58,7 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 
 	paginator.orElse(slot => Component()
 		.style('placeholder')
-		.text.use('work-feed/empty')
+		.text.use('feed/empty')
 		.appendTo(slot))
 
 	return feed

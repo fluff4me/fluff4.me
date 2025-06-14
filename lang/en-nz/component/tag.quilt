@@ -1,0 +1,8 @@
+# tag
+label/aliases: Aliases
+label/relationships-to=shared/term/relationships-to
+label/relationships-from=shared/term/relationships-from
+action/label/follow=shared/action/follow
+action/label/unfollow=shared/action/unfollow
+action/label/ignore=shared/action/ignore
+action/label/unignore=shared/action/unignore

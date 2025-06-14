@@ -1,0 +1,55 @@
+## text-editor
+
+toolbar/group/inline: inline formatting
+toolbar/button/strong: strong (bold)
+toolbar/button/em: emphasis (italic)
+toolbar/button/underline: underline
+toolbar/button/strikethrough: strikethrough
+toolbar/button/subscript: subscript
+toolbar/button/superscript: superscript
+toolbar/button/code: code
+toolbar/button/link: link
+toolbar/button/other-formatting: other formatting options
+
+toolbar/group/block: block formatting
+toolbar/button/align: text align (currently {0})
+toolbar/button/align-left: align left
+toolbar/button/align-centre: centre
+toolbar/button/align-right: align right
+toolbar/button/align/currently/left: aligned left
+toolbar/button/align/currently/right: aligned right
+toolbar/button/align/currently/centre: centred
+toolbar/button/align/currently/mixed: mixed
+
+toolbar/button/block-type: block type (currently {0})
+toolbar/button/code-block: code block
+toolbar/button/paragraph: paragraph
+toolbar/button/block-type/currently/code-block: code block
+toolbar/button/block-type/currently/paragraph: paragraph
+toolbar/button/block-type/currently/mixed: mixed
+
+toolbar/group/wrapper: block wrappers
+toolbar/button/lift: unwrap
+toolbar/button/bullet-list: wrap in list
+toolbar/button/ordered-list: wrap in ordered list
+toolbar/button/blockquote: wrap in block quote
+
+toolbar/group/insert: insert
+toolbar/button/hr: horizontal rule
+
+toolbar/group/actions: actions
+toolbar/button/undo: undo
+toolbar/button/redo: redo
+toolbar/button/fullscreen: fullscreen
+toolbar/button/unfullscreen: exit fullscreen
+
+formatting/none: no formatting
+formatting/strong: strong (bolded)
+formatting/em: emphasised (italic)
+formatting/underline: underlined
+formatting/strikethrough: strikethrough
+formatting/subscript: subscript
+formatting/superscript: superscript
+formatting/code: code
+formatting/link: link
+formatting/mention: mention

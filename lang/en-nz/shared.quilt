@@ -1,0 +1,168 @@
+# shared
+preview: Preview
+mention/unresolved: unknown
+prefix/vanity: @
+prefix/currency: $
+actions/empy: No actions available on this content.
+
+## popup
+danger-token/title: Re-authenticate Using {0}
+supporter/finishing: Waiting for transaction to process...
+
+## prompt
+confirm: Are you sure?
+reauth: To perform this action, reauthenticate to verify your identity:
+
+### report
+title: Report {0}
+body:
+	You're filing a report for **{0}**. Thanks for helping keep fluff safe!
+	{#SM:
+	- This report will be filed *permanently*, accessible by fluff4.me moderators.
+	- We cannot guarantee if or when action will be taken.
+	- Intentionally filing invalid reports will have consequences.
+	
+	}
+details/label: Details
+reason/label: Reason
+#### reason/option
+impersonation: Impersonation
+harassment: Harassment
+plagiarism: Plagiarism
+spam: Spam
+phishing: Phishing
+ban-evasion: Ban Evasion
+inappropriate-field: Inappropriate Field
+inappropriate: Inappropriate
+inadequate-tags: Inadequate Tags
+tos-violation: Terms of Service Violation
+work-unlock: Request Work Unlock
+
+### moderation
+title: Moderate {0}
+subtitle: Moderating {#B:{0}}
+tab/general: General
+tab/censor: Censoring
+censor/key/name=shared/form/name/label
+censor/key/description=shared/form/description/label
+censor/key/vanity=shared/form/vanity/label
+censor/key/pronouns=shared/form/pronouns/label
+censor/key/support_link=shared/form/external-link/label
+censor/key/support_message=shared/form/external-label/label
+censor/key/body=shared/form/body/label
+censor/key/notes_before=shared/form/notes/label
+censor/key/notes_after=shared/form/notes/label
+censor/key/synopsis=shared/form/synopsis/label
+censor/key/license=shared/form/license/label
+action/grant-supporter: Add Supporter Months
+action/grant-supporter/body: {#B:{0}} will be given {1} month(s) of supporter features, *permanently*.
+action/delete=shared/action/delete
+action/delete/body: {#B:{0}} will be *permanently removed* from the site.
+action/censor: Censor
+action/censor/body: The fields {1*, } of {#B:{0}} will be *permanently stripped*.
+
+## term
+profile: Profile
+chapters: Chapters
+settings: Settings
+account-settings: Account Settings
+notes: Notes
+patreon-tier: {NAME}: {#B:{PRICE}}
+relationships-to: Relates To
+relationships-from: Related From
+word-count: Words
+work-count: Works
+time-join: Joined
+supporters: Supporters
+work: work
+author: author
+chapter: chapter
+comment: comment
+comment-by: a comment by {0}
+interval/daily: daily
+interval/every-x-days: every {0} days
+interval/weekly: weekly
+interval/every-x-weeks: every {0} weeks
+interval/monthly: monthly
+interval/every-x-months: every {0} months
+
+## action
+auth: Authenticate
+login-or-signup: Log In or Sign Up
+love: Love
+edit: Edit
+follow: Follow
+ignore: Ignore
+unfollow: Unfollow
+unignore: Unignore
+delete: Delete{ 0??}
+save: Save
+create: Create
+cancel: Cancel
+confirm: Confirm
+return: Return
+view-profile: View Profile{0? ({0})}
+continue: Continue
+new-chapter: New Chapter
+bulk-chapters: Bulk Chapters
+become-patron: Become a Patron
+done: Done
+filter: Filter...
+rename: Rename
+modify: Modify
+next: Next
+retry: Retry
+report: Report
+moderate: Moderate
+
+## toast
+failed-to-save: Failed to save {0}
+saved: Saved {0}
+error-occurred: An error has occurred!
+
+## form
+dropdown/selection/none: No Selection
+dropdown/selection/join: {*, }
+dropdown/filter/placeholder=shared/action/filter
+category/label: Category
+name/label: Name
+vanity/label: Vanity
+description/label: Description
+synopsis/label: Synopsis
+external-link/label: External Link
+external-label/label: Link Text
+pronouns/label: Pronouns
+body/label: Body
+notes/label=shared/term/notes
+tags/label: Tags
+tags/placeholder: Type to filter tag suggestions...
+tags/suggestion/add-as-custom: Add custom tag:
+tags/suggestion/label: Suggestions
+tags/hint/main: fluff4.me has two kinds of tags.
+tags/hint/global: {#B:Global tags} are chosen from a predefined list, meant for primary categorisation.\nThe first eight will always be displayed with your work. Any others will display only on the full work page.
+tags/hint/custom: {#B:Custom tags} are custom text — whatever you want. Useful as stand-ins for missing global tags, or to better describe specifics.\nThese {#I:only} display on the full work page.
+progress-wheel/remaining/label: {0}
+progress-wheel/progress/label: {0}%
+visibility/label: Visibility
+visibility/public: Public
+visibility/private: Private
+visibility/patreon: Patreon
+visibility-patreon-tier/label: Tier
+visibility-patreon-tier/selection/none: {#I:No Tiers Selected}
+visibility-patreon-tier/selection/all: {#I:All Tiers}
+visibility-patreon-tier/selection/tier-and-up: {0} {#I:(And All Higher Tiers)}
+time/label: Time
+time/placeholder: (Now)
+card-colours/label: Card Colours
+license/label: License
+license/aria-label: custom license
+license/link-view-text: view license text
+license/link: License Link
+license/name: License Name
+license/inherit: Inherit Default License
+
+invalid/too-long: This text is too long.
+invalid/required: This field is required.
+invalid/tags/too-many-global: Too many global tags.
+invalid/tags/too-many-custom: Too many custom tags.
+invalid/time: This is not a valid time.

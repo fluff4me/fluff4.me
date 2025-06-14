@@ -1,0 +1,16 @@
+## chapter
+number/label: Chapter {0}
+number/interlude/label: Interlude {0}
+tags/label: This chapter contains:
+notes/label=shared/term/notes
+patreon/label: Patrons Only
+action/become-patron=shared/action/become-patron
+action/auth-to-patreon=shared/action/auth
+action/unlink-patreon: Unlink ({0})
+placeholder/login-for-patreon: Log in to authenticate with Patreon.
+
+### dialog/patron
+title: Authenticate as Patron
+description: In order to view this content, please sign in to the Patreon account that you pledge with.
+popup/title: Link Patron Account
+done=shared/action/done

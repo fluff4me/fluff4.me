@@ -116,7 +116,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			.type('icon')
 			.style('paginator-button')
 			.style.bind(isFirstPage, 'paginator-button--disabled')
-			.ariaLabel.use('component/paginator/first/label')
+			.ariaLabel.use('paginator/first/label')
 			.event.subscribe('click', () => cursor.value = 0)
 			.appendTo(actions.left)
 
@@ -126,7 +126,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			.type('icon')
 			.style('paginator-button')
 			.style.bind(isFirstPage, 'paginator-button--disabled')
-			.ariaLabel.use('component/paginator/previous/label')
+			.ariaLabel.use('paginator/previous/label')
 			.event.subscribe('click', () => cursor.value = Math.max(cursor.value - 1, 0))
 			.appendTo(actions.left)
 
@@ -136,7 +136,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			.type('icon')
 			.style('paginator-button')
 			.style.bind(isLastPage, 'paginator-button--disabled')
-			.ariaLabel.use('component/paginator/next/label')
+			.ariaLabel.use('paginator/next/label')
 			.event.subscribe('click', () => cursor.value = Math.min(cursor.value + 1, pageCount.value === undefined ? Infinity : pageCount.value - 1))
 			.appendTo(actions.right)
 
@@ -147,7 +147,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			.style('paginator-button')
 			.style.bind(isLastPage, 'paginator-button--disabled')
 			.style.bind(hasNoPageCount, 'paginator-button--hidden')
-			.ariaLabel.use('component/paginator/last/label')
+			.ariaLabel.use('paginator/last/label')
 			.event.subscribe('click', () => cursor.value = !pageCount.value ? cursor.value : pageCount.value - 1)
 			.appendTo(actions.right)
 	}
@@ -401,11 +401,11 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			.style('paginator-error')
 			.append(Component()
 				.style('paginator-error-text')
-				.text.use('component/paginator/error'))
+				.text.use('paginator/error'))
 			.append(Button()
 				.type('primary')
 				.style('paginator-error-retry-button')
-				.text.use('component/paginator/error/retry')
+				.text.use('paginator/error/retry')
 				.event.subscribe('click', () => retry()))
 	}
 

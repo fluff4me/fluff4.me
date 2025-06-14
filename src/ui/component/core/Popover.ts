@@ -221,9 +221,9 @@ Component.extend(component => {
 			const ariaLabel = popover.ariaLabel.state.map(popover, popoverLabel => rawLabel || popoverLabel)
 			const ariaRole = popover.attributes.getUsing('role') ?? popover.attributes.get('role')
 			component.ariaLabel.bind(ariaLabel.mapManual(ariaLabel =>
-				(quilt, { arg }) => quilt['component/popover/button'](arg(ariaLabel), arg(ariaRole))))
+				(quilt, { arg }) => quilt['popover/button'](arg(ariaLabel), arg(ariaRole))))
 			popover.ariaLabel.bind(ariaLabel.mapManual(ariaLabel =>
-				(quilt, { arg }) => quilt['component/popover'](arg(ariaLabel))))
+				(quilt, { arg }) => quilt['popover'](arg(ariaLabel))))
 
 			navigate.event.subscribe('Navigate', forceClose)
 			popover.removed.matchManual(true, () => navigate.event.unsubscribe('Navigate', forceClose))

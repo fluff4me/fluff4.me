@@ -1,0 +1,7 @@
+# paginator
+error: Failed to load content.
+error/retry=shared/action/retry
+first/label: first page
+previous/label: previous page
+next/label: next page
+last/label: last page

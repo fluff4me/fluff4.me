@@ -1,0 +1,78 @@
+roadmap/title: Roadmap
+roadmap:
+	## Up Next
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Work statuses
+	*Set the status of your work — Completed, Ongoing, Hiatus, or Cancelled.*
+	</WEAVE>
+
+	<WEAVE TAG=".MINIBLOCK">
+	#### Patron-only works
+	*Instead of setting individual chapters as patron-only, instead set the work as a whole.*
+	</WEAVE>
+	
+	---
+	## Soon
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Chapter scheduling
+	*Set a schedule for your work as a whole, resulting in newly uploaded chapters releasing to patrons or publicly on particular days.*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Feature more than just new works
+	*In the "New" view, also show what's trending or "hot", what's recently completed, and more!*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Work promotion
+	*Being a supporter will grant you a certain number of monthly "promotions" to use on your works as you see fit. These promotions will place your work in the recommendations sidebar of fluff4.me readers.*
+	{#SUPPORTERS-ONLY:}
+	</WEAVE>
+	
+	---
+	## Later
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Saving your place in a work
+	*Click a button on works to "continue" reading them, rather than having to find your place. Will work with rereads as well, showing both your furthest progress in a work, and your current progress in a reread.*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Collections
+	*Imagine a music or video playlist, but instead for works. Useful for:*
+	- *An ongoing series of books (works) — in which case you'll also be able to set it so that following one work is equivalent to following the series itself.*
+	- *Groups of works by various authors around a theme, like an anthology, or related to an event of some kind.*
+	- *Making a collection of stories you'd like to recommend reading.*
+	- *Making a collection of stories to hold stories by other authors set in one of your universes, or to hold fanfics for one of your stories.*
+	
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Work covers
+	*Add a cover for your story! This feature will be supporters-only at the start.*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Profile avatars
+	*Add an image to represent yourself! This feature will be supporters-only at the start.*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Custom work backgrounds
+	*Add a background to appear behind the main page of your story.*
+	{#SUPPORTERS-ONLY:}
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Custom profile backgrounds
+	*Add a background to appear behind your profile.*
+	{#SUPPORTERS-ONLY:}
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### And much more!
+	*We can't spoil all the surprises on the distant horizon, now can we?*  
+	*<sub>(We could tbh, it would just take ten million years to write it all out and we'd rather work on the site.)</sub>*
+	</WEAVE>

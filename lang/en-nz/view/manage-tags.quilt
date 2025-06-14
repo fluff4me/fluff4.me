@@ -1,0 +1,58 @@
+## manage-tags
+title: Manage Tags
+description: Time to clean stuff up!
+
+### global-tag-form
+category/label=shared/form/category/label
+name/label=shared/form/name/label
+description/label=shared/form/description/label
+aliases/label: Aliases
+relationships-to/label=shared/term/relationships-to
+relationships-from/label=shared/term/relationships-from
+mature/label: Mature
+mature/hint: Only display tagged content to those 18+
+
+### shared
+hint/filter=shared/action/filter
+hint/select-tags: Select tags to manage them...
+label/selected-tags: Selected Tags
+hint/delete-tags: Are you sure you want to delete these tag(s)? This is permanent. All stories with these tags will lose them.
+
+### custom-tags
+title: Custom Tags
+
+action/rename=shared/action/rename
+hint/rename: replacement tag name
+
+action/delete=shared/action/delete
+action/delete/confirm: This will permanently delete the following custom tags:
+
+action/promote: Promote
+action/promote/new-tag: New Tag
+action/promote/existing-tag: Existing Tag
+action/promote/existing-tag-change: Select a Different Tag
+label/promote/existing-tag/new-aliases: New Aliases
+hint/promote/into: Promote Into:
+
+### categories
+title: Categories
+label/selected: Selected Category
+hint/select-category: Select a category to manage it...
+
+action/create=shared/action/create
+action/modify=shared/action/modify
+action/save=shared/action/save
+action/delete=shared/action/delete
+action/delete/confirm: This will permanently delete the following category:
+hint/no-delete: This category cannot be deleted until its tags have been deleted.
+hint/delete: Are you sure you want to delete this category?
+
+### global-tags
+title: Global Tags
+
+action/create=shared/action/create
+action/modify=shared/action/modify
+action/save=shared/action/save
+action/recategorise: Recategorise
+action/delete=shared/action/delete
+action/delete/confirm: This will permanently delete the following global tags:

@@ -1,0 +1,10 @@
+## shared
+
+### login-required
+title: Log-in required
+description: You must log in or sign up to view this content.
+action=shared/action/login-or-signup
+
+### info
+following: Following {0??None}
+ignoring: Ignoring {0??None}

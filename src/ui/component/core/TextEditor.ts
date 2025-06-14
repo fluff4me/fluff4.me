@@ -999,11 +999,11 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 					continue
 
 				hadActive = true
-				announce(`component/text-editor/formatting/${type}`)
+				announce(`text-editor/formatting/${type}`)
 			}
 
 			if (!hadActive)
-				announce('component/text-editor/formatting/none')
+				announce('text-editor/formatting/none')
 		})
 	})
 
@@ -1016,8 +1016,8 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	////////////////////////////////////
 	//#region Components
 
-	type ButtonType = keyof { [N in Quilt.SimpleKey as N extends `component/text-editor/toolbar/button/${infer N}` ? N extends `${string}/${string}` ? never : N : never]: true }
-	type ButtonTypeNodes = keyof { [N in keyof Quilt as N extends `component/text-editor/toolbar/button/${infer N extends Strings.Replace<Nodes, '_', '-'>}` ? N : never]: true }
+	type ButtonType = keyof { [N in Quilt.SimpleKey as N extends `text-editor/toolbar/button/${infer N}` ? N extends `${string}/${string}` ? never : N : never]: true }
+	type ButtonTypeNodes = keyof { [N in keyof Quilt as N extends `text-editor/toolbar/button/${infer N extends Strings.Replace<Nodes, '_', '-'>}` ? N : never]: true }
 
 	////////////////////////////////////
 	//#region Types
@@ -1025,20 +1025,20 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	const ToolbarButtonTypeMark = Component.Extension((component, type: Exclude<Marks, 'mention' | 'id_mark'>) => {
 		const mark = schema.marks[type]
 		return component
-			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
+			.ariaLabel.use(`text-editor/toolbar/button/${type}`)
 			.extend<{ mark: MarkType }>(() => ({ mark }))
 	})
 
 	const ToolbarButtonTypeNode = Component.Extension((component, type: ButtonTypeNodes) => {
 		const node = schema.nodes[type.replaceAll('-', '_')]
 		return component
-			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
+			.ariaLabel.use(`text-editor/toolbar/button/${type}`)
 			.extend<{ node: NodeType }>(() => ({ node }))
 	})
 
 	const ToolbarButtonTypeOther = Component.Extension((component, type: Exclude<ButtonType, ButtonTypeNodes | Marks>) => {
 		return component
-			.ariaLabel.use(`component/text-editor/toolbar/button/${type}`)
+			.ariaLabel.use(`text-editor/toolbar/button/${type}`)
 	})
 
 	//#endregion
@@ -1261,7 +1261,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 		.append(Component()
 			.style('text-editor-toolbar-left')
 			.append(ToolbarButtonGroup()
-				.ariaLabel.use('component/text-editor/toolbar/group/inline')
+				.ariaLabel.use('text-editor/toolbar/group/inline')
 				.append(ToolbarButtonMark('strong').setIcon('bold'))
 				.append(ToolbarButtonMark('em').setIcon('italic'))
 				.append(ToolbarButtonPopover('left')
@@ -1275,7 +1275,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 						.append(ToolbarButtonMark('code').setIcon('code'))
 					)))
 			.append(ToolbarButtonGroup()
-				.ariaLabel.use('component/text-editor/toolbar/group/block')
+				.ariaLabel.use('text-editor/toolbar/group/block')
 				.append(
 					ToolbarButtonPopover('centre')
 						.tweakPopover(popover => popover
@@ -1287,8 +1287,8 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 						.tweak(button => {
 							state.use(button, () => {
 								const align = !editor?.mirror?.hasFocus() && !inTransaction ? 'left' : getAlign() ?? 'mixed'
-								button.ariaLabel.set(quilt['component/text-editor/toolbar/button/align'](
-									quilt[`component/text-editor/toolbar/button/align/currently/${align}`]()
+								button.ariaLabel.set(quilt['text-editor/toolbar/button/align'](
+									quilt[`text-editor/toolbar/button/align/currently/${align}`]()
 								).toString())
 								button.setIcon(align === 'mixed' ? 'asterisk' : `align-${align === 'centre' ? 'center' : align}`)
 							})
@@ -1315,8 +1315,8 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 					.tweak(button => {
 						state.use(button, () => {
 							const blockType = !editor?.mirror?.hasFocus() && !inTransaction ? 'paragraph' : getBlockType() ?? 'mixed'
-							button.ariaLabel.set(quilt['component/text-editor/toolbar/button/block-type'](
-								quilt[`component/text-editor/toolbar/button/block-type/currently/${blockType}`]()
+							button.ariaLabel.set(quilt['text-editor/toolbar/button/block-type'](
+								quilt[`text-editor/toolbar/button/block-type/currently/${blockType}`]()
 							).toString())
 							button.setIcon(false
 								|| (blockType === 'paragraph' && 'paragraph')
@@ -1326,7 +1326,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 						})
 					})))
 			.append(ToolbarButtonGroup()
-				.ariaLabel.use('component/text-editor/toolbar/group/wrapper')
+				.ariaLabel.use('text-editor/toolbar/group/wrapper')
 				.append(ToolbarButton(wrapCmd(lift)).and(ToolbarButtonTypeOther, 'lift')
 					.setIcon('outdent')
 					.style.bind(state.map(component, value => !value || !lift(value)), 'text-editor-toolbar-button--hidden'))
@@ -1335,7 +1335,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 				.append(ToolbarButtonList('ordered-list').setIcon('list-ol'))
 			)
 			.append(ToolbarButtonGroup()
-				.ariaLabel.use('component/text-editor/toolbar/group/insert')
+				.ariaLabel.use('text-editor/toolbar/group/insert')
 				.append(ToolbarButton(wrapCmd((state, dispatch) => {
 					dispatch?.(state.tr.replaceSelectionWith(schema.nodes.horizontal_rule.create()))
 					return true
@@ -1345,12 +1345,12 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 		.append(Component()
 			.style('text-editor-toolbar-right')
 			.append(ToolbarButtonGroup()
-				.ariaLabel.use('component/text-editor/toolbar/group/actions')
+				.ariaLabel.use('text-editor/toolbar/group/actions')
 				.append(ToolbarButton(wrapCmd(undo)).and(ToolbarButtonTypeOther, 'undo').setIcon('undo'))
 				.append(ToolbarButton(wrapCmd(redo)).and(ToolbarButtonTypeOther, 'redo').setIcon('redo'))
 				.append(ToolbarButton(toggleFullscreen)
 					.bindIcon(isFullscreen.map(component, (fullscreen): ButtonIcon => fullscreen ? 'compress' : 'expand'))
-					.ariaLabel.bind(isFullscreen.map(component, fullscreen => quilt[`component/text-editor/toolbar/button/${fullscreen ? 'unfullscreen' : 'fullscreen'}`]().toString())))
+					.ariaLabel.bind(isFullscreen.map(component, fullscreen => quilt[`text-editor/toolbar/button/${fullscreen ? 'unfullscreen' : 'fullscreen'}`]().toString())))
 			))
 
 	//#endregion
