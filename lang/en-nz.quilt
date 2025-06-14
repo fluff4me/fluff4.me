@@ -390,9 +390,9 @@ comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}
 comment-reply: {TRIGGERED_BY} has replied to your comment on {CHAPTER} of {WORK}
 comment-mention: {TRIGGERED_BY} has mentioned you in a comment on {CHAPTER} of {WORK}
 report/label/reason: Reason given:
-report-spam: {WORK??{CHAPTER}} has been reported as spam by {TRIGGERED_BY}
+report-spam: {CHAPTER?{CHAPTER} of }{WORK} has been reported as spam by {TRIGGERED_BY}
 report-impersonation: {AUTHOR} has been reported for impersonation by {TRIGGERED_BY}
-report-plagiarism: 
+report-plagiarism: {CHAPTER?{CHAPTER} of }{WORK} has been reported as plagiarism by {TRIGGERED_BY}
 report-phishing: {CHAPTER?{AUTHOR}'s comment on {CHAPTER} of {WORK} has been reported as phishing:{AUTHOR} has been reported for phishing} by {TRIGGERED_BY}
 report-ban-evasion: {AUTHOR} has been reported for ban evasion by {TRIGGERED_BY}
 report-inappropriate-field: A field on {AUTHOR?{AUTHOR}'s profile:{CHAPTER?{CHAPTER} of }{WORK}} has been reported as inappropriate by {TRIGGERED_BY}
