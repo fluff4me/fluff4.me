@@ -19,7 +19,6 @@ import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
-import { NonNullish } from 'utility/Arrays'
 import Functions from 'utility/Functions'
 import Objects from 'utility/Objects'
 import State from 'utility/State'
@@ -119,7 +118,6 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 		global_tags: tagsEditor.state.mapManual(tags => tags.global_tags),
 		custom_tags: tagsEditor.state.mapManual(tags => tags.custom_tags),
 		is_numbered: type.selection.equals('numbered'),
-		tier_id: threshold?.selection.mapManual(selection => selection?.[0]),
 		tier_ids: threshold?.selection,
 	} satisfies { [KEY in keyof ChapterCreateBody]: State<ChapterCreateBody[KEY]> })
 
@@ -135,7 +133,7 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 
 		const data = state.value
 
-		const basicFields = Objects.keys(data).filter(key => key !== 'custom_tags' && key !== 'global_tags' && key !== 'tier_id' && key !== 'tier_ids')
+		const basicFields = Objects.keys(data).filter(key => key !== 'custom_tags' && key !== 'global_tags' && key !== 'tier_ids')
 		for (const field of basicFields) {
 			let dataValue = data[field]
 			let stateValue = inputState.value[field]
@@ -150,7 +148,7 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 				return true
 		}
 
-		const dataTiers = data.tier_ids ?? [data.tier_id].filter(NonNullish)
+		const dataTiers = data.tier_ids ?? []
 		const stateTiers = getChapter(inputState.value)?.patreon?.tiers.map(tier => tier.tier_id) ?? []
 
 		if (dataTiers.length !== stateTiers.length)
