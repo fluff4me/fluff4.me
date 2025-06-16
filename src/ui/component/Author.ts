@@ -220,7 +220,7 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 					Button()
 						.type('flush')
 						.bindIcon(Follows.map(popover, () => Follows.followingAuthor(author.value.vanity)
-							? 'circle-check'
+							? 'circle-check-big'
 							: 'circle'))
 						.text.bind(Follows.map(popover, () => quilt =>
 							Follows.followingAuthor(author.value.vanity)

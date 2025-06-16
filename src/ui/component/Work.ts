@@ -6,7 +6,7 @@ import EndpointReportWork from 'endpoint/report/EndpointReportWork'
 import Follows from 'model/Follows'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
-import Works from 'model/Works'
+import Works, { WORK_STATUS_ICONS } from 'model/Works'
 import Component from 'ui/Component'
 import AuthorLink from 'ui/component/AuthorLink'
 import Block, { BlockClasses } from 'ui/component/core/Block'
@@ -25,7 +25,7 @@ import ModerationDialog, { ModerationCensor, ModerationDefinition } from 'ui/com
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
-import { Quilt } from 'ui/utility/StringApplicator'
+import type { Quilt } from 'ui/utility/StringApplicator'
 import State from 'utility/State'
 
 const WORK_REPORT = ReportDefinition<ReportWorkBody>({
@@ -116,6 +116,7 @@ interface WorkExtensions {
 
 interface Work extends Block, WorkExtensions { }
 
+// let statusI = 0
 const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData>, author?: AuthorMetadata, notFullOverride?: true): Work => {
 	author = author ?? work.synopsis?.mentions[0]
 
@@ -216,11 +217,20 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 
 	block.footer.left.style('work-footer-left')
 
+	// work.status = ['Cancelled', 'Complete', 'Ongoing', 'Hiatus'][statusI++ % 4] as WorkData['status']
+
+	const statusLowercase = work.status.toLowerCase() as Lowercase<WorkData['status']>
+	Component()
+		.style('button', 'work-status', `work-status--${statusLowercase}`)
+		.append(Icon(WORK_STATUS_ICONS[work.status]).style('work-status-icon'))
+		.append(Component().text.use(`work/status/${statusLowercase}`))
+		.appendTo(block.footer.left)
+
 	TextLabel()
 		.tweak(textLabel => textLabel.label.text.use('work/chapters/label'))
 		.tweak(textLabel => {
 			const chapterCount = work.chapter_count_public.toLocaleString(navigator.language)
-			if (!work.frequency)
+			if (!work.frequency || work.status === 'Complete' || work.status === 'Cancelled')
 				return textLabel.content.text.set(chapterCount)
 
 			let intervalSize: number
@@ -339,7 +349,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 				Button()
 					.type('flush')
 					.bindIcon(Follows.map(popover, () => Follows.followingWork(work)
-						? 'circle-check'
+						? 'circle-check-big'
 						: 'circle'))
 					.text.bind(Follows.map(popover, () => quilt =>
 						Follows.followingWork(work)

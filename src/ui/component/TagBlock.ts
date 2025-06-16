@@ -46,7 +46,7 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 			Button()
 				.type('flush')
 				.bindIcon(Follows.map(popover, () => Follows.followingTag(id)
-					? 'circle-check'
+					? 'circle-check-big'
 					: 'circle'))
 				.text.bind(Follows.map(popover, () => quilt =>
 					Follows.followingTag(id)

@@ -16,7 +16,7 @@ export default ViewDefinition({
 		Link('/following')
 			.and(Button)
 			.type('flush')
-			.setIcon('circle-check')
+			.setIcon('circle-check-big')
 			.text.bind(Follows.map(view, () => quilt =>
 				quilt['view/shared/info/following'](Follows.getTotalFollowing())))
 			.appendTo(view.breadcrumbs.actions)

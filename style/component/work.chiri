@@ -107,5 +107,39 @@
 	&-footer-left:
 		%flex-wrap
 		%row-gap-0
+		#flush:
+			%grid
+			grid-template-columns: auto 1fr
+			%text-align-right
+			%unmargin-top-1
+
 	&-footer-right:
 		min-width: fit-content
+
+	&-status:
+		#after: .button
+		%box-shadow-none
+		%no-pointer-events
+		%font-2
+		%padding-1-2
+		%unmargin-block-1
+		%gap-1
+		%border-1
+		$border-colour: $button-background
+		%background-none
+		colour: $button-background
+		%column-1
+		%row-1-9
+		%align-self-start
+
+		#flush:
+			%margin-top-1
+
+		&-icon:
+			#after: .button-icon
+			%weight-normal
+
+		&--complete: $button-background: #{light-dark-fg(#afa
+		&--ongoing: $button-background: #{light-dark-fg(#8cf
+		&--hiatus: $button-background: #{light-dark-fg(#c80
+		&--cancelled: $button-background: #{light-dark-fg(#f11

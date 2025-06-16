@@ -25,6 +25,7 @@ body:
 	}
 details/label: Details
 reason/label: Reason
+
 #### reason/option
 impersonation: Impersonation
 harassment: Harassment

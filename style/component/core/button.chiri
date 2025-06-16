@@ -17,7 +17,7 @@ $$button-background-highlight!colour
 	%column-gap-2
 	colour: $button-colour
 	$button-background: $background-interact-5
-	$button-background-highlight: hsl(from $button-background h s calc(l + 6))
+	$button-background-highlight: oklch(from $button-background calc(l + 0.12) c h)
 	background: radial-gradient(ellipse at left 20% top 20%, $button-background-highlight, $button-background)
 	$button-transition:
 		#{transition($$button-background)},
@@ -252,6 +252,10 @@ $$button-background-highlight!colour
 		"arrow-up-from-bracket
 		"flag
 		"reply
+		"circle-check
+		"circle-xmark
+		"circle-play
+		"circle-pause
 
 	#each in icons as var icon:
 		&-icon-#{icon}:
@@ -304,7 +308,7 @@ $$button-background-highlight!colour
 	&-icon-ellipsis-vertical:
 		%justify-content-centre
 
-	&-icon-circle-check:
+	&-icon-circle-check-big:
 		#after: .button-icon
 		%relative
 		#icon name="check

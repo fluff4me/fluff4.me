@@ -1,4 +1,4 @@
-import type { Chapter, ChapterCreateBody, ChapterMetadata } from 'api.fluff4.me'
+import { type Chapter, type ChapterCreateBody, type ChapterMetadata, type WorkMetadata } from 'api.fluff4.me'
 import EndpointChapterCreate from 'endpoint/chapter/EndpointChapterCreate'
 import EndpointChapterUpdate from 'endpoint/chapter/EndpointChapterUpdate'
 import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
@@ -10,6 +10,8 @@ import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import { CheckDropdown } from 'ui/component/core/Dropdown'
 import Form from 'ui/component/core/Form'
+import Heading from 'ui/component/core/Heading'
+import LabelledRow from 'ui/component/core/LabelledRow'
 import LabelledTable from 'ui/component/core/LabelledTable'
 import Placeholder from 'ui/component/core/Placeholder'
 import type RadioButton from 'ui/component/core/RadioButton'
@@ -19,6 +21,7 @@ import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
+import WorkStatusDropdown from 'ui/component/WorkStatusDropdown'
 import Functions from 'utility/Functions'
 import Objects from 'utility/Objects'
 import State from 'utility/State'
@@ -270,7 +273,7 @@ const getPatreon = (chapterIn?: ChapterData) => {
 }
 
 const ChapterEditForm = Object.assign(
-	Component.Builder((component, state: State.Mutable<ChapterData | undefined>, workParams: WorkParams): ChapterEditForm => {
+	Component.Builder((component, state: State.Mutable<ChapterData | undefined>, workParams: WorkParams, workData: WorkMetadata): ChapterEditForm => {
 		const block = component.and(Block)
 		const form = block.and(Form, block.title)
 		form.viewTransition('chapter-edit-form')
@@ -288,6 +291,27 @@ const ChapterEditForm = Object.assign(
 		const content = ChapterEditFormContent(state)
 			.appendTo(form.content)
 
+		const work = Component().style('view-type-chapter-edit-work-changes').appendTo(form.content)
+		Heading()
+			.style('view-type-chapter-edit-work-changes-heading')
+			.text.use(quilt => quilt['view/chapter-edit/shared/form/work/heading'](workData.name))
+			.appendTo(work)
+
+		const statusDropdown = WorkStatusDropdown(workData.status)
+
+		LabelledRow()
+			.tweak(row => row.label
+				.style('view-type-chapter-edit-work-changes-status-label')
+				.text.bind(statusDropdown.selection.map(row, status => {
+					if (status === workData.status)
+						return quilt => quilt['view/chapter-edit/shared/form/work/status/label/no-change']()
+
+					return quilt => quilt['view/chapter-edit/shared/form/work/status/label/change']()
+				}))
+			)
+			.tweak(row => row.content.append(statusDropdown))
+			.appendTo(work)
+
 		form.event.subscribe('submit', async event => {
 			event.preventDefault()
 			await save()
@@ -304,7 +328,10 @@ const ChapterEditForm = Object.assign(
 					case 'create':
 						return EndpointChapterCreate.query({
 							params: workParams,
-							body: content.state.value,
+							body: {
+								...content.state.value,
+								work: { status: statusDropdown.selection.value },
+							},
 						})
 
 					case 'update': {
@@ -322,7 +349,10 @@ const ChapterEditForm = Object.assign(
 								work: workParams.vanity,
 								url: chapter.url,
 							},
-							body: content.state.value,
+							body: {
+								...content.state.value,
+								work: { status: statusDropdown.selection.value },
+							},
 						})
 					}
 				}

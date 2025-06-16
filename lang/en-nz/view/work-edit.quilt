@@ -21,6 +21,7 @@ visibility/public=shared/form/visibility/public
 visibility/patreon=shared/form/visibility/patreon
 visibility/private=shared/form/visibility/private
 card-colours/label=shared/form/card-colours/label
+status/label: Status
 
 ## work-edit/create
 title: Create work

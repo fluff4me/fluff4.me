@@ -20,6 +20,7 @@ import SupportersOnlyLabel from 'ui/component/SupportersOnlyLabel'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
 import { FilterVanity } from 'ui/component/VanityInput'
+import WorkStatusDropdown from 'ui/component/WorkStatusDropdown'
 import type { License } from 'ui/utility/License'
 import { LICENSES } from 'ui/utility/License'
 import type State from 'utility/State'
@@ -106,6 +107,10 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 	table.label(label => label.text.use('view/work-edit/shared/form/visibility/label'))
 		.content((content, label) => content.append(visibility.setLabel(label)))
 
+	const status = WorkStatusDropdown(state.map(component, work => work?.status ?? 'Ongoing'))
+	table.label(label => label.text.use('view/work-edit/shared/form/status/label'))
+		.content((content, label) => content.append(status.setLabel(label)))
+
 	const cardGradientInput = GradientInput()
 		.default.bind(state.map(component, work => work?.card_colours))
 	table
@@ -131,6 +136,7 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 							visibility: visibility.selection.value ?? 'Private',
 							...tagsEditor.state.value,
 							card_colours: cardGradientInput.value.value.slice(),
+							status: status.selection.value,
 						},
 					})
 
@@ -156,6 +162,7 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 							...tagsEditor.state.value,
 							card_colours: cardGradientInput.value.value.slice(),
 							license: license.getFormData(),
+							status: status.selection.value,
 						},
 					})
 				}

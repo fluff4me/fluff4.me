@@ -99,6 +99,7 @@
 	component/license-input
 	component/license
 	component/app-banner
+	component/work-status-dropdown
 
 #import:
 	view/view

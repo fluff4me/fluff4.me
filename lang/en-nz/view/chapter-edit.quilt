@@ -26,6 +26,11 @@ type/numbered/example: Chapter {0}
 type/other: Other
 type/other/example: Interlude
 
+##### work
+heading: And apply the following to {#I:{0}}:
+status/label/no-change: Keep the status of
+status/label/change: Change the status to
+
 ## chapter-edit/create
 title: Create chapter
 submit=shared/action/create

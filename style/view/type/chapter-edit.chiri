@@ -10,3 +10,15 @@
 	&-visibility-patreon:
 		$radio-background: #FF5900
 		$radio-colour: #FF6E20
+
+	&-work-changes:
+		%block
+		%margin-top-4
+
+		&-heading:
+			#after: .heading, .heading-1, .heading-2, .heading-3, .heading-4
+			%font-3
+
+		&-status:
+			&-label:
+				%italic

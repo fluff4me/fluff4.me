@@ -140,6 +140,7 @@ export default ViewDefinition({
 
 		const positionTab = Tab()
 			.text.use('view/chapter-create-bulk/position/tab')
+			.bindDisabled(state.truthy, 'uploading or done')
 			.addTo(tabinator)
 
 		const positionBlock = Block()
@@ -267,6 +268,7 @@ export default ViewDefinition({
 
 		const importTab = Tab()
 			.text.use('view/chapter-create-bulk/import/tab')
+			.bindDisabled(state.truthy, 'uploading or done')
 			.addTo(tabinator)
 
 		Block()
@@ -736,6 +738,7 @@ export default ViewDefinition({
 		const createTab = Tab()
 			.text.use('view/chapter-create-bulk/create/tab')
 			.bindDisabled(chapterFormData.length.falsy, 'no chapters')
+			.bindDisabled(state.truthy, 'uploading or done')
 			.addTo(tabinator)
 
 		Block()

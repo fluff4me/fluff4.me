@@ -16,6 +16,10 @@
 	patreon: "#FF5900
 	patreon-2: "light-dark(#9c3903, #FF6E20)
 	patreon-3: "#a84c1a
+	status-complete: "#afa
+	status-ongoing: "#8cf
+	status-hiatus: "#c80
+	status-cancelled: "#f11
 
 #do:
 	#each in 0...15 as var i:

@@ -1,0 +1,21 @@
+.work-status-dropdown:
+
+	&-option:
+		; &--complete: #can-hover: ::hover, ::focus: $button-background: #{light-dark-bg($colour-status-complete
+		; &--ongoing: #can-hover: ::hover, ::focus: $button-background: #{light-dark-bg($colour-status-ongoing
+		; &--hiatus: #can-hover: ::hover, ::focus: $button-background: #{light-dark-bg($colour-status-hiatus
+		; &--cancelled: #can-hover: ::hover, ::focus: $button-background: #{light-dark-bg($colour-status-cancelled
+		&--complete: colour: ${hover-colour: #{light-dark-fg($colour-status-complete)}}
+		&--ongoing: colour: ${hover-colour: #{light-dark-fg($colour-status-ongoing)}}
+		&--hiatus: colour: ${hover-colour: #{light-dark-fg($colour-status-hiatus)}}
+		&--cancelled: colour: ${hover-colour: #{light-dark-fg($colour-status-cancelled)}}
+
+		#can-hover:
+			::hover, ::focus:
+				$hover-colour: $colour-0
+
+	&-button:
+		&--complete: $button-background: #{light-dark-bg($colour-status-complete
+		&--ongoing: $button-background: #{light-dark-bg($colour-status-ongoing
+		&--hiatus: $button-background: #{light-dark-bg($colour-status-hiatus
+		&--cancelled: $button-background: #{light-dark-bg($colour-status-cancelled

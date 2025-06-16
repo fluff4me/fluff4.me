@@ -95,7 +95,7 @@ export default ViewDefinition({
 						chapterCount.value++
 				})
 
-				const form = ChapterEditForm(state, Chapters.work(params))
+				const form = ChapterEditForm(state, Chapters.work(params), work)
 					.tweak(form => form.title.and(ViewTitle))
 					.subviewTransition(id)
 					.appendTo(slot)

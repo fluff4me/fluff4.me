@@ -1,7 +1,18 @@
-import type { WorkMetadata, WorkReference } from 'api.fluff4.me'
+import type { WorkMetadata, WorkReference, WorkStatus } from 'api.fluff4.me'
 import EndpointWorkDelete from 'endpoint/work/EndpointWorkDelete'
 import type Component from 'ui/Component'
+import type { ButtonIcon } from 'ui/component/core/Button'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
+import Enums from 'utility/Enums'
+
+export const WORK_STATUSES = Enums.type<WorkStatus>().values('Complete', 'Ongoing', 'Hiatus', 'Cancelled')
+
+export const WORK_STATUS_ICONS = ({
+	Cancelled: 'circle-xmark',
+	Complete: 'circle-check',
+	Ongoing: 'circle-play',
+	Hiatus: 'circle-pause',
+} satisfies Record<WorkMetadata['status'], ButtonIcon>)
 
 namespace Works {
 	export function resolve (reference: WorkReference | null | undefined, works: WorkMetadata[]): WorkMetadata | undefined {

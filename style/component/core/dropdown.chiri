@@ -27,6 +27,8 @@
 			%flex
 			%flex-column
 			%overflow-y-auto
+			%padding-top-1
+			%unmargin-top-1
 
 	&-option:
 		display: ${dropdown-option-display: flex}
