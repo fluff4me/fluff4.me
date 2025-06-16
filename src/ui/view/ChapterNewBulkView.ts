@@ -735,6 +735,7 @@ export default ViewDefinition({
 
 		const createTab = Tab()
 			.text.use('view/chapter-create-bulk/create/tab')
+			.bindDisabled(chapterFormData.length.falsy, 'no chapters')
 			.addTo(tabinator)
 
 		Block()
