@@ -18,7 +18,7 @@ Object.defineProperty(exports, 'quilt', { get: () => quiltState.value })
 
 DevServer.onMessage('updateLang', async () => {
 	Script.allowModuleRedefinition('lang/en-nz')
-	await Script.reload(`${Env.URL_ORIGIN}lang/en-nz.js`)
+	await Script.reload(`${Env.URL_ORIGIN}lang/en-nz/index.js`)
 	quiltState.value = await import('lang/en-nz').then(module => module.default)
 })
 
@@ -242,7 +242,7 @@ function BaseStringApplicator<HOST> (
 					return host
 				}
 
-				setInternal(translation?.(quilt, QuiltHelper))
+				unown = quiltState.useManual(quilt => setInternal(translation?.(quilt, QuiltHelper)))
 				return host
 			},
 			bind: (state?: StateOr<string | Weave | Quilt.Handler | null | undefined>) => {

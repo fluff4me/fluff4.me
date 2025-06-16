@@ -26,7 +26,7 @@ export default Task('watch', async task => {
 			emitStyleUpdate()
 		})
 
-	chokidar.watch(['docs/lang/*.js'], { ignoreInitial: true })
+	chokidar.watch(['docs/lang/**/*.js'], { ignoreInitial: true })
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		.on('all', async (event, path) => {
 			await sleep(100)
