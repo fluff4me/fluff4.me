@@ -101,6 +101,7 @@
 	component/app-banner
 	component/work-status-dropdown
 	component/visibility-options
+	component/statistics
 
 #import:
 	view/view

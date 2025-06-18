@@ -12,3 +12,8 @@ action/delete/confirm: This will delete the chapter "**{0}**", and it will be go
 reaction/normal-heart: The {#ICON.HEART:}s left by community members!
 reaction/guest-heart: The ephemeral {#ICON.HEART:}s left by guests in the last week!
 reaction/supporter-heart: The colourful {#ICON.HEART:}s left by fluff4.me supporters!
+
+stat/reads/label: Reads
+stat/hearts/label: Hearts
+stat/comments/label: Comments
+stat/visits/label: Visits

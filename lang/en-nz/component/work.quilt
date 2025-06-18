@@ -8,24 +8,33 @@ work-count/label=shared/term/work-count
 description/empty: This work has no description.
 state/private: Private
 state/private-no-chapters: Hidden (No Chapters)
-action/label/edit=shared/action/edit
-action/label/new-chapter=shared/action/new-chapter
-action/label/bulk-chapters=shared/action/bulk-chapters
-action/label/follow=shared/action/follow
-action/label/unfollow=shared/action/unfollow
-action/label/ignore=shared/action/ignore
-action/label/unignore=shared/action/unignore
-action/label/delete=shared/action/delete
-action/delete/confirm: This will delete your work "**{0}**", and there's no undoing it!
-action/label/report=shared/action/report
-action/label/moderate=shared/action/moderate
-action/lock: Lock
-action/unlock: Unlock
+patreon/label=shared/term/patrons-only
 locked/label: Locked
 locked/description: To lift the lock, address the issues left by the moderators below:
-status/complete: Complete
-status/ongoing: Ongoing
-status/hiatus: {0?Returning {0}:Hiatus}
-status/no-recent-updates: No Recent Updates
-status/cancelled: Cancelled
-patreon/label=shared/term/patrons-only
+
+stat/reads/label: Total Reads
+stat/hearts/label: Total Hearts
+stat/comments/label: Total Comments
+stat/visits/label: Total Visits
+
+## status
+complete: Complete
+ongoing: Ongoing
+hiatus: {0?Returning {0}:Hiatus}
+no-recent-updates: No Recent Updates
+cancelled: Cancelled
+
+## action
+label/edit=shared/action/edit
+label/new-chapter=shared/action/new-chapter
+label/bulk-chapters=shared/action/bulk-chapters
+label/follow=shared/action/follow
+label/unfollow=shared/action/unfollow
+label/ignore=shared/action/ignore
+label/unignore=shared/action/unignore
+label/delete=shared/action/delete
+delete/confirm: This will delete your work "**{0}**", and there's no undoing it!
+label/report=shared/action/report
+label/moderate=shared/action/moderate
+lock: Lock
+unlock: Unlock

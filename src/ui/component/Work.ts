@@ -24,6 +24,7 @@ import FollowingBookmark from 'ui/component/FollowingBookmark'
 import License from 'ui/component/License'
 import ModerationDialog, { ModerationCensor, ModerationDefinition } from 'ui/component/ModerationDialog'
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
+import Statistics from 'ui/component/Statistics'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
 import type { Quilt } from 'ui/utility/StringApplicator'
@@ -112,7 +113,8 @@ const WORK_MODERATION = ModerationDefinition((work: WorkMetadata & Partial<WorkD
 }))
 
 interface WorkExtensions {
-	work: WorkMetadata
+	readonly work: WorkMetadata
+	readonly statistics: Slot
 }
 
 interface Work extends Block, WorkExtensions { }
@@ -331,6 +333,19 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 	else if (work.time_last_update)
 		block.footer.right.append(Timestamp(work.time_last_update).style('work-timestamp'))
 
+	const isOwnWork = Session.Auth.loggedInAs(component, work.author)
+	const statistics = Slot().appendTo(block.footer).if(isOwnWork, slot => work.statistics && Statistics()
+		.style('work-author-statistics')
+		.section('shared/stat/section/logged-in', section => section
+			.stat('work/stat/reads/label', work.statistics?.read_count)
+			.stat('work/stat/hearts/label', work.statistics?.reaction_count)
+			.stat('work/stat/comments/label', work.statistics?.comment_count)
+		)
+		.section('shared/stat/section/logged-out', section => section
+			.stat('work/stat/visits/label', quilt => quilt['shared/stat/placeholder']())
+		)
+	)
+
 	if (!component.is(Popover))
 		block.setActionsMenu((popover, button) => {
 			popover.subscribeReanchor((actionsMenu, isTablet) => {
@@ -422,7 +437,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 					.appendTo(popover)
 		})
 
-	return block.extend<WorkExtensions>(component => ({ work }))
+	return block.extend<WorkExtensions>(component => ({ work, statistics }))
 })
 
 export default Work

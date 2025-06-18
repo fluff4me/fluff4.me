@@ -26,6 +26,7 @@ import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import PatronAuthDialog from 'ui/component/PatronAuthDialog'
 import Reaction from 'ui/component/Reaction'
+import Statistics from 'ui/component/Statistics'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
 import Work from 'ui/component/Work'
@@ -104,6 +105,7 @@ export default ViewDefinition({
 
 		Link(`/work/${author?.vanity}/${workData.vanity}`)
 			.and(Work, workData, author)
+			.tweak(work => work.statistics.remove())
 			.viewTransition('chapter-view-work')
 			.style('view-type-chapter-work')
 			.setContainsHeading()
@@ -150,6 +152,19 @@ export default ViewDefinition({
 
 				if (Session.Auth.loggedIn.value)
 					void EndpointHistoryAddChapter.query({ params: chapter })
+
+				const isOwnWork = Session.Auth.loggedInAs(slot, workData.author)
+				Slot().appendTo(slot).if(isOwnWork, slot => Statistics()
+					.style('view-type-chapter-block-author-statistics')
+					.section('shared/stat/section/logged-in', section => section
+						.stat('chapter/stat/reads/label', chapter.statistics?.read_count)
+						.stat('chapter/stat/hearts/label', chapter.statistics?.reaction_count)
+						.stat('chapter/stat/comments/label', chapter.statistics?.comment_count)
+					)
+					.section('shared/stat/section/logged-out', section => section
+						.stat('chapter/stat/visits/label', quilt => quilt['shared/stat/placeholder']())
+					)
+				)
 
 				if (chapter.notes_before || chapter.global_tags?.length || chapter.custom_tags?.length)
 					Component()

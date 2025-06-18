@@ -97,6 +97,7 @@
 		background: light-dark(#{alpha(0.08, $dark-1)}, #{alpha(0.15, $dark-0)})
 		%background-unclip
 		%z-index-fg
+		%flex-wrap
 
 		#flush:
 			%border-radius-0

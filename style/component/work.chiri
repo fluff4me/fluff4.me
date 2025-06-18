@@ -168,17 +168,18 @@
 		margin-top: calc($space-3 + $space-2)
 		%unmargin-bottom-2
 
-	&-footer-left:
-		%flex-wrap
-		%row-gap-0
-		#flush:
-			%grid
-			grid-template-columns: auto 1fr
-			%text-align-right
-			%unmargin-top-1
+	&-footer:
+		&-left:
+			%flex-wrap
+			%row-gap-0
+			#flush:
+				%grid
+				grid-template-columns: auto 1fr
+				%text-align-right
+				%unmargin-top-1
 
-	&-footer-right:
-		min-width: fit-content
+		&-right:
+			min-width: fit-content
 
 	&-status:
 		#after: .button
@@ -207,3 +208,10 @@
 		&--ongoing: $button-background: #{light-dark-fg(#8cf
 		&--hiatus: $button-background: #{light-dark-fg(#c80
 		&--cancelled: $button-background: #{light-dark-fg(#f11
+
+	&-author-statistics:
+		%padding-top-3
+		%border-top-1
+		border-colour: #{alpha(.2, $background-9
+		%padding-inline-3
+		%unmargin-inline-3

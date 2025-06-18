@@ -235,3 +235,7 @@
 				%flex
 				%gap-1
 				%align-items-centre
+
+		&-author-statistics:
+			%unmargin-top-2
+			%margin-bottom-3

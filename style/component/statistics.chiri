@@ -1,0 +1,19 @@
+.statistics:
+	%block
+	%flex-basis-100
+	%flex
+	%flex-column
+	%gap-2
+
+	&-section:
+		%flex
+		%flex-wrap
+		%column-gap-3
+
+		&-heading:
+			%font-1
+			%bold
+			%colour-5
+			letter-spacing: .07em
+			%flex-basis-100
+			%margin-0
