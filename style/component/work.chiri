@@ -142,7 +142,7 @@
 		%font-1
 		%align-items-centre
 		%gap-2
-		%border-left-2
+		border-left: .2em solid $border-colour
 		%border-patreon-3
 
 		&--flush:
