@@ -24,6 +24,7 @@
 		%padding-top-1
 
 	&-container:
+		%relative
 		%grid
 		%padding-left-4
 		grid-area: content
@@ -34,12 +35,15 @@
 		#laptop:
 			%padding-left-0
 
-		&-start-anchor:
-			%block
-			%width-1
-			%height-1
-			%unmargin-bottom-1
-			%scroll-margin-top
+		; &-start-anchor:
+		; 	%absolute
+		; 	%top-4
+		; 	%block
+		; 	%width-1
+		; 	%height-1
+		; 	%unmargin-bottom-1
+		; 	%scroll-margin-top
+		; 	%align-self-start
 
 		&-ephemeral:
 			%flex-column

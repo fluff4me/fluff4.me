@@ -12,6 +12,7 @@ import type ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import ViewTransition from 'ui/view/shared/ext/ViewTransition'
 import type Errors from 'utility/Errors'
 import State from 'utility/State'
+import Task from 'utility/Task'
 
 interface ViewContainerExtensions {
 	readonly state: State<View | undefined>
@@ -36,7 +37,7 @@ const ViewContainer = (): ViewContainer => {
 
 	let loadingOwner: State.Owner.Removable | undefined
 
-	const viewStartAnchor = Component().style('view-container-start-anchor')
+	// const viewStartAnchor = Component().style('view-container-start-anchor')
 
 	const container = Component()
 		.style('view-container')
@@ -44,7 +45,7 @@ const ViewContainer = (): ViewContainer => {
 		.tabIndex('programmatic')
 		.ariaRole('main')
 		.ariaLabel.use('view/container/alt')
-		.append(viewStartAnchor)
+		// .append(viewStartAnchor)
 		.extend<ViewContainerExtensions>(container => ({
 			state,
 			wrapped,
@@ -55,8 +56,6 @@ const ViewContainer = (): ViewContainer => {
 
 				let view: VIEW | undefined
 				let loadParams: LOAD_PARAMS | Errors.Redirecting | undefined = undefined
-
-				viewStartAnchor.element.scrollIntoView({ behavior: 'smooth' })
 
 				wrapped.value = definition.wrapper !== false
 
@@ -99,8 +98,13 @@ const ViewContainer = (): ViewContainer => {
 					loading = Loading()
 						.setOwner(loadingOwner)
 						.style('view-container-loading')
-						.insertTo(container, 'after', viewStartAnchor)
+						.prependTo(container)
+					// .insertTo(container, 'after', viewStartAnchor)
 				}
+
+				await Task.yield()
+				window.scrollTo({ top: 0, behavior: 'smooth' })
+				// await Async.sleep(100)
 
 				let loadError: Error & Partial<ErrorResponse> | undefined
 				if (definition.load) {
@@ -156,7 +160,8 @@ const ViewContainer = (): ViewContainer => {
 							error,
 						}, {}))
 					if (shownView) {
-						shownView.insertTo(container, 'after', viewStartAnchor)
+						shownView.prependTo(container)
+						// shownView.insertTo(container, 'after', viewStartAnchor)
 						state.value = shownView
 						if (replacementDefinition === definition as any)
 							shownView.params = params
