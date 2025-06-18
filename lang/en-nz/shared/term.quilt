@@ -1,0 +1,25 @@
+## term
+profile: Profile
+chapters: Chapters
+settings: Settings
+account-settings: Account Settings
+notes: Notes
+patreon-tier: {NAME}: {#B:{PRICE}}
+relationships-to: Relates To
+relationships-from: Related From
+word-count: Words
+work-count: Works
+time-join: Joined
+supporters: Supporters
+work: work
+author: author
+chapter: chapter
+comment: comment
+comment-by: a comment by {0}
+interval/daily: daily
+interval/every-x-days: every {0} days
+interval/weekly: weekly
+interval/every-x-weeks: every {0} weeks
+interval/monthly: monthly
+interval/every-x-months: every {0} months
+patrons-only: Patrons Only

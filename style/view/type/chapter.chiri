@@ -72,6 +72,7 @@
 
 			&-before:
 				%margin-top-2
+				%margin-bottom-4
 
 			&-after:
 				%margin-bottom-3
@@ -97,7 +98,7 @@
 		&-patreon-header, &-patreon-footer:
 			%block
 			%relative
-			%margin-block-4
+			%margin-bottom-4
 			%unmargin-inline-4
 			max-width: 100vw
 			%border-box

@@ -44,6 +44,8 @@ const LabelledTable = Component.Builder((table): LabelledTable => {
 					else
 						create().appendTo(table)
 
+					// clear state for next row
+					state = undefined
 					return table
 
 					function create () {

@@ -39,6 +39,8 @@ const Block = Component.Builder((component): Block => {
 	let footer: Component | undefined
 
 	let unuseGradient: UnsubscribeState | undefined
+	const gradientStops = State<readonly number[] | null | undefined>(null, false)
+	const hasGradient = gradientStops.mapManual(stops => !!stops?.length)
 	const isLink = component.supers.mapManual(() => component.is(Link))
 	const block = component
 		.classes.add(BlockClasses.Main)
@@ -70,25 +72,31 @@ const Block = Component.Builder((component): Block => {
 			),
 			useGradient (gradient) {
 				unuseGradient?.()
-				unuseGradient = State.get(gradient).use(block, stops => block
-					.style.toggle(!!stops?.length, 'block--gradient')
-					.style.setVariable('block-gradient', !stops?.length ? undefined
-						: `${(stops
-							.map(colour => `#${colour.toString(16).padStart(6, '0')}`)
-							.map(colour => `light-dark(
-							oklch(from ${colour} max(var(--block-gradient-light-max), L) C H),
-							oklch(from ${colour} min(var(--block-gradient-dark-min), L) C H)
-						)`)
-							.join(', ')
-						)}`)
-				)
+				unuseGradient = gradientStops.bind(block, State.get(gradient))
 				return block
 			},
 		}))
-		.tweak(block => block
-			.style.bindFrom(State.MapManual([isLink, block.type.state], (link, types) =>
-				[...types].map((t): ComponentName => `block${link ? '--link' : ''}--type-${t}`)))
-		)
+		.tweak(block => {
+			const isFlush = block.type.state.map(block, types => types.has('flush'))
+
+			block
+				.style.bindFrom(State.MapManual([isLink, block.type.state], (link, types) =>
+					[...types].map((t): ComponentName => `block${link ? '--link' : ''}--type-${t}`)))
+
+			Component()
+				.style('block-gradient')
+				.style.bind(isFlush, 'block-gradient--flush')
+				.style.bindVariable('block-gradient', gradientStops.map(block, stops => !stops?.length ? undefined
+					: `${(stops
+						.map(colour => `#${colour.toString(16).padStart(6, '0')}`)
+						.map(colour => `light-dark(
+							oklch(from ${colour} max(var(--block-gradient-light-max), L) C H),
+							oklch(from ${colour} min(var(--block-gradient-dark-min), L) C H)
+						)`)
+						.join(', ')
+					)}`))
+				.prependToWhen(hasGradient, block)
+		})
 		.extendJIT('header', block => header = Component('hgroup')
 			.style('block-header')
 			.style.bindFrom(block.type.state.mapManual(types => [...types].map(t => `block--type-${t}-header` as const)))

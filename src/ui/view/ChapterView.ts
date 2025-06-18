@@ -9,6 +9,7 @@ import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import Chapters from 'model/Chapters'
 import PagedData from 'model/PagedData'
+import Patreon from 'model/Patreon'
 import Session from 'model/Session'
 import TextBody from 'model/TextBody'
 import Component from 'ui/Component'
@@ -165,7 +166,8 @@ export default ViewDefinition({
 							.style('view-type-chapter-block-tags'))
 						.appendTo(slot)
 
-				const isPatreon = chapter.visibility === 'Patreon'
+				const isPatreon = chapter.visibility === 'Patreon' || workData.visibility == 'Patreon'
+				const patreonRestriction = Patreon.getMoreRestrictive(chapter.patreon?.tiers, workData.patreon?.tiers)
 				if (isPatreon)
 					Slot().if(shouldShowPatreon, () =>
 						Component()
@@ -179,15 +181,12 @@ export default ViewDefinition({
 								.removeContents()
 								.append(
 									Component()
-										.text.use(quilt => quilt['shared/term/patreon-tier']({
-											NAME: chapter.patreon?.tiers[0].tier_name ?? '',
-											PRICE: `$${((chapter.patreon?.tiers[0].amount ?? 0) / 100).toFixed(2)}`,
-										})),
+										.text.use(Patreon.translateTier(patreonRestriction[0])),
 									Slot()
 										.style.remove('slot')
 										.style('view-type-chapter-block-patreon-header-actions')
 										.if(isOwn.falsy, slot => {
-											if (!chapter.patreon)
+											if (!patreonRestriction)
 												return
 
 											Slot()

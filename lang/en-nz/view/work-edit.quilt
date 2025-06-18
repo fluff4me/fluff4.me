@@ -15,11 +15,7 @@ description/hint: A simple 1-2 sentence description of the work. This will be th
 synopsis/label=shared/form/synopsis/label
 synopsis/hint: The full text describing this work. This will only appear in the full work view.
 tags/label=shared/form/tags/label
-visibility/label=shared/form/visibility/label
 visibility/hint: When set to public, a work will not be visible until it has a public chapter as well.
-visibility/public=shared/form/visibility/public
-visibility/patreon=shared/form/visibility/patreon
-visibility/private=shared/form/visibility/private
 card-colours/label=shared/form/card-colours/label
 status/label: Status
 

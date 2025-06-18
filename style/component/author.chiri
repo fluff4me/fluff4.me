@@ -12,7 +12,8 @@
 	&-pronouns:
 
 	&-description:
-		margin-top: calc($markdown-paragraph-padding-top * -1)
+		%block
+		margin-top: calc(0px - $markdown-paragraph-padding-top - $space-2)
 
 		&--in-popover:
 			%clamp-5

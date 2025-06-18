@@ -170,7 +170,7 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 		.appendTo(block.footer.right)
 
 	const loading = Loading()
-		.appendTo(block.content)
+	loading.appendToWhen(loading.enabled, block.content)
 
 	loading.enabled.value = false
 

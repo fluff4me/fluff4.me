@@ -1,0 +1,7 @@
+.visibility-options:
+
+	&-option:
+
+		&-patreon:
+			$radio-background: #FF5900
+			$radio-colour: #FF6E20

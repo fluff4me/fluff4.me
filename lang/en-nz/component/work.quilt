@@ -28,3 +28,4 @@ status/ongoing: Ongoing
 status/hiatus: {0?Returning {0}:Hiatus}
 status/no-recent-updates: No Recent Updates
 status/cancelled: Cancelled
+patreon/label=shared/term/patrons-only

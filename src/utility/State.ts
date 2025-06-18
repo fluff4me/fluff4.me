@@ -27,8 +27,8 @@ interface State<T, E = T> {
 	setId (id: string): this
 
 	/** Subscribe to state change events. Receive the initial state as an event. */
-	use (owner: State.Owner, subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
-	useManual (subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
+	use (owner: State.Owner, subscriber: (value: E, oldValue: E | undefined, owner: State.Owner) => unknown): UnsubscribeState
+	useManual (subscriber: (value: E, oldValue: E | undefined, owner: State.Owner) => unknown): UnsubscribeState
 	/** Subscribe to state change events. The initial state is not sent as an event. */
 	subscribe (owner: State.Owner, subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
 	subscribeManual (subscriber: (value: E, oldValue?: E) => unknown): UnsubscribeState
@@ -125,14 +125,26 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 			return unuseBoundState
 		},
 		use: (owner, subscriber) => {
-			result.subscribe(owner, subscriber)
-			subscriber(result[SYMBOL_VALUE], undefined)
-			return () => result.unsubscribe(subscriber)
+			let subOwner: State.Owner.Removable | undefined
+			result.subscribe(owner, executeSubscriber)
+			executeSubscriber(result[SYMBOL_VALUE], undefined)
+			return () => result.unsubscribe(executeSubscriber)
+
+			function executeSubscriber (value: T, oldValue: T | undefined) {
+				subOwner?.remove(); subOwner = State.Owner.create()
+				subscriber(value, oldValue, subOwner)
+			}
 		},
 		useManual: subscriber => {
-			result.subscribeManual(subscriber)
-			subscriber(result[SYMBOL_VALUE], undefined)
-			return () => result.unsubscribe(subscriber)
+			let subOwner: State.Owner.Removable | undefined
+			result.subscribeManual(executeSubscriber)
+			executeSubscriber(result[SYMBOL_VALUE], undefined)
+			return () => result.unsubscribe(executeSubscriber)
+
+			function executeSubscriber (value: T, oldValue: T | undefined) {
+				subOwner?.remove(); subOwner = State.Owner.create()
+				subscriber(value, oldValue, subOwner)
+			}
 		},
 		subscribe: (owner, subscriber) => {
 			const ownerClosedState = State.Owner.getOwnershipState(owner)
@@ -444,14 +456,26 @@ namespace State {
 		}
 
 		result.use = (owner, subscriber) => {
-			result.subscribe(owner, subscriber)
-			subscriber(get, undefined)
-			return () => result.unsubscribe(subscriber)
+			let subOwner: State.Owner.Removable | undefined
+			result.subscribe(owner, executeSubscriber)
+			executeSubscriber(get, undefined)
+			return () => result.unsubscribe(executeSubscriber)
+
+			function executeSubscriber (value: () => T, oldValue: (() => T) | undefined) {
+				subOwner?.remove(); subOwner = State.Owner.create()
+				subscriber(value, oldValue, subOwner)
+			}
 		}
 		result.useManual = subscriber => {
-			result.subscribeManual(subscriber)
-			subscriber(get, undefined)
-			return () => result.unsubscribe(subscriber)
+			let subOwner: State.Owner.Removable | undefined
+			result.subscribeManual(executeSubscriber)
+			executeSubscriber(get, undefined)
+			return () => result.unsubscribe(executeSubscriber)
+
+			function executeSubscriber (value: () => T, oldValue: (() => T) | undefined) {
+				subOwner?.remove(); subOwner = State.Owner.create()
+				subscriber(value, oldValue, subOwner)
+			}
 		}
 
 		result.markDirty = () => {

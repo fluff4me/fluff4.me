@@ -5,6 +5,7 @@ import EndpointModerateWorkUnlock from 'endpoint/moderation/EndpointModerateWork
 import EndpointReportWork from 'endpoint/report/EndpointReportWork'
 import Follows from 'model/Follows'
 import FormInputLengths from 'model/FormInputLengths'
+import Patreon from 'model/Patreon'
 import Session from 'model/Session'
 import Works, { WORK_STATUS_ICONS } from 'model/Works'
 import Component from 'ui/Component'
@@ -124,6 +125,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 		.viewTransition('work')
 		.style('work')
 		.style.toggle(work.visibility === 'Private' || !work.chapter_count_public, 'work--private')
+		.style.toggle(work.visibility === 'Patreon', 'work--patreon')
 
 	const block = component.and(Block)
 	const cardColours = work.author !== Session.Auth.author.value?.vanity || Session.Auth.author.value.supporter?.tier
@@ -132,7 +134,11 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 	block.useGradient(cardColours)
 	const isFlush = block.type.state.mapManual(types => types.has('flush'))
 
-	block.header.style('work-header')
+	block.header
+		.style('work-header')
+		.style.bind(isFlush, 'work-header--flush')
+		.style.toggle(work.visibility === 'Patreon', 'work-header--patreon')
+
 	block.title
 		.style('work-name')
 		.text.set(work.name)
@@ -149,6 +155,26 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 				.style('work-author'))
 
 	block.content.style('work-content')
+
+	if (work.visibility === 'Patreon' && work.patreon?.tiers[0]) {
+		// Component()
+		// 	.style('work-patreon-visibility-effect')
+		// 	.style.bind(isFlush, 'work-patreon-visibility-effect--flush')
+		// 	.prependTo(component)
+
+		Component()
+			.style('work-patreon-visibility-header', 'patreon-icon-before')
+			.style.bind(isFlush, 'work-patreon-visibility-header--flush')
+			.append(Component()
+				.style('work-patreon-visibility-header-label')
+				.text.use('work/patreon/label')
+			)
+			.append(Component()
+				.style('work-patreon-visibility-header-tier')
+				.text.use(Patreon.translateTier(work.patreon.tiers[0]))
+			)
+			.appendTo(block.content)
+	}
 
 	if (work.lock_reason)
 		Component()

@@ -1,26 +1,25 @@
-import { type Chapter, type ChapterCreateBody, type ChapterMetadata, type WorkMetadata } from 'api.fluff4.me'
+import { type Chapter, type ChapterCreateBody, type WorkMetadata } from 'api.fluff4.me'
 import EndpointChapterCreate from 'endpoint/chapter/EndpointChapterCreate'
 import EndpointChapterUpdate from 'endpoint/chapter/EndpointChapterUpdate'
 import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
 import quilt from 'lang/en-nz'
 import FormInputLengths from 'model/FormInputLengths'
-import Patreon from 'model/Patreon'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
-import { CheckDropdown } from 'ui/component/core/Dropdown'
 import Form from 'ui/component/core/Form'
 import Heading from 'ui/component/core/Heading'
 import LabelledRow from 'ui/component/core/LabelledRow'
 import LabelledTable from 'ui/component/core/LabelledTable'
 import Placeholder from 'ui/component/core/Placeholder'
-import type RadioButton from 'ui/component/core/RadioButton'
 import RadioRow from 'ui/component/core/RadioRow'
 import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
 import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
+import type { VisibilityDataHost } from 'ui/component/VisibilityOptions'
+import VisibilityOptions from 'ui/component/VisibilityOptions'
 import WorkStatusDropdown from 'ui/component/WorkStatusDropdown'
 import Functions from 'utility/Functions'
 import Objects from 'utility/Objects'
@@ -104,7 +103,7 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 	table.label(label => label.text.use('view/chapter-edit/shared/form/notes/label'))
 		.content((content, label) => content.append(notesAfterInput.setLabel(label)))
 
-	const { threshold, visibility } = applyVisibilityOptions(table, inputState)
+	const { patreonTiers, visibility } = VisibilityOptions(table, inputState.map(table, (chapter): VisibilityDataHost => ({ visibility: chapter?.visibility ?? 'Private', ...getPatreon(chapter) })))
 
 	component.onRooted(() => {
 		notesBeforeInput.ready()
@@ -121,7 +120,7 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 		global_tags: tagsEditor.state.mapManual(tags => tags.global_tags),
 		custom_tags: tagsEditor.state.mapManual(tags => tags.custom_tags),
 		is_numbered: type.selection.equals('numbered'),
-		tier_ids: threshold?.selection,
+		tier_ids: patreonTiers?.selection,
 	} satisfies { [KEY in keyof ChapterCreateBody]: State<ChapterCreateBody[KEY]> })
 
 	return table.extend<ChapterEditFormContentExtensions>(component => ({
@@ -176,71 +175,6 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 	}
 })
 
-const applyVisibilityOptions = (table: LabelledTable, state: State<ChapterData | undefined>) => {
-	type Visibility = ChapterMetadata['visibility']
-	const VisibilityRadioInitialiser = (radio: RadioButton, id: Visibility) => radio
-		.text.use(`view/chapter-edit/shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
-
-	const campaign = Session.Auth.author.map(table, author => author?.patreon_campaign)
-	const visibility = RadioRow()
-		.add('Public', VisibilityRadioInitialiser)
-		.add('Patreon', (radio, id) => radio
-			.tweak(VisibilityRadioInitialiser, id)
-			.style('view-type-chapter-edit-visibility-patreon')
-			.style.bind(campaign.falsy, 'radio-row-option--hidden'))
-		.add('Private', VisibilityRadioInitialiser)
-		.default.bind(state.map(table, chapter => chapter?.visibility ?? 'Private'))
-	table.label(label => label.text.use('view/chapter-edit/shared/form/visibility/label'))
-		.content((content, label) => content.append(visibility.setLabel(label)))
-
-	const visibilityStateIsPatreon = visibility.selection.map(table, selection => selection === 'Patreon')
-	const tiers = State.Use(table, { campaign, visibilityStateIsPatreon })
-		.map(table, ({ campaign, visibilityStateIsPatreon }) =>
-			campaign && visibilityStateIsPatreon ? campaign.tiers : undefined)
-
-	const threshold = CheckDropdown<string>({
-		translateSelection (dropdown, selection) {
-			return Patreon.translateTiers(selection, tiers.value ?? [])
-		},
-	})
-	table.label(label => label.text.use('view/chapter-edit/shared/form/visibility-patreon-tier/label'))
-		.if(tiers.truthy)
-		.content((content, label) => content.append(
-			threshold.tweak(dropdown => {
-				tiers.use(dropdown, tiers => {
-					dropdown.clear()
-					for (const tier of tiers ?? [])
-						dropdown.add(tier.tier_id, {
-							translation: id => quilt => quilt['shared/term/patreon-tier']({
-								NAME: tier.tier_name,
-								PRICE: `$${(tier.amount / 100).toFixed(2)}`,
-							}),
-						})
-				})
-
-				dropdown.selection.subscribeManual((selection, oldSelection) => {
-					if (oldSelection?.length || selection?.length !== 1)
-						return
-
-					const selectedTier = tiers.value?.find(tier => tier.tier_id === selection[0])
-					if (!selectedTier)
-						return
-
-					const higherTiers = tiers.value?.filter(tier => tier.amount > selectedTier.amount).sort((a, b) => a.amount - b.amount)
-					if (higherTiers?.length)
-						dropdown.selection.value = [...selection, ...higherTiers.map(tier => tier.tier_id)]
-				})
-			})
-				.default.bind(state.map(table, chapter => getPatreon(chapter)?.tier_ids ?? []))
-				.setLabel(label)
-		))
-
-	return {
-		threshold,
-		visibility,
-	}
-}
-
 //#endregion
 ////////////////////////////////////
 
@@ -257,18 +191,18 @@ type ChapterEditForm = Form & Block & ChapterEditFormExtensions
 type ChapterData = Chapter | ChapterCreateBody
 const getChapter = (chapter?: ChapterData) =>
 	chapter && 'url' in chapter ? chapter : undefined
-const getPatreon = (chapterIn?: ChapterData) => {
+const getPatreon = (chapterIn?: ChapterData): Pick<VisibilityDataHost, 'patreonTiers'> | undefined => {
 	if (!chapterIn)
 		return undefined
 
 	const chapter = chapterIn as Partial<Chapter> & Partial<ChapterCreateBody>
 	if (chapter.patreon)
 		return {
-			tier_ids: chapter.patreon.tiers.map(tier => tier.tier_id),
+			patreonTiers: chapter.patreon.tiers.map(tier => tier.tier_id),
 		}
 
 	return {
-		tier_ids: chapter.tier_ids,
+		patreonTiers: chapter.tier_ids,
 	}
 }
 
@@ -367,7 +301,6 @@ const ChapterEditForm = Object.assign(
 	}),
 	{
 		Content: ChapterEditFormContent,
-		applyVisibilityOptions,
 	}
 )
 

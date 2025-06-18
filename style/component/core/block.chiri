@@ -166,17 +166,25 @@
 			@after:
 				%border-radius-0
 
-	&--gradient:
+	&-gradient:
 		$block-gradient-light-max: 0.85
 		$block-gradient-dark-min: 0.5
-		@after:
-			%block
-			%absolute
-			%inset-0
-			%z-index-bg
-			background: linear-gradient(105deg in oklch, $block-gradient)
-			opacity: .15
-			%border-radius-2
+		%block
+		%absolute
+		%inset-0
+		%z-index-bg
+		background: linear-gradient(105deg in oklch, $block-gradient)
+		opacity: .15
+		%border-radius-2
 
-			:scheme light:
-				opacity: .4
+		&--flush:
+			#after: .block-gradient
+			%border-radius-0
+
+			&--last:
+				; this hasn't been implemented
+				#after: .block-gradient--flush
+				%border-bottom-radius-2
+
+		:scheme light:
+			opacity: .4

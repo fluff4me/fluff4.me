@@ -7,6 +7,14 @@
 		%margin-bottom-0
 		grid-template-columns: auto 1fr
 
+		&--flush:
+			#after: .block--type-flush-header
+			%unmargin-top-2
+
+		&--patreon:
+			#after: .work-header, .block-header
+			; %border-radius-0
+
 	&-name:
 		%wrap-words
 		%font-6
@@ -44,7 +52,8 @@
 		%font-2
 
 		&--flush:
-			%padding-top-1
+			#after: .work-description
+			%padding-top-0
 
 	&-content:
 		%block
@@ -99,6 +108,61 @@
 					transparent calc($space-4 * 4), 
 					transparent calc($space-4 * 7)
 				)
+
+	&--patreon:
+
+	; &-patreon-visibility-effect:
+	; 	%block
+	; 	%absolute
+	; 	%inset-0
+	; 	border: 1px solid transparent
+	; 	background: linear-gradient(175deg, $colour-patreon, transparent 40%) border-box
+	; 	mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0)
+	; 	mask-composite: exclude
+	; 	%border-radius-2
+	; 	%z-index-fg
+
+	; 	&--flush:
+	; 		%border-radius-0
+
+	&-patreon-visibility-header:
+		#after: .patreon-icon-before
+		%flex
+		%relative
+		padding-inline: $block-padding
+		margin-inline: calc($block-padding * -1)
+		; margin-top: calc($block-padding * -1)
+		; margin-bottom: $block-padding
+		%padding-block-1
+		%margin-block-1
+		%colour-patreon-2
+		background: linear-gradient(to right, color-mix(in lch, $colour-patreon-3, color-mix(in lch, $background-0, transparent 70%) 70%), transparent)
+		; %border-top-radius-2
+		; %border-bottom-1
+		%font-1
+		%align-items-centre
+		%gap-2
+		%border-left-2
+		%border-patreon-3
+
+		&--flush:
+			; %border-radius-0
+
+		@before:
+			%relative
+			%left-0
+			%top-0
+			%translate-none
+
+		&-label:
+			%uppercase
+			%bold
+			letter-spacing: .1em
+			%font-0
+			%colour-patreon
+
+		&-tier:
+			%justify-self-end
 
 	&-license:
 		margin-top: calc($space-3 + $space-2)

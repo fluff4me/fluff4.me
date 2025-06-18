@@ -1,4 +1,4 @@
-import type { Work, WorkMetadata } from 'api.fluff4.me'
+import type { Work } from 'api.fluff4.me'
 import EndpointWorkCreate from 'endpoint/work/EndpointWorkCreate'
 import EndpointWorkUpdate from 'endpoint/work/EndpointWorkUpdate'
 import quilt from 'lang/en-nz'
@@ -9,8 +9,6 @@ import Block from 'ui/component/core/Block'
 import Form from 'ui/component/core/Form'
 import GradientInput from 'ui/component/core/GradientInput'
 import LabelledTable from 'ui/component/core/LabelledTable'
-import type RadioButton from 'ui/component/core/RadioButton'
-import RadioRow from 'ui/component/core/RadioRow'
 import Textarea from 'ui/component/core/Textarea'
 import TextEditor from 'ui/component/core/TextEditor'
 import TextInput from 'ui/component/core/TextInput'
@@ -20,6 +18,7 @@ import SupportersOnlyLabel from 'ui/component/SupportersOnlyLabel'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
 import { FilterVanity } from 'ui/component/VanityInput'
+import VisibilityOptions from 'ui/component/VisibilityOptions'
 import WorkStatusDropdown from 'ui/component/WorkStatusDropdown'
 import type { License } from 'ui/utility/License'
 import { LICENSES } from 'ui/utility/License'
@@ -91,21 +90,8 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 	table.label(label => label.text.use('view/work-edit/shared/form/tags/label'))
 		.content((content, label) => content.append(tagsEditor.setLabel(label)))
 
-	type Visibility = WorkMetadata['visibility']
-	const VisibilityRadioInitialiser = (radio: RadioButton, id: Visibility) => radio
-		.text.use(`view/work-edit/shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
-
-	const visibility = RadioRow()
-		.hint.use('view/work-edit/shared/form/visibility/hint')
-		.add('Public', VisibilityRadioInitialiser)
-		.add('Patreon', (radio, id) => radio
-			.tweak(VisibilityRadioInitialiser, id)
-			.style('view-type-chapter-edit-visibility-patreon')
-			.style('radio-row-option--hidden'))
-		.add('Private', VisibilityRadioInitialiser)
-		.default.bind(state.map(component, work => work?.visibility ?? 'Private'))
-	table.label(label => label.text.use('view/work-edit/shared/form/visibility/label'))
-		.content((content, label) => content.append(visibility.setLabel(label)))
+	const { visibility, patreonTiers } = VisibilityOptions(table, state.map(component, work => ({ visibility: work?.visibility ?? 'Private', patreonTiers: work?.patreon?.tiers.map(tier => tier.tier_id) })))
+	visibility.hint.use('view/work-edit/shared/form/visibility/hint')
 
 	const status = WorkStatusDropdown(state.map(component, work => work?.status ?? 'Ongoing'))
 	table.label(label => label.text.use('view/work-edit/shared/form/status/label'))
@@ -113,8 +99,7 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 
 	const cardGradientInput = GradientInput()
 		.default.bind(state.map(component, work => work?.card_colours))
-	table
-		.label(label => label.and(SupportersOnlyLabel).text.use('view/work-edit/shared/form/card-colours/label'))
+	table.label(label => label.and(SupportersOnlyLabel).text.use('view/work-edit/shared/form/card-colours/label'))
 		.content((content, label) => content.append(cardGradientInput.setLabel(label)))
 
 	block.useGradient(cardGradientInput.value)
@@ -134,6 +119,7 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 							description: descriptionInput.value,
 							synopsis: synopsisInput.useMarkdown(),
 							visibility: visibility.selection.value ?? 'Private',
+							tier_ids: patreonTiers.selection.value,
 							...tagsEditor.state.value,
 							card_colours: cardGradientInput.value.value.slice(),
 							status: status.selection.value,
@@ -159,6 +145,7 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 							description: descriptionInput.value,
 							synopsis: synopsisInput.useMarkdown(),
 							visibility: visibility.selection.value ?? 'Private',
+							tier_ids: patreonTiers.selection.value,
 							...tagsEditor.state.value,
 							card_colours: cardGradientInput.value.value.slice(),
 							license: license.getFormData(),

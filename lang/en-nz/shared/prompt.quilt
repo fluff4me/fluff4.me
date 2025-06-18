@@ -1,0 +1,52 @@
+## prompt
+confirm: Are you sure?
+reauth: To perform this action, reauthenticate to verify your identity:
+
+### report
+title: Report {0}
+body:
+	You're filing a report for **{0}**. Thanks for helping keep fluff safe!
+	{#SM:
+	- This report will be filed *permanently*, accessible by fluff4.me moderators.
+	- We cannot guarantee if or when action will be taken.
+	- Intentionally filing invalid reports will have consequences.
+	
+	}
+details/label: Details
+reason/label: Reason
+
+#### reason/option
+impersonation: Impersonation
+harassment: Harassment
+plagiarism: Plagiarism
+spam: Spam
+phishing: Phishing
+ban-evasion: Ban Evasion
+inappropriate-field: Inappropriate Field
+inappropriate: Inappropriate
+inadequate-tags: Inadequate Tags
+tos-violation: Terms of Service Violation
+work-unlock: Request Work Unlock
+
+### moderation
+title: Moderate {0}
+subtitle: Moderating {#B:{0}}
+tab/general: General
+tab/censor: Censoring
+censor/key/name=shared/form/name/label
+censor/key/description=shared/form/description/label
+censor/key/vanity=shared/form/vanity/label
+censor/key/pronouns=shared/form/pronouns/label
+censor/key/support_link=shared/form/external-link/label
+censor/key/support_message=shared/form/external-label/label
+censor/key/body=shared/form/body/label
+censor/key/notes_before=shared/form/notes/label
+censor/key/notes_after=shared/form/notes/label
+censor/key/synopsis=shared/form/synopsis/label
+censor/key/license=shared/form/license/label
+action/grant-supporter: Add Supporter Months
+action/grant-supporter/body: {#B:{0}} will be given {1} month(s) of supporter features, *permanently*.
+action/delete=shared/action/delete
+action/delete/body: {#B:{0}} will be *permanently removed* from the site.
+action/censor: Censor
+action/censor/body: The fields {1*, } of {#B:{0}} will be *permanently stripped*.

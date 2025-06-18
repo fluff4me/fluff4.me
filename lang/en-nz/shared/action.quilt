@@ -1,0 +1,28 @@
+## action
+auth: Authenticate
+login-or-signup: Log In or Sign Up
+love: Love
+edit: Edit
+follow: Follow
+ignore: Ignore
+unfollow: Unfollow
+unignore: Unignore
+delete: Delete{ 0??}
+save: Save
+create: Create
+cancel: Cancel
+confirm: Confirm
+return: Return
+view-profile: View Profile{0? ({0})}
+continue: Continue
+new-chapter: New Chapter
+bulk-chapters: Bulk Chapters
+become-patron: Become a Patron
+done: Done
+filter: Filter...
+rename: Rename
+modify: Modify
+next: Next
+retry: Retry
+report: Report
+moderate: Moderate

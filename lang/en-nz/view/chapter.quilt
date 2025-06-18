@@ -3,7 +3,7 @@ number/label: Chapter {0}
 number/interlude/label: Interlude {0}
 tags/label: This chapter contains:
 notes/label=shared/term/notes
-patreon/label: Patrons Only
+patreon/label=shared/term/patrons-only
 action/become-patron=shared/action/become-patron
 action/auth-to-patreon=shared/action/auth
 action/unlink-patreon: Unlink ({0})

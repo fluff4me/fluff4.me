@@ -28,6 +28,7 @@ import SlotArray from 'ui/component/core/SlotArray'
 import Small from 'ui/component/core/Small'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import TextInput from 'ui/component/core/TextInput'
+import VisibilityOptions from 'ui/component/VisibilityOptions'
 import Work from 'ui/component/Work'
 import type { IInputEvent } from 'ui/InputBus'
 import InputBus from 'ui/InputBus'
@@ -872,7 +873,7 @@ export default ViewDefinition({
 										const table = LabelledTable()
 											.appendTo(tab.content)
 
-										const { visibility, threshold } = ChapterEditForm.applyVisibilityOptions(table, State(undefined))
+										const { visibility, patreonTiers } = VisibilityOptions(table, State(undefined))
 
 										chapterFormData.use(visibility, chapters => {
 											const visibilities = chapters.filter(chapter => chapter.selected).map(chapter => chapter.body.value.visibility).distinct()
@@ -894,7 +895,7 @@ export default ViewDefinition({
 															continue
 
 														chapter.body.value.visibility = visibility.selection.value
-														chapter.body.value.tier_ids = threshold?.selection.value
+														chapter.body.value.tier_ids = patreonTiers?.selection.value
 														chapterFormData.emitItem(i)
 													}
 

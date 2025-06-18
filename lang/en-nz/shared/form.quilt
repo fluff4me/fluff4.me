@@ -1,0 +1,46 @@
+## form
+dropdown/selection/none: No Selection
+dropdown/selection/join: {*, }
+dropdown/filter/placeholder=shared/action/filter
+category/label: Category
+name/label: Name
+vanity/label: Vanity
+description/label: Description
+synopsis/label: Synopsis
+external-link/label: External Link
+external-label/label: Link Text
+pronouns/label: Pronouns
+body/label: Body
+notes/label=shared/term/notes
+tags/label: Tags
+tags/placeholder: Type to filter tag suggestions...
+tags/suggestion/add-as-custom: Add custom tag:
+tags/suggestion/label: Suggestions
+tags/hint/main: fluff4.me has two kinds of tags.
+tags/hint/global: {#B:Global tags} are chosen from a predefined list, meant for primary categorisation.\nThe first eight will always be displayed with your work. Any others will display only on the full work page.
+tags/hint/custom: {#B:Custom tags} are custom text — whatever you want. Useful as stand-ins for missing global tags, or to better describe specifics.\nThese {#I:only} display on the full work page.
+progress-wheel/remaining/label: {0}
+progress-wheel/progress/label: {0}%
+visibility/label: Visibility
+visibility/public: Public
+visibility/private: Private
+visibility/patreon: Patreon
+visibility-patreon-tier/label: Tier
+visibility-patreon-tier/selection/none: {#I:No Tiers Selected}
+visibility-patreon-tier/selection/all: {#I:All Tiers}
+visibility-patreon-tier/selection/tier-and-up: {0} {#I:(And All Higher Tiers)}
+time/label: Time
+time/placeholder: (Now)
+card-colours/label: Card Colours
+license/label: License
+license/aria-label: custom license
+license/link-view-text: view license text
+license/link: License Link
+license/name: License Name
+license/inherit: Inherit Default License
+
+invalid/too-long: This text is too long.
+invalid/required: This field is required.
+invalid/tags/too-many-global: Too many global tags.
+invalid/tags/too-many-custom: Too many custom tags.
+invalid/time: This is not a valid time.
