@@ -3,26 +3,31 @@ roadmap:
 	## Up Next
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Work statuses
-	*Set the status of your work — Completed, Ongoing, Hiatus, or Cancelled.*
-	</WEAVE>
-
-	<WEAVE TAG=".MINIBLOCK">
-	#### Patron-only works
-	*Instead of setting individual chapters as patron-only, instead set the work as a whole.*
+	#### Feature more than just new works
+	*Replace the "New" view with a "Home" that also shows what's trending or "hot", what's recently completed, and more!*
 	</WEAVE>
 	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Customisable home
+	*In the "Home" view, allow setting up multiple custom filters, so you can see what's new, hot, or recently completed in each of them!*
+	</WEAVE>
+
 	---
 	## Soon
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Chapter scheduling
-	*Set a schedule for your work as a whole, resulting in newly uploaded chapters releasing to patrons or publicly on particular days.*
+	#### Saving your place in a work
+	*Click a button on works to "continue" reading them, rather than having to find your place. This will work with rereads as well, showing both your furthest progress in a work, and your current progress in a reread.*
+	</WEAVE>
+
+	<WEAVE TAG=".MINIBLOCK">
+	#### Recommendations
+	*Recommend works to forward the love from your followers! You'll be able to attach a message about why you're recommending the work, and the recommendation will be visible on your profile.*
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Feature more than just new works
-	*In the "New" view, also show what's trending or "hot", what's recently completed, and more!*
+	#### Chapter scheduling
+	*Set a schedule for your work as a whole, resulting in newly uploaded chapters releasing to patrons or publicly on particular days.*
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
@@ -33,11 +38,6 @@ roadmap:
 	
 	---
 	## Later
-	
-	<WEAVE TAG=".MINIBLOCK">
-	#### Saving your place in a work
-	*Click a button on works to "continue" reading them, rather than having to find your place. Will work with rereads as well, showing both your furthest progress in a work, and your current progress in a reread.*
-	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
 	#### Collections
