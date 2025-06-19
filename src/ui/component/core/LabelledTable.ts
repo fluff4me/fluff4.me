@@ -35,17 +35,19 @@ const LabelledTable = Component.Builder((table): LabelledTable => {
 					const labelInitialiser = nextLabelInitialiser
 					nextLabelInitialiser = undefined
 
-					if (state) {
+					const rowState = state
+					// clear state for next row
+					state = undefined
+
+					if (rowState) {
 						const slot = Slot().appendTo(table)
-						state.match(table, true, () => {
-							create().appendToWhen(state!, slot)
+						rowState.match(table, true, () => {
+							create().appendToWhen(rowState, slot)
 						})
 					}
 					else
 						create().appendTo(table)
 
-					// clear state for next row
-					state = undefined
 					return table
 
 					function create () {
