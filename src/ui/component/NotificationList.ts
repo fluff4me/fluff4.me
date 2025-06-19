@@ -1,5 +1,4 @@
 import type { Notification as NotificationData } from 'api.fluff4.me'
-import EndpointNotificationMarkRead from 'endpoint/notification/EndpointNotificationMarkRead'
 import Notifications from 'model/Notifications'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
@@ -26,11 +25,7 @@ const NotificationList = Component.Builder(async (component, onlyUnread?: true, 
 		.type('icon')
 		.event.subscribe('click', async () => {
 			const notifs = paginator.data.value as NotificationData[]
-			const response = await EndpointNotificationMarkRead.query({ body: { notification_ids: notifs.map(n => n.id) } })
-			if (toast.handleError(response))
-				return
-
-			// TODO figure out how to update render
+			await Notifications.markRead(true, ...notifs.map(n => n.id))
 		})
 		.appendTo(paginator.primaryActions)
 
