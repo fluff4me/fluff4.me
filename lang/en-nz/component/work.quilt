@@ -15,6 +15,7 @@ locked/description: To lift the lock, address the issues left by the moderators 
 stat/reads/label: Total Reads
 stat/hearts/label: Total Hearts
 stat/comments/label: Total Comments
+stat/chapter-visits/label: Total Chapter Visits
 stat/visits/label: Total Visits
 
 ## status

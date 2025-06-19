@@ -17,3 +17,8 @@
 			letter-spacing: .07em
 			%flex-basis-100
 			%margin-0
+
+	&-stat:
+		&-label:
+		&-value:
+			%nowrap

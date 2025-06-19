@@ -8,6 +8,7 @@ actions/empy: No actions available on this content.
 stat/section/logged-in: fluff4.me user engagement
 stat/section/logged-out: guest/overall engagement
 stat/placeholder: {#SM:(not tracked yet, sorry!)}
+stat/tracking-since: \xa0 {#SM:(tracking since {0})}
 
 ~shared/term
 ~shared/action
