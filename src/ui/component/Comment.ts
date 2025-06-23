@@ -185,8 +185,10 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 				Component()
 					.style('comment-body')
-					.setMarkdownContent(commentData.body?.body ? commentData.body
-						: quilt['comment/deleted/body']().toString())
+					.setMarkdownContent(commentData.body?.body
+						? { body: commentData.body.body, mentions: source.authors.value }
+						: quilt['comment/deleted/body']().toString()
+					)
 					.appendTo(content)
 
 				const commentAuthor = author
