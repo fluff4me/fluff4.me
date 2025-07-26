@@ -188,6 +188,8 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 
 	let unuseFrom: UnsubscribeState | undefined
 
+	let renderId = 0
+	let rendered = false
 	const result: AnchorManipulator<HOST> = {
 		state: location,
 		isMouse: () => !locationPreference?.length,
@@ -238,6 +240,10 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			return host
 		},
 		markDirty: () => {
+			const anchoredBox = host?.rect.value
+			if (!anchoredBox.width || !anchoredBox.height)
+				return host
+
 			location.value = undefined
 
 			if (lastRender) {
@@ -371,6 +377,18 @@ function AnchorManipulator<HOST extends Component> (host: HOST): AnchorManipulat
 			host.element.style.left = `${location.x}px`
 			host.element.style.top = `${location.y}px`
 			host.rect.markDirty()
+			if (!location.mouse && !rendered) {
+				const id = ++renderId
+				host.style.setProperty('display', 'none')
+				host.style.setProperty('transition-duration', '0s')
+				void new Promise(resolve => setTimeout(resolve, 50)).then(() => {
+					if (renderId !== id)
+						return
+
+					host.style.removeProperties('display', 'transition-duration')
+					rendered = true
+				})
+			}
 
 			rerenderTimeout = undefined
 			lastRender = Date.now()
