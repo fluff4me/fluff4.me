@@ -2,9 +2,9 @@ import cssnano from 'cssnano'
 import * as fs from 'fs/promises'
 import path from 'path'
 import postcss from 'postcss'
+import { Task } from 'task'
 import * as terser from 'terser'
 import Env from './utility/Env'
-import Task from './utility/Task'
 
 const postnano = postcss([cssnano])
 

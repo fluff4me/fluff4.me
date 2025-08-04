@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
+import { Task } from 'task'
 import Env from './utility/Env'
-import Task from './utility/Task'
 
 interface VendorScript {
 	name: string
@@ -55,12 +55,12 @@ const VENDOR_SCRIPTS: (string | VendorScript)[] = [
 		noUMD: true,
 	},
 	{
-		name: "jszip",
-		file: "dist/jszip.min.js"
+		name: 'jszip',
+		file: 'dist/jszip.min.js',
 	},
 	{
-		name: "mammoth",
-		file: "mammoth.browser.min.js"
+		name: 'mammoth',
+		file: 'mammoth.browser.min.js',
 	},
 
 	...Env.ENVIRONMENT !== 'dev' ? [] : [
@@ -99,8 +99,8 @@ export default Task('vendor', async () => {
 			script.file = path.join(`src/node_modules/${script.package ?? script.name}`, script.file)
 		}
 
-		if (!script.file?.endsWith(".js") && !script.file?.endsWith(".cjs"))
-			script.file += ".js"
+		if (!script.file?.endsWith('.js') && !script.file?.endsWith('.cjs'))
+			script.file += '.js'
 
 		let content = await fs.readFile(script.file!, 'utf8').catch(() => undefined)
 		if (!content)

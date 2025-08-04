@@ -1,8 +1,7 @@
 import ansi from 'ansicolor'
 import fs from 'fs-extra'
+import { Log, Task } from 'task'
 import Env from './utility/Env'
-import Log from './utility/Log'
-import Task from './utility/Task'
 
 export default Task('static', async (task, file?: string) => {
 	file = file?.replace(/\\/g, '/')

@@ -1,11 +1,11 @@
 import ansi from 'ansicolor'
 import fs from 'fs/promises'
 import path from 'path'
+import { Log, Task } from 'task'
+import type { ITaskApi } from 'task/TaskRunner'
 import Env from './utility/Env'
-import Log from './utility/Log'
-import Task from './utility/Task'
 
-export default Task('ci:dev', async () => {
+export default Task('ci:dev', async task => {
 	if (Env.ENVIRONMENT !== 'dev')
 		return
 
@@ -22,17 +22,17 @@ export default Task('ci:dev', async () => {
 	////////////////////////////////////
 	//#region Uninstall custom stuff
 
-	await Task.cli('NPM:PATH:npm', 'uninstall', 'lint', '--save', '--no-audit', '--no-fund')
+	await task.exec('NPM:PATH:npm', 'uninstall', 'lint', '--save', '--no-audit', '--no-fund')
 
 	//#endregion
 	////////////////////////////////////
 
-	await Task.cli('NPM:PATH:npm', 'ci', '--no-audit', '--no-fund')
+	await task.exec('NPM:PATH:npm', 'ci', '--no-audit', '--no-fund')
 
 	////////////////////////////////////
 	//#region Update GitHub packages
 
-	await updateGitHubPackage('lint', 'fluff4me/lint')
+	await updateGitHubPackage(task, 'lint', 'fluff4me/lint')
 
 	const githubPackages: [packageName: string, githubName: string, branch?: string][] = [
 		['chiri', 'fluff4me/chiri', 'package'],
@@ -43,7 +43,7 @@ export default Task('ci:dev', async () => {
 		if (linkModules.some(([linkName]) => linkName === name))
 			continue
 
-		await updateGitHubPackage(name, path, branch)
+		await updateGitHubPackage(task, name, path, branch)
 	}
 
 	//#endregion
@@ -58,7 +58,7 @@ export default Task('ci:dev', async () => {
 	try {
 		for (const [name, linkModule] of linkModules) {
 			Log.info(`Linking ${ansi.lightCyan(name)}...`)
-			await Task.cli('NPM:PATH:npm', 'link', linkModule, '--save', '--no-audit', '--no-fund')
+			await task.exec('NPM:PATH:npm', 'link', linkModule, '--save', '--no-audit', '--no-fund')
 		}
 	}
 	catch (err) {
@@ -72,22 +72,22 @@ export default Task('ci:dev', async () => {
 	await fs.writeFile('./package-lock.json', packageLockJsonString)
 
 	if (error) {
-		await Task.cli('NPM:PATH:npm', 'ci', '--no-audit', '--no-fund')
+		await task.exec('NPM:PATH:npm', 'ci', '--no-audit', '--no-fund')
 		console.error(error)
 		process.exit(1)
 	}
 })
 
-async function updateGitHubPackage (packageName: string, path: string, branch?: string) {
+async function updateGitHubPackage (task: ITaskApi, packageName: string, path: string, branch?: string) {
 	Log.info(`Fetching ${ansi.lightCyan(`${packageName}@latest`)}...`)
 	let response = ''
 	const branchArg = branch ? `refs/heads/${branch}` : 'HEAD'
-	await Task.cli({ stdout: data => response += data.toString() }, 'PATH:git', 'ls-remote', `https://github.com/${path}.git`, branchArg)
+	await task.exec({ stdout: data => response += data.toString() }, 'PATH:git', 'ls-remote', `https://github.com/${path}.git`, branchArg)
 	const sha = response.trim().split(/\s+/)[0]
 	if (!sha)
 		throw new Error(`Failed to get SHA of latest commit of ${packageName} repository`)
 
 	Log.info(`Installing ${ansi.lightCyan(`${packageName}#${sha}`)}...`)
 	const packageVersionString = `github:${path}#${sha}`
-	await Task.cli('NPM:PATH:npm', 'install', packageVersionString, '--save-dev', '--no-audit', '--no-fund')
+	await task.exec('NPM:PATH:npm', 'install', packageVersionString, '--save-dev', '--no-audit', '--no-fund')
 }

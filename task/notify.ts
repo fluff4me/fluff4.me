@@ -1,5 +1,5 @@
+import { Task } from 'task'
 import Env from './utility/Env'
-import Task from './utility/Task'
 
 export default Task('notify', async () => {
 	if (Env.ENVIRONMENT === 'dev')

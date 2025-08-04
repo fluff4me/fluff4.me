@@ -1,11 +1,11 @@
+import { Task } from 'task'
 import Env from './utility/Env'
-import Task from './utility/Task'
 
-export default Task('chiri', () =>
-	Task.cli(Env.ENVIRONMENT === 'dev' ? { env: {} } : {}, 'NPM:chiri', 'style/index.chiri', '--out', 'docs', '--out-dts', 'src'))
+export default Task('chiri', task =>
+	task.exec(Env.ENVIRONMENT === 'dev' ? { env: {} } : {}, 'NPM:chiri', 'style/index.chiri', '--out', 'docs', '--out-dts', 'src'))
 
-export const chiriwatch = Task('chiriwatch', () =>
-	Task.cli(
+export const chiriwatch = Task('chiriwatch', task =>
+	task.exec(
 		{
 			env: {
 				CHIRI_ENV: Env.CHIRI_ENV,
