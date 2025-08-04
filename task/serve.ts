@@ -1,10 +1,9 @@
 import { Middleware, Server, Task } from 'task'
+import type { MessageTypeRegistry as DevServerMessageTypeRegistry } from '../src/utility/DevServer'
 import Env from './utility/Env'
 
 declare module 'task/server/Server' {
-	interface MessageTypeRegistry {
-		updateStyle: null
-		updateLang: null
+	interface MessageTypeRegistry extends DevServerMessageTypeRegistry {
 	}
 }
 

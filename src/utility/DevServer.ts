@@ -1,7 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/triple-slash-reference
-/// <reference path="../../task/serve.ts" />
+export interface MessageTypeRegistry {
+	updateStyle: null
+	updateLang: null
+}
 
-import type { MessageTypeRegistry } from 'task/server/Server'
 import Env from 'utility/Env'
 
 interface DevServer {
