@@ -39,7 +39,7 @@ jobs:
           URL_ORIGIN: https://fluff4.me/
           BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
           BUILD_SHA: ${{ github.sha }}
-        run: npm run build
+        run: npx task install build
 
       - name: Notify Discord on failure
         if: failure()
