@@ -69,7 +69,7 @@ export default ViewDefinition({
 			.setContainsHeading()
 			.appendTo(view.content)
 
-		const ChapterDisplay = (url: string, title: string) => Slot()
+		const ChapterDisplay = (url: string, title: string | Quilt.Handler) => Slot()
 			.append((() => {
 				const number = Maths.parseIntOrUndefined(url)
 				if (!number)
@@ -108,7 +108,7 @@ export default ViewDefinition({
 		//#region Position
 
 		interface InsertPosition extends ChapterRelativePosition {
-			title: string
+			title: string | Quilt.Handler
 		}
 
 		const chosenPosition = State<InsertPosition | undefined>(undefined)
@@ -182,7 +182,7 @@ export default ViewDefinition({
 									const position: InsertPosition = {
 										relative_to: chapter.url,
 										position: direction,
-										title: chapter.name,
+										title: chapter.name ?? (quilt => quilt['view/chapter/number/label'](chapter.url)),
 									}
 									const isChosen = chosenPosition.map(slot, chosen => !!chosen && chosen.relative_to === position.relative_to && chosen.position === position.position)
 									return Component()
@@ -640,7 +640,7 @@ export default ViewDefinition({
 							.style.bind(details.state.falsy, 'view-type-chapter-bulk-create-chapter-summary--closed')
 							.style.bind(chapter.body.map(details.summary, body => body.visibility === 'Patreon'), 'view-type-chapter-bulk-create-chapter-summary--patreon')
 							.style.bind(chapter.body.map(details.summary, body => body.visibility === 'Private'), 'view-type-chapter-bulk-create-chapter-summary--private')
-							.append(Slot.using(State.Use(details.summary, { number: api.number, body: chapter.body }), (slot, { number, body }) => ChapterDisplay(number.url, body.name)
+							.append(Slot.using(State.Use(details.summary, { number: api.number, body: chapter.body }), (slot, { number, body }) => ChapterDisplay(number.url, body.name ?? (quilt => quilt['view/chapter/number/label'](number.url)))
 								.style.remove('slot')
 								.append(body.visibility !== 'Patreon' || !body.tier_ids?.length ? undefined
 									: Component()

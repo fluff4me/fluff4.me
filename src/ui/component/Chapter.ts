@@ -30,7 +30,7 @@ const CHAPTER_REPORT = ReportDefinition<ReportChapterBody>({
 
 const CHAPTER_MODERATION = ModerationDefinition((chapter: ChapterData): ModerationDefinition => ({
 	titleTranslation: 'shared/term/chapter',
-	moderatedContentName: chapter.name,
+	moderatedContentName: chapter.name ?? (quilt => quilt['view/chapter/number/label'](chapter.url)),
 	censor: ModerationCensor<ChapterCensorBody>({
 		properties: {
 			name: ModerationCensor.plaintext(chapter.name),
@@ -86,7 +86,7 @@ function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterMetad
 				.setIcon('flag')
 				.text.use('chapter/action/label/report')
 				.event.subscribe('click', event => ReportDialog.prompt(event.host, CHAPTER_REPORT, {
-					reportedContentName: State.value(chapter).name,
+					reportedContentName: State.value(chapter).name ?? (quilt => quilt['view/chapter/number/label'](State.value(chapter).url)),
 					async onReport (body) {
 						const response = await EndpointReportChapter.query({ body, params: Chapters.reference(State.value(chapter)) })
 						toast.handleError(response)
