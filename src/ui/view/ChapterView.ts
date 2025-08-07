@@ -131,18 +131,25 @@ export default ViewDefinition({
 			.type('flush')
 			.event.subscribe('PageError', () => Session.refresh())
 			.tweak(paginator => {
+				const url = chapterState.mapManual(chapter => chapter.url)
+				const chapterName = chapterState.mapManual(chapter => chapter.name)
+				const number = url.mapManual(url => Maths.parseIntOrUndefined(url))
 				paginator.title
 					.and(ViewTitle)
 					.style('view-type-chapter-block-title')
-					.text.bind(chapterState.mapManual(chapter => chapter.name))
+					.text.bind(State.MapManual([chapterName, url, number], (name, url, chapterNumber) => _
+						|| name
+						|| (!chapterNumber ? undefined : quilt => quilt['view/chapter/number/label'](chapterNumber))
+						|| (url?.includes('.') ? quilt => quilt['view/chapter/number/interlude/label'](url) : undefined)
+					))
 
 				paginator.primaryActions.style('view-type-chapter-block-actions')
 
-				const number = chapterState.mapManual(chapter => Maths.parseIntOrUndefined(chapter.url))
 				Slot()
-					.if(number.mapManual(number => number !== undefined), () => Heading()
+					.if(State.Every(paginator, chapterName.truthy, number.mapManual(number => number !== undefined)), () => Heading()
 						.setAestheticStyle(false)
 						.style('view-type-chapter-block-number-label')
+						.style.bind(chapterName.falsy, 'view-type-chapter-block-number-label--auto-named-chapter')
 						.text.bind(number.mapManual(number => quilt => quilt['view/chapter/number/label'](number))))
 					.prependTo(paginator.header)
 			})

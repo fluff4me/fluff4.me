@@ -21,6 +21,8 @@ import TagsEditor from 'ui/component/TagsEditor'
 import type { VisibilityDataHost } from 'ui/component/VisibilityOptions'
 import VisibilityOptions from 'ui/component/VisibilityOptions'
 import WorkStatusDropdown from 'ui/component/WorkStatusDropdown'
+import { type Quilt } from 'ui/utility/StringApplicator'
+import type { ChapterDetailsAPINumber } from 'ui/view/ChapterNewBulkView'
 import Functions from 'utility/Functions'
 import Objects from 'utility/Objects'
 import State from 'utility/State'
@@ -36,33 +38,46 @@ interface ChapterEditFormContentExtensions {
 
 interface ChapterEditFormContent extends LabelledTable, ChapterEditFormContentExtensions { }
 
-const ChapterEditFormContent = Component.Builder((component, inputState: State<ChapterData | undefined>): ChapterEditFormContent => {
+const ChapterEditFormContent = Component.Builder((component, inputState: State<ChapterData | undefined>, workData: WorkMetadata, number?: State<ChapterDetailsAPINumber>): ChapterEditFormContent => {
 	const table = component.and(LabelledTable)
 
-	const nameInput = TextInput()
-		.setRequired()
-		.default.bind(inputState.map(component, chapter => chapter?.name))
-		.hint.use('view/chapter-edit/shared/form/name/hint')
-		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.chapter?.name))
-	table.label(label => label.text.use('view/chapter-edit/shared/form/name/label'))
-		.content((content, label) => content.append(nameInput.setLabel(label)))
+	const chapterURL = inputState.map(component, chapterData => {
+		const chapter = getChapter(chapterData)
+		if (!chapter)
+			return 'N'
+
+		return chapter.url
+	})
+
+	const fallbackChapterName = number
+		? number.map(component, (number): Quilt.Handler => number.url.includes('.')
+			? quilt => quilt['view/chapter/number/interlude/label'](number.url)
+			: quilt => quilt['view/chapter/number/label'](number.chapterNumber)
+		)
+		: chapterURL.map(component, (url): Quilt.Handler => url.includes('.')
+			? quilt => quilt['view/chapter/number/interlude/label'](url)
+			: quilt => quilt['view/chapter/number/label'](_
+				|| parseInt(url)
+				|| (workData.chapter_count ? workData.chapter_count + 1 : 0)
+				|| 'N'
+			)
+		)
 
 	const type = RadioRow()
 		.add('numbered', radio => radio
 			.text.use('view/chapter-edit/shared/form/type/numbered')
 			.append(Placeholder()
 				.style('view-type-chapter-edit-type-example')
-				.text.use(quilt => quilt['view/chapter-edit/shared/form/type/numbered/example'](Functions.resolve(() => {
-					const chapter = getChapter(inputState.value)
-					if (!chapter)
-						return 'N'
+				.text.bind(number
+					? number.map(radio, (number): Quilt.Handler => quilt => quilt['view/chapter-edit/shared/form/type/numbered/example'](number.chapterNumber))
+					: chapterURL.map(radio, (url): Quilt.Handler => quilt => quilt['view/chapter-edit/shared/form/type/numbered/example'](Functions.resolve(() => {
+						if (url.includes('.'))
+							return parseInt(url) + 1
 
-					const url = chapter.url
-					if (url.includes('.'))
-						return parseInt(url) + 1
-
-					return parseInt(url)
-				}))))
+						return parseInt(url) || (workData.chapter_count ? workData.chapter_count + 1 : 0) || 'N'
+					})))
+				)
+			)
 		)
 		.add('other', radio => radio
 			.text.use('view/chapter-edit/shared/form/type/other')
@@ -73,6 +88,14 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 		.default.bind(inputState.map(component, chapter => chapter?.is_numbered === false ? 'other' : 'numbered'))
 	table.label(label => label.text.use('view/chapter-edit/shared/form/type/label'))
 		.content((content, label) => content.append(type.setLabel(label)))
+
+	const nameInput = TextInput()
+		.default.bind(inputState.map(component, chapter => chapter?.name || ''))
+		.hint.use('view/chapter-edit/shared/form/name/hint')
+		.placeholder.bind(fallbackChapterName)
+		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.chapter?.name))
+	table.label(label => label.text.use('view/chapter-edit/shared/form/name/label'))
+		.content((content, label) => content.append(nameInput.setLabel(label)))
 
 	const tagsEditor = TagsEditor()
 		.default.bind(inputState as State<TagsState>)
@@ -112,7 +135,7 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 	})
 
 	const state = State.Use(component, {
-		name: nameInput.state,
+		name: nameInput.state.map(component, name => name || false),
 		body: bodyInput.content,
 		notes_before: notesBeforeInput.content,
 		notes_after: notesAfterInput.content,
@@ -222,7 +245,7 @@ const ChapterEditForm = Object.assign(
 
 		form.submit.textWrapper.text.use(`view/chapter-edit/${formType}/submit`)
 
-		const content = ChapterEditFormContent(state)
+		const content = ChapterEditFormContent(state, workData)
 			.appendTo(form.content)
 
 		const work = Component().style('view-type-chapter-edit-work-changes').appendTo(form.content)

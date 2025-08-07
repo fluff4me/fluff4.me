@@ -46,6 +46,12 @@
 			line-height: 1em
 			letter-spacing: 0.1em
 
+			&--auto-named-chapter:
+				#after: .view-type-chapter-block-number-label
+				%font-6
+				%colour-2
+				%margin-bottom-0
+
 		&-title:
 			%wrap-words
 			%margin-bottom-3

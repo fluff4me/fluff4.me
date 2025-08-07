@@ -5,6 +5,7 @@ import EndpointChapterCreateBulkQueue from 'endpoint/chapter/EndpointChapterCrea
 import EndpointChapterGetAll from 'endpoint/chapter/EndpointChapterGetAll'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import type { Weave } from 'lang/en-nz'
+import quilt from 'lang/en-nz'
 import Chapters from 'model/Chapters'
 import PagedListData from 'model/PagedListData'
 import Patreon from 'model/Patreon'
@@ -32,7 +33,7 @@ import VisibilityOptions from 'ui/component/VisibilityOptions'
 import Work from 'ui/component/Work'
 import type { IInputEvent } from 'ui/InputBus'
 import InputBus from 'ui/InputBus'
-import type { Quilt } from 'ui/utility/StringApplicator'
+import { type Quilt } from 'ui/utility/StringApplicator'
 import ChapterEditForm from 'ui/view/chapter/ChapterEditForm'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
@@ -44,6 +45,12 @@ import Strings from 'utility/string/Strings'
 import Task from 'utility/Task'
 
 type Params = Omit<ChapterReference, 'url'>
+
+export interface ChapterDetailsAPINumber {
+	url: string
+	chapterNumber: number
+	interludeNumber: number
+}
 
 export default ViewDefinition({
 	requiresLogin: true,
@@ -245,6 +252,9 @@ export default ViewDefinition({
 
 		const getColour = (i: number) => `light-dark(oklch(30% 100% ${(100 + (60 * i)) % 360}deg), oklch(70% 100% ${(100 + (60 * i)) % 360}deg))`
 		const getChapterName = (file: Documents.ImportDocument) => {
+			if (chapterNameTemplate.value === '{auto}')
+				return ''
+
 			const title = file.title
 			if (!filenameExtractionRegex.value)
 				return file.title
@@ -492,7 +502,8 @@ export default ViewDefinition({
 													? Component().style.setProperty('color', 'var(--colour-3)').text.set('{filename}')
 													: Component().style.setProperty('color', getColour(group)).text.set(`{filename:${group}}`)
 												)
-												.slice((groups?.length ?? 0) > 1 ? 1 : 0)
+												.slice((groups?.length ?? 0) > 1 ? 1 : 0),
+												Component().style.setProperty('color', 'var(--colour-3)').text.set('{auto}'),
 											)
 										}))
 									)
@@ -503,10 +514,15 @@ export default ViewDefinition({
 										.setLabel(label)
 										.placeholder.set('{filename}')
 										.setValidityHandler(input => {
-											if (input.length.value && !/\{filename(:\d+)\}/.test(input.value))
+											const value = input.value.trim()
+											const valid = value.length && (false
+												|| value === '{auto}' // is auto-naming
+												|| /\{filename(:\d+)?\}/.test(value) // or includes at least one filename variable
+											)
+											if (!valid)
 												return quilt => quilt['view/chapter-create-bulk/import/form/name/invalid']()
 										})
-										.tweak(input => input.state.useManual(value => chapterNameTemplate.value = value || undefined))
+										.tweak(input => input.state.useManual(value => chapterNameTemplate.value = value.trim() || undefined))
 									)
 									.append(Small()
 										.text.bind(State
@@ -515,7 +531,7 @@ export default ViewDefinition({
 
 												const titles: Weave[] = []
 												for (let i = 0; i < Math.min(files.length, 5); i++)
-													titles.push({ content: [{ content: getChapterName(files[i]), tag: 'B' }] })
+													titles.push({ content: [{ content: getChapterName(files[i]) || quilt['view/chapter/number/label'](i + 1).toString(), tag: 'B' }] })
 
 												return quilt => quilt['view/chapter-create-bulk/import/form/name/examples'](...titles)
 											})
@@ -591,12 +607,6 @@ export default ViewDefinition({
 
 		interface ChapterDetails extends Details, ChapterDetailsExtensions { }
 
-		interface ChapterDetailsAPINumber {
-			url: string
-			chapterNumber: number
-			interludeNumber: number
-		}
-
 		interface ChapterDetailsAPI {
 			readonly index: State<number>
 			readonly number: State<ChapterDetailsAPINumber>
@@ -640,18 +650,22 @@ export default ViewDefinition({
 							.style.bind(details.state.falsy, 'view-type-chapter-bulk-create-chapter-summary--closed')
 							.style.bind(chapter.body.map(details.summary, body => body.visibility === 'Patreon'), 'view-type-chapter-bulk-create-chapter-summary--patreon')
 							.style.bind(chapter.body.map(details.summary, body => body.visibility === 'Private'), 'view-type-chapter-bulk-create-chapter-summary--private')
-							.append(Slot.using(State.Use(details.summary, { number: api.number, body: chapter.body }), (slot, { number, body }) => ChapterDisplay(number.url, body.name ?? (quilt => quilt['view/chapter/number/label'](number.url)))
-								.style.remove('slot')
-								.append(body.visibility !== 'Patreon' || !body.tier_ids?.length ? undefined
-									: Component()
-										.style('view-type-chapter-bulk-create-chapter-summary-patreon', 'patreon-icon-before')
-										.text.use(Patreon.translateTiers(body.tier_ids, Session.Auth.author?.value?.patreon_campaign?.tiers ?? []))
-								)
-								.append(body.visibility !== 'Private' ? undefined
-									: Placeholder()
-										.style('view-type-chapter-bulk-create-chapter-summary-private')
-										.text.use('view/chapter-create-bulk/create/visibility/private')
-								)
+							.append(Slot.using(State.Use(details.summary, { number: api.number, body: chapter.body }), (slot, { number, body }) =>
+								ChapterDisplay(number.url, (_
+									|| body.name
+									|| (quilt => quilt[number.url.includes('.') ? 'view/chapter/number/interlude/label' : 'view/chapter/number/label'](number.url))
+								))
+									.style.remove('slot')
+									.append(body.visibility !== 'Patreon' || !body.tier_ids?.length ? undefined
+										: Component()
+											.style('view-type-chapter-bulk-create-chapter-summary-patreon', 'patreon-icon-before')
+											.text.use(Patreon.translateTiers(body.tier_ids, Session.Auth.author?.value?.patreon_campaign?.tiers ?? []))
+									)
+									.append(body.visibility !== 'Private' ? undefined
+										: Placeholder()
+											.style('view-type-chapter-bulk-create-chapter-summary-private')
+											.text.use('view/chapter-create-bulk/create/visibility/private')
+									)
 							))
 							.event.subscribe('click', event => {
 								const activeClosestButton = document.activeElement?.component?.closest(Button)
@@ -689,7 +703,7 @@ export default ViewDefinition({
 							'view-type-chapter-bulk-create-chapter--has-selected-sibling')
 
 						details.state.matchManual(true, async () => {
-							const form = ChapterEditForm.Content(chapter.body)
+							const form = ChapterEditForm.Content(chapter.body, work, api.number)
 								.appendTo(details)
 
 							form.state.useManual(state => {
@@ -949,7 +963,7 @@ export default ViewDefinition({
 										const confirmed = await ConfirmDialog.prompt(event.host, {
 											bodyTranslation: quilt => quilt['view/chapter-create-bulk/create/action/remove/confirm'](
 												selectedChapters
-													.map(chapter => chapter.body.value.name)
+													.map(chapter => chapter.body.value.name || '')
 													.slice(0, 5),
 												Math.max(0, selectedChapters.length - 5),
 											),
@@ -1054,11 +1068,11 @@ export default ViewDefinition({
 
 						const chapter = currentState.chapters[i]
 
-						setProgress(i / (currentState.chapters.length + 2), quilt => quilt['view/chapter-create-bulk/upload/loading/queuing'](chapter.body.value.name, i, currentState.chapters.length))
+						setProgress(i / (currentState.chapters.length + 2), quilt => quilt['view/chapter-create-bulk/upload/loading/queuing'](chapter.body.value.name || '', i, currentState.chapters.length))
 						const response = await EndpointChapterCreateBulkQueue.query({
 							params: work,
 							body: {
-								name: chapter.body.value.name,
+								name: chapter.body.value.name || '',
 								body: chapter.body.value.body,
 								visibility: chapter.body.value.visibility,
 								is_numbered: chapter.body.value.is_numbered,

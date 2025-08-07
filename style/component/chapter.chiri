@@ -41,6 +41,9 @@
 		%wrap-words
 		%clamp-1
 
+		&--auto:
+			%italic
+
 	&-right:
 		%block
 		%text-align-right
