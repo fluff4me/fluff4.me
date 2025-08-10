@@ -28,7 +28,7 @@
 			@after:
 				top: calc(50% + $arrow-height / 2)
 
-		#flush:
+		#tablet:
 			%width-100
 			%border-bottom-radius-0
 			%padding-block-3
@@ -64,7 +64,7 @@
 		&-close-surface:
 			%hidden
 
-			#flush:
+			#tablet:
 				%fixed
 				%block
 				%z-index-bg

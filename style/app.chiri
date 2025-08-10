@@ -15,7 +15,7 @@ $app-column-width: #{app-column-width}
 		$app-column-width 1fr $app-column-width
 	$banner-height: 0px
 
-	#tablet:
+	#laptop:
 		grid-template-columns: 1fr
 		grid-template-areas:
 			"masthead"
@@ -185,5 +185,5 @@ $app-column-width: #{app-column-width}
 
 .sidebar:
 	grid-area: sidebar
-	#tablet:
+	#laptop:
 		%hidden

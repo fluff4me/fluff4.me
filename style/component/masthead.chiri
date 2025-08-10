@@ -66,12 +66,12 @@
 		&-hamburger:
 			&-sidebar:
 				#after: .button
-				#tablet:
+				#laptop:
 					%hidden
 			&-popover:
 				#after: .button
 				%hidden
-				#tablet:
+				#laptop:
 					%inline-block
 
 		#flush:

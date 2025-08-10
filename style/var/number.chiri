@@ -1,6 +1,6 @@
 #string content-width = "calc(#{space["5"]} * 13)
 #string app-column-width = "calc(#{space["5"]} * 4 + #{space["4"]})
 
-#string tablet-width = "calc(#{app-column-width} * 2 + #{content-width})
+#string tablet-width = "calc(#{space["5"]} * 4 + #{content-width})
 
 #string laptop-width = "calc(#{space["5"]} * 30)

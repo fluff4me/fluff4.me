@@ -8,7 +8,7 @@
 	grid-template-areas: "meta content related"
 
 	#laptop:
-		grid-template-columns: 1fr auto 1fr $space-4 minmax(auto, $app-column-width)
+		grid-template-columns: 1fr auto $space-4 minmax(auto, $app-column-width) 1fr
 		%column-gap-0
 
 	#tablet:
