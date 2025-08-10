@@ -28,6 +28,11 @@ export default ViewDefinition({
 				.and(Placeholder)
 				.text.use(key as Quilt.SimpleKey)
 				.appendTo(view.content)
+		else
+			Paragraph()
+				.and(Placeholder)
+				.text.set(params.error?.message ?? (quilt => quilt['view/error/description-unknown']()))
+				.appendTo(view.content)
 
 		return view
 	},
