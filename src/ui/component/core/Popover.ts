@@ -14,6 +14,8 @@ import type { UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Task from 'utility/Task'
 
+const isTouchDevice = () => 'ontouchstart' in window || navigator.maxTouchPoints > 0
+
 export type PopoverType = ComponentNameType<'popover--type'>
 
 namespace FocusTrap {
@@ -52,7 +54,7 @@ export type PopoverInitialiser<HOST> = (popover: Popover, host: HOST) => unknown
 interface PopoverComponentExtensions {
 	/** Disallow any popovers to continue showing if this component is hovered */
 	clearPopover (): this
-	setPopover (event: 'hover/longpress' | 'hover/click' | 'click', initialiser: PopoverInitialiser<this>): this & PopoverComponentRegisteredExtensions
+	setPopover (event: 'hover/longpress' | 'longpress' | 'hover/click' | 'click', initialiser: PopoverInitialiser<this>): this & PopoverComponentRegisteredExtensions
 	hasPopoverSet (): boolean
 }
 
@@ -195,6 +197,13 @@ Component.extend(component => {
 
 					cancelLongpress()
 				})
+				.subscribe('contextmenu', event => {
+					if (touchStart)
+						return
+
+					event.preventDefault()
+					void updatePopoverState(null, null, 'longpress')
+				})
 			)
 
 			popover.visible.match(component, true, async () => {
@@ -214,7 +223,7 @@ Component.extend(component => {
 				return popover.getDelay()
 			})
 
-			if ((popoverEvent === 'hover/click' || popoverEvent === 'hover/longpress') && !component.popover)
+			if ((popoverEvent === 'hover/click' || popoverEvent === 'hover/longpress' || popoverEvent === 'longpress') && !component.popover)
 				hostHoveredOrFocusedForLongEnough.subscribe(component, updatePopoverState)
 
 			const rawLabel = component.ariaLabel.state.value
@@ -235,7 +244,7 @@ Component.extend(component => {
 			component.clickState = false
 			if (!component.popover) {
 				component.event.subscribe('click', async event => {
-					if (popoverEvent === 'hover/longpress')
+					if (popoverEvent === 'hover/longpress' || popoverEvent === 'longpress')
 						return
 
 					const closestHandlesMouseEvents = (event.target as HTMLElement).component?.closest(HandlesMouseEvents)
@@ -315,8 +324,9 @@ Component.extend(component => {
 					return
 
 				const shouldShow = false
-					|| (hostHoveredOrFocusedForLongEnough.value && !Viewport.tablet.value)
+					|| (hostHoveredOrFocusedForLongEnough.value && !isTouchDevice() && !(popoverEvent === 'longpress' && Viewport.tablet.value))
 					|| reason === 'longpress'
+					|| (isShown && (popoverEvent === 'hover/longpress' || popoverEvent === 'longpress') && Viewport.tablet.value)
 					|| (true
 						&& isShown
 						&& (false

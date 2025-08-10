@@ -50,4 +50,5 @@ namespace Viewport {
 	}
 }
 
+Object.assign(window, { Viewport })
 export default Viewport
