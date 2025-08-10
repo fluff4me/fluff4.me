@@ -122,6 +122,8 @@ const CanHasActionsMenu = Component.Extension((component, popoverInitialiser?: A
 					addActionsMenuButton(component)
 
 				component.clearPopover().setPopover('longpress', (popover, button) => {
+					popover.onShow(popover => !component.closest(Popover))
+
 					actionsMenu = mutable(component).actionsMenu = popover
 						.and(ActionsMenu)
 						.style('actions-menu-popover')

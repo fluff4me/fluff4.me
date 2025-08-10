@@ -423,6 +423,7 @@ interface PopoverExtensions {
 	/** Defaults on */
 	setCloseOnInput (closeOnInput?: boolean): this
 	setCloseDueToMouseInputFilter (filter: (event: IInputEvent) => boolean): this
+	onShow (handler: (popover: Popover) => boolean): this
 
 	show (): this
 	hide (): this
@@ -441,6 +442,7 @@ const Popover = Component.Builder((component): Popover => {
 	let shouldCloseOnInput = true
 	let inputFilter: ((event: IInputEvent) => boolean) | undefined
 	let normalStacking = false
+	const onShowHandlers: ((popover: Popover) => boolean)[] = []
 	const popover = component
 		.style('popover')
 		.tabIndex('programmatic')
@@ -485,6 +487,10 @@ const Popover = Component.Builder((component): Popover => {
 					togglePopover(visible.value)
 				})
 
+				return popover
+			},
+			onShow (handler) {
+				onShowHandlers.push(handler)
 				return popover
 			},
 
@@ -545,6 +551,11 @@ const Popover = Component.Builder((component): Popover => {
 	return popover
 
 	function togglePopover (shown?: boolean) {
+		if (shown)
+			for (const handler of onShowHandlers)
+				if (handler(popover) === false)
+					return
+
 		if (!popover.hasContent())
 			shown = false
 
