@@ -269,8 +269,7 @@ const ChapterEditForm = Object.assign(
 			.tweak(row => row.content.append(statusDropdown))
 			.appendTo(work)
 
-		form.event.subscribe('submit', async event => {
-			event.preventDefault()
+		form.onSubmit(async event => {
 			await save()
 		})
 

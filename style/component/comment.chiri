@@ -69,6 +69,14 @@
 			%padding-1-2
 			%font-2
 
+			&-loading:
+				#after: .loading
+				%width-fit
+
+				&-flag:
+					#after: .loading-flag
+					%font-6
+
 		&--editing:
 			#after: .comment-footer
 			%margin-top-2

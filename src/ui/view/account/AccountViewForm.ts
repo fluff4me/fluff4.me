@@ -156,9 +156,7 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 				})
 			})
 
-	form.event.subscribe('submit', async event => {
-		event.preventDefault()
-
+	form.onSubmit(async event => {
 		const age = sixteenPlus.checked.value ? (eighteenPlus.checked.value ? 'eighteen_plus' : 'sixteen_plus') : undefined
 		if (!age)
 			return

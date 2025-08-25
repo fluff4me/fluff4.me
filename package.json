@@ -6,8 +6,7 @@
 		"compress": "npx task compress",
 		"watch": "npx task clean pre_watch_build -- serve watch",
 		"serve": "npx task serve",
-		"notify": "npx task notify",
-		"ci:dev": "npx task ci_dev"
+		"notify": "npx task notify"
 	},
 	"devDependencies": {
 		"fs-extra": "10.1.0",

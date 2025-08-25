@@ -2,3 +2,13 @@
 	&-content:
 	&-footer:
 		%margin-top-3
+
+	&-submit:
+
+		&-loading:
+			#after: .loading
+			%width-fit
+
+			&-flag:
+				#after: .loading-flag
+				%font-6

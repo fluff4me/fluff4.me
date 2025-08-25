@@ -12,6 +12,7 @@ import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
+import Loading from 'ui/component/core/Loading'
 import Slot from 'ui/component/core/Slot'
 import TextEditor from 'ui/component/core/TextEditor'
 import Timestamp from 'ui/component/core/Timestamp'
@@ -147,34 +148,47 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 					})
 					.appendTo(footer.right)
 
+				const savingComment = State(false)
 				Button()
 					.style('comment-footer-action')
 					.type('primary')
 					.text.use('comment/action/save')
 					.bindDisabled(textEditor.invalid)
 					.event.subscribe('click', async () => {
-						if (!commentData.parent_id)
-							return
+						savingComment.value = true
+						await (async () => {
+							if (!commentData.parent_id)
+								return
 
-						const response = commentData.comment_id
-							? await EndpointCommentUpdate.query({
-								params: { id: commentData.comment_id },
-								body: { body: textEditor.useMarkdown() },
-							})
-							: await EndpointCommentAdd.query({
-								params: { under: commentData.parent_id },
-								body: { body: textEditor.useMarkdown() },
-							})
-						if (toast.handleError(response))
-							return
+							const response = commentData.comment_id
+								? await EndpointCommentUpdate.query({
+									params: { id: commentData.comment_id },
+									body: { body: textEditor.useMarkdown() },
+								})
+								: await EndpointCommentAdd.query({
+									params: { under: commentData.parent_id },
+									body: { body: textEditor.useMarkdown() },
+								})
+							if (toast.handleError(response))
+								return
 
-						const newComment = response.data
+							const newComment = response.data
 
-						source.comments.value.filterInPlace(comment => comment !== commentData)
-						source.comments.value.push(newComment as CommentData)
-						source.comments.emit()
+							source.comments.value.filterInPlace(comment => comment !== commentData)
+							source.comments.value.push(newComment as CommentData)
+							source.comments.emit()
+						})()
+						savingComment.value = false
 					})
-					.appendTo(footer.right)
+					.appendToWhen(savingComment.falsy, footer.right)
+
+				Loading()
+					.tweak(loading => {
+						loading.style('comment-footer-action-loading')
+						loading.enabled.bind(loading, savingComment)
+						loading.flag.style('comment-footer-action-loading-flag')
+					})
+					.appendToWhen(savingComment, footer.right)
 
 				//#endregion
 				////////////////////////////////////

@@ -6,6 +6,7 @@ import State from 'utility/State'
 
 interface LoadingExtensions {
 	readonly enabled: State.Mutable<boolean>
+	readonly flag: Flag
 	use (state: State.Async<any>): this
 }
 
@@ -14,15 +15,15 @@ interface Loading extends Component, LoadingExtensions { }
 const Loading = Component.Builder((component): Loading => {
 	const enabled = State(true)
 	const progress = State<State.AsyncProgress | undefined>(undefined)
+	const flag = Flag()
+		.style('loading-flag')
+		.style.bind(enabled.falsy, 'loading-flag--hidden')
+		.wave('loading', true)
 	let unuseSettled: UnsubscribeState | undefined
 	let unuseProgress: UnsubscribeState | undefined
 	return component
 		.style('loading')
-		.append(Flag()
-			.style('loading-flag')
-			.style.bind(enabled.falsy, 'loading-flag--hidden')
-			.wave('loading', true)
-		)
+		.append(flag)
 		.appendWhen(progress.truthy, Component()
 			.style('loading-progress')
 			.append(
@@ -36,6 +37,7 @@ const Loading = Component.Builder((component): Loading => {
 		)
 		.extend<LoadingExtensions>(loading => ({
 			enabled,
+			flag,
 			use (state) {
 				unuseSettled?.()
 				unuseSettled = enabled.bind(loading, state.settled.falsy)

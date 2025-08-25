@@ -3,7 +3,7 @@ import Arrays from 'utility/Arrays'
 import State from 'utility/State'
 import type { AnyFunction } from 'utility/Type'
 
-interface EventExtensions<HOST> {
+export interface EventExtensions<HOST> {
 	host: HOST
 	targetComponent: Component | undefined
 }

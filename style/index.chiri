@@ -53,10 +53,10 @@
 	component/core/block
 	component/core/popover-block
 	component/core/text-editor
-	component/core/form
 	component/core/flag
 	component/core/tooltip
 	component/core/loading
+	component/core/form
 	component/core/paginator
 	component/core/toast
 	component/core/draggable

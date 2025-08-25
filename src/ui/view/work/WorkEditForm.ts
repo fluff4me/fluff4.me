@@ -104,9 +104,7 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 
 	block.useGradient(cardGradientInput.value)
 
-	form.event.subscribe('submit', async event => {
-		event.preventDefault()
-
+	form.onSubmit(async event => {
 		const name = nameInput.value
 
 		const response = await (() => {
