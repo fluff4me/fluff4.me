@@ -102,6 +102,7 @@
 	component/work-status-dropdown
 	component/visibility-options
 	component/statistics
+	component/rss-button
 
 #import:
 	view/view

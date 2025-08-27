@@ -256,6 +256,7 @@ $$button-background-highlight!colour
 		"circle-xmark
 		"circle-play
 		"circle-pause
+		"rss
 
 	#each in icons as var icon:
 		&-icon-#{icon}:

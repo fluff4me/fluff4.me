@@ -24,10 +24,12 @@ import FollowingBookmark from 'ui/component/FollowingBookmark'
 import License from 'ui/component/License'
 import ModerationDialog, { ModerationCensor, ModerationDefinition } from 'ui/component/ModerationDialog'
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
+import RSSButton from 'ui/component/RSSButton'
 import Statistics from 'ui/component/Statistics'
 import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
 import type { Quilt } from 'ui/utility/StringApplicator'
+import Env from 'utility/Env'
 import State from 'utility/State'
 
 const WORK_REPORT = ReportDefinition<ReportWorkBody>({
@@ -332,6 +334,9 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 		block.footer.right.append(Component().style('timestamp', 'work-timestamp').text.use('work/state/private-no-chapters'))
 	else if (work.time_last_update)
 		block.footer.right.append(Timestamp(work.time_last_update).style('work-timestamp'))
+
+	RSSButton(`${Env.API_ORIGIN}work/${work.author}/${work.vanity}/rss.xml`)
+		.appendTo(block.footer.right)
 
 	const isOwnWork = Session.Auth.loggedInAs(component, work.author)
 	const statistics = Slot().appendTo(block.footer).if(isOwnWork, slot => work.statistics && Statistics()

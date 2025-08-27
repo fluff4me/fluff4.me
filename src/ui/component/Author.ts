@@ -26,7 +26,9 @@ import FollowingBookmark from 'ui/component/FollowingBookmark'
 import License from 'ui/component/License'
 import ModerationDialog, { ModerationCensor, ModerationDefinition } from 'ui/component/ModerationDialog'
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
+import RSSButton from 'ui/component/RSSButton'
 import Async from 'utility/Async'
+import Env from 'utility/Env'
 import { mutable } from 'utility/Objects'
 import State from 'utility/State'
 
@@ -167,6 +169,9 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 		.tweak(textLabel => Timestamp(author.value.time_join)
 			.style('author-timestamp')
 			.appendTo(textLabel.content))
+		.appendTo(block.footer.right)
+
+	RSSButton(`${Env.API_ORIGIN}author/${author.value.vanity}/rss.xml`)
 		.appendTo(block.footer.right)
 
 	const loading = Loading()

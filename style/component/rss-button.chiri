@@ -1,0 +1,9 @@
+.rss-button:
+	#after: .button, .button-type-icon
+	%unmargin-1-2
+	%padding-2
+	%colour-5
+
+	#can-hover:
+		::hover, ::focus:
+			%colour-0
