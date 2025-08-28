@@ -61,6 +61,7 @@
 	component/core/toast
 	component/core/draggable
 	component/core/sortable
+	component/core/rss-button
 	component/core/breadcrumbs
 	component/core/radio-row
 	component/core/tabinator
@@ -102,7 +103,6 @@
 	component/work-status-dropdown
 	component/visibility-options
 	component/statistics
-	component/rss-button
 
 #import:
 	view/view

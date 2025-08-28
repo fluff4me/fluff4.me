@@ -4,6 +4,9 @@
 		%z-index-fg
 		%relative
 
+	&-info:
+		%relative
+
 	&-title:
 
 	&-description:
@@ -27,3 +30,13 @@
 
 		&--hidden:
 			%hidden
+
+	&-rss-button:
+		#after: .button, .button-type-flush, .rss-button
+		%absolute
+		%pointer-events-all
+		%z-index-fg
+		%right-100
+		%margin-right-2
+		%top-0
+		%margin-top-0

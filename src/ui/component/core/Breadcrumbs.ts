@@ -3,6 +3,7 @@ import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
+import RSSButton from 'ui/component/core/RSSButton'
 import type { Quilt } from 'ui/utility/StringApplicator'
 import State from 'utility/State'
 
@@ -16,6 +17,7 @@ interface BreadcrumbsExtensions {
 	readonly backButton: State<Link & Button | undefined>
 	setPath (...path: [route: RoutePath, translation: Quilt.SimpleKey | Quilt.Handler][]): this
 	setBackButton (route?: RoutePath, initialiser?: (button: Link & Button) => unknown): this
+	setRSSButton (url: string): this
 	getTitleIfExists (): Heading | undefined
 }
 
@@ -68,6 +70,12 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 
 				return breadcrumbs
 			},
+			setRSSButton (url) {
+				RSSButton(url)
+					.style('breadcrumbs-rss-button')
+					.appendTo(breadcrumbs.info)
+				return breadcrumbs
+			},
 			getTitleIfExists () {
 				return title
 			},
@@ -77,6 +85,7 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 			.style('breadcrumbs-meta')
 			.prependTo(breadcrumbs))
 		.extendJIT('info', breadcrumbs => Component()
+			.style('breadcrumbs-info')
 			.prependTo(breadcrumbs.meta))
 		.extendJIT('title', breadcrumbs => title = Heading()
 			.style('breadcrumbs-title')
