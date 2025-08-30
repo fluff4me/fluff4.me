@@ -17,7 +17,7 @@ interface BreadcrumbsExtensions {
 	readonly backButton: State<Link & Button | undefined>
 	setPath (...path: [route: RoutePath, translation: Quilt.SimpleKey | Quilt.Handler][]): this
 	setBackButton (route?: RoutePath, initialiser?: (button: Link & Button) => unknown): this
-	setRSSButton (url: string): this
+	setRSSButton (url?: string | State<string | undefined>): this
 	getTitleIfExists (): Heading | undefined
 }
 
@@ -71,9 +71,10 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 				return breadcrumbs
 			},
 			setRSSButton (url) {
-				RSSButton(url)
+				url = State.get(url)
+				RSSButton(url.mapManual(url => url ?? ''))
 					.style('breadcrumbs-rss-button')
-					.appendTo(breadcrumbs.info)
+					.appendToWhen(url.truthy, breadcrumbs.info)
 				return breadcrumbs
 			},
 			getTitleIfExists () {

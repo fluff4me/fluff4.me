@@ -26,7 +26,7 @@ interface AttributeManipulator<HOST> {
 	/** Sets the attribute to `value`, or removes the attribute if `value` is `undefined` */
 	set (attribute: string, value?: string): HOST
 	bind (state: State<boolean>, attribute: string, value?: string, orElse?: string): HOST
-	bind (attribute: string, state: State<string | undefined>): HOST
+	bind (attribute: string, state: string | undefined | State<string | undefined>): HOST
 	/**
 	 * If the attribute is already set, does nothing. 
 	 * Otherwise, calls the supplier, and sets the attribute to the result, or removes the attribute if it's `undefined` 
@@ -157,7 +157,8 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 		},
 		bind (...args) {
 			if (typeof args[0] === 'string') {
-				const [attribute, state] = args as [string, State<string | undefined>]
+				let [attribute, state] = args as [string, string | undefined | State<string | undefined>]
+				state = State.get(state)
 				unuseAttributeMap.get(attribute)?.()
 				unuseAttributeMap.set(attribute, state.use(component, value => {
 					if (value === undefined) {

@@ -8,6 +8,7 @@ import Work from 'ui/component/Work'
 import State from 'utility/State'
 
 interface WorkFeedExtensions {
+	readonly state: State<FeedResponse | undefined>
 	setFromEndpoint (endpoint: PreparedPaginatedQueryReturning<FeedResponse>): this
 	setFromWorks (pagedData: PagedListData<WorkMetadata>, authors: AuthorMetadata[]): this
 }
@@ -20,16 +21,21 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 
 	const set = paginator.set
 
+	const state = State<FeedResponse | undefined>(undefined)
+
 	const feed = paginator.extend<WorkFeedExtensions>(feed => ({
+		state,
 		setFromEndpoint (endpoint) {
 			const authors = State<AuthorMetadata[]>([])
 			const data = PagedListData(endpoint.getPageSize?.() ?? 25, {
 				async get (page) {
 					const response = await endpoint.query(undefined, { page })
+					state.value = undefined
 					if (toast.handleError(response))
 						return false
 
-					if (!Array.isArray(response.data) || response.data.length) {
+					if (response.data) {
+						state.value = response.data
 						authors.value.push(...response.data.authors)
 						authors.value.distinctInPlace(author => author.vanity)
 						authors.emit()

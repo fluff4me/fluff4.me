@@ -5,6 +5,7 @@ import Link from 'ui/component/core/Link'
 import WorkFeed from 'ui/component/WorkFeed'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
+import State from 'utility/State'
 
 export default ViewDefinition({
 	create: () => {
@@ -12,6 +13,10 @@ export default ViewDefinition({
 
 		view.breadcrumbs.title.text.use('view/feed/main/title')
 		view.breadcrumbs.description.text.use('view/feed/main/description')
+
+		const rssURL = State<string | undefined>(undefined)
+
+		view.breadcrumbs.setRSSButton(rssURL)
 
 		Link('/following')
 			.and(Button)
@@ -32,6 +37,7 @@ export default ViewDefinition({
 		WorkFeed()
 			.viewTransition('feed-view-feed')
 			.setFromEndpoint(EndpointFeedGetFollowed)
+			.tweak(feed => feed.state.use(feed, state => rssURL.value = state?.rss_url))
 			.appendTo(view.content)
 
 		return view
