@@ -210,7 +210,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 					.use(Session.Auth.author, (slot, author) => {
 						const footer = Component('footer')
 							.style('comment-footer')
-							.appendTo(content)
+							.appendTo(slot)
 
 						const reactionsWrapper = Component()
 							.style('comment-footer-section', 'comment-footer-section--reactions')
