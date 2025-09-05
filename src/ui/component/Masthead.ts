@@ -59,6 +59,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 			.setPopover('hover/click', p => popover.value = p
 				.style('primary-nav-popover')
 				.anchor.add('aligned left', 'off bottom')
+				.anchor.add('aligned left', 'off top')
 				.ariaRole('navigation')))
 		.style('masthead-left')
 		.appendTo(masthead)
