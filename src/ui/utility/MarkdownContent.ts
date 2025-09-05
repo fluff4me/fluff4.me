@@ -84,8 +84,12 @@ Component.extend(component => {
 						if (Array.isArray(weft.content))
 							return weft.content.map(stringify).join('')
 
-						if (typeof weft.content === 'object' && weft.content && !WeavingArg.isRenderable(weft.content))
-							return weft.content.content.map(stringify).join('')
+						if (typeof weft.content === 'object' && weft.content && !WeavingArg.isRenderable(weft.content)) {
+							if (QuiltHelper.isWeave(weft.content))
+								return weft.content.content.map(stringify).join('')
+							else
+								return stringify(weft)
+						}
 
 						if (typeof weft.content === 'string' || typeof weft.content === 'number')
 							return String(weft.content)
