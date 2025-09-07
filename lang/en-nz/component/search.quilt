@@ -1,0 +1,6 @@
+# search
+action/again: Refresh Results
+section/works/title=shared/term/works
+section/authors/title=shared/term/authors
+section/tags/title=shared/term/tags
+none: No search results...

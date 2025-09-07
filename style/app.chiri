@@ -180,7 +180,7 @@ $app-column-width: #{app-column-width}
 
 .masthead:
 	grid-area: masthead
-	grid-template-columns: 1fr auto 1fr
+	grid-template-columns: $app-column-width 1fr $app-column-width
 	grid-template-areas: "left mid right"
 
 .sidebar:

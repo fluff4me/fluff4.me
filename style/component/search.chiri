@@ -1,0 +1,132 @@
+.search:
+	%block
+	%relative
+
+	&-icon:
+		%absolute
+		%top-50
+		left: calc($space-3 + $space-2)
+		translate: -50% -50%
+
+	&-input:
+		#after: .input, .text-input
+		%borderless
+		%background-none
+		padding-left: calc($space-4 + $space-3)
+		%font-3
+
+	&-popover:
+		%max-width-none
+		min-height: min($space-8, 60vh)
+
+		&-retry-button:
+			%width-fit
+			%justify-self-end
+
+		&-sections-wrapper:
+			%grid
+			grid-template-columns: 1fr 1fr 1fr
+			%absolute
+			%inset-0
+			%height-100
+			%max-height-100
+			%overflow-hidden
+			%border-radius-2
+
+		&-section:
+			%flex
+			%flex-column
+			%height-100
+			%min-height-0
+			%z-index-fg
+
+			&-title:
+				%font-5
+				%margin-0
+				%weight-normal
+				%font-kanit
+				%padding-2-3
+			&-content:
+				#after: .slot
+				%unmargin-top-1
+				%flex
+				%flex-column
+				%height-100
+				%overflow-auto
+				%padding-block-2
+
+		&-no-results:
+			%padding-inline-3
+
+		&-result:
+			#after: .button
+			%block
+			%padding-top-1
+			%border-radius-0
+			%weight-normal
+
+			#can-hover:
+				::hover, ::focus:
+					%translate-y-0
+
+			&-title:
+				%block
+				%font-2
+				%font-kanit
+				%margin-0
+				%clamp-2
+				%colour-2
+			&-subtitle:
+				%block
+				%font-2
+				%unmargin-top-2
+				%margin-bottom-1
+			&-description:
+				#after: .paragraph
+				%block
+				%margin-0
+				font-size: calc(($font-size-1-base + $font-size-0-base) / 2)
+				%clamp-2
+				%colour-4
+				&--tag:
+					%unmargin-top-3
+					%padding-top-1
+				&--work:
+					%padding-bottom-2
+			&-details:
+				%block
+				&-left, &-right:
+					#after: .action-row-left, .action-row-right
+					%gap-2
+
+			&-work:
+				&-status:
+					#after: .work-status
+					%font-1
+					%padding-1-2
+					%gap-1
+					&-icon:
+						#after: .button-icon--inline, .work-status-icon
+						%margin-0
+				&-chapter-count:
+					#after: .text-label
+					%font-1
+				&-word-count:
+					#after: .text-label
+					%font-1
+				&-timestamp:
+					#after: .timestamp
+					%font-1
+					%margin-left-3
+
+			&-author:
+				&-work-count:
+					#after: .text-label
+					%font-1
+				&-word-count:
+					#after: .text-label
+					%font-1
+
+		; &-work:
+		; &-author:
+		; &-tag:

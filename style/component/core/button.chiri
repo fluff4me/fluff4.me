@@ -159,7 +159,7 @@ $$button-background-highlight!colour
 
 		&--inline:
 			#after: .button-icon
-			%inline-block
+			%inline-flex
 			%margin-inline-1
 
 		&--has-subtext:
@@ -257,6 +257,7 @@ $$button-background-highlight!colour
 		"circle-play
 		"circle-pause
 		"rss
+		"magnifying-glass
 
 	#each in icons as var icon:
 		&-icon-#{icon}:

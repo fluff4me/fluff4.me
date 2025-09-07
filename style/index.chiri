@@ -78,7 +78,6 @@
 	component/core/prefixed-input
 	component/core/button-row
 	component/vanity-input
-	component/masthead
 	component/sidebar
 	component/following-bookmark
 	component/author
@@ -92,6 +91,8 @@
 	component/notification
 	component/mention
 	component/tag-block
+	component/search
+	component/masthead
 	component/primary-nav
 	component/settings-dialog
 	component/tag-edit-form

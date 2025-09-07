@@ -5,3 +5,4 @@ static/js/vendor
 src/style/
 src/lang/
 style/index.ast.json
+changelog.md

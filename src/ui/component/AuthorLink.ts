@@ -6,6 +6,7 @@ import AuthorPopover from 'ui/component/popover/AuthorPopover'
 
 export default Component.Builder('a', (component, author: AuthorMetadata): Link => {
 	return component.and(Link, `/author/${author.vanity}`)
+		.style('author-link')
 		.text.set(author.name)
 		.setPopover('hover/longpress', popover => popover.and(AuthorPopover, author))
 		.and(GradientText)

@@ -10,6 +10,7 @@ import Session from 'model/Session'
 import Works, { WORK_STATUS_ICONS } from 'model/Works'
 import Component from 'ui/Component'
 import AuthorLink from 'ui/component/AuthorLink'
+import ActionRow from 'ui/component/core/ActionRow'
 import Block, { BlockClasses } from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import ButtonRow from 'ui/component/core/ButtonRow'
@@ -113,6 +114,88 @@ const WORK_MODERATION = ModerationDefinition((work: WorkMetadata & Partial<WorkD
 		},
 	}),
 }))
+
+interface WorkFooterExtensions {
+	readonly status: Component
+	readonly statusIcon: Icon
+	readonly chapterCount: Component
+	readonly wordCount?: Component
+	readonly timestampAlternative?: Component
+	readonly timestamp?: Timestamp
+}
+
+export interface WorkFooter extends ActionRow, WorkFooterExtensions { }
+
+export const WorkFooter = Component.Builder((component, work: WorkMetadata & Partial<WorkData>): WorkFooter => {
+	const footer = component.and(ActionRow)
+
+	footer.left.style('work-footer-left')
+
+	const statusLowercase = work.status.toLowerCase() as Lowercase<WorkData['status']>
+	const status = Component()
+		.style('button', 'work-status', `work-status--${statusLowercase}`)
+		.append(Component().text.use(`work/status/${statusLowercase}`))
+		.appendTo(footer.left)
+
+	const statusIcon = Icon(WORK_STATUS_ICONS[work.status]).style('work-status-icon')
+		.prependTo(status)
+
+	const chapterCount = TextLabel()
+		.tweak(textLabel => textLabel.label.text.use('work/chapters/label'))
+		.tweak(textLabel => {
+			const chapterCount = work.chapter_count_public.toLocaleString(navigator.language)
+			if (!work.frequency || work.status === 'Complete' || work.status === 'Cancelled')
+				return textLabel.content.text.set(chapterCount)
+
+			let intervalSize: number
+			let interval: Quilt.KeyPrefixed<'shared/term/interval'>
+			switch (work.frequency.interval) {
+				case 1: interval = 'daily', intervalSize = 1; break
+				case 7: interval = 'weekly', intervalSize = 7; break
+				case 30: interval = 'monthly', intervalSize = 30; break
+				default:
+					if (work.frequency.interval < 7)
+						interval = 'every-x-days', intervalSize = work.frequency.interval
+					else if (work.frequency.interval < 30)
+						interval = 'every-x-weeks', intervalSize = work.frequency.interval / 7
+					else
+						interval = 'every-x-months', intervalSize = work.frequency.interval / 30
+			}
+
+			textLabel.content.text.use(quilt => quilt['work/chapters/value'](
+				chapterCount,
+				work.frequency!.amount.toLocaleString(navigator.language),
+				quilt[`shared/term/interval/${interval}`](intervalSize.toLocaleString(navigator.language)),
+			))
+		})
+		.appendTo(footer.left)
+
+	const wordCount = !work.word_count ? undefined
+		: TextLabel()
+			.tweak(textLabel => textLabel.label.text.use('work/word-count/label'))
+			.tweak(textLabel => textLabel.content.text.set(work.word_count.toLocaleString(navigator.language)))
+			.appendTo(footer.left)
+
+	footer.right.style('work-footer-right')
+
+	let timestamp: Timestamp | undefined
+	let timestampAlternative: Component | undefined
+	if (work.visibility === 'Private')
+		footer.right.append(timestampAlternative = Component().style('timestamp', 'work-timestamp').text.use('work/state/private'))
+	else if (!work.chapter_count_public)
+		footer.right.append(timestampAlternative = Component().style('timestamp', 'work-timestamp').text.use('work/state/private-no-chapters'))
+	else if (work.time_last_update)
+		footer.right.append(timestamp = Timestamp(work.time_last_update).style('work-timestamp'))
+
+	return footer.extend<WorkFooterExtensions>(component => ({
+		status,
+		statusIcon,
+		chapterCount,
+		wordCount,
+		timestampAlternative,
+		timestamp,
+	}))
+})
 
 interface WorkExtensions {
 	readonly work: WorkMetadata
@@ -245,95 +328,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 			.style('work-license')
 			.appendTo(block.content)
 
-	block.footer.left.style('work-footer-left')
-
-	// work.status = ['Cancelled', 'Complete', 'Ongoing', 'Hiatus'][statusI++ % 4] as WorkData['status']
-
-	const statusLowercase = work.status.toLowerCase() as Lowercase<WorkData['status']>
-	Component()
-		.style('button', 'work-status', `work-status--${statusLowercase}`)
-		.append(Icon(WORK_STATUS_ICONS[work.status]).style('work-status-icon'))
-		.append(Component().text.use(`work/status/${statusLowercase}`))
-		.appendTo(block.footer.left)
-
-	TextLabel()
-		.tweak(textLabel => textLabel.label.text.use('work/chapters/label'))
-		.tweak(textLabel => {
-			const chapterCount = work.chapter_count_public.toLocaleString(navigator.language)
-			if (!work.frequency || work.status === 'Complete' || work.status === 'Cancelled')
-				return textLabel.content.text.set(chapterCount)
-
-			let intervalSize: number
-			let interval: Quilt.KeyPrefixed<'shared/term/interval'>
-			switch (work.frequency.interval) {
-				case 1: interval = 'daily', intervalSize = 1; break
-				case 7: interval = 'weekly', intervalSize = 7; break
-				case 30: interval = 'monthly', intervalSize = 30; break
-				default:
-					if (work.frequency.interval < 7)
-						interval = 'every-x-days', intervalSize = work.frequency.interval
-					else if (work.frequency.interval < 30)
-						interval = 'every-x-weeks', intervalSize = work.frequency.interval / 7
-					else
-						interval = 'every-x-months', intervalSize = work.frequency.interval / 30
-			}
-
-			textLabel.content.text.use(quilt => quilt['work/chapters/value'](
-				chapterCount,
-				work.frequency!.amount.toLocaleString(navigator.language),
-				quilt[`shared/term/interval/${interval}`](intervalSize.toLocaleString(navigator.language)),
-			))
-		})
-		.appendTo(block.footer.left)
-
-	/*
-	TextLabel()
-		.tweak(textLabel => textLabel.label.text.use('work/chapters/label'))
-		.tweak(textLabel => textLabel.content.text.set(work.chapter_count_public.toLocaleString(navigator.language)))
-		.appendTo(block.footer.left)
-
-	const frequency = work.frequency
-	if (frequency)
-		TextLabel()
-			.tweak(textLabel => textLabel.label.text.use('work/cadence/label'))
-			.tweak(textLabel => {
-				let intervalSize: number
-				let interval: Quilt.KeyPrefixed<'shared/term/interval'>
-				switch (frequency.interval) {
-					case 1: interval = 'daily', intervalSize = 1; break
-					case 7: interval = 'weekly', intervalSize = 7; break
-					case 30: interval = 'monthly', intervalSize = 30; break
-					default:
-						if (frequency.interval < 7)
-							interval = 'every-x-days', intervalSize = frequency.interval
-						else if (frequency.interval < 30)
-							interval = 'every-x-weeks', intervalSize = frequency.interval / 7
-						else
-							interval = 'every-x-months', intervalSize = frequency.interval / 30
-				}
-
-				textLabel.content.text.use(quilt => quilt['work/cadence/value'](
-					frequency.amount.toLocaleString(navigator.language),
-					quilt[`shared/term/interval/${interval}`](intervalSize.toLocaleString(navigator.language)),
-				))
-			})
-			.appendTo(block.footer.left)
-	*/
-
-	if (work.word_count)
-		TextLabel()
-			.tweak(textLabel => textLabel.label.text.use('work/word-count/label'))
-			.tweak(textLabel => textLabel.content.text.set(work.word_count.toLocaleString(navigator.language)))
-			.appendTo(block.footer.left)
-
-	block.footer.right.style('work-footer-right')
-
-	if (work.visibility === 'Private')
-		block.footer.right.append(Component().style('timestamp', 'work-timestamp').text.use('work/state/private'))
-	else if (!work.chapter_count_public)
-		block.footer.right.append(Component().style('timestamp', 'work-timestamp').text.use('work/state/private-no-chapters'))
-	else if (work.time_last_update)
-		block.footer.right.append(Timestamp(work.time_last_update).style('work-timestamp'))
+	block.footer.and(WorkFooter, work)
 
 	RSSButton(`${Env.API_ORIGIN}work/${work.author}/${work.vanity}/rss.xml`)
 		.appendTo(block.footer.right)

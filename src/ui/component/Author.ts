@@ -7,6 +7,7 @@ import EndpointReportAuthor from 'endpoint/report/EndpointReportAuthor'
 import Follows from 'model/Follows'
 import Session from 'model/Session'
 import Component from 'ui/Component'
+import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import ButtonRow from 'ui/component/core/ButtonRow'
@@ -112,6 +113,60 @@ const AUTHOR_MODERATION = ModerationDefinition((author: AuthorMetadata & Partial
 	}),
 }))
 
+export const AuthorSubtitle = Component.Builder((component, author: State<AuthorMetadata> | AuthorMetadata) => {
+	author = State.get(author)
+	return component.and(Slot).use(author, (slot, author) => slot
+		.append(Component()
+			.style('author-vanity')
+			.text.set(`@${author.vanity}`)
+		)
+		.append(author.pronouns && Slot()
+			.text.append(' · ')
+			.append(Component()
+				.style('author-pronouns')
+				.text.set(author.pronouns)
+			)
+		)
+	)
+})
+
+interface AuthorFooterExtensions {
+	readonly workCount?: TextLabel
+	readonly wordCount?: TextLabel
+	readonly timeJoin: TextLabel
+}
+
+export interface AuthorFooter extends ActionRow, AuthorFooterExtensions { }
+
+export const AuthorFooter = Component.Builder((component, author: AuthorMetadata & Partial<AuthorData>): AuthorFooter => {
+	const footer = component.and(ActionRow)
+
+	const workCount = !author.work_count ? undefined
+		: TextLabel()
+			.tweak(textLabel => textLabel.label.text.use('work/work-count/label'))
+			.tweak(textLabel => textLabel.content.text.set(author.work_count.toLocaleString(navigator.language)))
+			.appendTo(footer.left)
+
+	const wordCount = !author.word_count ? undefined
+		: TextLabel()
+			.tweak(textLabel => textLabel.label.text.use('work/word-count/label'))
+			.tweak(textLabel => textLabel.content.text.set(author.word_count.toLocaleString(navigator.language)))
+			.appendTo(footer.left)
+
+	const timeJoin = TextLabel()
+		.tweak(textLabel => textLabel.label.text.use('author/time-join/label'))
+		.tweak(textLabel => Timestamp(author.time_join)
+			.style('author-timestamp')
+			.appendTo(textLabel.content))
+		.appendTo(footer.right)
+
+	return footer.extend<AuthorFooterExtensions>(footer => ({
+		workCount,
+		wordCount,
+		timeJoin,
+	}))
+})
+
 interface AuthorExtensions {
 	readonly bio: Component
 	loadFull (): Promise<void>
@@ -139,37 +194,12 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 			.useGradient(author.map(block.title, author => author.supporter?.username_colours))
 		)
 
-	block.description
-		.append(Component()
-			.style('author-vanity')
-			.text.set(`@${author.value.vanity}`))
-		.append(author.value.pronouns && Slot()
-			.text.append(' · ')
-			.append(Component()
-				.style('author-pronouns')
-				.text.set(author.value.pronouns)))
+	block.description.append(AuthorSubtitle(author))
 
 	FollowingBookmark(follows => follows.followingAuthor(author.value.vanity))
 		.appendTo(block.header)
 
-	if (author.value.work_count)
-		TextLabel()
-			.tweak(textLabel => textLabel.label.text.use('work/work-count/label'))
-			.tweak(textLabel => textLabel.content.text.bind(author.map(textLabel, author => author.work_count.toLocaleString(navigator.language))))
-			.appendTo(block.footer.left)
-
-	if (author.value.word_count)
-		TextLabel()
-			.tweak(textLabel => textLabel.label.text.use('work/word-count/label'))
-			.tweak(textLabel => textLabel.content.text.bind(author.map(textLabel, author => author.word_count.toLocaleString(navigator.language))))
-			.appendTo(block.footer.left)
-
-	TextLabel()
-		.tweak(textLabel => textLabel.label.text.use('author/time-join/label'))
-		.tweak(textLabel => Timestamp(author.value.time_join)
-			.style('author-timestamp')
-			.appendTo(textLabel.content))
-		.appendTo(block.footer.right)
+	block.footer.and(AuthorFooter, author.value)
 
 	RSSButton(`${Env.API_ORIGIN}author/${author.value.vanity}/rss.xml`)
 		.appendTo(block.footer.right)

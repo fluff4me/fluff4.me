@@ -7,8 +7,10 @@ notes: Notes
 patreon-tier: {NAME}: {#B:{PRICE}}
 relationships-to: Relates To
 relationships-from: Related From
-word-count: Words
-work-count: Works
+words: Words
+works: Works
+authors: Authors
+tags: Tags
 time-join: Joined
 supporters: Supporters
 work: work

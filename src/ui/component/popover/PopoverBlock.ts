@@ -2,7 +2,7 @@ import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Popover from 'ui/component/core/Popover'
 
-export default Component.Builder((component): Popover => {
+export default Component.Builder((component): Popover & Block => {
 	const popover = component
 		.and(Popover).and(Block)
 		.style('popover-block')

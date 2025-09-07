@@ -3,8 +3,8 @@ chapters/label=shared/term/chapters
 chapters/value: {0}{1?\xa0 {#SM:(~{1} {2})}}
 cadence/label: Cadence
 cadence/value: ~{0} {1}
-word-count/label=shared/term/word-count
-work-count/label=shared/term/work-count
+word-count/label=shared/term/words
+work-count/label=shared/term/works
 description/empty: This work has no description.
 state/private: Private
 state/private-no-chapters: Hidden (No Chapters)

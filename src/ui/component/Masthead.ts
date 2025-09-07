@@ -9,6 +9,7 @@ import type Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
 import NotificationList from 'ui/component/NotificationList'
 import PrimaryNav from 'ui/component/PrimaryNav'
+import Search from 'ui/component/Search'
 import SettingsDialog from 'ui/component/SettingsDialog'
 import Sidebar from 'ui/component/Sidebar'
 import Viewport from 'ui/utility/Viewport'
@@ -81,7 +82,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 		.style('masthead-home-wrapper')
 		.appendTo(left)
 
-	Component()
+	Search()
 		.style('masthead-search')
 		.appendTo(masthead)
 

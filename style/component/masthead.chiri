@@ -124,6 +124,7 @@
 				%hidden
 
 	&-search:
+		#after: .search
 		grid-area: mid
 
 		#flush:
