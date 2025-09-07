@@ -19,9 +19,16 @@
 		%max-width-none
 		min-height: min($space-8, 60vh)
 
+		&-header:
+			height: calc(1lh + $space-2 + $space-3 - $space-1)
+
 		&-retry-button:
+			%absolute
+			%top-2
+			%right-3
 			%width-fit
 			%justify-self-end
+			%z-index-fg-2
 
 		&-sections-wrapper:
 			%grid

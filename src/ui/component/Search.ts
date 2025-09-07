@@ -50,10 +50,13 @@ export default Component.Builder(component => {
 		.anchor.from(component)
 		.anchor.add('aligned left', 'off bottom')
 		.tweak(popover => {
+			popover.header.style('search-popover-header')
+
 			Button()
 				.style('search-popover-retry-button')
 				.text.use('search/action/again')
-				.appendTo(popover.header)
+				.event.subscribe('click', () => lookup())
+				.appendTo(popover)
 
 			const sectionsWrapper = Component()
 				.style('search-popover-sections-wrapper')
