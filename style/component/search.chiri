@@ -1,6 +1,8 @@
 .search:
 	%block
 	%relative
+	width: calc(#{content-width} + $app-column-width * 2)
+	%margin-auto
 
 	&-icon:
 		%absolute
