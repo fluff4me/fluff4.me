@@ -299,9 +299,10 @@ export default Component.Builder(component => {
 		lastLookup = Date.now()
 
 		loading.value = true
-		searchResults.value = await EndpointSearchGet.query(undefined, { text: textInput.value })
-			.then(response => response.data ?? undefined)
-			.catch(() => undefined)
+		searchResults.value = textInput.value.length < 3 ? undefined
+			: await EndpointSearchGet.query(undefined, { text: textInput.value })
+				.then(response => response.data ?? undefined)
+				.catch(() => undefined)
 		loading.value = false
 	}
 
