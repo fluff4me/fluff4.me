@@ -11,6 +11,7 @@ import GradientText from 'ui/component/core/ext/GradientText'
 import Heading from 'ui/component/core/Heading'
 import Icon from 'ui/component/core/Icon'
 import Link from 'ui/component/core/Link'
+import Loading from 'ui/component/core/Loading'
 import Paragraph from 'ui/component/core/Paragraph'
 import Placeholder from 'ui/component/core/Placeholder'
 import type { SlotInitialiserReturn } from 'ui/component/core/Slot'
@@ -29,20 +30,9 @@ export default Component.Builder(component => {
 	const textInput = TextInput()
 		.style('search-input')
 		.placeholder.use('masthead/placeholder/search')
-		.event.subscribe('keydown', event => {
-			if (event.key === 'Enter') {
-				popover.focus()
-			}
-		})
-
-	textInput.state.subscribeManual(searchText => {
-		if (searchText.length < 3)
-			return
-
-		void queueLookup()
-	})
 
 	const searchResults = State<SearchResponse | undefined>(undefined)
+	const loading = State(false)
 
 	const popover = PopoverBlock()
 		.style('search-popover')
@@ -52,15 +42,28 @@ export default Component.Builder(component => {
 		.tweak(popover => {
 			popover.header.style('search-popover-header')
 
+			const stateWrapper = Component()
+				.style('search-popover-state-wrapper')
+				.appendTo(popover)
+
 			Button()
 				.style('search-popover-retry-button')
 				.text.use('search/action/again')
 				.event.subscribe('click', () => lookup())
-				.appendTo(popover)
+				.appendToWhen(loading.falsy, stateWrapper)
+
+			Loading()
+				.style('search-popover-loading')
+				.tweak(component => component.enabled.bind(component, loading))
+				.tweak(component => component.flag.style('search-popover-loading-flag'))
+				.appendToWhen(loading, stateWrapper)
 
 			const sectionsWrapper = Component()
 				.style('search-popover-sections-wrapper')
 				.appendTo(popover)
+
+			////////////////////////////////////
+			//#region Result Components
 
 			interface ResultsSectionExtensions {
 				readonly title: Heading
@@ -148,6 +151,9 @@ export default Component.Builder(component => {
 				.text.use('search/none')
 			)
 
+			//#endregion
+			////////////////////////////////////
+
 			ResultsSection()
 				.titleText.use('search/section/works/title')
 				.handle((slot, searchResults) => {
@@ -233,15 +239,36 @@ export default Component.Builder(component => {
 		})
 		.appendTo(document.body)
 
-	State.Every(component, textInput.hasFocused, textInput.state.mapManual(state => state.length > 2)).useManual(async focused => {
-		if (focused) {
+	////////////////////////////////////
+	//#region Event Handling
+
+	textInput.event.subscribe('keydown', event => {
+		if (event.key === 'Enter') {
+			popover.focus()
+		}
+	})
+
+	textInput.state.subscribeManual(searchText => {
+		if (searchText.length < 3)
+			return
+
+		void queueLookup()
+	})
+
+	State.UseManual({ focused: textInput.hasFocused, longEnough: textInput.state.mapManual(state => state.length > 2) }).useManual(async ({ focused, longEnough }) => {
+		if (focused && longEnough) {
 			popover.show()
 			popover.anchor.apply()
 			await Async.sleep(50)
 			popover.anchor.apply()
 			updatePopoverWidth()
 		}
+		else if (!longEnough)
+			popover.hide()
 	})
+
+	//#endregion
+	////////////////////////////////////
 
 	let lastLookup: number
 	let lookupTimeout: number
@@ -271,9 +298,11 @@ export default Component.Builder(component => {
 	async function lookup () {
 		lastLookup = Date.now()
 
+		loading.value = true
 		searchResults.value = await EndpointSearchGet.query(undefined, { text: textInput.value })
 			.then(response => response.data ?? undefined)
 			.catch(() => undefined)
+		loading.value = false
 	}
 
 	function updatePopoverWidth () {

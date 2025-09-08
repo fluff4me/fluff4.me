@@ -22,13 +22,23 @@
 		&-header:
 			height: calc(1lh + $space-2 + $space-3 - $space-1)
 
-		&-retry-button:
+		&-state-wrapper:
+			%block
 			%absolute
 			%top-2
 			%right-3
-			%width-fit
 			%justify-self-end
 			%z-index-fg-2
+
+		&-retry-button:
+			%width-fit
+
+		&-loading:
+			#after: .loading
+			%align-items-end
+			&-flag:
+				#after: .loading-flag
+				%font-7
 
 		&-sections-wrapper:
 			%grid
