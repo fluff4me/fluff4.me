@@ -65,7 +65,6 @@
 				%padding-2-3
 			&-content:
 				#after: .slot
-				%unmargin-top-1
 				%flex
 				%flex-column
 				%height-100
@@ -109,7 +108,8 @@
 					%unmargin-top-3
 					%padding-top-1
 				&--work:
-					%padding-bottom-2
+					#after: .search-popover-result-description
+					%margin-bottom-2
 			&-details:
 				%block
 				&-left, &-right:
