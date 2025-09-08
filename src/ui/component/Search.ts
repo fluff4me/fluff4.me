@@ -31,6 +31,7 @@ export default Component.Builder(component => {
 		.style('search-input')
 		.placeholder.use('masthead/placeholder/search')
 
+	const searchText = textInput.state.mapManual(search => search.replaceAll('@', ''))
 	const searchResults = State<SearchResponse | undefined>(undefined)
 	const loading = State(false)
 
@@ -248,14 +249,14 @@ export default Component.Builder(component => {
 		}
 	})
 
-	textInput.state.subscribeManual(searchText => {
+	searchText.subscribeManual(searchText => {
 		if (searchText.length < 3)
 			return
 
 		void queueLookup()
 	})
 
-	State.UseManual({ focused: textInput.hasFocused, longEnough: textInput.state.mapManual(state => state.length > 2) }).useManual(async ({ focused, longEnough }) => {
+	State.UseManual({ focused: textInput.hasFocused, longEnough: searchText.mapManual(state => state.length > 2) }).useManual(async ({ focused, longEnough }) => {
 		if (focused && longEnough) {
 			popover.show()
 			popover.anchor.apply()
@@ -299,9 +300,10 @@ export default Component.Builder(component => {
 		lastLookup = Date.now()
 
 		loading.value = true
-		searchResults.value = await EndpointSearchGet.query(undefined, { text: textInput.value })
-			.then(response => response.data ?? undefined)
-			.catch(() => undefined)
+		searchResults.value = searchText.value.length < 3 ? undefined
+			: await EndpointSearchGet.query(undefined, { text: searchText.value })
+				.then(response => response.data ?? undefined)
+				.catch(() => undefined)
 		loading.value = false
 	}
 
