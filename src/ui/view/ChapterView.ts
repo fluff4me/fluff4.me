@@ -95,12 +95,12 @@ export default ViewDefinition({
 	create (params: ChapterReference, { workData, initialChapterResponse }) {
 		const view = PaginatedView('chapter')
 
-		const author = workData.synopsis?.mentions.find(author => author.vanity === params.author)
+		const author = workData.synopsis?.mentions.find(author => author.vanity === workData.author)
 		delete workData.synopsis
 		delete workData.custom_tags
 
 		view.breadcrumbs.setBackButton(
-			`/work/${params.author}/${params.work}`,
+			`/work/${workData.author}/${workData.vanity}`,
 			button => button.subText.set(workData.name),
 		)
 
@@ -113,11 +113,11 @@ export default ViewDefinition({
 			.appendTo(view.content)
 
 		const chapterState = State(initialChapterResponse.data)
-		const isOwn = Session.Auth.loggedInAs(view, params.author)
+		const isOwn = Session.Auth.loggedInAs(view, workData.author)
 		const sufficientPledge = chapterState.mapManual(chapter => !chapter.insufficient_pledge)
 		const shouldShowPatreon = State.Some(view, isOwn.truthy, sufficientPledge.falsy)
 
-		const chapters = PagedData.fromEndpoint(EndpointChapterGetPaged.prep({ params }))
+		const chapters = PagedData.fromEndpoint(EndpointChapterGetPaged.prep({ params: { author: workData.author, work: workData.vanity } }))
 		chapters.set(initialChapterResponse.page, initialChapterResponse.data, !initialChapterResponse.has_more)
 		chapters.setPageCount(initialChapterResponse.page_count)
 
@@ -156,7 +156,7 @@ export default ViewDefinition({
 			.appendTo(view.content)
 			.tweak(p => p.page.value = initialChapterResponse.page)
 			.set(chapters, (slot, chapter, page, chapters, paginator) => {
-				paginator.setURL(`/work/${params.author}/${params.work}/chapter/${chapter.url}`)
+				paginator.setURL(`/work/${workData.author}/${workData.vanity}/chapter/${chapter.url}`)
 
 				if (Session.Auth.loggedIn.value)
 					void EndpointHistoryAddChapter.query({ params: chapter })
@@ -469,7 +469,7 @@ export default ViewDefinition({
 		for (const actions of [paginator.footer, paginator.headerActions]) {
 			actions.style('view-type-chapter-block-paginator-actions')
 
-			Link(`/work/${params.author}/${params.work}`)
+			Link(`/work/${workData.author}/${workData.vanity}`)
 				.and(Button)
 				.type('flush')
 				.text.use('chapter/action/index')

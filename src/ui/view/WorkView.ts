@@ -34,7 +34,7 @@ export default ViewDefinition({
 		if (Session.Auth.loggedIn.value)
 			void EndpointHistoryAddWork.query({ params })
 
-		const authorData = workData.synopsis.mentions.find(author => author.vanity === params.author)!
+		const authorData = workData.synopsis.mentions.find(author => author.vanity === workData.author)!
 		if (!authorData)
 			throw Errors.BadData('Work author not in synopsis authors')
 
@@ -79,8 +79,8 @@ export default ViewDefinition({
 				.set(
 					PagedListData.fromEndpoint(25, EndpointChapterGetAll.prep({
 						params: {
-							author: params.author,
-							vanity: params.vanity,
+							author: workData.author,
+							vanity: workData.vanity,
 						},
 					})),
 					(slot, chapters) => {
@@ -172,11 +172,11 @@ export default ViewDefinition({
 					.appendTo(slot))
 				.setActionsMenu(popover => popover
 					.append(Slot()
-						.if(Session.Auth.author.map(popover, author => author?.vanity === params.author), () => Button()
+						.if(Session.Auth.author.map(popover, author => author?.vanity === workData.author), () => Button()
 							.setIcon('plus')
 							.type('flush')
 							.text.use('view/work/chapters/action/label/new')
-							.event.subscribe('click', () => navigate.toURL(`/work/${params.author}/${params.vanity}/chapter/new`))))
+							.event.subscribe('click', () => navigate.toURL(`/work/${workData.author}/${workData.vanity}/chapter/new`))))
 				)
 			)
 			.appendTo(view.content)
