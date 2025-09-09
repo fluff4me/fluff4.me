@@ -38,7 +38,9 @@ export default Component.Builder(component => {
 		.style('search-popover')
 		.setOwner(component)
 		.anchor.from(component)
-		.anchor.add('aligned left', 'off bottom')
+		.anchor.reset()
+		.anchor.add('sticky centre', 'off bottom')
+		.anchor.orElseHide()
 		.tweak(popover => {
 			popover.header.style('search-popover-header')
 
@@ -211,6 +213,7 @@ export default Component.Builder(component => {
 				.appendTo(sectionsWrapper)
 
 			ResultsSection()
+				.style('search-popover-section--tags')
 				.titleText.use('search/section/tags/title')
 				.handle(AbortPromise.asyncFunction(async (signal, slot) => {
 					const tags = await Tags.getManifest()
