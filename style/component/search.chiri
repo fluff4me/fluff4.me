@@ -1,7 +1,7 @@
 .search:
 	%block
 	%relative
-	width: calc(#{content-width} + $app-column-width * 2)
+	width: min(calc(#{content-width} + $app-column-width * 2), 100%)
 	%margin-auto
 
 	&-icon:
