@@ -41,7 +41,7 @@ export default ViewDefinition({
 		WorkFeed()
 			.setFromEndpoint((Session.Auth.author.value ? EndpointFeedGetAuthed : EndpointFeedGet)
 				.prep(undefined, {
-					whitelistTags: [`${tag.category}: ${tag.name}`],
+					whitelist_tags: [`${tag.category}: ${tag.name}`],
 				}))
 			.appendTo(view.content)
 
