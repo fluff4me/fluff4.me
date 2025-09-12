@@ -245,6 +245,11 @@ export default Component.Builder(component => {
 	////////////////////////////////////
 	//#region Event Handling
 
+	navigate.state.subscribe(component, () => {
+		textInput.value = ''
+		popover.hide()
+	})
+
 	textInput.event.subscribe('keydown', event => {
 		if (event.key === 'Enter') {
 			popover.focus()
