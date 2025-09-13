@@ -32,12 +32,14 @@ export default ViewDefinition({
 	create () {
 		const view = PaginatedView('search')
 
-		const inputSearch = State(location.search.replaceAll('?', ''))
+		const searchStringState = State(location.search.replaceAll('?', ''))
 		window.addEventListener('popstate', () => {
-			inputSearch.value = location.search.replaceAll('?', '')
+			searchStringState.value = location.search.replaceAll('?', '')
 		})
 
-		Slot().appendTo(view.content).use(inputSearch, (slot, searchString) => {
+		const searchInput = State<FeedSearch & PaginationSearch | undefined>(undefined)
+
+		Slot().appendTo(view.content).use(searchStringState, (slot, searchString) => {
 			const block = Block().appendTo(slot)
 			const searchForm = block.and(Form, block.title)
 			searchForm.title.text.use('view/search/title')
@@ -99,7 +101,6 @@ export default ViewDefinition({
 			searchForm.submit.textWrapper.text.use('view/search/action/submit')
 			searchForm.onSubmit(updateSearchInput)
 
-			const searchInput = State<FeedSearch & PaginationSearch | undefined>(undefined)
 			updateSearchInput()
 			function updateSearchInput () {
 				searchInput.value = {
@@ -118,23 +119,24 @@ export default ViewDefinition({
 				)}`
 				if (newSearch !== searchString) {
 					searchString = newSearch
-					inputSearch.setValueSilent(newSearch)
+					searchStringState.setValueSilent(newSearch)
 					history.pushState(null, '', `${Env.URL_ORIGIN}search?${newSearch}`)
 				}
 			}
-
-			view.paginator()
-				.and(WorkFeed)
-				.tweak(feed => {
-					searchInput.use(feed, search => {
-						feed.setFromEndpoint(EndpointFeedGetAuthed.prep(undefined, search && Objects.filterNullish(search)))
-					})
-					feed.setPageHandler(page => {
-						feed.setURL(`/search?${searchString}${searchString && page !== 0 ? '&' : ''}${page === 0 ? '' : `page=${page}`}`)
-					})
-				})
-				.appendTo(slot)
 		})
+
+		view.paginator()
+			.and(WorkFeed)
+			.tweak(feed => {
+				searchInput.use(feed, search => {
+					feed.setFromEndpoint(EndpointFeedGetAuthed.prep(undefined, search && Objects.filterNullish(search)))
+				})
+				feed.setPageHandler(page => {
+					const searchString = searchStringState.value
+					feed.setURL(`/search?${searchString}${searchString && page !== 0 ? '&' : ''}${page === 0 ? '' : `page=${page}`}`)
+				})
+			})
+			.appendTo(view.content)
 
 		return view
 	},

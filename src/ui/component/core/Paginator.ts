@@ -39,6 +39,7 @@ interface PaginatorExtensions<DATA = any> {
 	orElse (initialiser: (slot: Slot, paginator: this) => unknown): this
 	setScroll (scroll: boolean | ((target: HTMLElement, direction: 'forward' | 'backward', context: ScrollContext) => unknown)): this
 	getPages (): (Page<DATA> | undefined)[]
+	onReset (owner: State.Owner | null, resetHandler: () => unknown): UnsubscribeState
 }
 
 interface PaginatorEvents {
@@ -157,6 +158,9 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 
 	let scrollOption: boolean | undefined | ((target: HTMLElement, direction: 'forward' | 'backward', context: ScrollContext) => unknown)
 
+	let unsubscribeDataDeletePage: UnsubscribeState | undefined
+	let unuseComponentRemoveToUnsubscribeDataDeletePage: UnsubscribeState | undefined
+
 	const paginator: Paginator<T> = block
 		.viewTransition('paginator')
 		.style('paginator')
@@ -167,10 +171,17 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			scrollAnchorBottom,
 			set (data, initialiserIn) {
 				initialiser = initialiserIn as never
+				unuseCursor?.(); unuseCursor = undefined
+				removeLastScrollIntoViewHandler?.(); removeLastScrollIntoViewHandler = undefined
+				unsubscribeDataDeletePage?.(); unsubscribeDataDeletePage = undefined
+				unuseComponentRemoveToUnsubscribeDataDeletePage?.(); unuseComponentRemoveToUnsubscribeDataDeletePage = undefined
+				cursor.setValueSilent(0)
 				allData.value = data
+				cursor.emit()
 				const emitCursorUpdate = () => cursor.emit()
 				data.event.subscribe('DeletePage', emitCursorUpdate)
-				component.removed.matchManual(true, () => data.event.unsubscribe('DeletePage', emitCursorUpdate))
+				unsubscribeDataDeletePage = () => data.event.unsubscribe('DeletePage', emitCursorUpdate)
+				unuseComponentRemoveToUnsubscribeDataDeletePage = component.removed.matchManual(true, unsubscribeDataDeletePage)
 				return this as never
 			},
 			orElse (initialiser) {
@@ -183,6 +194,9 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			},
 			getPages () {
 				return pages
+			},
+			onReset (owner, resetHandler) {
+				return !owner ? allData.useManual(() => resetHandler()) : allData.use(owner, () => resetHandler())
 			},
 		}))
 		.extendJIT('headerActions', paginator => ActionRow()

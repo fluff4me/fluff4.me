@@ -25,6 +25,9 @@ const PaginatedView = Component.Builder((_, id: ViewId): PaginatedView => {
 			setURL,
 			paginator: () => {
 				paginator ??= Paginator().extend<PaginatedViewPaginatorExtensions>(paginator => ({ setURL }))
+				paginator.onReset(null, () => {
+					urls.length = 0
+				})
 				paginator.page.subscribeManual(page => {
 					const route = urls[page]
 					if (route)

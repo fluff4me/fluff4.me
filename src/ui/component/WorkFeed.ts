@@ -11,7 +11,7 @@ type PageHandler = (page: number) => unknown
 interface WorkFeedExtensions {
 	readonly state: State<FeedResponse | undefined>
 	setFromEndpoint (endpoint: PreparedPaginatedQueryReturning<FeedResponse>): this
-	setFromWorks (pagedData: PagedListData<WorkMetadata>, authors: AuthorMetadata[]): this
+	setFromWorks (pagedData: PagedListData<WorkMetadata>, authors: State<AuthorMetadata[]>): this
 	setPageHandler (handler?: PageHandler): this
 }
 
@@ -20,8 +20,6 @@ interface WorkFeed extends Paginator, WorkFeedExtensions { }
 const WorkFeed = Component.Builder((component): WorkFeed => {
 	const paginator = component.and(Paginator)
 		.type('flush')
-
-	const set = paginator.set
 
 	const state = State<FeedResponse | undefined>(undefined)
 
@@ -53,15 +51,15 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 					return null
 				},
 			})
-			feed.setFromWorks(data/* .resized(3)*/, authors.value)
+			feed.setFromWorks(data/* .resized(3)*/, authors)
 			return feed
 		},
 		setFromWorks (pagedData, authors) {
-			set(pagedData, (slot, works, page) => {
+			paginator.set(pagedData, (slot, works, page) => {
 				pageHandler?.(page)
 
 				for (const workData of works) {
-					const author = authors.find(author => author.vanity === workData.author)
+					const author = authors.value.find(author => author.vanity === workData.author)
 					Link(author && `/work/${author.vanity}/${workData.vanity}`)
 						.and(Work, workData, author, true)
 						.viewTransition(false)

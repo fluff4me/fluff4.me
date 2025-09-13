@@ -91,9 +91,10 @@ function Navigator (): Navigator {
 			navigate.setURL(url, false)
 			return navigate.fromURL()
 		},
-		setURL: (url: string, updateLast = true) => {
-			if (url !== location.pathname) {
-				history.pushState({}, '', `${Env.URL_ORIGIN}${url.slice(1)}`)
+		setURL: (fullURL: string, updateLast = true) => {
+			const url = new URL(fullURL, Env.URL_ORIGIN)
+			if (url.pathname !== location.pathname) {
+				history.pushState({}, '', `${Env.URL_ORIGIN}${url.pathname.slice(1)}${url.search}${url.hash}`)
 				if (updateLast)
 					lastURL = new URL(location.href)
 			}
