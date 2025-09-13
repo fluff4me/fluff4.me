@@ -19,3 +19,44 @@
 		&--ongoing: $button-background: #{light-dark-bg($colour-status-ongoing
 		&--hiatus: $button-background: #{light-dark-bg($colour-status-hiatus
 		&--cancelled: $button-background: #{light-dark-bg($colour-status-cancelled
+
+		#list!string statuses = ["complete", "ongoing", "hiatus", "cancelled"]
+		#each in statuses as var status1:
+			#each in statuses as var status2:
+				#if status1 == status2:
+					#continue
+
+				&--#{status1}-#{status2}:
+					background: linear-gradient(in oklab 115deg, #{light-dark-bg($colour-status-#{status1})} 40%, #{light-dark-bg($colour-status-#{status2})} 60%)
+
+				#each in statuses as var status3:
+					#if status1 == status3 || status2 == status3:
+						#continue
+
+					&--#{status1}-#{status2}-#{status3}:
+						background: linear-gradient(in oklab 115deg, #{light-dark-bg($colour-status-#{status1})} 30%, #{light-dark-bg($colour-status-#{status2})} 36%, #{light-dark-bg($colour-status-#{status2})} 64%, #{light-dark-bg($colour-status-#{status3})} 70%)
+
+		&--complete-ongoing-hiatus-cancelled:
+			background: linear-gradient(in oklab 115deg, #{light-dark-bg($colour-status-complete)} 20%, #{light-dark-bg($colour-status-ongoing)} 25%, #{light-dark-bg($colour-status-ongoing)} 45%, #{light-dark-bg($colour-status-hiatus)} 55%, #{light-dark-bg($colour-status-hiatus)} 75%, #{light-dark-bg($colour-status-cancelled)} 80%)
+
+		&-icon:
+			#after: .checkbutton-icon
+			@before: %block
+			%background-none
+
+		&-label:
+			&--unchecked:
+				%decoration-strikethrough
+
+		&--unchecked:
+			#after:
+				.work-status-dropdown-option--complete
+				.work-status-dropdown-option--ongoing
+				.work-status-dropdown-option--hiatus
+				.work-status-dropdown-option--cancelled
+
+			%colour-6
+
+			#can-hover:
+				::hover, ::focus:
+					%opaque

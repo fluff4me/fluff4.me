@@ -59,6 +59,7 @@ interface MutableStateSimple<T> extends State<T> {
 
 interface MutableState<T> extends MutableStateSimple<T> {
 	setValue (value: T): this
+	setValueSilent (value: T): this
 	bind (owner: State.Owner, state: State<T>): UnsubscribeState
 	bindManual (state: State<T>): UnsubscribeState
 }
@@ -97,6 +98,11 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 		setValue (value) {
 			unuseBoundState?.()
 			setValue(value)
+			return result
+		},
+		setValueSilent (value) {
+			unuseBoundState?.()
+			setValueSilent(value)
 			return result
 		},
 		comparator: value => comparator === false ? false
@@ -251,12 +257,17 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 	return Objects.stringify.disable(result)
 
 	function setValue (value: T) {
-		if (comparator !== false && (result[SYMBOL_VALUE] === value || comparator?.(result[SYMBOL_VALUE], value)))
-			return
-
 		const oldValue = result[SYMBOL_VALUE]
+		if (setValueSilent(value))
+			result.emit(oldValue)
+	}
+
+	function setValueSilent (value: T) {
+		if (comparator !== false && (result[SYMBOL_VALUE] === value || comparator?.(result[SYMBOL_VALUE], value)))
+			return false
+
 		result[SYMBOL_VALUE] = value
-		result.emit(oldValue)
+		return true
 	}
 
 	function getNot () {

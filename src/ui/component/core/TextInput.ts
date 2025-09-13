@@ -70,6 +70,7 @@ const TextInput = Component.Builder('input', (component): TextInput => {
 		.and(Input)
 		.style('text-input')
 		.attributes.set('type', 'text')
+		.attributes.set('autocomplete', 'off')
 		.extend<TextInputExtensions>(input => ({
 			value: '',
 			state,

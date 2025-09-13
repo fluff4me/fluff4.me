@@ -5,4 +5,7 @@ input/whitelist_tags/label: Tag Whitelist
 input/whitelist_tags/hint: Anything that does not have every tag in this list is excluded.
 input/blacklist_tags/label: Tag Blacklist
 input/blacklist_tags/hint: Anything that has a tag in this list is excluded.
+input/statuses/label: Statuses
+input/minimum_word_count/label: Min Words
+input/maximum_word_count/label: Max Words
 action/submit=shared/term/search

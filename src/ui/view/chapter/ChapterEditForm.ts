@@ -254,7 +254,7 @@ const ChapterEditForm = Object.assign(
 			.text.use(quilt => quilt['view/chapter-edit/shared/form/work/heading'](workData.name))
 			.appendTo(work)
 
-		const statusDropdown = WorkStatusDropdown(workData.status)
+		const statusDropdown = WorkStatusDropdown.Radio(workData.status)
 
 		LabelledRow()
 			.tweak(row => row.label

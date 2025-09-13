@@ -7,10 +7,12 @@ import Paginator from 'ui/component/core/Paginator'
 import Work from 'ui/component/Work'
 import State from 'utility/State'
 
+type PageHandler = (page: number) => unknown
 interface WorkFeedExtensions {
 	readonly state: State<FeedResponse | undefined>
 	setFromEndpoint (endpoint: PreparedPaginatedQueryReturning<FeedResponse>): this
 	setFromWorks (pagedData: PagedListData<WorkMetadata>, authors: AuthorMetadata[]): this
+	setPageHandler (handler?: PageHandler): this
 }
 
 interface WorkFeed extends Paginator, WorkFeedExtensions { }
@@ -23,8 +25,14 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 
 	const state = State<FeedResponse | undefined>(undefined)
 
+	let pageHandler: PageHandler | undefined
+
 	const feed = paginator.extend<WorkFeedExtensions>(feed => ({
 		state,
+		setPageHandler (handler) {
+			pageHandler = handler
+			return feed
+		},
 		setFromEndpoint (endpoint) {
 			const authors = State<AuthorMetadata[]>([])
 			const data = PagedListData(endpoint.getPageSize?.() ?? 25, {
@@ -49,7 +57,9 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 			return feed
 		},
 		setFromWorks (pagedData, authors) {
-			set(pagedData, (slot, works) => {
+			set(pagedData, (slot, works, page) => {
+				pageHandler?.(page)
+
 				for (const workData of works) {
 					const author = authors.find(author => author.vanity === workData.author)
 					Link(author && `/work/${author.vanity}/${workData.vanity}`)

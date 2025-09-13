@@ -1,25 +1,25 @@
-import type { RoutePath } from 'navigation/RoutePath'
+import type { RoutePathWithSearch } from 'navigation/RoutePath'
 import Component from 'ui/Component'
 import Paginator from 'ui/component/core/Paginator'
 import type { ViewId } from 'ui/view/shared/component/View'
 import View from 'ui/view/shared/component/View'
 
 interface PaginatedViewPaginatorExtensions {
-	setURL (route: RoutePath): void
+	setURL (route?: RoutePathWithSearch): void
 }
 
-interface PaginatedViewPaginator extends Paginator, PaginatedViewPaginatorExtensions { }
+export interface PaginatedViewPaginator extends Paginator, PaginatedViewPaginatorExtensions { }
 
 interface PaginatedViewExtensions {
 	paginator (): PaginatedViewPaginator
-	setURL (route: RoutePath): void
+	setURL (route?: RoutePathWithSearch): void
 }
 
 interface PaginatedView extends View, PaginatedViewExtensions { }
 
 const PaginatedView = Component.Builder((_, id: ViewId): PaginatedView => {
 	let paginator: PaginatedViewPaginator | undefined
-	const urls: RoutePath[] = []
+	const urls: (RoutePathWithSearch | undefined)[] = []
 	return View(id)
 		.extend<PaginatedViewExtensions>(view => ({
 			setURL,
@@ -34,11 +34,15 @@ const PaginatedView = Component.Builder((_, id: ViewId): PaginatedView => {
 			},
 		}))
 
-	function setURL (route: RoutePath) {
-		navigate.setURL(route)
+	function setURL (route?: RoutePathWithSearch) {
+		if (route !== undefined)
+			navigate.setURL(route)
+
 		const page = paginator?.page.value
-		if (page !== undefined)
-			urls[page] = route
+		if (page === undefined)
+			return
+
+		urls[page] = route
 	}
 })
 

@@ -93,7 +93,7 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 	const { visibility, patreonTiers } = VisibilityOptions(table, state.map(component, work => ({ visibility: work?.visibility ?? 'Private', patreonTiers: work?.patreon?.tiers.map(tier => tier.tier_id) })))
 	visibility.hint.use('view/work-edit/shared/form/visibility/hint')
 
-	const status = WorkStatusDropdown(state.map(component, work => work?.status ?? 'Ongoing'))
+	const status = WorkStatusDropdown.Radio(state.map(component, work => work?.status ?? 'Ongoing'))
 	table.label(label => label.text.use('view/work-edit/shared/form/status/label'))
 		.content((content, label) => content.append(status.setLabel(label)))
 

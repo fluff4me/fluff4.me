@@ -67,7 +67,7 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 	const popover = State<Popover | undefined>(undefined)
 	const button = Button()
 		.style('dropdown-button')
-		.text.bind(selection.mapManual(state => state === undefined
+		.text.bind(selection.mapManual(state => state === undefined || (Array.isArray(state) && state.length === 0)
 			? quilt => quilt['shared/form/dropdown/selection/none']()
 			: (_
 				?? definition.translateSelection?.(dropdown as Dropdown<string>, state)
