@@ -1,7 +1,7 @@
 import type { SearchResponse } from 'api.fluff4.me'
 import EndpointSearchGet from 'endpoint/search/EndpointSearchGet'
 import Tags from 'model/Tags'
-import type { RoutePath } from 'navigation/RoutePath'
+import type { RoutePath, RoutePathWithSearch } from 'navigation/RoutePath'
 import Component from 'ui/Component'
 import { AuthorFooter, AuthorSubtitle } from 'ui/component/Author'
 import AuthorLink from 'ui/component/AuthorLink'
@@ -158,12 +158,12 @@ export default Component.Builder(component => {
 
 			ResultsSection()
 				.titleText.use('search/section/works/title')
-				// .tweak(section => Link(textInput.state.map(section, (search): RoutePathWithSearch => `/search?search=${encodeURIComponent(search)}`))
-				// 	.and(Button)
-				// 	.style('search-popover-advanced-link')
-				// 	.text.use('search/action/advanced')
-				// 	.appendTo(section.title)
-				// )
+				.tweak(section => Link(textInput.state.map(section, (search): RoutePathWithSearch => `/search?search=${encodeURIComponent(search)}`))
+					.and(Button)
+					.style('search-popover-advanced-link')
+					.text.use('search/action/advanced')
+					.appendTo(section.title)
+				)
 				.handle((slot, searchResults) => {
 					if (!searchResults?.works.length)
 						return NoResults()
