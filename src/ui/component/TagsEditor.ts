@@ -12,6 +12,8 @@ import type { TagData } from 'ui/component/Tag'
 import Tag from 'ui/component/Tag'
 import { AllowYOffscreen } from 'ui/utility/AnchorManipulator'
 import Applicator from 'ui/utility/Applicator'
+import type { Quilt } from 'ui/utility/StringApplicator'
+import StringApplicator from 'ui/utility/StringApplicator'
 import AbortPromise from 'utility/AbortPromise'
 import Mouse from 'utility/Mouse'
 import type { StateOr } from 'utility/State'
@@ -38,6 +40,9 @@ interface TagsEditorExtensions {
 	setMaxLengthCustom (maxLength?: StateOr<number | undefined>): this
 	setCustomTagsOnly (): this
 	setGlobalTagsOnly (): this
+	readonly mainHint: StringApplicator.Optional<this>
+	readonly globalHint: StringApplicator.Optional<this>
+	readonly customHint: StringApplicator.Optional<this>
 }
 
 interface TagsEditor extends Component, TagsEditorExtensions, InputExtensions { }
@@ -234,6 +239,10 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 	const maxLengthGlobal = State<number | undefined>(undefined)
 	const maxLengthCustom = State<number | undefined>(undefined)
 
+	const mainHintText = State<string | Quilt.Handler | undefined>(undefined)
+	const globalHintText = State<string | Quilt.Handler | undefined>(undefined)
+	const customHintText = State<string | Quilt.Handler | undefined>(undefined)
+
 	const editor: TagsEditor = component
 		.and(Input)
 		.style('tags-editor')
@@ -280,16 +289,23 @@ const TagsEditor = Component.Builder((component): TagsEditor => {
 				tagTypeFilter.value = 'global'
 				return editor
 			},
+			mainHint: StringApplicator(editor, value => mainHintText.value = value),
+			globalHint: StringApplicator(editor, value => globalHintText.value = value),
+			customHint: StringApplicator(editor, value => customHintText.value = value),
 		}))
 
 	editor.disableDefaultHintPopoverVisibilityHandling()
 	hasOrHadFocus.subscribeManual(focus => editor.getPopover()?.toggle(focus).anchor.apply())
 	editor.setCustomHintPopover(popover => popover
 		.appendWhen(tagTypeFilter.falsy,
-			Input.createHintText(quilt => quilt['shared/form/tags/hint/main']()),
-			Input.createHintText(quilt => quilt['shared/form/tags/hint/global']()),
+			Input.createHintText(mainHintText.map(popover, text => text ?? (quilt => quilt['shared/form/tags/hint/main']()))),
+		)
+		.appendWhen(tagTypeFilter.equals('custom').falsy,
+			Input.createHintText(globalHintText.map(popover, text => text ?? (quilt => quilt['shared/form/tags/hint/global']()))),
 			ProgressWheel.Length(editor.lengthGlobal, editor.maxLengthGlobal),
-			Input.createHintText(quilt => quilt['shared/form/tags/hint/custom']()),
+		)
+		.appendWhen(tagTypeFilter.equals('global').falsy,
+			Input.createHintText(customHintText.map(popover, text => text ?? (quilt => quilt['shared/form/tags/hint/custom']()))),
 			ProgressWheel.Length(editor.lengthCustom, editor.maxLengthCustom),
 		)
 		.anchor.reset()

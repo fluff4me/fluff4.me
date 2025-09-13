@@ -1,5 +1,7 @@
 # search
 action/again: Refresh Results
+action/again/short: Refresh
+action/advanced: Advanced Search
 section/works/title=shared/term/works
 section/authors/title=shared/term/authors
 section/tags/title=shared/term/tags

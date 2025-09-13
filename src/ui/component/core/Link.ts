@@ -1,3 +1,4 @@
+import type { RoutePathWithSearch } from 'navigation/RoutePath'
 import { RoutePath } from 'navigation/RoutePath'
 import Component from 'ui/Component'
 import { HandlesMouseEvents } from 'ui/InputBus'
@@ -20,7 +21,9 @@ interface Link extends Component, LinkExtensions {
 	readonly event: EventManipulator<this, Events<Component, LinkEvents>>
 }
 
-const Link = Component.Builder('a', (component, route: RoutePath | undefined): Link => {
+const Link = Component.Builder('a', (component, route: State<RoutePathWithSearch | undefined> | RoutePathWithSearch | undefined): Link => {
+	route = State.get(route)
+
 	component
 		.and(HandlesMouseEvents)
 		.style('link')
@@ -35,27 +38,30 @@ const Link = Component.Builder('a', (component, route: RoutePath | undefined): L
 		},
 	}))
 
-	if (route !== undefined) {
-		link.attributes.set('href', `${Env.URL_ORIGIN}${route.slice(1)}`)
+	route.use(link, route => {
+		link.attributes.set('href', route && `${Env.URL_ORIGIN}${route.slice(1)}`)
+	})
 
-		link.event.subscribe('click', event => {
-			if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey || event.button !== 0)
-				return
+	link.event.subscribe('click', event => {
+		if (!route.value)
+			return
 
-			event.preventDefault()
+		if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey || event.button !== 0)
+			return
 
-			// const closestButtonOrLink = (event.target as Partial<HTMLElement>).component?.closest([Button, Link])
-			// if (closestButtonOrLink !== component)
-			// 	return
+		event.preventDefault()
 
-			if (!canNavigate.value)
-				return
+		// const closestButtonOrLink = (event.target as Partial<HTMLElement>).component?.closest([Button, Link])
+		// if (closestButtonOrLink !== component)
+		// 	return
 
-			event.stopImmediatePropagation()
-			void navigate.toURL(route)
-			link.event.emit('Navigate')
-		})
-	}
+		if (!canNavigate.value)
+			return
+
+		event.stopImmediatePropagation()
+		void navigate.toURL(route.value)
+		link.event.emit('Navigate')
+	})
 
 	return link
 })

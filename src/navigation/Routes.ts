@@ -18,6 +18,7 @@ import LoginView from 'ui/view/LoginView'
 import ManageTagsView from 'ui/view/ManageTagsView'
 import NewView from 'ui/view/NewView'
 import NotificationsView from 'ui/view/NotificationsView'
+import SearchView from 'ui/view/SearchView'
 // import SupporterFinishView from 'ui/view/SupporterFinishView'
 import TagView from 'ui/view/TagView'
 import WorkEditView from 'ui/view/WorkEditView'
@@ -26,6 +27,8 @@ import WorkView from 'ui/view/WorkView'
 const Routes = [
 	Route('/debug', DebugView.navigate),
 
+	// TODO when / goes to a special homepage for logged out users, and this gets its own route
+	// make sure you update SearchView's redirect
 	Route('/', NewView.navigate),
 
 	Route('/about', AboutView.navigate),
@@ -36,6 +39,7 @@ const Routes = [
 
 	Route('/feed', FeedView.navigate),
 	Route('/history', HistoryView.navigate),
+	Route('/search', SearchView.navigate),
 
 	Route('/following', FollowingView.navigate),
 	Route('/ignoring', IgnoringView.navigate),

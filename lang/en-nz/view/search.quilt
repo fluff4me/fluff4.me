@@ -1,0 +1,8 @@
+# search
+title=shared/term/search
+input/text/label: Text
+input/whitelist_tags/label: Tag Whitelist
+input/whitelist_tags/hint: Anything that does not have every tag in this list is excluded.
+input/blacklist_tags/label: Tag Blacklist
+input/blacklist_tags/hint: Anything that has a tag in this list is excluded.
+action/submit=shared/term/search

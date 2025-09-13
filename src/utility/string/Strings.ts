@@ -9,12 +9,18 @@ namespace Strings {
 		return `_${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`
 	}
 
-	export function optionalParseJSON (string?: string | null): unknown {
+	export function optionalParseJSON<T> (string: string | null | undefined, validator: (value: unknown) => value is T): T | undefined
+	export function optionalParseJSON (string?: string | null, validator?: (value: unknown) => unknown): unknown
+	export function optionalParseJSON (string?: string | null, validator?: (value: unknown) => unknown): unknown {
 		if (!string)
 			return undefined
 
 		try {
-			return JSON.parse(string)
+			const result = JSON.parse(string)
+			if (validator && !validator(result))
+				return undefined
+
+			return result
 		}
 		catch {
 			return undefined

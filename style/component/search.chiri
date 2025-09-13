@@ -41,6 +41,15 @@
 		&-retry-button:
 			%width-fit
 
+		&-advanced-link:
+			%font-open-sans
+			%font-3
+			%weight-bold
+			%letter-spacing-0
+			%height-fit
+			%line-height-normal
+			%justify-self-end
+
 		&-loading:
 			#after: .loading
 			%align-items-end
@@ -74,11 +83,13 @@
 					%hidden
 
 			&-title:
+				%flex
 				%font-5
 				%margin-0
 				%weight-normal
 				%font-kanit
 				%padding-2-3
+				%justify-content-space-between
 			&-content:
 				#after: .slot
 				%flex

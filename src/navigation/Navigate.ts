@@ -1,5 +1,5 @@
 import type App from 'App'
-import type { RoutePath } from 'navigation/RoutePath'
+import type { RoutePath, RoutePathWithSearch } from 'navigation/RoutePath'
 import Routes from 'navigation/Routes'
 import EventManipulator from 'ui/utility/EventManipulator'
 import ErrorView from 'ui/view/ErrorView'
@@ -20,8 +20,8 @@ interface Navigator {
 	readonly event: EventManipulator<this, NavigatorEvents>
 	isURL (glob: string): boolean
 	fromURL (): Promise<void>
-	toURL (route: RoutePath): Promise<void>
-	setURL (route: RoutePath): void
+	toURL (route: RoutePathWithSearch): Promise<void>
+	setURL (route: RoutePathWithSearch): void
 	toRawURL (url: string): boolean
 	ephemeral: ViewContainer['showEphemeral']
 }

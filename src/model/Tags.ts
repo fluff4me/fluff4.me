@@ -45,6 +45,15 @@ const Tags = Object.assign(
 	{
 		resolve,
 		toId,
+		isId (value: unknown): value is TagId {
+			if (typeof value !== 'string')
+				return false
+
+			if (!Tags.value?.tags)
+				return false
+
+			return value in Tags.value.tags
+		},
 		addTag (tag: Tag) {
 			if (!Tags.value)
 				return

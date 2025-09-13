@@ -131,5 +131,6 @@
 	view/type/contact
 	view/type/legal
 	view/type/fundraiser
+	view/type/search
 
 #import: app

@@ -11,6 +11,8 @@ export type RoutePath = ((typeof Routes)[number] extends Route<infer PATH, any> 
 	: never
 	: never
 
+export type RoutePathWithSearch = RoutePath | `${RoutePath}?${string}`
+
 export namespace RoutePath {
 	let routes!: typeof Routes
 	export function setRoutes (routesIn: typeof Routes): void {

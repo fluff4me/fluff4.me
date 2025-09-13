@@ -50,7 +50,7 @@ export default Component.Builder(component => {
 
 			Button()
 				.style('search-popover-retry-button')
-				.text.use('search/action/again')
+				.text.bind(Viewport.mobile.map(popover, mobile => quilt => quilt[mobile ? 'search/action/again/short' : 'search/action/again']()))
 				.event.subscribe('click', () => lookup())
 				.appendToWhen(loading.falsy, stateWrapper)
 
@@ -158,6 +158,12 @@ export default Component.Builder(component => {
 
 			ResultsSection()
 				.titleText.use('search/section/works/title')
+				// .tweak(section => Link(textInput.state.map(section, (search): RoutePathWithSearch => `/search?search=${encodeURIComponent(search)}`))
+				// 	.and(Button)
+				// 	.style('search-popover-advanced-link')
+				// 	.text.use('search/action/advanced')
+				// 	.appendTo(section.title)
+				// )
 				.handle((slot, searchResults) => {
 					if (!searchResults?.works.length)
 						return NoResults()
