@@ -167,6 +167,7 @@ export default ViewDefinition({
 						.style('view-type-work-chapter-list')
 						.set(
 							PagedListData.fromEndpoint(25, EndpointChapterGetAll.prep({ params: work })),
+							0,
 							(slot, chapters) => {
 								slot.style('chapter-list')
 									.style('view-type-work-chapter-list--moving-chapter')

@@ -35,7 +35,7 @@ interface PaginatorExtensions<DATA = any> {
 	readonly page: State.Mutable<number>
 	readonly data: State<DATA>
 	readonly scrollAnchorBottom: Component
-	set<DATA_SOURCE extends PagedData<DATA>> (data: DATA_SOURCE, initialiser: (slot: Slot, data: DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never, page: number, source: DATA_SOURCE, paginator: this) => unknown): Paginator<DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never>
+	set<DATA_SOURCE extends PagedData<DATA>> (data: DATA_SOURCE, page: number, initialiser: (slot: Slot, data: DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never, page: number, source: DATA_SOURCE, paginator: this) => unknown): Paginator<DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never>
 	orElse (initialiser: (slot: Slot, paginator: this) => unknown): this
 	setScroll (scroll: boolean | ((target: HTMLElement, direction: 'forward' | 'backward', context: ScrollContext) => unknown)): this
 	getPages (): (Page<DATA> | undefined)[]
@@ -169,13 +169,13 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			page: cursor,
 			data: currentData,
 			scrollAnchorBottom,
-			set (data, initialiserIn) {
+			set (data, page, initialiserIn) {
 				initialiser = initialiserIn as never
 				unuseCursor?.(); unuseCursor = undefined
 				removeLastScrollIntoViewHandler?.(); removeLastScrollIntoViewHandler = undefined
 				unsubscribeDataDeletePage?.(); unsubscribeDataDeletePage = undefined
 				unuseComponentRemoveToUnsubscribeDataDeletePage?.(); unuseComponentRemoveToUnsubscribeDataDeletePage = undefined
-				cursor.setValueSilent(0)
+				cursor.setValueSilent(page)
 				allData.value = data
 				cursor.emit()
 				const emitCursorUpdate = () => cursor.emit()

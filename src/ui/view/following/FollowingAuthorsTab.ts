@@ -52,7 +52,7 @@ const FollowingAuthorsTab = Component.Builder((component, type: 'following' | 'i
 			Paginator()
 				.type('flush')
 				.viewTransition(false)
-				.set(authors, (slot, authors) => {
+				.set(authors, 0, (slot, authors) => {
 					for (const author of authors) {
 						Link(`/author/${author.vanity}`)
 							.and(Author, author)

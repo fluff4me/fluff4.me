@@ -83,6 +83,7 @@ export default ViewDefinition({
 							vanity: workData.vanity,
 						},
 					})),
+					0,
 					(slot, chapters) => {
 						slot.style('chapter-list')
 							.style.bind(movingChapter.truthy, 'view-type-work-chapter-list--moving-chapter')

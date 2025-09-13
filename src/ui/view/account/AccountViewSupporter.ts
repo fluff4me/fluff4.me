@@ -97,7 +97,7 @@ export default Component.Builder(component => {
 					)
 					.tweak(paginator => paginator.content.style('view-type-account-supporter-order-paginator-content'))
 					.tweak(paginator => paginator.footer.style('view-type-account-supporter-order-paginator-footer'))
-					.set(PagedListData.fromArray(25, statusState.value.patreon_subscriptions), (slot, orders) => {
+					.set(PagedListData.fromArray(25, statusState.value.patreon_subscriptions), 0, (slot, orders) => {
 						slot.style('view-type-account-supporter-order-list')
 
 						const HeaderCell = () => Component().style('view-type-account-supporter-order-list-header-label')

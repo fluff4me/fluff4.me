@@ -154,8 +154,7 @@ export default ViewDefinition({
 					.prependTo(paginator.header)
 			})
 			.appendTo(view.content)
-			.tweak(p => p.page.value = initialChapterResponse.page)
-			.set(chapters, (slot, chapter, page, chapters, paginator) => {
+			.set(chapters, initialChapterResponse.page, (slot, chapter, page, chapters, paginator) => {
 				paginator.setURL(`/work/${workData.author}/${workData.vanity}/chapter/${chapter.url}`)
 
 				if (Session.Auth.loggedIn.value)

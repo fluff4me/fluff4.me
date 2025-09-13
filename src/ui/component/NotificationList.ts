@@ -37,7 +37,7 @@ const NotificationList = Component.Builder(async (component, onlyUnread?: true, 
 
 	await Notifications.await()
 	const cache = pageSize === undefined ? Notifications.cache : Notifications.cache.resized(pageSize)
-	paginator.set(cache, (slot, notifications) => {
+	paginator.set(cache, 0, (slot, notifications) => {
 		slot.style('notification-list-page')
 		for (const notification of notifications) {
 			Notification(notification)

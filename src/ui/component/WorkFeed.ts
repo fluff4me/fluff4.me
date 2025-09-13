@@ -10,8 +10,8 @@ import State from 'utility/State'
 type PageHandler = (page: number) => unknown
 interface WorkFeedExtensions {
 	readonly state: State<FeedResponse | undefined>
-	setFromEndpoint (endpoint: PreparedPaginatedQueryReturning<FeedResponse>): this
-	setFromWorks (pagedData: PagedListData<WorkMetadata>, authors: State<AuthorMetadata[]>): this
+	setFromEndpoint (endpoint: PreparedPaginatedQueryReturning<FeedResponse>, page?: number): this
+	setFromWorks (pagedData: PagedListData<WorkMetadata>, authors: State<AuthorMetadata[]>, page?: number): this
 	setPageHandler (handler?: PageHandler): this
 }
 
@@ -31,7 +31,7 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 			pageHandler = handler
 			return feed
 		},
-		setFromEndpoint (endpoint) {
+		setFromEndpoint (endpoint, page) {
 			const authors = State<AuthorMetadata[]>([])
 			const data = PagedListData(endpoint.getPageSize?.() ?? 25, {
 				async get (page) {
@@ -51,11 +51,11 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 					return null
 				},
 			})
-			feed.setFromWorks(data/* .resized(3)*/, authors)
+			feed.setFromWorks(data/* .resized(3)*/, authors, page)
 			return feed
 		},
-		setFromWorks (pagedData, authors) {
-			paginator.set(pagedData, (slot, works, page) => {
+		setFromWorks (pagedData, authors, page = 0) {
+			paginator.set(pagedData, page, (slot, works, page) => {
 				pageHandler?.(page)
 
 				for (const workData of works) {

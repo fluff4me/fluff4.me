@@ -99,10 +99,10 @@ export default ViewDefinition({
 				.content((content, label) => content.append(status.setLabel(label)))
 
 			searchForm.submit.textWrapper.text.use('view/search/action/submit')
-			searchForm.onSubmit(updateSearchInput)
+			searchForm.onSubmit(() => updateSearchInput())
 
-			updateSearchInput()
-			function updateSearchInput () {
+			updateSearchInput(true)
+			function updateSearchInput (usePageParam = false) {
 				searchInput.value = {
 					search: textInput.value.trim() || undefined,
 					whitelist_tags: whitelistTags.state.value.global_tags,
@@ -110,7 +110,7 @@ export default ViewDefinition({
 					blacklisted_work_statuses: WORK_STATUSES.filter(s => !status.selection.value?.includes(s)),
 					minimum_word_count: !isNaN(+minimumWordCount.value) && +minimumWordCount.value > 99 ? +minimumWordCount.value : undefined,
 					maximum_word_count: !isNaN(+maximumWordCount.value) && +maximumWordCount.value > 99 && +maximumWordCount.value >= (+minimumWordCount.value || 0) ? +maximumWordCount.value : undefined,
-					page: params.page,
+					page: (usePageParam && +params.page!) || 0,
 				}
 				const newSearch = `${(Object.entries(searchInput.value)
 					.filter(([, value]) => value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0))
@@ -129,7 +129,7 @@ export default ViewDefinition({
 			.and(WorkFeed)
 			.tweak(feed => {
 				searchInput.use(feed, search => {
-					feed.setFromEndpoint(EndpointFeedGetAuthed.prep(undefined, search && Objects.filterNullish(search)))
+					feed.setFromEndpoint(EndpointFeedGetAuthed.prep(undefined, search && Objects.filterNullish(search)), search?.page || undefined)
 				})
 				feed.setPageHandler(page => {
 					const searchString = searchStringState.value

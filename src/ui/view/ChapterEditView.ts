@@ -63,6 +63,7 @@ export default ViewDefinition({
 				chapters.setPageCount(true)
 		})
 
+		const initialPage = initialChapterResponse?.page ?? chapterCount.value - 1
 		const pageOwners: Record<number, Component | undefined> = {}
 		const paginator = view.paginator()
 			.type('flush')
@@ -76,8 +77,7 @@ export default ViewDefinition({
 
 				window.scrollTo({ top: scrollY + (scrollHeight - previousScrollHeight), behavior: 'instant' })
 			})
-			.tweak(p => p.page.value = initialChapterResponse?.page ?? chapterCount.value - 1)
-			.set(chapters, async (slot, pageData, page, source, paginator) => {
+			.set(chapters, initialPage, async (slot, pageData, page, source, paginator) => {
 				pageOwners[page]?.remove()
 				const owner = pageOwners[page] = Component()
 

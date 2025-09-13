@@ -50,7 +50,7 @@ export default ViewDefinition({
 						.text.use('view/author/works/action/label/new')
 						.event.subscribe('click', () => navigate.toURL('/work/new'))))
 			)
-			.set(works, (slot, works) =>
+			.set(works, 0, (slot, works) =>
 				slot.append(...works.map(workData =>
 					Link(`/work/${author.vanity}/${workData.vanity}`)
 						.and(Work, workData, author)

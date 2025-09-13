@@ -25,6 +25,7 @@ export default ViewDefinition({
 					content: data.items,
 					auxiliary: data,
 				})),
+				0,
 				(slot, history, page, data) => {
 					slot.style('history')
 
