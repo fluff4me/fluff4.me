@@ -15,7 +15,7 @@ API_ORIGIN=https://api.fluff4.me/
 URL_REWRITE=(not starts_with(http.request.uri.path, "/image/") and not starts_with(http.request.uri.path, "/font/") and not starts_with(http.request.uri.path, "/style/") and not starts_with(http.request.uri.path, "/lang/") and not starts_with(http.request.uri.path, "/beta/") and not starts_with(http.request.uri.path, "/js/") and http.request.uri.path ne "/env.json" and http.request.uri.path ne "/CNAME" and http.request.uri.path ne "/index.css" and http.request.uri.path ne "/index.js" and http.request.uri.path ne "/manifest.webmanifest" and http.request.uri.path ne "/oembed.json")
 ```
 3. Run `npm ci` to grab initial copies of dependencies, which allows our custom tasks to work.
-4. Run `npm run ci:dev` to *fully* install dependencies and set up the project.  
+4. Run `npx task install` to *fully* install dependencies and set up the project.  
 You'll need to run this again whenever dependencies are updated (which is pretty common, I update chirilang a lot.)
 5. Have eslint enabled in your editor. If you're using VSCode, you can use the [ESLint extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).
 6. Run `npm run watch` to start the development server in watch mode. You can also separately, manually run `npm run build` and `npm run serve` if you like. This won't be watched for file changes.
@@ -29,12 +29,12 @@ When you're about to do dev, make sure to pull the latest changes from those rep
 ```env
 # this needs to include relative paths to the "chiri" project and the "weaving" project which must both be on your machine
 # this example assumes you have the chiri and weaving projects in the same parent directory as this project
-NPM_LINK=(chiri:"./chiri" weaving:"./weaving/build")
+TASK_INSTALL_LINK="chiri=./chiri weaving=./weaving/build"
 
 # if you intend to be making changes to chiri's default library, you might want chirilang to watch for changes to that folder:
 CHIRI_ENV=dev
 ```
-4. Run `npm run ci:dev` again. You shouldn't have to run this quite as often as with just the basic setup since you have your own copy of chirilang now.
+4. Run `npx task install` again. You shouldn't have to run this quite as often as with just the basic setup since you have your own copy of chirilang now.
 5. You can use the `npm run watch`, `npm run build`, and `npm run serve` commands as described in the basic project setup. `npm run watch` will watch the chirilang lib for changes as well if you've set that environment variable.
 
 # Contributing
