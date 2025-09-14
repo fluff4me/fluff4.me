@@ -4,7 +4,7 @@ skip-navigation: Skip Navigation
 primary-nav/alt: primary
 action/login=shared/action/login-or-signup
 label/beta: beta
-placeholder/search: Search
+placeholder/search: Search by name
 
 ## user/settings
 alt: settings

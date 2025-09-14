@@ -91,6 +91,8 @@ export default Component.Builder(nav => {
 				.setDisabled(!author, 'no author'))
 			.add('/history', 'sidebar/link/history', button => button.setIcon('clock-rotate-left')
 				.setDisabled(!author, 'no author'))
+			.add('/search', 'sidebar/link/search', button => button.setIcon('magnifying-glass')
+				.setDisabled(!author, 'no author'))
 		)
 
 	Slot()

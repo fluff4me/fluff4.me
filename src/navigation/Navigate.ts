@@ -93,7 +93,7 @@ function Navigator (): Navigator {
 		},
 		setURL: (fullURL: string, updateLast = true) => {
 			const url = new URL(fullURL, Env.URL_ORIGIN)
-			if (url.pathname !== location.pathname) {
+			if (url.pathname !== location.pathname || url.search !== location.search || url.hash !== location.hash) {
 				history.pushState({}, '', `${Env.URL_ORIGIN}${url.pathname.slice(1)}${url.search}${url.hash}`)
 				if (updateLast)
 					lastURL = new URL(location.href)

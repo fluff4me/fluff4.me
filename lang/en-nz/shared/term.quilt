@@ -26,3 +26,4 @@ interval/monthly: monthly
 interval/every-x-months: every {0} months
 patrons-only: Patrons Only
 search: Search
+advanced-search: Advanced Search

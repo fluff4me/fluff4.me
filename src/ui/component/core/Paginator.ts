@@ -73,6 +73,8 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 		.style('paginator-content')
 		.style.bind(isFlush, 'paginator-content--flush')
 
+	void block.footer
+
 	const scrollAnchorBottom = Component()
 		.style('paginator-after-anchor')
 		.appendTo(block)
@@ -244,8 +246,15 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 			// data?.event.subscribe('SetPage', handleSet)
 			// slot.closed.awaitManual(true, () => data?.event.unsubscribe('SetPage', handleSet))
 
+			let isInitialCursorEmit: number | false | undefined
 			unuseCursor?.()
 			unuseCursor = cursor.use(slot, async (pageNumber, previousPageNumber) => {
+				isInitialCursorEmit ??= pageNumber
+				if (pageNumber === isInitialCursorEmit) {
+					isInitialCursorEmit = false
+					return
+				}
+
 				previousScrollRect = new DOMRect(0, window.scrollY, window.innerWidth, document.documentElement.scrollHeight)
 				scrollAnchorTopPreviousRect = paginator.element.getBoundingClientRect()
 				scrollAnchorBottomPreviousRect = scrollAnchorBottom.element.getBoundingClientRect()

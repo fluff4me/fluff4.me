@@ -113,14 +113,19 @@ export default ViewDefinition({
 					page: (usePageParam && +params.page!) || 0,
 				}
 				const newSearch = `${(Object.entries(searchInput.value)
-					.filter(([, value]) => value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0))
+					.filter(([key, value]) => true
+						&& value !== undefined && value !== null
+						&& value !== ''
+						&& (!Array.isArray(value) || value.length > 0)
+						&& (key !== 'page' || +value > 0)
+					)
 					.map(([key, value]) => [key, typeof value === 'string' ? value : JSON.stringify(value)] as const)
 					.collect(entries => new URLSearchParams(entries.toObject()).toString())
 				)}`
 				if (newSearch !== searchString) {
 					searchString = newSearch
 					searchStringState.setValueSilent(newSearch)
-					history.pushState(null, '', `${Env.URL_ORIGIN}search?${newSearch}`)
+					history.pushState(null, '', `${Env.URL_ORIGIN}search${newSearch ? `?${newSearch}` : ''}`)
 				}
 			}
 		})
@@ -128,12 +133,16 @@ export default ViewDefinition({
 		view.paginator()
 			.and(WorkFeed)
 			.tweak(feed => {
+				void feed.headerActions
 				searchInput.use(feed, search => {
 					feed.setFromEndpoint(EndpointFeedGetAuthed.prep(undefined, search && Objects.filterNullish(search)), search?.page || undefined)
 				})
 				feed.setPageHandler(page => {
-					const searchString = searchStringState.value
-					feed.setURL(`/search?${searchString}${searchString && page !== 0 ? '&' : ''}${page === 0 ? '' : `page=${page}`}`)
+					const params = new URLSearchParams(searchStringState.value)
+					if (page !== 0) params.set('page', `${page}`)
+					else params.delete('page')
+					const searchString = params.toString()
+					feed.setURL(`/search${searchString ? `?${searchString}` as const : ''}`)
 				})
 			})
 			.appendTo(view.content)

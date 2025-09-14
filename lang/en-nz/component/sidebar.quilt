@@ -3,6 +3,7 @@ section/browse: Browse
 link/new=view/new/main/title
 link/feed=view/feed/main/title
 link/history=view/history/main/title
+link/search=shared/term/search
 
 section/create: Create
 link/create-work: Create Work
