@@ -185,7 +185,7 @@ export const WorkFooter = Component.Builder((component, work: WorkMetadata & Par
 	else if (!work.chapter_count_public)
 		footer.right.append(timestampAlternative = Component().style('timestamp', 'work-timestamp').text.use('work/state/private-no-chapters'))
 	else if (work.time_last_update)
-		footer.right.append(timestamp = Timestamp(work.time_last_update).style('work-timestamp'))
+		footer.right.append(timestamp = Timestamp(work.time_last_update).setSimple().style('work-timestamp'))
 
 	return footer.extend<WorkFooterExtensions>(component => ({
 		status,

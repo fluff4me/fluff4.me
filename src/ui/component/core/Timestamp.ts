@@ -23,6 +23,7 @@ const Timestamp = Component.Builder((component, time?: number | string | Date): 
 
 	return component
 		.style('timestamp')
+		.setTooltip(tooltip => tooltip.text.set(state.value.toLocaleString(navigator.language, { dateStyle: 'long', timeStyle: 'short' })))
 		.extend<TimestampExtensions>(component => ({
 			time: state,
 			setTranslation (newTranslation) {
