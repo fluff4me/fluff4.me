@@ -73,7 +73,7 @@ namespace Settings {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return JSON.parse(settings)
 		})
-		.observe(Session.Auth.author)
+		.observe(Session.Auth.account)
 
 	export function boolean (def: Omit<SettingBooleanDefinition, 'type'>) {
 		return { ...def, type: 'boolean' } as SettingBooleanDefinition & SettingValue<boolean>
