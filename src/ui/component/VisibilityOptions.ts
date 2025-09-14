@@ -24,7 +24,7 @@ function VisibilityOptions (table: LabelledTable, state: State<VisibilityDataHos
 		.style('visibility-options-option')
 		.text.use(`shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
 
-	const campaign = Session.Auth.author.map(table, author => author?.patreon_campaign)
+	const campaign = Session.Auth.account.map(table, author => author?.patreon_campaign)
 	const visibility = RadioRow()
 		.add('Public', VisibilityRadioInitialiser)
 		.add('Patreon', (radio, id) => radio

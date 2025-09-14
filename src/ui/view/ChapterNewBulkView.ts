@@ -660,7 +660,7 @@ export default ViewDefinition({
 									.append(body.visibility !== 'Patreon' || !body.tier_ids?.length ? undefined
 										: Component()
 											.style('view-type-chapter-bulk-create-chapter-summary-patreon', 'patreon-icon-before')
-											.text.use(Patreon.translateTiers(body.tier_ids, Session.Auth.author?.value?.patreon_campaign?.tiers ?? []))
+											.text.use(Patreon.translateTiers(body.tier_ids, Session.Auth.account?.value?.patreon_campaign?.tiers ?? []))
 									)
 									.append(body.visibility !== 'Private' ? undefined
 										: Placeholder()

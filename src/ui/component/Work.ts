@@ -324,7 +324,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 		.appendTo(block.content)
 
 	if (work.synopsis)
-		License(author?.name, work.license ?? (author?.vanity === Session.Auth.author.value?.vanity ? Session.Auth.author.value?.license : undefined))
+		License(author?.name, work.license ?? (author?.vanity === Session.Auth.account.value?.vanity ? Session.Auth.account.value?.license : undefined))
 			.style('work-license')
 			.appendTo(block.content)
 

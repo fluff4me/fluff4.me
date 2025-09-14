@@ -1,9 +1,10 @@
-import type { Author, AuthorSelf, Privilege } from 'api.fluff4.me'
+import type { Author, AuthorMetadata, AuthorSelf, Privilege } from 'api.fluff4.me'
 import { type Authorisation, type AuthService, type Session } from 'api.fluff4.me'
 import EndpointAuthRemove from 'endpoint/auth/EndpointAuthDelete'
 import EndpointSessionGet from 'endpoint/session/EndpointSessionGet'
 import EndpointSessionReset from 'endpoint/session/EndpointSessionReset'
 import type Component from 'ui/Component'
+import Objects from 'utility/Objects'
 import Popup from 'utility/Popup'
 import State from 'utility/State'
 import type { ILocalStorage } from 'utility/Store'
@@ -98,12 +99,31 @@ namespace Session {
 		})
 		export const loggedIn = state.mapManual(state => state === 'logged-in')
 		export const authorisations = Session.state.mapManual(session => session?.author?.authorisations ?? session?.authorisations ?? [], false)
-		export const author = Session.state.mapManual(session => session?.author, false)
+		export const account = Session.state.mapManual(session => session?.author, false)
+		export const author = account.mapManual((account): AuthorMetadata | undefined => !account ? undefined
+			: Objects.strip(
+				{ ...account },
+				'roles',
+				'settings',
+				'description',
+				'license',
+				'authorisations',
+				'patreon_campaign',
+				'patreon_patron',
+				'works',
+				'settings',
+				'roles',
+				'totp_state',
+				'auth_services_required',
+				'age',
+			) satisfies AuthorMetadata & { [KEY in keyof AuthorSelf as KEY extends keyof AuthorMetadata ? never : KEY]?: never },
+			Objects.deepEquals,
+		)
 		export const partialLogin = Session.state.mapManual(session => session?.partial_login)
 
 		export function get (service: string) {
 			return _
-				?? Session.Auth.author.value?.authorisations?.find(auth => auth.service === service)
+				?? Session.Auth.account.value?.authorisations?.find(auth => auth.service === service)
 				?? Session.Auth.authorisations.value.find(auth => auth.service === service)
 		}
 
@@ -113,7 +133,7 @@ namespace Session {
 
 		export function isAuthed (service: AuthService) {
 			return false
-				|| Session.Auth.author.value?.authorisations?.some(auth => auth.service === service.name)
+				|| Session.Auth.account.value?.authorisations?.some(auth => auth.service === service.name)
 				|| Session.Auth.authorisations.value.some(auth => auth.service === service.name)
 		}
 
@@ -122,7 +142,7 @@ namespace Session {
 			get (target, p) {
 				const privilege = p as Privilege
 				return privilegeStates[privilege]
-					??= Session.Auth.author.mapManual(author =>
+					??= Session.Auth.account.mapManual(author =>
 						author?.roles?.some(role => role.privileges?.includes(privilege)) ?? false)
 			},
 		})

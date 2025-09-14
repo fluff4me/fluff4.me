@@ -25,7 +25,7 @@ export default Component.Builder((component, patreon: AuthService) => {
 	block.title.text.use('view/account/patreon/campaign/title')
 	block.description.text.use('view/account/patreon/campaign/description')
 
-	const campaign = Session.Auth.author.map(block, author => author?.patreon_campaign ?? undefined)
+	const campaign = Session.Auth.account.map(block, author => author?.patreon_campaign ?? undefined)
 	Component()
 		.style('view-type-account-patreon-campaign-oauth-row')
 		.append(

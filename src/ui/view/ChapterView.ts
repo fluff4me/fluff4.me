@@ -219,7 +219,7 @@ export default ViewDefinition({
 												.if(Session.Auth.loggedIn, slot => {
 													Button()
 														.style('view-type-chapter-block-patreon-header-button')
-														.text.bind(Session.Auth.author.map(slot, author =>
+														.text.bind(Session.Auth.account.map(slot, author =>
 															!author?.patreon_patron
 																? quilt => quilt['view/chapter/action/auth-to-patreon']()
 																: quilt => quilt['view/chapter/action/unlink-patreon'](author.patreon_patron!.display_name)))

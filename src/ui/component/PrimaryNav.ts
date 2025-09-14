@@ -96,7 +96,7 @@ export default Component.Builder(nav => {
 		)
 
 	Slot()
-		.use(Session.Auth.author, (slot, author) => author
+		.use(Session.Auth.account, (slot, author) => author
 			&& Group('top', 'sidebar/section/create')
 				.tweak(group => {
 					for (const work of author.works ?? [])

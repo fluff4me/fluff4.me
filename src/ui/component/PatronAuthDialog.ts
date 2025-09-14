@@ -23,7 +23,7 @@ namespace PatronAuthDialog {
 			confirmButtonTranslation: 'view/chapter/dialog/patron/done',
 			cancelButtonTranslation: false,
 			async tweak (dialog) {
-				const patron = Session.Auth.author.map(dialog, author => author?.patreon_patron ?? undefined)
+				const patron = Session.Auth.account.map(dialog, author => author?.patreon_patron ?? undefined)
 				const services = await OAuthServices(State('none'))
 
 				OAuthService(services.data.patreon,

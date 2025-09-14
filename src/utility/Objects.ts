@@ -269,6 +269,16 @@ namespace Objects {
 
 		return true
 	}
+
+	export function strip<T, KEYS extends (keyof T)[]> (object: T, ...keys: KEYS): { [KEY in Exclude<keyof T, KEYS[number]>]: T[KEY] }
+	export function strip<T, KEYS extends (keyof T)[]> (object: T | undefined, ...keys: KEYS): { [KEY in Exclude<keyof T, KEYS[number]>]: T[KEY] } | undefined
+	export function strip<T, KEYS extends (keyof T)[]> (object: T, ...keys: KEYS): { [KEY in Exclude<keyof T, KEYS[number]>]: T[KEY] } {
+		if (object !== undefined)
+			for (const key of keys)
+				delete object![key]
+
+		return object
+	}
 }
 
 export default Objects

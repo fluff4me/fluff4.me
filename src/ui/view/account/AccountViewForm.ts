@@ -77,7 +77,7 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 		.content((content, label) => content.append(pronounsInput.setLabel(label)))
 
 	const descriptionInput = TextEditor()
-		.default.bind(Session.Auth.author.map(component, author => author?.description.body))
+		.default.bind(Session.Auth.account.map(component, author => author?.description.body))
 		.hint.use('view/account/description/hint')
 		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.author?.description))
 	table.label(label => label.text.use('view/account/description/label'))
@@ -109,14 +109,14 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 	block.useGradient(cardGradientInput.value)
 
 	const license = LicenseFormFragment(table)
-	license.dropdown.default.bind(Session.Auth.author.map(component, (author): License => {
+	license.dropdown.default.bind(Session.Auth.account.map(component, (author): License => {
 		const license = author?.license?.name as License | undefined
 		return !license ? 'all-rights-reserved'
 			: LICENSES.includes(license) ? license
 				: 'custom'
 	}))
-	license.customLinkInput.default.bind(Session.Auth.author.map(component, author => author?.license?.link))
-	license.customNameInput.default.bind(Session.Auth.author.map(component, author => author?.license?.name))
+	license.customLinkInput.default.bind(Session.Auth.account.map(component, author => author?.license?.link))
+	license.customNameInput.default.bind(Session.Auth.account.map(component, author => author?.license?.name))
 
 	let sixteenPlus!: Checkbutton
 	let eighteenPlus!: Checkbutton
@@ -133,7 +133,7 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 
 			eighteenPlus = Checkbutton()
 				.text.use('view/account/age/option/eighteen-plus')
-				.setChecked(Session.Auth.author.value?.age === 'eighteen_plus')
+				.setChecked(Session.Auth.account.value?.age === 'eighteen_plus')
 				.appendToWhen(sixteenPlus.checked, content)
 
 			sixteenPlus.checked.use(content, checked => {

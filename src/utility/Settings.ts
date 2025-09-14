@@ -66,7 +66,7 @@ namespace Settings {
 
 	const SETTINGS = State
 		.JIT(() => {
-			const settings = Session.Auth.author.value ? Session.Auth.author.value?.settings : Store.items.settings
+			const settings = Session.Auth.account.value ? Session.Auth.account.value?.settings : Store.items.settings
 			if (!settings)
 				return {}
 
@@ -127,10 +127,10 @@ namespace Settings {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 						settings[id()] = value ?? null
 
-						const author = Session.Auth.author.value
+						const author = Session.Auth.account.value
 						if (author) {
 							author.settings = JSON.stringify(settings)
-							Session.Auth.author.emit()
+							Session.Auth.account.emit()
 							void EndpointAuthorUpdateSettings.query({ body: { settings: author.settings } })
 							Session.setAuthor(author)
 						}
