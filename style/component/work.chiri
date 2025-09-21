@@ -50,6 +50,7 @@
 		%italic
 		%padding-top-3
 		%font-2
+		%clamp-3
 
 		&--flush:
 			#after: .work-description
