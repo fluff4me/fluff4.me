@@ -65,6 +65,10 @@
 		%grid
 		grid-template-columns: 1fr auto
 
+		#flush:
+			%flex
+			%flex-column
+
 	&-actions:
 		%flex
 		%flex-column
@@ -75,6 +79,10 @@
 		%align-items-centre
 		%justify-content-end
 		%unmargin-right-2
+
+		#flush:
+			%flex-row
+			%margin-right-0
 
 		:empty:
 			%hidden
@@ -96,8 +104,15 @@
 		%unmargin-bottom-2
 		%font-kanit
 
+		#flush:
+			%font-1
+			%margin-0
+
 		&--new:
 			%font-1
+
+			#flush:
+				%font-2
 
 		&-icon:
 			#after: .button-icon
@@ -108,13 +123,36 @@
 		%relative
 		%padding-right-3
 
-		@before, @after:
-			%absolute
-			%top-3
-			%bottom-0
-			%unright-3
-			%width-3
-			%border-left-1
+		#not-flush:
+			@before, @after:
+				%absolute
+				%top-3
+				%bottom-0
+				%unright-3
+				%width-3
+				%no-pointer-events
+
+			@before:
+				%border-left-1
+
+			@after:
+				%box-shadow-left-1
+
+		#flush:
+			@before, @after:
+				%absolute
+				%unbottom-1
+				%top-auto
+				%left-0
+				%right-0
+				%height-3
+				%no-pointer-events
+
+			@before:
+				%border-bottom-1
+
+			@after:
+				%box-shadow-bottom-1
 
 		@before:
 			$border-colour: $background-15
@@ -122,7 +160,6 @@
 
 		@after:
 			$border-colour: transparent
-			%box-shadow-left-1
 			$box-shadow-intensity: 40%
 
 	&-lock-reason:
