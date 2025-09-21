@@ -309,7 +309,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 						: quilt['work/bookmarks/label/new-content'](quantity)
 				}
 
-				if (!work.bookmarks.url_next)
+				if (!work.bookmarks.url_read_last)
 					return isNew
 						? quilt['work/bookmarks/label/not-tried-new']()
 						: quilt['work/bookmarks/label/not-tried']()
