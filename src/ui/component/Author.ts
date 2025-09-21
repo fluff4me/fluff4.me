@@ -183,7 +183,8 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 
 	const block = component.and(Block)
 
-	block.useGradient(author.map(block, author => author.supporter?.card_colours))
+	const cardColours = author.map(block, author => author.supporter?.card_colours)
+	block.useGradient(cardColours)
 
 	block.title
 		.style('author-name')
@@ -193,6 +194,7 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 			.and(GradientText)
 			.useGradient(author.map(block.title, author => author.supporter?.username_colours))
 		)
+		.setUnderlineColours(cardColours)
 
 	block.description.append(AuthorSubtitle(author))
 
