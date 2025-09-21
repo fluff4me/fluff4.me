@@ -302,7 +302,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 					.style('work-synopsis')
 					.style.toggle(!work.synopsis?.body && !work.description, 'placeholder')
 					.append(Slot().tweak(slot => {
-						const synopsis = work.synopsis ?? work.description
+						const synopsis = work.synopsis?.body ? work.synopsis : work.description
 						if (typeof synopsis === 'string')
 							slot.text.set(synopsis)
 						else if (!synopsis.body)
