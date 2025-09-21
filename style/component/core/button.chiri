@@ -1,5 +1,7 @@
 $$button-background!colour
 $$button-background-highlight!colour
+$$button-background-gradient-highlight!colour
+$$button-background-gradient-background!colour
 
 .button:
 	#after: .link
@@ -28,7 +30,34 @@ $$button-background-highlight!colour
 		#{transition("border")}
 	#transition: $button-transition
 
+	&--gradient:
+		#after: .button
+		$button-gradient-light-max: 0.85
+		$button-gradient-dark-min: 0.5
+		$button-gradient-opacity: .6
+		$button-background-gradient-highlight: #fff2
+		$button-background-gradient-background: #fff0
+		$button-transition:
+			#{transition($$button-background)},
+			#{transition($$button-background-highlight)},
+			#{transition($$button-background-gradient-highlight)},
+			#{transition($$button-background-gradient-background)},
+			#{transition("translate")},
+			#{transition("color")},
+			#{transition("box-shadow")},
+			#{transition("border")}
+		background:
+			radial-gradient(ellipse at left 20% top 20%, $button-background-gradient-highlight, $button-background-gradient-background),
+			linear-gradient(105deg in oklab, $button-gradient),
+			radial-gradient(ellipse at left 20% top 20%, $button-background-highlight, $button-background)
+
+		#can-hover:
+			::hover, ::focus:
+				$button-background-gradient-highlight: #fff3
+				$button-background-gradient-background: #fff1
+
 	&--webkit:
+		#after: .button, .button--gradient
 		; fix glitchy animation on webkit
 		$button-transition:
 			#{transition("translate")},
@@ -90,7 +119,7 @@ $$button-background-highlight!colour
 
 	#can-hover:
 		::hover, ::focus:
-			$button-background: $background-interact-5
+			$button-background: $background-interact-6
 			%translate-up-1
 			%box-shadow-2
 			%transition-focus
@@ -259,6 +288,7 @@ $$button-background-highlight!colour
 		"circle-dot
 		"rss
 		"magnifying-glass
+		"star
 
 	#each in icons as var icon:
 		&-icon-#{icon}:

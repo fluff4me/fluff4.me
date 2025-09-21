@@ -18,6 +18,14 @@ stat/comments/label: Total Comments
 stat/chapter-visits/label: Total Chapter Visits
 stat/visits/label: Total Visits
 
+bookmarks/label/not-tried: Unread!
+bookmarks/label/not-tried-new: New!
+bookmarks/label/finished: Finished reading
+bookmarks/label/new-content-single: {0} new chapter!
+bookmarks/label/new-content: {0} new chapters!
+bookmarks/label/caught-up: Caught up
+bookmarks/label/progress: {0}/{1} chapters read
+
 ## status
 complete: Complete
 ongoing: Ongoing
@@ -39,3 +47,11 @@ label/report=shared/action/report
 label/moderate=shared/action/moderate
 lock: Lock
 unlock: Unlock
+label/read: Read
+label/reread: Reread
+label/continue: Continue
+label/see-all: See All
+alt/read: read {0}
+alt/reread: reread {0}
+alt/continue: continue {0}
+alt/see-all: view index for {0}

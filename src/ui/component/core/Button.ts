@@ -5,7 +5,7 @@ import FontsListener from 'ui/utility/FontsListener'
 import type { ComponentNameType } from 'ui/utility/StyleManipulator'
 import type TextManipulator from 'ui/utility/TextManipulator'
 import TypeManipulator from 'ui/utility/TypeManipulator'
-import type { UnsubscribeState } from 'utility/State'
+import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Type from 'utility/Type'
 
@@ -26,6 +26,7 @@ export interface ButtonExtensions {
 	unbindDisabled (state: State<boolean>, reason: string): this
 	setIcon (icon?: ButtonIcon): this
 	bindIcon (state: State<ButtonIcon | undefined>): this
+	useGradient (gradient?: StateOr<readonly number[] | null | undefined>): this
 }
 
 interface Button extends Component, ButtonExtensions { }
@@ -36,9 +37,15 @@ const Button = Component.Builder('button', (component): Button => {
 
 	const hasSubtext = State(false)
 
+	let unuseGradient: UnsubscribeState | undefined
+	const gradientStops = State<readonly number[] | null | undefined>(null, false)
+	const hasGradient = gradientStops.mapManual(stops => !!stops?.length)
+
 	let icon: ButtonIcon | undefined
-	const unuseDisabledStateMap = new WeakMap<State<boolean | string>, UnsubscribeState>()
 	let unuseIconState: UnsubscribeState | undefined
+
+	const unuseDisabledStateMap = new WeakMap<State<boolean | string>, UnsubscribeState>()
+
 	const button = component
 		.and(HandlesMouseEvents)
 		.attributes.set('type', 'button')
@@ -91,7 +98,23 @@ const Button = Component.Builder('button', (component): Button => {
 				unuseIconState = state.use(button, setIcon)
 				return button
 			},
+			useGradient (gradient) {
+				unuseGradient?.()
+				unuseGradient = gradientStops.bind(button, State.get(gradient))
+				return button
+			},
 		}))
+		.style.bind(hasGradient, 'button--gradient')
+		.style.bindVariable('button-gradient', gradientStops.map(component, stops => !stops?.length ? undefined
+			: `${(stops
+				.map(colour => `#${colour.toString(16).padStart(6, '0')}`)
+				.map(colour => `light-dark(
+					oklch(from ${colour} max(var(--button-gradient-light-max), L) C H / var(--button-gradient-opacity)),
+					oklch(from ${colour} min(var(--button-gradient-dark-min), L) C H / var(--button-gradient-opacity))
+				)`)
+				.join(', ')
+			)}`)
+		)
 		.extendJIT('textWrapper', button => Component()
 			.style('button-text')
 			.appendTo(button))

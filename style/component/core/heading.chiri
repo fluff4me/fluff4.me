@@ -20,12 +20,13 @@
 .heading:
 	#after: .button
 
+	$heading-padding-bottom: $space-1
 	%font-kanit
 	; #outline colour=$background-2
 
 	&-text:
 		%block
-		%padding-bottom-1
+		padding-bottom: ${heading-padding-bottom: 0px}
 		font-size: calc(${font-size-min: 1em} + ${font-size-multiplier: 1} * (${font-size-max: 1em} - ${font-size-min: 1em}))
 		line-height: 1.2em
 
@@ -37,14 +38,19 @@
 		height: 0.1em
 		clip-path: polygon(#{slant}em 0%, 100% 0%, calc(100% - #{slant}em) 100%, 0% 100%)
 
+	$heading-colour-light-max: 0.6
+	$heading-colour-light-min: 0.5
+	$heading-colour-dark-max: 0.7
+	$heading-colour-dark-min: 0.6
+
 	@before:
 		width: calc(2em - 0.05em)
-		background-colour: $colour-pink
+		background-colour: ${heading-colour-1: $colour-pink}
 
 	@after:
 		left: calc(2em)
 		width: 1em
-		background-colour: $colour-blue
+		background-colour: ${heading-colour-2: $colour-blue}
 
 	#for var i = 1, i <= 6, set i++:
 		&-#{i}:

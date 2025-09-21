@@ -4,7 +4,7 @@ import type { ComponentName } from 'ui/utility/StyleManipulator'
 import TextManipulator from 'ui/utility/TextManipulator'
 import Define from 'utility/Define'
 import Maths from 'utility/maths/Maths'
-import type { StateOr } from 'utility/State'
+import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 
 interface ComponentHeadingExtensions {
@@ -46,6 +46,7 @@ interface HeadingExtensions {
 	setAestheticStyle (style?: HeadingStylePrefix | false): this
 	setResizeRange (idealLength?: number, maxLength?: StateOr<number | undefined>): this
 	clearResizeRange (): this
+	setUnderlineColours (colours: StateOr<readonly number[] | null | undefined>): this
 }
 
 interface Heading extends Component, HeadingExtensions { }
@@ -86,6 +87,23 @@ const Heading = Component.Builder('h1', (component): Heading => {
 	component.receiveAncestorInsertEvents()
 	component.event.subscribe(['insert', 'ancestorInsert'], updateHeadingLevel)
 	component.rooted.subscribeManual(updateHeadingLevel)
+
+	let unuseGradient: UnsubscribeState | undefined
+	const gradientStops = State<readonly number[] | null | undefined>(null, false)
+
+	const getGradientStop = (stops: readonly number[] | null | undefined, index: number): string | undefined => {
+		const stop = stops?.at(index)
+		if (typeof stop !== 'number')
+			return undefined
+
+		const colour = `#${stop.toString(16).padStart(6, '0')}`
+		return `light-dark(
+			oklch(from ${colour} max(var(--heading-colour-light-min), min(var(--heading-colour-light-max), L)) C H),
+			oklch(from ${colour} max(var(--heading-colour-dark-min), min(var(--heading-colour-dark-max), L)) C H)
+		)`
+	}
+	component.style.bindVariable('heading-colour-1', gradientStops.map(component, stops => getGradientStop(stops, 0)))
+	component.style.bindVariable('heading-colour-2', gradientStops.map(component, stops => getGradientStop(stops, -1)))
 
 	return component.extend<HeadingExtensions>(heading => ({
 		textWrapper,
@@ -133,6 +151,11 @@ const Heading = Component.Builder('h1', (component): Heading => {
 		},
 		clearResizeRange () {
 			resizeRange.value = undefined
+			return heading
+		},
+		setUnderlineColours (gradient) {
+			unuseGradient?.()
+			unuseGradient = gradientStops.bind(heading, State.get(gradient))
 			return heading
 		},
 	}))

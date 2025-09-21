@@ -174,8 +174,8 @@
 		%absolute
 		%inset-0
 		%z-index-bg
-		background: linear-gradient(105deg in oklch, $block-gradient)
-		opacity: .15
+		background: linear-gradient(105deg in oklab, $block-gradient)
+		opacity: .3
 		%border-radius-2
 
 		&--flush:

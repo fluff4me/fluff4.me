@@ -8,6 +8,7 @@ import FormInputLengths from 'model/FormInputLengths'
 import Patreon from 'model/Patreon'
 import Session from 'model/Session'
 import Works, { WORK_STATUS_ICONS } from 'model/Works'
+import type { RoutePath } from 'navigation/RoutePath'
 import Component from 'ui/Component'
 import AuthorLink from 'ui/component/AuthorLink'
 import ActionRow from 'ui/component/core/ActionRow'
@@ -15,7 +16,9 @@ import Block, { BlockClasses } from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import ButtonRow from 'ui/component/core/ButtonRow'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
+import Heading from 'ui/component/core/Heading'
 import Icon from 'ui/component/core/Icon'
+import Link from 'ui/component/core/Link'
 import Popover from 'ui/component/core/Popover'
 import RSSButton from 'ui/component/core/RSSButton'
 import Slot from 'ui/component/core/Slot'
@@ -32,6 +35,7 @@ import type { TagsState } from 'ui/component/TagsEditor'
 import type { Quilt } from 'ui/utility/StringApplicator'
 import Env from 'utility/Env'
 import State from 'utility/State'
+import Time from 'utility/Time'
 
 const WORK_REPORT = ReportDefinition<ReportWorkBody>({
 	titleTranslation: 'shared/term/work',
@@ -127,14 +131,20 @@ interface WorkFooterExtensions {
 export interface WorkFooter extends ActionRow, WorkFooterExtensions { }
 
 export const WorkFooter = Component.Builder((component, work: WorkMetadata & Partial<WorkData>): WorkFooter => {
-	const footer = component.and(ActionRow)
+	const footer = component.and(ActionRow).style('work-footer')
 
 	footer.left.style('work-footer-left')
+
+	let noRecentUpdates: 'no-recent-updates' | undefined
+	if (work.status === 'Ongoing' && Date.now() - new Date(work.time_last_update ?? 0).getTime() > Time.months(3)) {
+		noRecentUpdates = 'no-recent-updates'
+		work.status = 'Hiatus'
+	}
 
 	const statusLowercase = work.status.toLowerCase() as Lowercase<WorkData['status']>
 	const status = Component()
 		.style('button', 'work-status', `work-status--${statusLowercase}`)
-		.append(Component().text.use(`work/status/${statusLowercase}`))
+		.append(Component().text.use(`work/status/${noRecentUpdates ?? statusLowercase}`))
 		.appendTo(footer.left)
 
 	const statusIcon = Icon(WORK_STATUS_ICONS[work.status]).style('work-status-icon')
@@ -162,9 +172,21 @@ export const WorkFooter = Component.Builder((component, work: WorkMetadata & Par
 						interval = 'every-x-months', intervalSize = work.frequency.interval / 30
 			}
 
+			intervalSize = Math.round(intervalSize)
+			const greatestCommonDivisor = (a: number, b: number): number => b === 0 ? a : greatestCommonDivisor(b, a % b)
+			const divisor = greatestCommonDivisor(intervalSize, work.frequency.amount)
+			const amount = work.frequency.amount / divisor
+			intervalSize /= divisor
+			if (interval === 'every-x-days' && intervalSize === 1)
+				interval = 'daily'
+			else if (interval === 'every-x-weeks' && intervalSize === 1)
+				interval = 'weekly'
+			else if (interval === 'every-x-months' && intervalSize === 1)
+				interval = 'monthly'
+
 			textLabel.content.text.use(quilt => quilt['work/chapters/value'](
 				chapterCount,
-				work.frequency!.amount.toLocaleString(navigator.language),
+				amount.toLocaleString(navigator.language),
 				quilt[`shared/term/interval/${interval}`](intervalSize.toLocaleString(navigator.language)),
 			))
 		})
@@ -230,6 +252,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 		.style('work-name')
 		.text.set(work.name)
 		.setResizeRange(32, Math.min(FormInputLengths.value?.work?.name ?? Infinity, 128))
+		.setUnderlineColours(cardColours)
 
 	FollowingBookmark(follows => follows.followingWork(work))
 		.appendTo(block.header)
@@ -241,7 +264,87 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 			.append(AuthorLink(author)
 				.style('work-author'))
 
-	block.content.style('work-content')
+	block.content.style.toggle(!!work.bookmarks, 'work-actions-and-content')
+
+	const content = Component()
+		.style('work-content')
+		.appendTo(block.content)
+
+	const actions = Component()
+		.style('work-actions')
+		.appendTo(block.content)
+
+	const WorkActionsButton = Component.Builder((component): Button => component
+		.and(Button)
+		.style('work-actions-action')
+		.useGradient(cardColours)
+	)
+
+	////////////////////////////////////
+	//#region Bookmarks
+
+	if (work.bookmarks) {
+		const isNew = !work.bookmarks.url_read_last && Date.now() - new Date(work.time_publish ?? 0).getTime() < Time.weeks(1)
+		Heading()
+			.setAestheticStyle(false)
+			.style('work-bookmarks-status')
+			.style.toggle(!!isNew, 'work-bookmarks-status--new')
+			.text.use(quilt => {
+				if (!work.bookmarks)
+					return undefined
+
+				if (work.bookmarks.read_completed)
+					return quilt['work/bookmarks/label/finished']()
+
+				if (work.bookmarks.url_read_last !== work.bookmarks.url_read_furthest)
+					return quilt['work/bookmarks/label/progress'](
+						(work.bookmarks?.chapters_from_last ? work.chapter_count_public - work.bookmarks.chapters_from_last : 1).toLocaleString(navigator.language),
+						work.chapter_count_public.toLocaleString(navigator.language),
+					)
+
+				if (work.bookmarks.chapters_from_last) {
+					const quantity = work.bookmarks?.chapters_from_last ?? 1
+					return quantity === 1
+						? quilt['work/bookmarks/label/new-content-single'](quantity)
+						: quilt['work/bookmarks/label/new-content'](quantity)
+				}
+
+				if (!work.bookmarks.url_next)
+					return isNew
+						? quilt['work/bookmarks/label/not-tried-new']()
+						: quilt['work/bookmarks/label/not-tried']()
+
+				return quilt['work/bookmarks/label/caught-up']()
+			})
+			.prepend(isNew && Icon('star').style('work-bookmarks-status-icon'))
+			.appendTo(actions)
+
+		const link: RoutePath = !work.bookmarks.url_next && !work.bookmarks.read_completed && work.bookmarks.url_read_last
+			? `/work/${work.author}/${work.vanity}`
+			: `/work/${work.author}/${work.vanity}/chapter/${(!work.bookmarks.read_completed && work.bookmarks.url_next) || work.bookmarks.url_first}`
+		Link(link)
+			.and(WorkActionsButton)
+			.ariaLabel.use(quilt => quilt[work.bookmarks?.read_completed
+				? 'work/action/alt/reread'
+				: work.bookmarks?.url_next
+					? 'work/action/alt/continue'
+					: work.bookmarks?.url_read_last
+						? 'work/action/alt/see-all'
+						: 'work/action/alt/read'
+			](work.name))
+			.text.use(work.bookmarks.read_completed
+				? 'work/action/label/reread'
+				: work.bookmarks.url_next
+					? 'work/action/label/continue'
+					: work.bookmarks.url_read_last
+						? 'work/action/label/see-all'
+						: 'work/action/label/read'
+			)
+			.appendTo(actions)
+	}
+
+	//#endregion
+	////////////////////////////////////
 
 	if (work.visibility === 'Patreon' && work.patreon?.tiers[0]) {
 		// Component()
@@ -260,7 +363,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 				.style('work-patreon-visibility-header-tier')
 				.text.use(Patreon.translateTier(work.patreon.tiers[0]))
 			)
-			.appendTo(block.content)
+			.appendTo(content)
 	}
 
 	if (work.lock_reason)
@@ -275,7 +378,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 			)
 			.append(Component().text.use('work/locked/description'))
 			.append(Component('blockquote').style('work-lock-reason-text').text.set(work.lock_reason))
-			.appendTo(block.content)
+			.appendTo(content)
 
 	Slot()
 		.use(isFlush, (slot, isFlush) => {
@@ -287,6 +390,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 			if (shouldShowDescription)
 				Component()
 					.style('work-description')
+					.style.toggle(!work.synopsis?.body, 'work-description--solo')
 					.style.toggle(actuallyIsFlush, 'work-description--flush')
 					.style.toggle(!work.description, 'placeholder')
 					.tweak(component => {
@@ -312,7 +416,7 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 					}))
 					.appendTo(slot)
 		})
-		.appendTo(block.content)
+		.appendTo(content)
 
 	Tags()
 		.set(work as TagsState, {
@@ -321,12 +425,12 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 			initialiseCustomTags: component => component
 				.style.bind(isFlush, 'work-tags--flush'),
 		})
-		.appendTo(block.content)
+		.appendTo(content)
 
 	if (work.synopsis)
 		License(author?.name, work.license ?? (author?.vanity === Session.Auth.account.value?.vanity ? Session.Auth.account.value?.license : undefined))
 			.style('work-license')
-			.appendTo(block.content)
+			.appendTo(content)
 
 	block.footer.and(WorkFooter, work)
 
