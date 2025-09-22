@@ -25,6 +25,7 @@ export default Task('compress', async () => {
 	let html = await fs.readFile('docs/index.html', 'utf8')
 
 	html = await replace(html, /<link rel="stylesheet" href="([^"]+?)">/g, async (match, href) => {
+		const ohref = href
 		href = href.slice(Env.URL_ORIGIN?.length)
 		const file = path.join('docs', href)
 		let css = await fs.readFile(file, 'utf8')
@@ -32,7 +33,7 @@ export default Task('compress', async () => {
 		css = css.replace(/url\('\.\.\//g, `url('${Env.URL_ORIGIN}`)
 		const minified = await postnano.process(css, { map: false, from: undefined })
 		await fs.writeFile(`${file.slice(0, -4)}.${Env.BUILD_NUMBER}.min.css`, minified.css)
-		return `<link rel="stylesheet" href="${href.slice(0, -4)}.${Env.BUILD_NUMBER}.min.css">`
+		return `<link rel="stylesheet" href="${ohref.slice(0, -4)}.${Env.BUILD_NUMBER}.min.css">`
 	})
 
 	html = await replace(html, /<script src="([^"]+?)"([^>]*?)><\/script>/g, async (match, src, attributes) => {
