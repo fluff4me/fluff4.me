@@ -48,7 +48,7 @@
 			fn = reqs
 			reqs = name
 
-			const src = document.currentScript.getAttribute("src") || document.currentScript.getAttribute("data-src")
+			const src = document.currentScript.getAttribute("data-src") ?? document.currentScript.getAttribute("src")
 			if (!src)
 				throw new Error("Cannot define module without a name")
 

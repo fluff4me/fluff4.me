@@ -13,4 +13,5 @@ export default process.env as {
 	CHIRI_AST?: 'true'
 	CHIRI_INSPECT?: 'true'
 	CHIRI_INSPECT_PORT?: `${bigint}`
+	BUILD_NUMBER?: `${bigint}`
 }

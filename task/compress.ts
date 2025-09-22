@@ -31,7 +31,8 @@ export default Task('compress', async () => {
 		await fs.unlink(file)
 		css = css.replace(/url\('\.\.\//g, `url('${Env.URL_ORIGIN}`)
 		const minified = await postnano.process(css, { map: false, from: undefined })
-		return `<style>${minified.css}</style>`
+		await fs.writeFile(`${file.slice(0, -4)}.${Env.BUILD_NUMBER}.min.css`, minified.css)
+		return `<link rel="stylesheet" href="${href.slice(0, -4)}.${Env.BUILD_NUMBER}.min.css">`
 	})
 
 	html = await replace(html, /<script src="([^"]+?)"([^>]*?)><\/script>/g, async (match, src, attributes) => {
@@ -41,7 +42,9 @@ export default Task('compress', async () => {
 		const js = await fs.readFile(file, 'utf8')
 		await fs.unlink(file)
 		const minified = await terser.minify(js)
-		return `<script data-src="${osrc}"${attributes}>${minified.code}</script>`
+		if (!minified.code) throw new Error(`Terser failed to minify ${file}`)
+		await fs.writeFile(`${file.slice(0, -3)}.${Env.BUILD_NUMBER}.min.js`, minified.code)
+		return `<script data-src="${osrc}" src="${osrc.slice(0, -3)}.${Env.BUILD_NUMBER}.min.js"${attributes}></script>`
 	})
 
 	html = await replace(html, /(?=<\/head>)/, async () => {
