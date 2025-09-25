@@ -24,7 +24,6 @@ import Icon from 'ui/component/core/Icon'
 import Link from 'ui/component/core/Link'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
-import Timestamp from 'ui/component/core/Timestamp'
 import PatronAuthDialog from 'ui/component/PatronAuthDialog'
 import Reaction from 'ui/component/Reaction'
 import Statistics from 'ui/component/Statistics'
@@ -169,11 +168,7 @@ export default ViewDefinition({
 						.stat('chapter/stat/comments/label', chapter.statistics?.comment_count)
 					)
 					.section('shared/stat/section/logged-out', section => section
-						.stat('chapter/stat/visits/label', chapter.statistics?.visits ? BigInt(chapter.statistics.visits) : undefined,
-							label => label.content.append(Component()
-								.text.use(quilt => quilt['shared/stat/tracking-since'](Timestamp('19 June 2025 21:53 GMT+12')))
-							)
-						)
+						.stat('chapter/stat/visits/label', chapter.statistics?.visits ? BigInt(chapter.statistics.visits) : undefined)
 					)
 				)
 

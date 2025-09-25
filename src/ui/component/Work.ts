@@ -446,16 +446,8 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 			.stat('work/stat/comments/label', work.statistics?.comment_count)
 		)
 		.section('shared/stat/section/logged-out', section => section
-			.stat('work/stat/visits/label', work.statistics?.visits ? BigInt(work.statistics.visits) : undefined,
-				label => label.content.append(Component()
-					.text.use(quilt => quilt['shared/stat/tracking-since'](Timestamp('19 June 2025 21:53 GMT+12')))
-				)
-			)
-			.stat('work/stat/chapter-visits/label', work.statistics?.chapter_visits ? BigInt(work.statistics.chapter_visits) : undefined,
-				label => label.content.append(Component()
-					.text.use(quilt => quilt['shared/stat/tracking-since'](Timestamp('19 June 2025 21:53 GMT+12')))
-				)
-			)
+			.stat('work/stat/visits/label', work.statistics?.visits ? BigInt(work.statistics.visits) : undefined)
+			.stat('work/stat/chapter-visits/label', work.statistics?.chapter_visits ? BigInt(work.statistics.chapter_visits) : undefined)
 		)
 	)
 
