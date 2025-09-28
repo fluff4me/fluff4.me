@@ -16,12 +16,12 @@ DevServer.onMessage('updateStyle', async () => {
 	void Style.reload(`${Env.URL_ORIGIN}style/index.css`)
 	await Script.reload(`${Env.URL_ORIGIN}style/index.js`)
 	style.value = await import('style').then(module => module.default)
-	writeChiridata()
+	// writeChiridata()
 })
 
 Env.onLoad('dev', () => {
 	Object.assign(window, { writeChiridata })
-	writeChiridata()
+	// writeChiridata()
 })
 
 function writeChiridata () {
