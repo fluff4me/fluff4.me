@@ -298,12 +298,12 @@ const Work = Component.Builder((component, work: WorkMetadata & Partial<WorkData
 
 				if (work.bookmarks.url_read_last !== work.bookmarks.url_read_furthest)
 					return quilt['work/bookmarks/label/progress'](
-						(work.bookmarks?.chapters_from_last ? work.chapter_count_public - work.bookmarks.chapters_from_last : 1).toLocaleString(navigator.language),
+						(work.bookmarks?.chapters_from_last_patreon ? work.chapter_count_public - work.bookmarks.chapters_from_last_patreon : 1).toLocaleString(navigator.language),
 						work.chapter_count_public.toLocaleString(navigator.language),
 					)
 
-				if (work.bookmarks.chapters_from_last) {
-					const quantity = work.bookmarks?.chapters_from_last ?? 1
+				if (work.bookmarks.chapters_from_last_patreon) {
+					const quantity = work.bookmarks?.chapters_from_last_patreon ?? 1
 					return quantity === 1
 						? quilt['work/bookmarks/label/new-content-single'](quantity)
 						: quilt['work/bookmarks/label/new-content'](quantity)
