@@ -127,8 +127,9 @@ namespace Session {
 				?? Session.Auth.authorisations.value.find(auth => auth.service === service)
 		}
 
-		export function loggedInAs (owner: State.Owner, authorVanity: string): State.Generator<boolean> {
-			return author.map(owner, author => author?.vanity === authorVanity)
+		export function loggedInAs (owner: State.Owner, checkVanity: State.Or<string>): State.Generator<boolean> {
+			checkVanity = State.get(checkVanity)
+			return State.Map(owner, [author, checkVanity], (author, authorVanity) => author?.vanity === authorVanity)
 		}
 
 		export function isAuthed (service: AuthService) {

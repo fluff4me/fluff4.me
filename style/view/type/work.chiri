@@ -1,5 +1,42 @@
 #view type="work":
 
+	&-actions:
+		#after: .work-actions
+		%background-2-a40
+		; %box-shadow-inset-2
+		; %box-shadow-intensity-2
+		%box-shadow-1
+		%border-1
+		%border-colour-4
+		%backdrop-blur
+		%padding-3-4
+		%border-radius-2
+		%padding-top-2
+		%margin-0
+		; %flex
+		; %flex-row
+		; %flex-wrap
+		%justify-content-start
+		%align-items-start
+		%gap-3
+
+		@before, @after:
+			%hidden
+			%padding-inline-0
+
+	&-bookmark-status:
+		#after: .work-bookmarks-status
+		%font-3
+		%margin-top-1
+	&-bookmark-action:
+		#after: .work-actions-action
+		%font-3
+		%padding-2-3
+
+		&--irrelevant:
+			#after: .view-type-work-bookmark-action
+			%hidden
+
 	&-chapter:
 
 		&-list:

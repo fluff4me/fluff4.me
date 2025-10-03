@@ -13,7 +13,7 @@ interface TagsDefinition {
 }
 
 interface TagsExtensions {
-	set (state: TagsState, definition?: TagsDefinition): this
+	set (state: State.Or<TagsState>, definition?: TagsDefinition): this
 }
 
 interface Tags extends Component, TagsExtensions {
@@ -43,7 +43,10 @@ const Tags = Component.Builder((component): Tags => {
 
 	return component.extend<TagsExtensions>(tags => ({
 		set (newState, newDefinition) {
-			state.value = newState
+			if (State.is(newState))
+				state.bind(tags, newState)
+			else
+				state.value = newState
 			definition = newDefinition
 			return tags
 		},

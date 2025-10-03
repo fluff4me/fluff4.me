@@ -6,6 +6,7 @@ import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
+import Works from 'model/Works'
 import Component from 'ui/Component'
 import Chapter from 'ui/component/Chapter'
 import Block from 'ui/component/core/Block'
@@ -38,10 +39,19 @@ export default ViewDefinition({
 		if (!authorData)
 			throw Errors.BadData('Work author not in synopsis authors')
 
-		Work(workData, authorData)
+		const work = Work(workData, authorData)
 			.viewTransition('work-view-work')
 			.setContainsHeading()
 			.appendTo(view.content)
+
+		work.actions.style('view-type-work-actions').appendTo(view.content)
+		work.bookmarkStatus.use(view, status => status?.style('view-type-work-bookmark-status'))
+		work.bookmarkAction.use(view, action => action
+			?.style('view-type-work-bookmark-action')
+			.style.toggle(!!workData.bookmarks?.url_read_last && !workData.bookmarks.url_next, 'view-type-work-bookmark-action--irrelevant')
+		)
+
+		// TODO add custom bookmark action for being caught up or finished, leaving a recommendation
 
 		const movingChapter = State<ChapterMetadata | undefined>(undefined)
 

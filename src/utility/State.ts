@@ -282,6 +282,8 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 
 namespace State {
 
+	export type Or<T> = T | State<T>
+
 	export type Owner =
 		| ({ removed: State<boolean>, remove (): void } & Partial<Component>)
 		| ComponentInsertionTransaction

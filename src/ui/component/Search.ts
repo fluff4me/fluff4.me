@@ -179,13 +179,13 @@ export default Component.Builder(component => {
 								.tweak(details => {
 									details.left.style('search-popover-result-details-left')
 									details.right.style('search-popover-result-details-right')
-									details.status.style('search-popover-result-work-status')
-									details.statusIcon.style('search-popover-result-work-status-icon')
+									details.status.use(details, status => status.style('search-popover-result-work-status'))
+									details.statusIcon.use(details, c => c.style('search-popover-result-work-status-icon'))
 									details.chapterCount.style('search-popover-result-work-chapter-count')
 									details.wordCount?.style('search-popover-result-work-word-count')
-									details.timestamp?.style('search-popover-result-work-timestamp')
-									const timestampComponent = details.timestamp ?? details.timestampAlternative
-									timestampComponent?.appendTo(result.subtitle)
+									details.timestamp.use(details, c => c?.style('search-popover-result-work-timestamp'))
+									State.Map(details, [details.timestamp, details.timestampAlternative], (timestamp, timestampAlternative) => timestamp ?? timestampAlternative)
+										.use(details, timestamp => timestamp?.appendTo(result.subtitle))
 								})
 							)
 							.appendTo(slot)

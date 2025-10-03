@@ -70,15 +70,56 @@
 			%flex-column
 
 	&-actions:
+		#after: .slot
 		%flex
 		%flex-column
 		%gap-2
-		%padding-left-3
-		%margin-left-2
+		padding-left: calc($space-3 + $space-2)
+		%margin-left-3
 		%padding-top-3
 		%align-items-centre
 		%justify-content-end
 		%unmargin-right-2
+		%relative
+
+		#not-flush:
+			@before, @after:
+				%absolute
+				%top-3
+				%bottom-0
+				%unleft-3
+				%width-3
+				%no-pointer-events
+
+			@before:
+				%border-right-1
+
+			@after:
+				%box-shadow-right-1
+
+		#flush:
+			@before, @after:
+				%absolute
+				%unbottom-1
+				%top-auto
+				%inset-inline-0
+				%height-3
+				%no-pointer-events
+
+			@before:
+				%border-bottom-1
+
+			@after:
+				%box-shadow-bottom-1
+
+		@before:
+			$border-colour: $background-15
+			%opacity-10
+			margin-left: -1px
+
+		@after:
+			$border-colour: transparent
+			$box-shadow-intensity: 40%
 
 		#flush:
 			%flex-row
@@ -121,46 +162,6 @@
 	&-content:
 		%block
 		%relative
-		%padding-right-3
-
-		#not-flush:
-			@before, @after:
-				%absolute
-				%top-3
-				%bottom-0
-				%unright-3
-				%width-3
-				%no-pointer-events
-
-			@before:
-				%border-left-1
-
-			@after:
-				%box-shadow-left-1
-
-		#flush:
-			@before, @after:
-				%absolute
-				%unbottom-1
-				%top-auto
-				%left-0
-				%right-0
-				%height-3
-				%no-pointer-events
-
-			@before:
-				%border-bottom-1
-
-			@after:
-				%box-shadow-bottom-1
-
-		@before:
-			$border-colour: $background-15
-			%opacity-10
-
-		@after:
-			$border-colour: transparent
-			$box-shadow-intensity: 40%
 
 	&-lock-reason:
 		%block
