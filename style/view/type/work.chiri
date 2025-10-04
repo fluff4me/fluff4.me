@@ -137,3 +137,23 @@
 
 		&--has-moving-sibling:
 			%pointer-events-none
+
+	&-chapter-marker:
+		%span-3
+		%grid
+		%columns-subgrid
+		%gap-3
+		%margin-top-1
+		%italic
+		%uppercase
+		%font-1
+		%border-bottom-1
+		colour: $marker-colour
+		background: linear-gradient(to bottom, transparent, color-mix(in lch, $marker-colour, transparent 85%))
+
+		@before:
+
+		&--next:
+			$marker-colour: $colour-blue
+		&--next-furthest:
+			$marker-colour: $colour-pink

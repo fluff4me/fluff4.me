@@ -106,6 +106,7 @@ export default ViewDefinition({
 		Link(`/work/${author?.vanity}/${workData.vanity}`)
 			.and(Work, workData, author)
 			.tweak(work => work.statistics.remove())
+			.tweak(work => work.actions.remove())
 			.viewTransition('chapter-view-work')
 			.style('view-type-chapter-work')
 			.setContainsHeading()

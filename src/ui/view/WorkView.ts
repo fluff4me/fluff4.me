@@ -2,14 +2,18 @@ import type { ChapterMetadata } from 'api.fluff4.me'
 import EndpointChapterGetAll from 'endpoint/chapter/EndpointChapterGetAll'
 import EndpointChapterReorder from 'endpoint/chapter/EndpointChapterReorder'
 import EndpointHistoryAddWork from 'endpoint/history/EndpointHistoryAddWork'
+import EndpointHistoryBookmarksDeleteFurthestRead from 'endpoint/history/EndpointHistoryBookmarksDeleteFurthestRead'
+import EndpointHistoryBookmarksDeleteLastRead from 'endpoint/history/EndpointHistoryBookmarksDeleteLastRead'
 import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
+import Works from 'model/Works'
 import Component from 'ui/Component'
 import Chapter from 'ui/component/Chapter'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Paginator from 'ui/component/core/Paginator'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
@@ -28,13 +32,15 @@ export default ViewDefinition({
 		const work = response.data
 		return { work }
 	},
-	create (params: WorkParams, { work: workData }) {
+	create (params: WorkParams, { work: workDataIn }) {
 		const view = View('work')
+
+		const workData = State(workDataIn)
 
 		if (Session.Auth.loggedIn.value)
 			void EndpointHistoryAddWork.query({ params })
 
-		const authorData = workData.synopsis.mentions.find(author => author.vanity === workData.author)!
+		const authorData = workData.value.synopsis.mentions.find(author => author.vanity === workData.value.author)!
 		if (!authorData)
 			throw Errors.BadData('Work author not in synopsis authors')
 
@@ -43,11 +49,14 @@ export default ViewDefinition({
 			.setContainsHeading()
 			.appendTo(view.content)
 
-		work.actions.style('view-type-work-actions').appendTo(view.content)
+		work.actions
+			.viewTransition('work-view-work-actions')
+			.style('view-type-work-actions')
+			.appendTo(view.content)
 		work.bookmarkStatus.use(view, status => status?.style('view-type-work-bookmark-status'))
 		work.bookmarkAction.use(view, action => action
 			?.style('view-type-work-bookmark-action')
-			.style.toggle(!!workData.bookmarks?.url_read_last && !workData.bookmarks.url_next, 'view-type-work-bookmark-action--irrelevant')
+			.style.bind(workData.map(view, work => !!work.bookmarks?.url_read_last && !work.bookmarks.url_next), 'view-type-work-bookmark-action--irrelevant')
 		)
 
 		// TODO add custom bookmark action for being caught up or finished, leaving a recommendation
@@ -66,7 +75,7 @@ export default ViewDefinition({
 							if (!movingChapterData)
 								return
 
-							Chapter(movingChapterData, workData, authorData)
+							Chapter(movingChapterData, workData.value, authorData)
 								.style('view-type-work-chapter-list-chapter-moving')
 								.append(ReorderingIcon())
 								.tweakActions(actions => actions
@@ -88,11 +97,11 @@ export default ViewDefinition({
 				.set(
 					PagedListData.fromEndpoint(25, EndpointChapterGetAll.prep({
 						params: {
-							author: workData.author,
-							vanity: workData.vanity,
+							author: workData.value.author,
+							vanity: workData.value.vanity,
 						},
 					})),
-					0,
+					Math.floor((workData.value.bookmarks?.url_next_page ?? 0) / 25),
 					(slot, chapters) => {
 						slot.style('chapter-list')
 							.style.bind(movingChapter.truthy, 'view-type-work-chapter-list--moving-chapter')
@@ -104,7 +113,45 @@ export default ViewDefinition({
 
 						for (const chapterData of chapters) {
 							const isMoving = movingChapter.map(slot, movingChapter => movingChapter === chapterData)
-							Chapter(chapterData, workData, authorData)
+
+							const Marker = Component.Builder((component, EndpointDelete: typeof EndpointHistoryBookmarksDeleteLastRead | typeof EndpointHistoryBookmarksDeleteFurthestRead) => {
+								return component
+									.style('view-type-work-chapter-marker')
+									.and(CanHasActionsMenu)
+									.setActionsMenu(popover => popover
+										.appendAction('clear', slot => Button()
+											.type('flush')
+											.setIcon('trash')
+											.text.use('view/work/chapters/marker/action/remove')
+											.event.subscribe('click', async () => {
+												const response = await EndpointDelete.query({ params: Works.reference(workData.value) })
+												if (toast.handleError(response))
+													return
+
+												workData.value.bookmarks = response.data
+												workData.emit()
+												chaptersListState.emit()
+											})
+										)
+									)
+							})
+
+							const nextUrl = workData.value.bookmarks?.url_next
+							const nextFurthestUrl = workData.value.bookmarks?.url_next_furthest
+							const nextIsFurthest = nextUrl === nextFurthestUrl
+							if (chapterData.url === nextUrl)
+								Marker(EndpointHistoryBookmarksDeleteLastRead)
+									.style(nextIsFurthest ? 'view-type-work-chapter-marker--next-furthest' : 'view-type-work-chapter-marker--next')
+									.text.use('view/work/chapters/marker/next-chapter/next')
+									.appendTo(slot)
+
+							if (chapterData.url === nextFurthestUrl && nextUrl !== nextFurthestUrl)
+								Marker(EndpointHistoryBookmarksDeleteFurthestRead)
+									.style('view-type-work-chapter-marker--next-furthest')
+									.text.use('view/work/chapters/marker/next-chapter/furthest')
+									.appendTo(slot)
+
+							Chapter(chapterData, workData.value, authorData)
 								.style('view-type-work-chapter')
 								.style.bind(isMoving, 'view-type-work-chapter--moving')
 								.style.bind(movingChapter.truthy, 'view-type-work-chapter--has-moving-sibling')
@@ -182,11 +229,11 @@ export default ViewDefinition({
 					.appendTo(slot))
 				.setActionsMenu(popover => popover
 					.append(Slot()
-						.if(Session.Auth.author.map(popover, author => author?.vanity === workData.author), () => Button()
+						.if(Session.Auth.author.map(popover, author => author?.vanity === workData.value.author), () => Button()
 							.setIcon('plus')
 							.type('flush')
 							.text.use('view/work/chapters/action/label/new')
-							.event.subscribe('click', () => navigate.toURL(`/work/${workData.author}/${workData.vanity}/chapter/new`))))
+							.event.subscribe('click', () => navigate.toURL(`/work/${workData.value.author}/${workData.value.vanity}/chapter/new`))))
 				)
 			)
 			.appendTo(view.content)
