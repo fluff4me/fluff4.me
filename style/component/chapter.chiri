@@ -35,6 +35,7 @@
 		colour: ${chapter-secondary-colour: $colour-7}
 		%width-fit
 		%justify-self-end
+		%nowrap
 
 	&-name:
 		%relative
