@@ -73,8 +73,14 @@
 		%margin-right-2
 
 	&-label:
-	&-timestamp:
-		%nowrap
+		&-text:
+			%contents
+
+			& p:
+				%inline
+
+		&-timestamp:
+			%nowrap
 
 	&-comment:
 		%block

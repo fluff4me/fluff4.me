@@ -102,9 +102,9 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 			.style('notification-label')
 			.append(
 				data.type.startsWith('report-') && Icon('shield-halved').style('notification-type-icon'),
-				Component().text.use(quilt => translationFunction({ TRIGGERED_BY, AUTHOR, WORK, CHAPTER, COMMENT })),
+				Component().style('notification-label-text').useMarkdownContent({ body: quilt => translationFunction({ TRIGGERED_BY, AUTHOR, WORK, CHAPTER, COMMENT }) }),
 				document.createTextNode('   '),
-				Timestamp(data.created_time).style('notification-timestamp'),
+				Timestamp(data.created_time).style('notification-label-timestamp'),
 			)
 			.appendTo(notification)
 

@@ -92,7 +92,10 @@ namespace Notifications {
 			Store.items.notifications = { ...Store.items.notifications, lastCheck: 0, lastUpdate: 0 }
 	}
 
-	export function check () {
+	export function check (resetCache = false) {
+		if (resetCache)
+			clear()
+
 		if (Store.items.notifications)
 			Store.items.notifications = { ...Store.items.notifications, lastCheck: 0 }
 
