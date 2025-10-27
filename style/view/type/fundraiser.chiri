@@ -10,6 +10,10 @@
 			%row-1-2
 			%column-2
 
+	&-progress-bar-wrapper:
+		%flex
+		%gap-1
+
 	&-progress-bar:
 		%relative
 		%flex
@@ -18,6 +22,8 @@
 		height: calc($space-3 + $space-2)
 		%align-items-centre
 		%padding-inline-2
+		%width-100
+		%font-1
 
 		&-background, &-progress:
 			%absolute
@@ -34,9 +40,13 @@
 			%width-100
 
 		&-progress:
-			%background-pink
+			background: ${fundraiser-progress-background: $colour-pink}
 			width: calc(100% * $fundraiser-progress)
 
 		&-amount:
 			%width-fit
 			%font-kanit
+
+	&-progress-bar--total:
+		$fundraiser-progress-background: $colour-blue-2
+		%width-7

@@ -1,5 +1,6 @@
 # fundraiser
-amount: ${0} US
+amount-total: ${0} US
+amount-monthly: ${0} US/mo
 title: Help fund fluff4.me year 1!
 description:
 	We've been treating fluff4.me as a fulltime job for over a year — probably not the safest of ideas, but we did it anyway. We'd like to be able to commit to working on mostly fluff longterm, but in order to do that, we need funding; the *community's* funding, not VC funding.

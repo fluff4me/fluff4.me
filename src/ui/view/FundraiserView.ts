@@ -18,7 +18,12 @@ export default ViewDefinition({
 					if (!fundraiser)
 						return
 
-					return FundraiserBar(fundraiser)
+					return Component()
+						.style('view-type-fundraiser-progress-bar-wrapper')
+						.append(FundraiserBar(fundraiser.monthly_income, 100000, 'monthly'))
+						.append(FundraiserBar(fundraiser.funds_raised, fundraiser.thresholds[0], 'total')
+							.style('view-type-fundraiser-progress-bar--total')
+						)
 				}))
 				.append(Component().useMarkdownContent('fundraiser/description'))
 			)

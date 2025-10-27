@@ -1,10 +1,10 @@
 import SiteStatus from 'model/SiteStatus'
+import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
 import Slot from 'ui/component/core/Slot'
 import FundraiserBar from 'ui/component/FundraiserBar'
 import PageListener from 'ui/utility/PageListener'
-import Env from 'utility/Env'
 import State from 'utility/State'
 import Store from 'utility/Store'
 import Time from 'utility/Time'
@@ -33,8 +33,8 @@ namespace SiteStatusListener {
 			if (!shown)
 				return
 
-			if (Env.isDev)
-				return
+			// if (Env.isDev)
+			// 	return
 
 			await SiteStatus.getManifest()
 			await banner.queue(banner => {
@@ -49,7 +49,12 @@ namespace SiteStatusListener {
 						.event.subscribe('Navigate', () => { banner.dismiss() })
 						.appendTo(slot)
 
-					FundraiserBar(fundraiser)
+					Component()
+						.style('view-type-fundraiser-progress-bar-wrapper')
+						.append(FundraiserBar(fundraiser.monthly_income, 100000, 'monthly'))
+						.append(FundraiserBar(fundraiser.funds_raised, fundraiser.thresholds[0], 'total')
+							.style('view-type-fundraiser-progress-bar--total')
+						)
 						.appendTo(slot)
 				})
 
