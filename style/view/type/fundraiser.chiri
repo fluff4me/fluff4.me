@@ -24,6 +24,8 @@
 		%padding-inline-2
 		%width-100
 		%font-1
+		#flush:
+			%font-0
 
 		&-background, &-progress:
 			%absolute
