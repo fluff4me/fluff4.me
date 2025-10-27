@@ -1,5 +1,5 @@
 # search
-title: Advanced Search
+title=shared/term/advanced-search
 input/text/label: Text
 input/whitelist_tags/label: Tag Whitelist
 input/whitelist_tags/hint: Anything that does not have every tag in this list is excluded.
