@@ -1,5 +1,6 @@
 import type { SearchResponse } from 'api.fluff4.me'
 import EndpointSearchGet from 'endpoint/search/EndpointSearchGet'
+import Session from 'model/Session'
 import Tags from 'model/Tags'
 import type { RoutePath, RoutePathWithSearch } from 'navigation/RoutePath'
 import Component from 'ui/Component'
@@ -162,7 +163,7 @@ export default Component.Builder(component => {
 					.and(Button)
 					.style('search-popover-advanced-link')
 					.text.use('search/action/advanced')
-					.appendTo(section.title)
+					.appendToWhen(Session.Auth.loggedIn, section.title)
 				)
 				.handle((slot, searchResults) => {
 					if (!searchResults?.works.length)
