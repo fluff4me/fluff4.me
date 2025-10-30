@@ -78,3 +78,15 @@
 		@before, @after:
 			$bookmark-colour-1: $colour-0
 			$bookmark-colour-2: $colour-1
+
+	&-footer:
+		&--hidden:
+			#after: .action-row
+			%hidden
+
+		&-button:
+			%colour-0
+			$button-background: $colour-pink-2
+			#can-hover:
+				::hover:
+					$button-background: $colour-pink-0

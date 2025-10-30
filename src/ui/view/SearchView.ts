@@ -23,6 +23,18 @@ import Strings from 'utility/string/Strings'
 
 const REDIRECT_HOME: Errors.Redirection = Errors.redirection('/')
 
+export function createSearchParams (params: FeedSearch & PaginationSearch) {
+	return Object.entries(params)
+		.filter(([key, value]) => true
+			&& value !== undefined && value !== null
+			&& value !== ''
+			&& (!Array.isArray(value) || value.length > 0)
+			&& (key !== 'page' || +value > 0)
+		)
+		.map(([key, value]) => [key, typeof value === 'string' ? value : JSON.stringify(value)] as const)
+		.collect(entries => new URLSearchParams(entries.toObject()).toString())
+}
+
 export default ViewDefinition({
 	// eslint-disable-next-line @typescript-eslint/require-await
 	async load () {
@@ -112,16 +124,7 @@ export default ViewDefinition({
 					maximum_word_count: !isNaN(+maximumWordCount.value) && +maximumWordCount.value > 99 && +maximumWordCount.value >= (+minimumWordCount.value || 0) ? +maximumWordCount.value : undefined,
 					page: (usePageParam && +params.page!) || 0,
 				}
-				const newSearch = `${(Object.entries(searchInput.value)
-					.filter(([key, value]) => true
-						&& value !== undefined && value !== null
-						&& value !== ''
-						&& (!Array.isArray(value) || value.length > 0)
-						&& (key !== 'page' || +value > 0)
-					)
-					.map(([key, value]) => [key, typeof value === 'string' ? value : JSON.stringify(value)] as const)
-					.collect(entries => new URLSearchParams(entries.toObject()).toString())
-				)}`
+				const newSearch = createSearchParams(searchInput.value)
 				if (newSearch !== searchString) {
 					searchString = newSearch
 					searchStringState.setValueSilent(newSearch)

@@ -6,11 +6,13 @@ import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import Heading from 'ui/component/core/Heading'
+import Link from 'ui/component/core/Link'
 import Popover from 'ui/component/core/Popover'
 import Slot from 'ui/component/core/Slot'
 import FollowingBookmark from 'ui/component/FollowingBookmark'
 import type { TagData } from 'ui/component/Tag'
 import Tag from 'ui/component/Tag'
+import { createSearchParams } from 'ui/view/SearchView'
 import AbortPromise from 'utility/AbortPromise'
 import State from 'utility/State'
 
@@ -149,6 +151,15 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 				.text.use('tag/label/relationships-from'))
 			.append(...await getTagList(relationships))
 	))
+
+	block.footer
+		.style('tag-block-footer')
+		.append(
+			Link(`/search?${createSearchParams({ whitelist_tags: [id] })}`)
+				.and(Button)
+				.style('tag-block-footer-button')
+				.text.use('tag/action/label/search'))
+		.appendToWhen(Session.Auth.loggedIn, block)
 
 	return block
 })

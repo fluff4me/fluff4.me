@@ -6,3 +6,4 @@ action/label/follow=shared/action/follow
 action/label/unfollow=shared/action/unfollow
 action/label/ignore=shared/action/ignore
 action/label/unignore=shared/action/unignore
+action/label/search=shared/term/advanced-search
