@@ -28,9 +28,12 @@
 	%font-1
 	#transition: #{transition("opacity")}, #{transition("translate")}
 
+	#flush:
+		%padding-1-2
+
 	&-body:
 		%flex
-		%width-content
+		width: min(#{content-width}, 100%)
 
 	&--dismissed:
 		%opacity-0

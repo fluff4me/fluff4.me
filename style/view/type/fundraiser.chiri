@@ -10,6 +10,9 @@
 			%row-1-2
 			%column-2
 
+			#flush:
+				%padding-inline-0
+
 	&-progress-bar-wrapper:
 		%flex
 		%gap-1
@@ -24,8 +27,10 @@
 		%padding-inline-2
 		%width-100
 		%font-1
+		%gap-2
 		#flush:
 			%font-0
+			%width-auto
 
 		&-background, &-progress:
 			%absolute
@@ -51,4 +56,4 @@
 
 	&-progress-bar--total:
 		$fundraiser-progress-background: $colour-blue-2
-		%width-7
+		%max-width-7
