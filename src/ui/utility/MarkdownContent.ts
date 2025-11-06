@@ -73,11 +73,21 @@ Component.extend(component => {
 							? quilt[markdown.body]()
 							: markdown?.body(quilt, QuiltHelper)
 
+				const preservedComponents: Component[] = []
 				const content = handler(quilt, QuiltHelper)?.content.map(stringify).join('')
 				setMarkdownContent(
 					!content || typeof markdown === 'string' ? content : { body: content, mentions: markdown?.mentions },
 					maxLength, simplify,
 				)
+				for (const descendant of [...component.element.querySelectorAll<HTMLElement>('span[data-tag^="component:"]')]) {
+					const tag = descendant.dataset.tag?.slice('component:'.length)
+					const index = tag ? Number(tag) : NaN
+					const component = !isNaN(index) ? preservedComponents[index] : undefined
+					if (component)
+						descendant.replaceWith(component.element)
+					else
+						descendant.remove()
+				}
 
 				function stringify (weft: Weft): string {
 					if (!weft.tag) {
@@ -93,6 +103,11 @@ Component.extend(component => {
 
 						if (typeof weft.content === 'string' || typeof weft.content === 'number')
 							return String(weft.content)
+
+						if (Component.is(weft.content)) {
+							preservedComponents.push(weft.content)
+							return `<weave tag="component:${preservedComponents.length - 1}"></weave>`
+						}
 
 						return ''
 					}
@@ -240,7 +255,11 @@ namespace MarkdownContent {
 				const tag = element.getAttribute('tag')
 
 				let newElement = !tag ? undefined : QuiltHelper.createTagElement(tag)
-				newElement ??= document.createElement('span')
+				if (!newElement) {
+					newElement = document.createElement('span')
+					if (tag)
+						newElement.setAttribute('data-tag', tag)
+				}
 
 				if (element.childNodes.length)
 					newElement.replaceChildren(...element.childNodes)
