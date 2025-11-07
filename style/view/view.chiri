@@ -58,6 +58,9 @@
 			top: calc($masthead-height - 1px)
 			height: calc(100% - $masthead-height + 1px)
 			min-width: 71vw
+			max-width: 100%
+			width: calc(#{content-width} + $space-6 * 2 + $space-5 + #{app-column-width})
+			%padding-top-5
 			%overflow-auto
 
 			&-loading:
