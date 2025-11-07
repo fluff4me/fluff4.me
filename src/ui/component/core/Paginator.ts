@@ -350,9 +350,14 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 					pageContent.use(slot, async content => {
 						const hasContent = hasResults(content)
 						if (hasContent) {
-							ViewTransition.perform('subview', viewTransitionName, async () => {
-								await initialiser?.(newContent(), content as T, pageNumber, data, paginator)
-							})
+							if (paginator.getViewTransition())
+								ViewTransition.perform('subview', viewTransitionName, swap)
+							else
+								void swap()
+
+							async function swap () {
+								await initialiser?.(newContent(), content as T, pageNumber, data!, paginator)
+							}
 							return
 						}
 

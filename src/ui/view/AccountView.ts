@@ -41,10 +41,12 @@ export default ViewDefinition({
 
 		const state = Session.Auth.state
 
-		Session.Auth.author.use(view, author =>
-			view.breadcrumbs.setBackButton(!author?.vanity ? undefined : `/author/${author.vanity}`,
-				button => button.subText.set(author?.name))
-		)
+		const isMainView = navigate.isURL('/account/**')
+		if (isMainView)
+			Session.Auth.author.use(view, author =>
+				view.breadcrumbs.setBackButton(!author?.vanity ? undefined : `/author/${author.vanity}`,
+					button => button.subText.set(author?.name))
+			)
 
 		const tabinator = Tabinator().appendTo(view.content)
 
@@ -193,7 +195,8 @@ export default ViewDefinition({
 		//#endregion
 		////////////////////////////////////
 
-		tabinator.bindURL(tab, tab => tab ? `/account/${tab}` : '/account')
+		if (isMainView)
+			tabinator.bindURL(tab, tab => tab ? `/account/${tab}` : '/account')
 
 		state.equals('logged-in').match(view, false, () => navigate.toURL('/login'))
 

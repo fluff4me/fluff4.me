@@ -7,7 +7,9 @@ declare module 'ui/Component' {
 
 interface ViewTransitionComponentExtensions {
 	viewTransition (name: string | false): this
+	getViewTransition (): string | undefined
 	subviewTransition (name: string | false): this
+	getSubviewTransition (): string | undefined
 }
 
 function stripName (name: string): string
@@ -39,6 +41,9 @@ namespace ViewTransition {
 			}
 			return component
 		},
+		getViewTransition () {
+			return component.attributes.get(DATA_VIEW_TRANSITION_NAME).value || undefined
+		},
 		subviewTransition (name) {
 			if (name) {
 				name = stripName(name)
@@ -50,6 +55,9 @@ namespace ViewTransition {
 				component.attributes.remove(DATA_ID)
 			}
 			return component
+		},
+		getSubviewTransition () {
+			return component.attributes.get(DATA_SUBVIEW_TRANSITION_NAME).value || undefined
 		},
 	})))
 

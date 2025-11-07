@@ -19,7 +19,7 @@ interface Navigator {
 	readonly state: State<string>
 	readonly event: EventManipulator<this, NavigatorEvents>
 	isURL (glob: string): boolean
-	fromURL (): Promise<void>
+	fromURL (force?: true): Promise<void>
 	toURL (route: RoutePathWithSearch): Promise<void>
 	setURL (route: RoutePathWithSearch): void
 	toRawURL (url: string): boolean
@@ -38,8 +38,8 @@ function Navigator (): Navigator {
 				.replace(/\/\*\*/g, '.*')
 			return new RegExp(`^${pattern}$`).test(location.pathname)
 		},
-		fromURL: async () => {
-			if (location.href === lastURL?.href)
+		fromURL: async (force = false) => {
+			if (location.href === lastURL?.href && !force)
 				return
 
 			if (!app)
@@ -51,7 +51,7 @@ function Navigator (): Navigator {
 
 			let matchedRoute: RoutePath | undefined
 			let errored = false
-			if (location.pathname !== oldURL?.pathname) {
+			if (location.pathname !== oldURL?.pathname || force) {
 				const url = location.pathname
 				let handled = false
 				for (const route of Routes) {
@@ -139,7 +139,7 @@ function Navigator (): Navigator {
 	})
 
 	// eslint-disable-next-line @typescript-eslint/no-misused-promises
-	window.addEventListener('popstate', navigate.fromURL)
+	window.addEventListener('popstate', () => navigate.fromURL())
 
 	Object.assign(window, { navigate })
 	return navigate

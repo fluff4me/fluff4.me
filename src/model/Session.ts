@@ -35,6 +35,8 @@ namespace Session {
 	}
 
 	export async function refresh () {
+		const oldSessionAuthor = Store.items.session?.author?.vanity
+
 		const session = await EndpointSessionGet.query()
 		const stateToken = session.headers.get('State-Token')
 		if (stateToken)
@@ -50,9 +52,14 @@ namespace Session {
 
 		Store.items.session = sessionData
 		_state.value = sessionData
+
+		if (oldSessionAuthor !== Store.items.session?.author?.vanity)
+			void navigate.fromURL(true)
 	}
 
 	export async function reset (skipRefresh = false) {
+		const oldSessionAuthor = Store.items.session?.author?.vanity
+
 		await EndpointSessionReset.query()
 		delete Store.items.session
 		_state.value = undefined
@@ -61,9 +68,14 @@ namespace Session {
 			return
 
 		await refresh()
+
+		if (oldSessionAuthor)
+			void navigate.fromURL(true)
 	}
 
 	export function setAuthor (author: Author & Partial<AuthorSelf>) {
+		const oldSessionAuthor = Store.items.session?.author?.vanity
+
 		const session = Store.items.session
 		if (!session)
 			return void refresh()
@@ -78,6 +90,9 @@ namespace Session {
 		}
 		Store.items.session = sessionData
 		_state.value = sessionData
+
+		if (oldSessionAuthor !== Store.items.session?.author?.vanity)
+			void navigate.fromURL(true)
 	}
 
 	export function getStateToken () {

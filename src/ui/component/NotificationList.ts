@@ -13,6 +13,7 @@ interface NotificationList extends Component, NotificationListExtensions { }
 
 const NotificationList = Component.Builder(async (component, onlyUnread?: true, pageSize?: number): Promise<NotificationList> => {
 	const paginator = component.and(Paginator)
+		.viewTransition(false)
 		.style('notification-list')
 
 	const list = component

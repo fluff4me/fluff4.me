@@ -57,7 +57,11 @@
 			box-shadow: #{box-shadow-inset-border-left-1}, #{box-shadow-inset-border-block-1}, #{box-shadow-left-2}
 			top: calc($masthead-height - 1px)
 			height: calc(100% - $masthead-height + 1px)
-			min-width: 70vw
+			min-width: 71vw
+			%overflow-auto
+
+			&-loading:
+				%margin-top-6
 
 			&--open:
 				%flex

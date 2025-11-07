@@ -28,6 +28,8 @@ export default ViewDefinition({
 		const id = 'login'
 		const view = View(id)
 
+		const isMainView = navigate.isURL('/login')
+
 		AccountViewForm('create')
 			.subviewTransition(id)
 			.appendToWhen(state.equals('has-authorisations'), view.content)
@@ -66,10 +68,15 @@ export default ViewDefinition({
 		//#endregion
 		////////////////////////////////////
 
-		Session.Auth.state.subscribe(view, () =>
-			ViewTransition.perform('subview', id, updateAuthState))
+		Session.Auth.state.subscribe(view, () => {
+			if (isMainView)
+				ViewTransition.perform('subview', id, updateAuthState)
+			else
+				updateAuthState()
+		})
 
-		state.match(view, 'logged-in', () => navigate.toURL('/account'))
+		if (isMainView)
+			state.match(view, 'logged-in', () => navigate.toURL('/account'))
 
 		return view
 

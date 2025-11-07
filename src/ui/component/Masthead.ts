@@ -13,6 +13,7 @@ import Search from 'ui/component/Search'
 import SettingsDialog from 'ui/component/SettingsDialog'
 import Sidebar from 'ui/component/Sidebar'
 import Viewport from 'ui/utility/Viewport'
+import LoginView from 'ui/view/LoginView'
 import type ViewContainer from 'ui/view/shared/component/ViewContainer'
 import AbortPromise from 'utility/AbortPromise'
 import Env from 'utility/Env'
@@ -196,7 +197,7 @@ const Masthead = Component.Builder('header', (masthead, view: ViewContainer): Ma
 			.type('primary')
 			.setIcon('circle-user')
 			.text.use('masthead/action/login')
-			.event.subscribe('click', () => navigate.toURL('/login'))
+			.event.subscribe('click', () => navigate.ephemeral(LoginView, undefined))
 		)
 		.appendTo(masthead)
 

@@ -188,13 +188,7 @@ const ViewContainer = (): ViewContainer => {
 				.appendTo(document.body),
 
 			showEphemeral: async <VIEW extends View, PARAMS extends object | undefined, LOAD_PARAMS extends object | undefined> (definition: ViewDefinition<VIEW, PARAMS, LOAD_PARAMS>, params: PARAMS) => {
-				let view: VIEW | undefined
-
-				const transition = document.startViewTransition(async () =>
-					view = await showEphemeral(definition, params))
-				await transition.updateCallbackDone
-
-				return view
+				return await showEphemeral(definition, params)
 			},
 			hideEphemeral: async () => {
 				const transition = document.startViewTransition(hideEphemeral)
@@ -212,25 +206,62 @@ const ViewContainer = (): ViewContainer => {
 
 		container.ephemeralOwner = State.Owner.create()
 
-		const loadParams = !definition.load ? undefined
-			: State.Async(container.ephemeralOwner, State(params), definition.load).promise
+		let loadParams: any
+		if (definition.load) {
+			const loadState = State.Async(container.ephemeralOwner, State(params), definition.load)
 
-		const shownView = await Promise.resolve(definition.create(params, loadParams))
-			.then(v => view = v)
-			.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({ code: error.code ?? 600, error }, {}))
-		if (shownView) {
-			shownView.prependTo(container.ephemeralDialog)
-			container.ephemeral = shownView
-			container.ephemeralDialog.open()
-			container.attributes.append('inert')
-			container.ephemeralDialog.opened.subscribe(shownView, opened => {
-				if (!opened) {
-					hideEphemeral()
-				}
-			})
+			const loading = Loading()
+				.setOwner(container.ephemeralOwner)
+				.style('view-container-loading', 'view-container-ephemeral-loading')
+
+			await Task.yield()
+
+			if (!container.ephemeralDialog.opened.value) {
+				const transition = document.startViewTransition(showLoading)
+				await transition.updateCallbackDone
+			}
+
+			function showLoading () {
+				loading.prependTo(container.ephemeralDialog)
+				loading.use(loadState)
+				container.ephemeralDialog.open()
+				container.attributes.append('inert')
+			}
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			loadParams = await loadState?.promise
+
+			loading.remove()
+			await swapViewIn()
+		}
+		else {
+			if (!container.ephemeralDialog.opened.value) {
+				const transition = document.startViewTransition(swapViewIn)
+				await transition.updateCallbackDone
+			}
+			else {
+				await swapViewIn()
+			}
 		}
 
 		return view
+
+		async function swapViewIn () {
+			const shownView = await Promise.resolve(definition.create(params, loadParams))
+				.then(v => view = v)
+				.catch((error: Error & Partial<ErrorResponse>) => ErrorView.create({ code: error.code ?? 600, error }, {}))
+			if (shownView) {
+				shownView.prependTo(container.ephemeralDialog)
+				container.ephemeral = shownView
+				container.ephemeralDialog.open()
+				container.attributes.append('inert')
+				container.ephemeralDialog.opened.subscribe(shownView, opened => {
+					if (!opened) {
+						hideEphemeral()
+					}
+				})
+			}
+		}
 	}
 
 	function hideEphemeral () {
