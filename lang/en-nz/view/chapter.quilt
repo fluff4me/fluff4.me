@@ -7,7 +7,7 @@ patreon/label=shared/term/patrons-only
 action/become-patron=shared/action/become-patron
 action/auth-to-patreon=shared/action/auth
 action/unlink-patreon: Unlink ({0})
-placeholder/login-for-patreon: Log in to authenticate with Patreon.
+action/login: Log In With Patreon
 
 ### dialog/patron
 title: Authenticate as Patron

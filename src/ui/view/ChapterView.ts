@@ -22,7 +22,6 @@ import ExternalLink from 'ui/component/core/ExternalLink'
 import Heading from 'ui/component/core/Heading'
 import Icon from 'ui/component/core/Icon'
 import Link from 'ui/component/core/Link'
-import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import PatronAuthDialog from 'ui/component/PatronAuthDialog'
 import Reaction from 'ui/component/Reaction'
@@ -31,6 +30,7 @@ import Tags from 'ui/component/Tags'
 import type { TagsState } from 'ui/component/TagsEditor'
 import Work from 'ui/component/Work'
 import Viewport from 'ui/utility/Viewport'
+import LoginView from 'ui/view/LoginView'
 import PaginatedView from 'ui/view/shared/component/PaginatedView'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import ViewTitle from 'ui/view/shared/ext/ViewTitle'
@@ -229,9 +229,12 @@ export default ViewDefinition({
 														.text.use('view/chapter/action/become-patron')
 														.appendTo(slot)
 												})
-												.else(() => Placeholder()
-													.style('view-type-chapter-block-patreon-header-placeholder')
-													.text.use('view/chapter/placeholder/login-for-patreon'))
+												.else(() => Button()
+													.type('primary')
+													.style('view-type-chapter-block-patreon-header-button')
+													.text.use('view/chapter/action/login')
+													.event.subscribe('click', () => navigate.ephemeral(LoginView, undefined))
+												)
 												.appendTo(slot)
 										}),
 								)))
