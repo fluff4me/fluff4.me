@@ -1,4 +1,4 @@
-import Component from 'ui/Component'
+import Component, { ComponentPerf } from 'ui/Component'
 import Dialog from 'ui/component/core/Dialog'
 import type { IInputEvent } from 'ui/InputBus'
 import InputBus, { HandlesMouseEvents } from 'ui/InputBus'
@@ -210,6 +210,7 @@ Component.extend(component => {
 				if (popover.hasContent()) {
 					popover.show()
 					await Task.yield()
+					popover.rect.markDirty()
 					popover.anchor.apply()
 				}
 			})
@@ -262,9 +263,10 @@ Component.extend(component => {
 						popover.hide()
 				})
 
-				component.receiveInsertEvents()
-				component.receiveAncestorInsertEvents()
-				component.event.subscribe(['insert', 'ancestorInsert'], updatePopoverParent)
+				ComponentPerf.CallbacksOnInsertions.add(component, updatePopoverParent)
+				// component.receiveInsertEvents()
+				// component.receiveAncestorInsertEvents()
+				// component.event.subscribe(['insert', 'ancestorInsert'], updatePopoverParent)
 			}
 
 			popover.popoverHasFocus.subscribe(component, (hasFocused, oldValue) => {
@@ -303,6 +305,7 @@ Component.extend(component => {
 				component.popover?.focus()
 				component.popover?.style.removeProperties('left', 'top')
 				await Task.yield()
+				component.popover?.rect.markDirty()
 				component.popover?.anchor.apply()
 			}
 
@@ -373,6 +376,7 @@ Component.extend(component => {
 				FocusTrap.show()
 				// component.popover.style.removeProperties('left', 'top')
 				await Task.yield()
+				component.popover?.rect.markDirty()
 				component.popover.anchor.apply()
 			}
 

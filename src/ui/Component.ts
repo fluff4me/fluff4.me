@@ -250,6 +250,39 @@ enum Classes {
 	ReceiveChildrenInsertEvents = '_receive-children-insert-events',
 	ReceiveInsertEvents = '_receive-insert-events',
 	ReceiveScrollEvents = '_receieve-scroll-events',
+	HasRect = '_has-rect',
+	HasStatesToMarkDirtyOnInsertions = '_has-states-to-mark-dirty-on-insertions',
+}
+
+const SYMBOL_RECT_STATE = Symbol('RECT_STATE')
+const SYMBOL_CALLBACKS_ON_INSERTIONS = Symbol('CALLBACKS_ON_INSERTIONS')
+
+export namespace ComponentPerf {
+	export interface Rect extends Component {
+		[SYMBOL_RECT_STATE]?: State.JIT<DOMRect>
+	}
+	export function Rect (component?: Component): State.JIT<DOMRect> | undefined {
+		return (component as Rect | undefined)?.[SYMBOL_RECT_STATE]
+	}
+
+	export namespace Rect {
+		export function assign (component: Component, rectState: State.JIT<DOMRect>): void {
+			(component as Rect)[SYMBOL_RECT_STATE] = rectState
+		}
+	}
+
+	export interface CallbacksOnInsertions extends Component {
+		[SYMBOL_CALLBACKS_ON_INSERTIONS]?: (() => unknown)[]
+	}
+	export namespace CallbacksOnInsertions {
+		export function add (component: Component, callback: () => unknown): void {
+			const states = (component as CallbacksOnInsertions)[SYMBOL_CALLBACKS_ON_INSERTIONS] ??= []
+			states.push(callback)
+		}
+		export function get (component?: Component): (() => unknown)[] {
+			return (component as CallbacksOnInsertions | undefined)?.[SYMBOL_CALLBACKS_ON_INSERTIONS] ?? []
+		}
+	}
 }
 
 const componentExtensionsRegistry: ((component: Mutable<Component>) => unknown)[] = []
@@ -268,6 +301,7 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 	let unuseOwnerRemove: UnsubscribeState | undefined
 
 	let descendantsListeningForScroll: HTMLCollection | undefined
+	let descendantRectsListeningForScroll: HTMLCollection | undefined
 
 	const jitTweaks = new Map<string, true | Set<(value: any, component: Component) => unknown>>()
 	const nojit: Record<string, any> = {}
@@ -461,18 +495,25 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 		get rect (): State.JIT<DOMRect> {
 			const rectState = State.JIT(() => component.element.getBoundingClientRect())
+			ComponentPerf.Rect.assign(component, rectState)
+
 			const oldMarkDirty = rectState.markDirty
 			rectState.markDirty = () => {
 				oldMarkDirty()
+				for (const descendant of this.element.getElementsByClassName(Classes.HasRect))
+					ComponentPerf.Rect(descendant.component)?.markDirty()
 				for (const descendant of this.element.getElementsByClassName(Classes.ReceiveAncestorRectDirtyEvents))
 					descendant.component?.event.emit('ancestorRectDirty')
 				return rectState
 			}
-			this.receiveInsertEvents()
-			this.receiveAncestorInsertEvents()
-			this.receiveAncestorScrollEvents()
-			this.classes.add(Classes.ReceiveAncestorRectDirtyEvents)
-			this.event.subscribe(['insert', 'ancestorInsert', 'ancestorScroll', 'ancestorRectDirty'], rectState.markDirty)
+			// this.receiveInsertEvents()
+			// this.receiveAncestorInsertEvents()
+			// this.receiveAncestorScrollEvents()
+			this.classes.add(
+				// Classes.ReceiveAncestorRectDirtyEvents,
+				Classes.HasRect,
+			)
+			// this.event.subscribe(['insert', 'ancestorInsert', 'ancestorScroll', 'ancestorRectDirty'], rectState.markDirty)
 			Viewport.size.subscribe(component, rectState.markDirty)
 			return Define.set(component, 'rect', rectState)
 		},
@@ -630,12 +671,14 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 		getStateForClosest (builders: any): any {
 			const state = State.JIT(() => component.closest(builders))
-			component.receiveAncestorInsertEvents()
-			component.onRooted(() => {
-				state.markDirty()
-				component.receiveInsertEvents()
-				component.event.subscribe(['insert', 'ancestorInsert'], () => state.markDirty())
-			})
+			ComponentPerf.CallbacksOnInsertions.add(component, state.markDirty)
+			component.classes.add(Classes.HasStatesToMarkDirtyOnInsertions)
+			// component.receiveAncestorInsertEvents()
+			// component.onRooted(() => {
+			// 	state.markDirty()
+			// component.receiveInsertEvents()
+			// component.event.subscribe(['insert', 'ancestorInsert'], () => state.markDirty())
+			// })
 			return state
 		},
 
@@ -749,9 +792,12 @@ function Component (type: keyof HTMLElementTagNameMap = 'span'): Component {
 		},
 		monitorScrollEvents () {
 			descendantsListeningForScroll ??= (component.element === window as any ? document.documentElement : component.element).getElementsByClassName(Classes.ReceiveScrollEvents)
+			descendantRectsListeningForScroll ??= (component.element === window as any ? document.documentElement : component.element).getElementsByClassName(Classes.HasRect)
 			component.event.subscribe('scroll', () => {
 				for (const descendant of [...descendantsListeningForScroll!])
 					descendant.component?.event.emit('ancestorScroll')
+				for (const descendant of [...descendantRectsListeningForScroll!])
+					ComponentPerf.Rect(descendant.component)?.markDirty()
 			})
 			return component
 		},
@@ -839,12 +885,20 @@ function emitInsert (component: Component | undefined) {
 	if (!component)
 		return
 
+	ComponentPerf.Rect(component)?.markDirty()
+	for (const callback of ComponentPerf.CallbacksOnInsertions.get(component))
+		callback()
 	if (component.classes.has(Classes.ReceiveInsertEvents))
 		component.event.emit('insert')
 
 	const descendantsListeningForEvent = component.element.getElementsByClassName(Classes.ReceiveAncestorInsertEvents)
 	for (const descendant of descendantsListeningForEvent)
 		descendant.component?.event.emit('ancestorInsert')
+	for (const descendant of component.element.getElementsByClassName(Classes.HasRect))
+		ComponentPerf.Rect(descendant.component)?.markDirty()
+	for (const descendant of component.element.getElementsByClassName(Classes.HasStatesToMarkDirtyOnInsertions))
+		for (const callback of ComponentPerf.CallbacksOnInsertions.get(descendant.component))
+			callback()
 
 	let cursor = component.element.parentElement
 	while (cursor) {
