@@ -93,7 +93,7 @@ const AUTHOR_MODERATION = ModerationDefinition((author: AuthorMetadata & Partial
 		},
 	],
 	async delete () {
-		const response = await EndpointModerateAuthorDelete.query({ params: { vanity: author.vanity } })
+		const response = await EndpointModerateAuthorDelete.query({ params: { vanity: author.vanity }, body: {} })
 		toast.handleError(response)
 	},
 	censor: ModerationCensor<AuthorCensorBody>({

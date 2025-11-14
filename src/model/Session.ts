@@ -131,6 +131,8 @@ namespace Session {
 				'totp_state',
 				'auth_services_required',
 				'age',
+				'privileges',
+				'revoked_privileges',
 			) satisfies AuthorMetadata & { [KEY in keyof AuthorSelf as KEY extends keyof AuthorMetadata ? never : KEY]?: never },
 			Objects.deepEquals,
 		)
@@ -171,6 +173,8 @@ namespace Session {
 			ModerationLock: privileged.ModerationLock,
 			ModerationViewReport: privileged.ModerationViewReport,
 			ModerationViewPatronOnly: privileged.ModerationViewPatronOnly,
+			ModerationAuthorTag: privileged.ModerationAuthorTag,
+			ModerationViewComments: privileged.ModerationViewComments,
 		} satisfies Record<ModerationTypes, State.Generator<boolean>>)
 		export const isModerator = State.Generator(() => moderationPrivileges.some(privilege => privilege.value))
 			.observeManual(...moderationPrivileges)
