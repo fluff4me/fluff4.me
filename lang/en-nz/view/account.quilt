@@ -18,6 +18,7 @@ age/label: Age
 age/option/sixteen-plus: I am 16 or older
 age/option/eighteen-plus: I am 18 or older
 age/invalid: You must be 16 or older to use fluff4.me
+comments/label: Comments
 terms/label: Terms
 terms/button: I agree to the {#LINK(/legal/terms-of-service):Terms of Service} and {#LINK(/legal/privacy-policy):Privacy Policy}
 terms/invalid: You must agree to the Terms of Service and Privacy Policy

@@ -13,6 +13,7 @@ import Link from 'ui/component/core/Link'
 import Slot from 'ui/component/core/Slot'
 import Timestamp from 'ui/component/core/Timestamp'
 import AuthorPopover from 'ui/component/popover/AuthorPopover'
+import WorkLink from 'ui/component/WorkLink'
 import { Quilt } from 'ui/utility/StringApplicator'
 import State from 'utility/State'
 import Type from 'utility/Type'
@@ -73,9 +74,9 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 			.setPopover('hover/longpress', popover => popover.and(AuthorPopover, author))
 
 		const work = Works.resolve(data.work, Notifications.works.value)
-		const WORK = !work ? undefined : Link(`/work/${work.author}/${work.vanity}`).text.set(work.name)
+		const WORK = !work ? undefined : WorkLink(work)
 		const chapter = Chapters.resolve(data.chapter, Notifications.chapters.value)
-		const CHAPTER = !chapter ? undefined : Link(`/work/${chapter.author}/${chapter.work}/chapter/${chapter.url}`).text.set(chapter.name)
+		const CHAPTER = !chapter ? undefined : Link(`/work/${chapter.author}/${chapter.work}/chapter/${chapter.url}`).text.set(Chapters.getName(chapter))
 
 		const COMMENT = !!data.comment
 

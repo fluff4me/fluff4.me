@@ -48,6 +48,7 @@ const Routes = [
 	Route('/account', AccountView.navigate),
 	Route('/account/$tab', AccountView.navigate),
 	Route('/author/$vanity', AuthorView.navigate),
+	Route('/author/$vanity/$tab', AuthorView.navigate),
 	Route('/notifications', NotificationsView.navigate),
 
 	Route('/work/new', WorkEditView.navigate),

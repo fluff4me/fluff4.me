@@ -5,6 +5,7 @@ import { CheckDropdown } from 'ui/component/core/Dropdown'
 import type LabelledTable from 'ui/component/core/LabelledTable'
 import type RadioButton from 'ui/component/core/RadioButton'
 import RadioRow from 'ui/component/core/RadioRow'
+import type { Quilt } from 'ui/utility/StringApplicator'
 import State from 'utility/State'
 
 type Visibility = WorkVisibility | ChapterVisibility
@@ -19,7 +20,7 @@ export interface VisibilityDataHost {
 	patreonTiers?: string[] | null
 }
 
-function VisibilityOptions (table: LabelledTable, state: State<VisibilityDataHost | undefined>): VisibilityOptions {
+function VisibilityOptions (table: LabelledTable, state: State<VisibilityDataHost | undefined>, label?: Quilt.SimpleKey | Quilt.Handler): VisibilityOptions {
 	const VisibilityRadioInitialiser = (radio: RadioButton, id: Visibility) => radio
 		.style('visibility-options-option')
 		.text.use(`shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
@@ -33,7 +34,7 @@ function VisibilityOptions (table: LabelledTable, state: State<VisibilityDataHos
 			.style.bind(campaign.falsy, 'radio-row-option--hidden'))
 		.add('Private', VisibilityRadioInitialiser)
 		.default.bind(state.map(table, chapter => chapter?.visibility ?? 'Private'))
-	table.label(label => label.text.use('shared/form/visibility/label'))
+	table.label(labelComponent => labelComponent.text.use(label ?? 'shared/form/visibility/label'))
 		.content((content, label) => content.append(visibility.setLabel(label)))
 
 	const visibilityStateIsPatreon = visibility.selection.map(table, selection => selection === 'Patreon')

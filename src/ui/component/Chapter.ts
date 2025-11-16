@@ -129,11 +129,7 @@ const Chapter = Object.assign(
 		const chapterName = Component()
 			.style('chapter-name')
 			.style.toggle(!chapter.name, 'chapter-name--auto')
-			.text.set(_
-				|| chapter.name
-				|| (!chapterNumber ? undefined : quilt => quilt['view/chapter/number/label'](chapterNumber))
-				|| (chapter.url.includes('.') ? quilt => quilt['view/chapter/number/interlude/label'](chapter.url) : undefined)
-			)
+			.text.set(Chapters.getName(chapter))
 			.appendTo(component)
 
 		const right = Component()

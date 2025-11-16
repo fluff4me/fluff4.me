@@ -2,6 +2,8 @@ import type { ChapterMetadata, ChapterReference, WorkReference } from 'api.fluff
 import EndpointChapterDelete from 'endpoint/chapter/EndpointChapterDelete'
 import type Component from 'ui/Component'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
+import type { Quilt } from 'ui/utility/StringApplicator'
+import Maths from 'utility/maths/Maths'
 
 namespace Chapters {
 	export function resolve (reference: ChapterReference | null | undefined, chapters: ChapterMetadata[]): ChapterMetadata | undefined {
@@ -18,6 +20,17 @@ namespace Chapters {
 	export function reference (reference: ChapterReference | null | undefined): ChapterReference | undefined
 	export function reference (reference: ChapterReference | null | undefined): ChapterReference | undefined {
 		return !reference ? undefined : { author: reference.author, work: reference.work, url: reference.url }
+	}
+
+	export function getName (chapter?: ChapterMetadata): string | Quilt.Handler | undefined {
+		if (!chapter)
+			return undefined
+
+		const chapterNumber = Maths.parseIntOrUndefined(chapter.url)
+		return _
+			|| chapter.name
+			|| (!chapterNumber ? undefined : quilt => quilt['view/chapter/number/label'](chapterNumber))
+			|| (chapter.url.includes('.') ? quilt => quilt['view/chapter/number/interlude/label'](chapter.url) : undefined)
 	}
 }
 

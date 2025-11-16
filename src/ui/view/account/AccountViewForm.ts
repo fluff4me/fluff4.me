@@ -17,6 +17,7 @@ import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import LicenseFormFragment from 'ui/component/LicenseFormFragment'
 import SupportersOnlyLabel from 'ui/component/SupportersOnlyLabel'
 import VanityInput, { FilterVanity } from 'ui/component/VanityInput'
+import VisibilityOptions from 'ui/component/VisibilityOptions'
 import type { License } from 'ui/utility/License'
 import { LICENSES } from 'ui/utility/License'
 
@@ -108,6 +109,11 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 
 	block.useGradient(cardGradientInput.value)
 
+	const { visibility } = VisibilityOptions(table,
+		Session.Auth.account.map(table, account => ({ visibility: account?.comments_privated ? 'Private' : 'Public' })),
+		'view/account/comments/label',
+	)
+
 	const license = LicenseFormFragment(table)
 	license.dropdown.default.bind(Session.Auth.account.map(component, (author): License => {
 		const license = author?.license?.name as License | undefined
@@ -173,6 +179,7 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 				card_colours: cardGradientInput.value.value.slice(),
 				age,
 				license: license.getFormData(),
+				comments_privated: visibility.selection.value === 'Private',
 			},
 		})
 

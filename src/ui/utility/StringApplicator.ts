@@ -70,7 +70,7 @@ export namespace QuiltHelper {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-	export function arg (arg: StateOr<WeavingArg | Quilt.SimpleKey | Quilt.Handler>) {
+	export function arg (arg: StateOr<WeavingArg | Quilt.SimpleKey | Quilt.Handler>): WeavingArg {
 		if (typeof arg === 'object' && arg && 'map' in arg)
 			arg = arg.value
 
@@ -81,6 +81,18 @@ export namespace QuiltHelper {
 			arg = quilt[arg as Quilt.SimpleKey]()
 
 		return arg
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+	export function args<ARGS extends Array<StateOr<WeavingArg | Quilt.SimpleKey | Quilt.Handler>>> (args: ARGS): ARGS['length'] extends 0 | 1 | 2 | 3 | 4 | 5 ? {
+		[0]: []
+		[1]: [WeavingArg]
+		[2]: [WeavingArg, WeavingArg]
+		[3]: [WeavingArg, WeavingArg, WeavingArg]
+		[4]: [WeavingArg, WeavingArg, WeavingArg, WeavingArg]
+		[5]: [WeavingArg, WeavingArg, WeavingArg, WeavingArg, WeavingArg]
+	}[ARGS['length']] : WeavingArg[] {
+		return args.map(arg) as never
 	}
 
 	export function toString (arg: StateOr<Quilt.SimpleKey | Quilt.Handler>): string {

@@ -37,9 +37,23 @@
 		&-author:
 
 		&-timestamp:
-			%font-2
+			%font-1
 			%margin-left-3
 			%style-normal
+
+		&-context:
+			%font-1
+			%margin-left-3
+			%colour-4
+
+			&-chapter:
+				%relative
+				&--patreon:
+					#after: .link, .patreon-icon-before
+					%colour-patreon
+					padding-left: calc($space-3 + $space-1)
+					@before:
+						%left-0
 
 		&--editing:
 			#after: .comment-header
@@ -50,6 +64,10 @@
 		%wrap-words
 		@after:
 			%hidden
+
+		&--placeholder:
+			%font-2
+			%colour-3
 
 	&-footer:
 		%flex
@@ -91,6 +109,9 @@
 				#after: .comment-footer-section
 				%padding-inline-2
 				%gap-2
+
+			:empty:
+				%hidden
 
 	&-children:
 		%flex

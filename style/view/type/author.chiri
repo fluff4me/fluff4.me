@@ -1,1 +1,9 @@
 #view type="author":
+
+	&-comment:
+		%padding-inline-4
+		%margin-top-3
+
+		&-paginator:
+			&-content:
+				; %padding-top-3

@@ -137,6 +137,8 @@ function fromEndpoint (endpoint: PreparedPaginatedQueryReturning<any> | Prepared
 			if (toast.handleError(response))
 				return false
 
+			result.setPageCount(response.page_count)
+
 			if (dismantler) {
 				const { content, auxiliary } = dismantler(response.data)
 

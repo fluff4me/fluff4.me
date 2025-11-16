@@ -1,14 +1,17 @@
-import type { AuthorMetadata, Comment as CommentDataRaw, ReportCommentBody } from 'api.fluff4.me'
+import type { AuthorComment, AuthorMetadata, ChapterMetadata, Comment as CommentDataRaw, ReportCommentBody, WorkMetadata } from 'api.fluff4.me'
 import EndpointCommentAdd from 'endpoint/comment/EndpointCommentAdd'
 import EndpointCommentDelete from 'endpoint/comment/EndpointCommentDelete'
 import EndpointCommentUpdate from 'endpoint/comment/EndpointCommentUpdate'
 import EndpointReactComment from 'endpoint/reaction/EndpointReactComment'
 import EndpointUnreactComment from 'endpoint/reaction/EndpointUnreactComment'
 import EndpointReportComment from 'endpoint/report/EndpointReportComment'
+import type { WeavingArg } from 'lang/en-nz'
 import quilt from 'lang/en-nz'
+import Chapters from 'model/Chapters'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
 import Component from 'ui/Component'
+import AuthorLink from 'ui/component/AuthorLink'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
@@ -16,9 +19,11 @@ import Loading from 'ui/component/core/Loading'
 import Slot from 'ui/component/core/Slot'
 import TextEditor from 'ui/component/core/TextEditor'
 import Timestamp from 'ui/component/core/Timestamp'
-import AuthorPopover from 'ui/component/popover/AuthorPopover'
 import Reaction from 'ui/component/Reaction'
 import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
+import WorkLink from 'ui/component/WorkLink'
+import type { Quilt } from 'ui/utility/StringApplicator'
+import { QuiltHelper } from 'ui/utility/StringApplicator'
 import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
 
@@ -56,11 +61,21 @@ interface CommentDataSource {
 }
 
 interface CommentMetadata {
+	// basic comment rendering metadata
 	depth?: number
 	isRootComment?: true
 	noSiblings?: true
 	hasParent?: true
 	hasGrandparent?: true
+
+	/** context for comments pulled out of that context */
+	context?: {
+		root_object: AuthorComment['root_object']
+		is_reply?: true
+		authors?: AuthorMetadata[]
+		works?: WorkMetadata[]
+		chapters?: ChapterMetadata[]
+	}
 }
 
 const Comment = Component.Builder((component, source: CommentDataSource, commentData: CommentData | CommentEditor, meta?: CommentMetadata): Comment => {
@@ -92,16 +107,67 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 				.appendTo(content)
 
 			const author = source.authors.value.find(author => author.vanity === commentData.author)
-			Link(!author?.vanity ? undefined : `/author/${author.vanity}`)
-				.style('comment-header-author')
-				.text.set(author?.name ?? quilt['comment/deleted/author']().toString())
-				.setPopover('hover/longpress', popover => author && popover.and(AuthorPopover, author))
-				.appendTo(header)
+			if (!author)
+				Link(undefined)
+					.style('comment-header-author')
+					.text.use('comment/deleted/author')
+					.appendTo(header)
+			else
+				AuthorLink(author)
+					.style('comment-header-author')
+					.appendTo(header)
+
+			let isOnPrivateObject = false
+			let isOnPatronOnlyObject = false
+			let isOnNotViewableObject = false
+			if (meta?.context) {
+				const contextType = meta.context.root_object.type === 'work' ? 'work'
+					: meta.context.root_object.type === 'work_private' ? 'work_private'
+						: `${meta.context.root_object.type === 'comment' ? 'orphaned' : meta.context.root_object.type}${meta.context.is_reply ? '/reply' : '/comment'}` as const
+
+				const ChapterContext = () => meta.context?.root_object.type === 'chapter' ? meta.context.root_object : undefined
+				const WorkContext = () => meta.context?.root_object.type === 'work' ? meta.context.root_object : undefined
+				const authorVanity = ChapterContext()?.chapter.author ?? WorkContext()?.work.author
+				const workVanity = ChapterContext()?.chapter.work ?? WorkContext()?.work.vanity
+				const chapterUrl = ChapterContext()?.chapter.url
+				const author = !authorVanity ? undefined : meta.context.authors?.find(a => a.vanity === authorVanity)
+				const work = !workVanity ? undefined : meta.context.works?.find(w => w.author === authorVanity && w.vanity === workVanity)
+				const chapter = !chapterUrl ? undefined : meta.context.chapters?.find(c => c.author === authorVanity && c.work === workVanity && c.url === chapterUrl)
+
+				isOnPrivateObject = meta.context.root_object.type === 'work_private' || meta.context.root_object.type === 'chapter_private'
+				isOnPatronOnlyObject = chapter?.visibility === 'Patreon'
+				isOnNotViewableObject = isOnPatronOnlyObject || isOnPrivateObject
+
+				const workLink = !work ? undefined : WorkLink(work, author)
+				type TranslationParams = [thing?: WeavingArg | Quilt.Handler, of?: WeavingArg | Quilt.Handler]
+				const translationParams: TranslationParams = _
+					?? ({
+						work: () => [
+							workLink,
+							author ? AuthorLink(author) : '',
+						],
+						chapter: () => [
+							(Link(`/work/${work?.author}/${work?.vanity}/chapter/${chapterUrl}`)
+								.style('comment-header-context-chapter')
+								.style.toggle(isOnPatronOnlyObject, 'comment-header-context-chapter--patreon', 'patreon-icon-before')
+								.append(Component().text.set(Chapters.getName(chapter)))
+							),
+							workLink,
+						],
+					} as Record<string, () => TranslationParams>)[contextType.split('/')[0]]?.()
+					?? []
+
+				Component()
+					.style('comment-header-context')
+					.text.use(quilt => quilt[`comment/context/${contextType}`](...QuiltHelper.args(translationParams) as [WeavingArg?, WeavingArg?]))
+					.appendTo(header)
+			}
 
 			const time = commentData.edited_time ?? commentData.created_time
 			if (time)
 				Timestamp(time)
 					.style('comment-header-timestamp')
+					.setSimple(!!meta?.context)
 					.setTranslation(!commentData.edited_time ? undefined : quilt => quilt['comment/timestamp/edited'])
 					.appendTo(header)
 
@@ -199,9 +265,10 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 				Component()
 					.style('comment-body')
+					.style.toggle(!commentData.body?.body, 'comment-body--placeholder')
 					.setMarkdownContent(commentData.body?.body
 						? { body: commentData.body.body, mentions: source.authors.value }
-						: quilt['comment/deleted/body']().toString()
+						: quilt[`comment/${isOnPrivateObject ? 'private' : isOnPatronOnlyObject ? 'patron-only' : 'deleted'}/body`]().toString()
 					)
 					.appendTo(content)
 
@@ -229,6 +296,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 						const changingAuthorHeartState = isThreadAuthor ? changingReactionState : State(false)
 						if (commentData.reactions || !commentData.reacted || !isThreadAuthor)
 							Reaction('love', commentData.reactions ?? 0, !!commentData.reacted, changingReactionState)
+								.tweak(r => r.icon.setDisabled(isOnNotViewableObject, 'not viewable'))
 								.event.subscribe('click', async () => {
 									if (!author)
 										return
@@ -310,7 +378,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 								})
 						)
 
-						if (isOwnComment)
+						if (isOwnComment && !meta?.context)
 							Button()
 								.style('comment-footer-action')
 								.type('flush')
@@ -326,18 +394,19 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 							DeleteButton()
 								?.appendTo(primaryActionsWrapper)
 
-						Button()
-							.style('comment-footer-action')
-							.type('flush')
-							.setIcon('reply')
-							.text.use('comment/action/reply')
-							.event.subscribe('click', () => {
-								source.comments.value.unshift({ edit: true, parent_id: commentData.comment_id, author: author.vanity })
-								comments.refresh()
-							})
-							.appendTo(isOwnComment ? secondaryActionsWrapper : primaryActionsWrapper)
+						if (!isOnNotViewableObject)
+							Button()
+								.style('comment-footer-action')
+								.type('flush')
+								.setIcon('reply')
+								.text.use('comment/action/reply')
+								.event.subscribe('click', () => {
+									source.comments.value.unshift({ edit: true, parent_id: commentData.comment_id, author: author.vanity })
+									comments.refresh()
+								})
+								.appendTo(isOwnComment ? secondaryActionsWrapper : primaryActionsWrapper)
 
-						if (!isOwnComment)
+						if (!isOwnComment && !isOnNotViewableObject)
 							Button()
 								.style('comment-footer-action')
 								.type('flush')

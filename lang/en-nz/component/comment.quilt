@@ -2,6 +2,8 @@
 timestamp/edited: Edited {0}
 deleted/body: *This comment has been deleted...*
 deleted/author: unknown
+patron-only/body: *This comment cannot be viewed here.*
+private/body: *This comment cannot be viewed.*
 hint: Make sure to be nice! Nobody wants pure critique.
 action/reply: Reply
 action/edit=shared/action/edit
@@ -11,3 +13,11 @@ action/delete=shared/action/delete
 action/report=shared/action/report
 action/label/moderate=shared/action/moderate
 tooltip/author-heart: A {#ICON.HEART:} from the author!
+context/work: {#B:recommended} {0} by {1}
+context/work_private: {#B:recommended} a private work
+context/chapter/comment: {#B:commented} on {0}{1? of {1}}
+context/chapter/reply: {#B:replied} in a thread on {0}{1? of {1}}
+context/chapter_private/comment: {#B:commented} on a private chapter
+context/chapter_private/reply: {#B:replied} in a thread on a private chapter
+context/orphaned/comment: has an {#B:orphaned} comment
+context/orphaned/reply: has a reply in an {#B:orphaned} thread
