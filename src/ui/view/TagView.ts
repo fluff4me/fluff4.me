@@ -3,10 +3,13 @@ import EndpointFeedGetAuthed from 'endpoint/feed/EndpointFeedGetAuthed'
 import Session from 'model/Session'
 import Tags from 'model/Tags'
 import ActionBlock from 'ui/component/ActionBlock'
+import Tag from 'ui/component/Tag'
 import TagBlock from 'ui/component/TagBlock'
 import WorkFeed from 'ui/component/WorkFeed'
+import { Quilt } from 'ui/utility/StringApplicator'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
+import ViewTitle from 'ui/view/shared/ext/ViewTitle'
 import Errors from 'utility/Errors'
 
 interface TagViewGlobalParams {
@@ -38,6 +41,7 @@ export default ViewDefinition({
 
 		const tagBlock = TagBlock(tag)
 			.viewTransition('tag-view-tag')
+			.tweak(block => block.header.getFirstDescendant(Tag)?.nameWrapper.and(ViewTitle, Quilt.fake(`${tag.category}: ${tag.name}`)))
 			.appendTo(view.content)
 
 		ActionBlock()

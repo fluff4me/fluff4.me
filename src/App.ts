@@ -128,8 +128,17 @@ async function App (): Promise<App> {
 	const masthead = Masthead(view)
 
 	State.UseManual({
-		viewTitle: view.state.mapManual(view => view?.titleComponent).mapManual(title => title?.text.state),
-		returnTo: view.state.mapManual(view => view?.breadcrumbs.backButton).mapManual(button => button?.subText.state),
+		viewTitle: (view.state
+			.mapManual(view => view?.titleComponent)
+			.mapManual(title => !title ? undefined : State.MapManual(
+				[title.attributes.get('data-view-title'), title.text.state],
+				(attrTitle, textTitle) => attrTitle ?? textTitle
+			))
+		),
+		returnTo: (view.state
+			.mapManual(view => view?.breadcrumbs.backButton)
+			.mapManual(button => button?.subText.state)
+		),
 		notificationCount: Notifications.unreadCount,
 	}).mapManual(({ viewTitle, returnTo, notificationCount }) => {
 		document.title = quilt['fluff4me/title']({

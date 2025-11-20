@@ -216,6 +216,8 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 			if (removed)
 				return component
 
+			translationHandlers ??= {}
+			translationHandlers[attribute] = { handler, unuse: undefined! }
 			const unuse = Quilt.State.useManual(quilt => {
 				const registration = translationHandlers?.[attribute]
 				if (!registration)
@@ -227,9 +229,7 @@ function AttributeManipulator (component: Component): AttributeManipulator<Compo
 				component.element.setAttribute(attribute, value)
 				attributeStates.get(attribute)?.asMutable?.setValue(value)
 			})
-
-			translationHandlers ??= {}
-			translationHandlers[attribute] = { handler, unuse }
+			translationHandlers[attribute].unuse = unuse
 
 			return component
 		},
