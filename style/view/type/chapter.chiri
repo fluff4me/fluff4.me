@@ -40,6 +40,10 @@
 				%background-none
 				%backdrop-filter-none
 
+			#flush:
+				%flex
+				%flex-column
+
 		&-number-label:
 			%uppercase
 			%weight-bold
