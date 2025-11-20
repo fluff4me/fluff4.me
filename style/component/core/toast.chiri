@@ -24,7 +24,7 @@ $$toast-background-highlight!colour
 	%padding-3-4
 	%border-1
 	%box-shadow-1
-	%border-radius-2
+	; %border-radius-2
 	%colour-0
 	%width-fit
 	max-width: min($space-5 * 5, 100vw)

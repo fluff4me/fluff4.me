@@ -31,7 +31,7 @@ $markdown-paragraph-padding-bottom: round(up, $space-3, 1px)
 
 	&& pre:
 		%padding-2-3
-		%border-radius-2
+		; %border-radius-2
 		$code-background: transparent
 		$code-padding: 0
 		background: light-dark(#{alpha(0.1, $dark-0)}, #{alpha(0.2, $dark-0)})

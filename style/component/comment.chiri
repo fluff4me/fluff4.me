@@ -9,7 +9,6 @@
 		%width-clamp-content
 		%scheme-light-dark
 		%padding-3-4
-		%border-radius-2
 		%max-width-none
 		width: calc(#{content-width})
 		max-width: 100vw

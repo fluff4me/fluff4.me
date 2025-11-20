@@ -11,7 +11,7 @@
 		%padding-5
 		%padding-top-4
 		%padding-bottom-3
-		%border-radius-2
+		; %border-radius-2
 		%unmargin-inline-4
 		%max-width-none
 		%backdrop-blur

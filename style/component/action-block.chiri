@@ -11,7 +11,7 @@
 	%border-colour-4
 	%backdrop-blur
 	%padding-3-4
-	%border-radius-2
+	; %border-radius-2
 	%justify-content-end
 	%align-items-start
 	%gap-3

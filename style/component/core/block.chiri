@@ -2,7 +2,7 @@
 	#after: .dialog
 	%block
 	%relative
-	%border-radius-2
+	; %border-radius-2
 	%scheme-light-dark
 	%border-box
 	%width-content
@@ -22,7 +22,7 @@
 		%inset-0
 		%backdrop-blur
 		%inset-border-1
-		%border-radius-2
+		; %border-radius-2
 		%block-border-shadow
 		$border-colour: $block-border-colour
 
@@ -39,7 +39,7 @@
 		%border-bottom-1
 		%padding-block-2
 		margin-bottom: $block-padding
-		%border-top-radius-2
+		; %border-top-radius-2
 		%relative
 		grid-template-columns: 1fr auto
 		$border-colour: $block-border-colour
@@ -90,7 +90,7 @@
 		%margin-top-4
 		%relative
 		%border-top-1
-		%border-bottom-radius-2
+		; %border-bottom-radius-2
 		%border-box
 		width: calc(100% + $block-padding * 2)
 		$border-colour: $block-border-colour
@@ -153,7 +153,7 @@
 			%absolute
 			%inset-0
 			%no-pointer-events
-			%border-radius-2
+			; %border-radius-2
 			#transition: #{transition("background")}
 
 		#can-hover:
@@ -176,7 +176,7 @@
 		%z-index-bg
 		background: linear-gradient(105deg in oklab, $block-gradient)
 		opacity: .3
-		%border-radius-2
+		; %border-radius-2
 
 		&--flush:
 			#after: .block-gradient
@@ -185,7 +185,7 @@
 			&--last:
 				; this hasn't been implemented
 				#after: .block-gradient--flush
-				%border-bottom-radius-2
+				; %border-bottom-radius-2
 
 		:scheme light:
 			opacity: .4
