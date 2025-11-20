@@ -3,6 +3,9 @@ auth: Authenticate
 login-or-signup: Log In or Sign Up
 love: Love
 edit: Edit
+cancel-editing: Cancel Editing
+following: Following
+ignoring: Ignoring
 follow: Follow
 ignore: Ignore
 unfollow: Unfollow

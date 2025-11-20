@@ -104,6 +104,7 @@
 	component/work-status-dropdown
 	component/visibility-options
 	component/statistics
+	component/action-block
 
 #import:
 	view/view

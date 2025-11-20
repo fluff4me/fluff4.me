@@ -13,6 +13,7 @@ interface WorkFeedExtensions {
 	setFromEndpoint (endpoint: PreparedPaginatedQueryReturning<FeedResponse>, page?: number): this
 	setFromWorks (pagedData: PagedListData<WorkMetadata>, authors: State<AuthorMetadata[]>, page?: number): this
 	setPageHandler (handler?: PageHandler): this
+	setPlaceholder (initialiser: (placeholder: Component) => unknown): this
 }
 
 interface WorkFeed extends Paginator, WorkFeedExtensions { }
@@ -24,6 +25,7 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 	const state = State<FeedResponse | undefined>(undefined)
 
 	let pageHandler: PageHandler | undefined
+	let placeholderInitialiser: ((placeholder: Component) => unknown) | undefined
 
 	const feed = paginator.extend<WorkFeedExtensions>(feed => ({
 		state,
@@ -68,11 +70,16 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 			})
 			return feed
 		},
+		setPlaceholder (initialiser) {
+			placeholderInitialiser = initialiser
+			return feed
+		},
 	}))
 
 	paginator.orElse(slot => Component()
 		.style('placeholder')
 		.text.use('feed/empty')
+		.tweak(placeholderInitialiser)
 		.appendTo(slot))
 
 	return feed

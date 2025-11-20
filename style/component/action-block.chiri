@@ -1,0 +1,77 @@
+.action-block:
+	#after: .block
+	%flex
+	%flex-row
+	%flex-wrap
+	%background-2-a40
+	; %box-shadow-inset-2
+	; %box-shadow-intensity-2
+	%box-shadow-1
+	%border-1
+	%border-colour-4
+	%backdrop-blur
+	%padding-3-4
+	%border-radius-2
+	%justify-content-end
+	%align-items-start
+	%gap-3
+	%relative
+
+	#flush:
+		%gap-1
+
+	&--empty:
+		#after: .action-block
+		%hidden
+
+	&--flush:
+		#after: .action-block
+		%borderless
+		%background-none
+		%box-shadow-none
+		%padding-0
+		%margin-0
+
+	&--attached-above:
+		#after: .action-block
+		margin-top: calc(0px - $space-4 - $space-2)
+		%border-top-radius-0
+		padding-top: calc($space-3 + $space-2)
+
+	&-column:
+		%flex
+		flex-direction: ${action-group-direction: column}
+		%flex-wrap
+		%relative
+		%align-self-stretch
+		%padding-left-3
+		%column-gap-1
+		%justify-content-centre
+
+		#flush:
+			%padding-left-1
+
+		@before, @after:
+			%absolute
+			%top-0
+			%bottom-0
+			%unleft-3
+			%width-3
+			%no-pointer-events
+
+		@before:
+			%border-right-1
+			%border-colour-4
+
+		@after:
+			%box-shadow-right-1
+			%box-shadow-intensity-5
+			margin-left: 1px
+
+	&-loading:
+		#after: .loading
+		%width-6
+
+		&-flag:
+			#after: .loading-flag
+			%font-6

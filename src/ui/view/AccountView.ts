@@ -48,7 +48,9 @@ export default ViewDefinition({
 					button => button.subText.set(author?.name))
 			)
 
-		const tabinator = Tabinator().appendTo(view.content)
+		const tabinator = Tabinator()
+			.setMajor()
+			.appendTo(view.content)
 
 		Tab('profile')
 			.setIcon('circle-user')

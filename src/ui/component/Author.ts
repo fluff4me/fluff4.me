@@ -7,6 +7,7 @@ import EndpointReportAuthor from 'endpoint/report/EndpointReportAuthor'
 import Follows from 'model/Follows'
 import Session from 'model/Session'
 import Component from 'ui/Component'
+import type { ActionProvider } from 'ui/component/ActionBlock'
 import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
@@ -17,7 +18,6 @@ import ExternalLink from 'ui/component/core/ExternalLink'
 import LabelledRow from 'ui/component/core/LabelledRow'
 import Loading from 'ui/component/core/Loading'
 import Placeholder from 'ui/component/core/Placeholder'
-import Popover from 'ui/component/core/Popover'
 import RangeInput from 'ui/component/core/RangeInput'
 import RSSButton from 'ui/component/core/RSSButton'
 import Slot from 'ui/component/core/Slot'
@@ -167,7 +167,7 @@ export const AuthorFooter = Component.Builder((component, author: AuthorMetadata
 	}))
 })
 
-interface AuthorExtensions {
+interface AuthorExtensions extends ActionProvider {
 	readonly bio: Component
 	loadFull (): Promise<void>
 }
@@ -242,69 +242,6 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 			.tweak(row => row.content.and(License, author.name, author.license))
 	)
 
-	if (!component.is(Popover))
-		block.setActionsMenu(popover => {
-			Session.Auth.author.use(popover, self => {
-				if (self?.vanity === author.value.vanity) {
-					Button()
-						.type('flush')
-						.setIcon('pencil')
-						.text.use('author/action/label/edit')
-						.event.subscribe('click', () => navigate.toURL('/account'))
-						.appendTo(popover)
-				}
-				else if (Session.Auth.loggedIn.value) {
-					Button()
-						.type('flush')
-						.bindIcon(Follows.map(popover, () => Follows.followingAuthor(author.value.vanity)
-							? 'circle-check-big'
-							: 'circle'))
-						.text.bind(Follows.map(popover, () => quilt =>
-							Follows.followingAuthor(author.value.vanity)
-								? quilt['author/action/label/unfollow']()
-								: quilt['author/action/label/follow']()
-						))
-						.event.subscribe('click', () => Follows.toggleFollowingAuthor(author.value.vanity))
-						.appendTo(popover)
-
-					Button()
-						.type('flush')
-						.bindIcon(Follows.map(popover, () => Follows.ignoringAuthor(author.value.vanity)
-							? 'ban'
-							: 'circle'))
-						.text.bind(Follows.map(popover, () => quilt =>
-							Follows.ignoringAuthor(author.value.vanity)
-								? quilt['author/action/label/unignore']()
-								: quilt['author/action/label/ignore']()
-						))
-						.event.subscribe('click', () => Follows.toggleIgnoringAuthor(author.value.vanity))
-						.appendTo(popover)
-
-					if (!Session.Auth.isModerator.value)
-						Button()
-							.type('flush')
-							.setIcon('flag')
-							.text.use('author/action/label/report')
-							.event.subscribe('click', event => ReportDialog.prompt(event.host, AUTHOR_REPORT, {
-								reportedContentName: author.value.name,
-								async onReport (body) {
-									const response = await EndpointReportAuthor.query({ body, params: { vanity: author.value.vanity } })
-									toast.handleError(response)
-								},
-							}))
-							.appendTo(popover)
-				}
-
-				if (Session.Auth.isModerator.value)
-					Button()
-						.type('flush')
-						.setIcon('shield-halved')
-						.text.use('author/action/label/moderate')
-						.event.subscribe('click', event => ModerationDialog.prompt(event.host, AUTHOR_MODERATION.create(author.value)))
-						.appendTo(popover)
-			})
-		})
-
 	let loadedFull = false
 	return block.extend<AuthorExtensions>(block => ({
 		bio,
@@ -328,6 +265,38 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 			loadedFull = true
 			Object.assign(author.value, response.data)
 			author.emit()
+		},
+		getActions (owner, actions) {
+			const isSelf = Session.Auth.loggedInAs(owner, author.value.vanity)
+			actions.addWhen(isSelf, Button()
+				.type('flush')
+				.setIcon('pencil')
+				.text.use('author/action/label/edit')
+				.event.subscribe('click', () => navigate.toURL('/account'))
+			)
+
+			const isOther = State.Every(owner, Session.Auth.loggedIn, isSelf.falsy)
+			actions.addFollowing(owner, {
+				isApplicable: isOther,
+				isFollowing: Follows.map(owner, () => Follows.followingAuthor(author.value.vanity)),
+				isIgnoring: Follows.map(owner, () => Follows.ignoringAuthor(author.value.vanity)),
+				follow: async () => Follows.followAuthor(author.value.vanity),
+				unfollow: async () => Follows.unfollowAuthor(author.value.vanity),
+				ignore: async () => Follows.ignoreAuthor(author.value.vanity),
+				unignore: async () => Follows.unignoreAuthor(author.value.vanity),
+			})
+
+			actions.addModeration(owner, {
+				isApplicable: isOther,
+				report: event => ReportDialog.prompt(event.host, AUTHOR_REPORT, {
+					reportedContentName: author.value.name,
+					async onReport (body) {
+						const response = await EndpointReportAuthor.query({ body, params: { vanity: author.value.vanity } })
+						toast.handleError(response)
+					},
+				}),
+				moderate: event => ModerationDialog.prompt(event.host, AUTHOR_MODERATION.create(author.value)),
+			})
 		},
 	}))
 })

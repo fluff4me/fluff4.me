@@ -26,15 +26,23 @@ interface DropdownOption<ID extends string, BUTTON extends DropdownButton> exten
 	index: number
 }
 
+interface DropdownPopoverExtensions<BUTTON extends DropdownButton> {
+	readonly input: TextInput
+	getSelected (): BUTTON[]
+}
+
+export interface DropdownPopover<BUTTON extends DropdownButton> extends Popover, DropdownPopoverExtensions<BUTTON> { }
+
 interface DropdownExtensions<ID extends string, BUTTON extends DropdownButton> {
 	readonly selection: State.Mutable<(BUTTON extends RadioButton ? ID : ID[]) | undefined>
 	readonly touched: State<boolean>
 	readonly default: Applicator.Optional<this, BUTTON extends RadioButton ? ID : ID[]>
 	readonly options: Record<string, DropdownOption<ID, BUTTON>>
 	readonly button: Button
-	readonly popover: State<Popover | undefined>
+	readonly popover: State<DropdownPopover<BUTTON> | undefined>
 	add<NEW_ID extends string> (id: NEW_ID, definition: DropdownOptionDefinition<NEW_ID, BUTTON>): Dropdown<ID | NEW_ID>
 	clear (): Dropdown<never>
+	select (selection: ID | ID[] | undefined): this
 }
 
 interface Dropdown<ID extends string = never, BUTTON extends DropdownButton = DropdownButton> extends Input, DropdownExtensions<ID, BUTTON> { }
@@ -64,7 +72,7 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 	const content = Component()
 		.style('dropdown-popover-content')
 
-	const popover = State<Popover | undefined>(undefined)
+	const popover = State<DropdownPopover<DropdownButton> | undefined>(undefined)
 	const button = Button()
 		.style('dropdown-button')
 		.text.bind(selection.mapManual(state => state === undefined || (Array.isArray(state) && state.length === 0)
@@ -86,6 +94,12 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 				.anchor.add('aligned left', 'aligned bottom')
 				.anchor.add('aligned left', 'sticky centre')
 				.anchor.orElseHide()
+				.extend<DropdownPopoverExtensions<DropdownButton>>(popover => ({
+					input,
+					getSelected () {
+						return content.getChildren(Button).toArray() as DropdownButton[]
+					},
+				}))
 
 			popover.value.appendTo(dropdown)
 			popover.value.visible.subscribeManual(async visible => {
@@ -191,6 +205,10 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 
 				return dropdown as never
 			},
+			select (selection) {
+				this.selection.value = selection
+				return dropdown
+			},
 		}))
 		.extend<Partial<InputExtensions>>(dropdown => ({
 			setLabel (label) {
@@ -222,15 +240,32 @@ const Dropdown = Component.Builder((component, definition: DropdownDefinitionBas
 
 interface DropdownDefinition<BUTTON extends DropdownButton> extends Omit<DropdownDefinitionBase<BUTTON>, 'createButton'> { }
 
-export interface RadioDropdown<ID extends string = never> extends Dropdown<ID, RadioButton> { }
+interface RadioDropdownExtensions {
+	setSimple (simple?: boolean): this
+}
+
+export interface RadioDropdown<ID extends string = never> extends Dropdown<ID, RadioButton>, RadioDropdownExtensions {
+	add<NEW_ID extends string> (id: NEW_ID, definition: DropdownOptionDefinition<NEW_ID, RadioButton>): RadioDropdown<ID | NEW_ID>
+	select (selection: ID | undefined): this
+}
 
 export const RadioDropdown = (
 	Component.Builder((component, definition?: DropdownDefinition<RadioButton>): RadioDropdown => {
-		return component.and(Dropdown, { createButton: RadioButton, ...definition }) as RadioDropdown
+		const simple = State(false)
+		return (component.and(Dropdown, { createButton: RadioButton, ...definition }) as RadioDropdown)
+			.tweak(dropdown => dropdown.popover.useManual(popover => popover?.style.bind(simple, 'dropdown-popover--simple')))
+			.extend<RadioDropdownExtensions>(dropdown => ({
+				setSimple (_simple = true) {
+					simple.value = _simple
+					return dropdown
+				},
+			}))
 	}).setName('RadioDropdown')
 ) as never as (<ID extends string> (definition?: DropdownDefinition<RadioButton>) => RadioDropdown<ID>)
 
-export interface CheckDropdown<ID extends string = never> extends Dropdown<ID, Checkbutton> { }
+export interface CheckDropdown<ID extends string = never> extends Dropdown<ID, Checkbutton> {
+	add<NEW_ID extends string> (id: NEW_ID, definition: DropdownOptionDefinition<NEW_ID, Checkbutton>): CheckDropdown<ID | NEW_ID>
+}
 
 export const CheckDropdown = (
 	Component.Builder((component, definition?: DropdownDefinition<Checkbutton>): CheckDropdown => {

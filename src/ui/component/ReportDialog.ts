@@ -9,9 +9,9 @@ import { QuiltHelper, type Quilt } from 'ui/utility/StringApplicator'
 import Objects from 'utility/Objects'
 import type State from 'utility/State'
 
-type ReportReasonTypes = keyof { [TYPE in keyof ManifestNotificationTypes as TYPE extends `report-${infer REASON}` ? REASON : never]: true }
+export type ReportReasonTypes = keyof { [TYPE in keyof ManifestNotificationTypes as TYPE extends `report-${infer REASON}` ? REASON : never]: true }
 
-interface ReportBody<REASONS extends ReportReasonTypes> {
+export interface ReportBody<REASONS extends ReportReasonTypes> {
 	reason: REASONS
 	reason_body: string
 }

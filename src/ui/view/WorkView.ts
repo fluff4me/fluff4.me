@@ -10,10 +10,10 @@ import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
 import Works from 'model/Works'
 import Component from 'ui/Component'
+import ActionBlock from 'ui/component/ActionBlock'
 import Chapter from 'ui/component/Chapter'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
-import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Paginator from 'ui/component/core/Paginator'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
@@ -49,10 +49,15 @@ export default ViewDefinition({
 			.setContainsHeading()
 			.appendTo(view.content)
 
-		work.actions
+		ActionBlock()
 			.viewTransition('work-view-work-actions')
-			.style('view-type-work-actions')
+			.attachAbove()
+			.append(work.bookmarkActions
+				.style('view-type-work-actions')
+			)
+			.addActions(work)
 			.appendTo(view.content)
+
 		work.bookmarkStatus.use(view, status => status?.style('view-type-work-bookmark-status'))
 		work.bookmarkAction.use(view, action => action
 			?.style('view-type-work-bookmark-action')
@@ -62,6 +67,8 @@ export default ViewDefinition({
 		// TODO add custom bookmark action for being caught up or finished, leaving a recommendation
 
 		const movingChapter = State<ChapterMetadata | undefined>(undefined)
+		const editMode = State(false)
+		const displayAsEditMode = State.Every(view, editMode, movingChapter.falsy)
 
 		const chaptersListState = State(null)
 		Slot()
@@ -70,6 +77,29 @@ export default ViewDefinition({
 				.style('view-type-work-chapter-list')
 				.tweak(paginator => {
 					paginator.title.text.use('view/work/chapters/title')
+
+					const isOwnWork = Session.Auth.loggedInAs(paginator, workDataIn.author)
+					Slot().appendTo(paginator.primaryActions).if(isOwnWork, slot => {
+						Button()
+							.text.use('view/work/chapters/action/label/edit')
+							.setIcon('pencil')
+							.type('primary', 'flush')
+							.event.subscribe('click', () => editMode.value = true)
+							.appendToWhen(State.Every(paginator, editMode.falsy, movingChapter.falsy), slot)
+						Button()
+							.text.use('view/work/chapters/action/label/cancel-editing')
+							.setIcon('xmark')
+							.type('flush')
+							.event.subscribe('click', () => editMode.value = false)
+							.appendToWhen(displayAsEditMode, slot)
+						Button()
+							.text.use('chapter/action/label/reorder-cancel')
+							.setIcon('xmark')
+							.type('flush')
+							.event.subscribe('click', () => movingChapter.value = undefined)
+							.appendToWhen(movingChapter.truthy, slot)
+					})
+
 					Slot()
 						.use(movingChapter, (slot, movingChapterData) => {
 							if (!movingChapterData)
@@ -78,18 +108,6 @@ export default ViewDefinition({
 							Chapter(movingChapterData, workData.value, authorData)
 								.style('view-type-work-chapter-list-chapter-moving')
 								.append(ReorderingIcon())
-								.tweakActions(actions => actions
-									.insertAction('reorder', 'before', 'delete',
-										Session.Auth.author, (slot, self) => true
-											&& authorData.vanity === self?.vanity
-											&& Button()
-												.type('flush')
-												.setIcon('arrow-up-arrow-down')
-												.text.use('chapter/action/label/reorder-cancel')
-												.event.subscribe('click', () =>
-													movingChapter.value = undefined)
-									)
-								)
 								.appendTo(slot)
 						})
 						.appendTo(paginator.header)
@@ -105,6 +123,7 @@ export default ViewDefinition({
 					(slot, chapters) => {
 						slot.style('chapter-list')
 							.style.bind(movingChapter.truthy, 'view-type-work-chapter-list--moving-chapter')
+							.style.bind(displayAsEditMode, 'view-type-work-chapter-list--edit-mode')
 
 						const firstChapter = chapters.at(0)
 						if (firstChapter)
@@ -117,23 +136,32 @@ export default ViewDefinition({
 							const Marker = Component.Builder((component, EndpointDelete: typeof EndpointHistoryBookmarksDeleteLastRead | typeof EndpointHistoryBookmarksDeleteFurthestRead) => {
 								return component
 									.style('view-type-work-chapter-marker')
-									.and(CanHasActionsMenu)
-									.setActionsMenu(popover => popover
-										.appendAction('clear', slot => Button()
-											.type('flush')
-											.setIcon('trash')
-											.text.use('view/work/chapters/marker/action/remove')
-											.event.subscribe('click', async () => {
-												const response = await EndpointDelete.query({ params: Works.reference(workData.value) })
-												if (toast.handleError(response))
-													return
+									.onRooted(marker => {
+										marker.event.subscribe('mousedown', e => e.button === 1 && e.preventDefault())
+										marker.event.subscribe('auxclick', async e => {
+											if (e.button !== 1)
+												return
 
-												workData.value.bookmarks = response.data
-												workData.emit()
-												chaptersListState.emit()
-											})
-										)
-									)
+											e.preventDefault()
+											const response = await EndpointDelete.query({ params: Works.reference(workData.value) })
+											if (toast.handleError(response))
+												return
+
+											workData.value.bookmarks = response.data
+											workData.emit()
+											chaptersListState.emit()
+										})
+									})
+								// .and(CanHasActionsMenu)
+								// .setActionsMenu(popover => popover
+								// 	.appendAction('clear', slot => Button()
+								// 		.type('flush')
+								// 		.setIcon('trash')
+								// 		.text.use('view/work/chapters/marker/action/remove')
+								// 		.event.subscribe('click', async () => {
+								// 		})
+								// 	)
+								// )
 							})
 
 							const nextUrl = workData.value.bookmarks?.url_next
@@ -165,21 +193,8 @@ export default ViewDefinition({
 											.style('view-type-work-chapter-reordering-icon--slot'))
 										.appendTo(chapter)
 								})
-								.tweakActions(actions => actions
-									.insertAction('reorder', 'before', 'delete',
-										Session.Auth.author, (slot, self) => true
-											&& authorData.vanity === self?.vanity
-											&& Slot()
-												.use(movingChapter, (slot, movingChapterData) => {
-													Button()
-														.type('flush')
-														.setIcon('arrow-up-arrow-down')
-														.text.use(movingChapterData === chapterData ? 'chapter/action/label/reorder-cancel' : 'chapter/action/label/reorder')
-														.event.subscribe('click', () =>
-															movingChapter.value = movingChapter.value === chapterData ? undefined : chapterData)
-														.appendTo(slot)
-												}))
-								)
+								.bindEditMode(displayAsEditMode)
+								.setReorderHandler(() => movingChapter.value = movingChapter.value === chapterData ? undefined : chapterData)
 								.appendTo(slot)
 
 							MoveSlot('after', chapterData).appendTo(slot)
@@ -227,14 +242,14 @@ export default ViewDefinition({
 						.text.use('view/work/chapters/content/empty')
 						.appendTo(block.content))
 					.appendTo(slot))
-				.setActionsMenu(popover => popover
-					.append(Slot()
-						.if(Session.Auth.author.map(popover, author => author?.vanity === workData.value.author), () => Button()
-							.setIcon('plus')
-							.type('flush')
-							.text.use('view/work/chapters/action/label/new')
-							.event.subscribe('click', () => navigate.toURL(`/work/${workData.value.author}/${workData.value.vanity}/chapter/new`))))
-				)
+				// .setActionsMenu(popover => popover
+				// 	.append(Slot()
+				// 		.if(Session.Auth.author.map(popover, author => author?.vanity === workData.value.author), () => Button()
+				// 			.setIcon('plus')
+				// 			.type('flush')
+				// 			.text.use('view/work/chapters/action/label/new')
+				// 			.event.subscribe('click', () => navigate.toURL(`/work/${workData.value.author}/${workData.value.vanity}/chapter/new`))))
+				// )
 			)
 			.appendTo(view.content)
 

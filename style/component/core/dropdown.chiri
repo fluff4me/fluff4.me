@@ -10,6 +10,8 @@
 		%stack-self
 		%transparent
 		%pointer-events-none
+		%width-0
+		%justify-self-end
 
 	&-popover:
 		%unmargin-top-3
@@ -21,7 +23,12 @@
 			#after: .dropdown-popover
 			%margin-top-3
 
+		&--simple:
+			$popover-simple-display: none
+
 		&-input:
+			#after: .input, .text-input
+			display: ${popover-simple-display: block}
 
 		&-content:
 			%flex
@@ -34,7 +41,9 @@
 		display: ${dropdown-option-display: flex}
 
 		&--selected:
+			#after: .dropdown-option
+			display: ${popover-simple-display: flex}
 
 		&--filtered-out:
-			#after: .button, .dropdown-option
+			#after: .button, .dropdown-option, .dropdown-option--selected
 			%hidden

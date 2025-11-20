@@ -1,9 +1,9 @@
 import type { WorkMetadata, WorkReference, WorkStatus } from 'api.fluff4.me'
 import EndpointWorkDelete from 'endpoint/work/EndpointWorkDelete'
-import type Component from 'ui/Component'
 import type { ButtonIcon } from 'ui/component/core/Button'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import Enums from 'utility/Enums'
+import type State from 'utility/State'
 
 export const WORK_STATUSES = Enums.type<WorkStatus>().values('Complete', 'Ongoing', 'Hiatus', 'Cancelled')
 
@@ -33,7 +33,7 @@ namespace Works {
 export default Object.assign(
 	Works,
 	{
-		async delete (work?: WorkMetadata, owner?: Component): Promise<boolean> {
+		async delete (work?: WorkMetadata, owner?: State.Owner): Promise<boolean> {
 			if (!work)
 				return true
 

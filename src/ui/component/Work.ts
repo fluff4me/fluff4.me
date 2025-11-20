@@ -10,16 +10,16 @@ import Session from 'model/Session'
 import Works, { WORK_STATUS_ICONS } from 'model/Works'
 import type { RoutePath } from 'navigation/RoutePath'
 import Component from 'ui/Component'
+import type { ActionProvider } from 'ui/component/ActionBlock'
 import AuthorLink from 'ui/component/AuthorLink'
 import ActionRow from 'ui/component/core/ActionRow'
-import Block, { BlockClasses } from 'ui/component/core/Block'
+import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import ButtonRow from 'ui/component/core/ButtonRow'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import Heading from 'ui/component/core/Heading'
 import Icon from 'ui/component/core/Icon'
 import Link from 'ui/component/core/Link'
-import Popover from 'ui/component/core/Popover'
 import RSSButton from 'ui/component/core/RSSButton'
 import Slot from 'ui/component/core/Slot'
 import Textarea from 'ui/component/core/Textarea'
@@ -229,10 +229,10 @@ export const WorkFooter = Component.Builder((component, work: State.Or<WorkMetad
 	}))
 })
 
-interface WorkExtensions {
+interface WorkExtensions extends ActionProvider {
 	readonly work: State<WorkMetadata>
 	readonly statistics: Slot
-	readonly actions: Component
+	readonly bookmarkActions: Component
 	readonly bookmarkStatus: State<Heading | undefined>
 	readonly bookmarkAction: State<Link & Button | undefined>
 }
@@ -498,98 +498,65 @@ const Work = Component.Builder((component, workDataIn: State.Or<WorkMetadata & P
 			)
 	)
 
-	if (!component.is(Popover))
-		block.setActionsMenu((popover, button) => {
-			popover.subscribeReanchor((actionsMenu, isTablet) => {
-				if (isTablet)
-					return
-
-				actionsMenu.anchor.reset()
-					.anchor.add('off right', 'centre', `.${BlockClasses.Main}`)
-					.anchor.orElseHide()
-			})
-
-			if (work.value.author === Session.Auth.author.value?.vanity) {
-				Button()
-					.type('flush')
-					.setIcon('pencil')
-					.text.use('work/action/label/edit')
-					.event.subscribe('click', () => navigate.toURL(`/work/${work.value.author}/${work.value.vanity}/edit`))
-					.appendTo(popover)
-
-				Button()
+	return block.extend<WorkExtensions>(component => ({
+		work, statistics: statisticsWrapper,
+		bookmarkActions: actions, bookmarkStatus, bookmarkAction,
+		getActions (owner, actions) {
+			const isOwnWork = State.Map(owner, [work, Session.Auth.author], (work, author) => author?.vanity === work.author)
+			actions.addWhen(isOwnWork,
+				(Button()
 					.type('flush')
 					.setIcon('plus')
 					.text.use('work/action/label/new-chapter')
 					.event.subscribe('click', () => navigate.toURL(`/work/${work.value.author}/${work.value.vanity}/chapter/new`))
-					.appendTo(popover)
-
-				Button()
+				),
+				(Button()
 					.type('flush')
 					.setIcon('plus')
 					.text.use('view/work-edit/update/action/bulk-chapters')
 					.event.subscribe('click', () => navigate.toURL(`/work/${work.value.author}/${work.value.vanity}/chapter/new/bulk`))
-					.appendTo(popover)
+				),
+			)
 
-				Button()
+			actions.addWhen(isOwnWork,
+				(Button()
+					.type('flush')
+					.setIcon('pencil')
+					.text.use('work/action/label/edit')
+					.event.subscribe('click', () => navigate.toURL(`/work/${work.value.author}/${work.value.vanity}/edit`))
+				),
+				(Button()
 					.type('flush')
 					.setIcon('trash')
 					.text.use('work/action/label/delete')
-					.event.subscribe('click', () => Works.delete(work.value, popover))
-					.appendTo(popover)
-			}
-			else if (Session.Auth.loggedIn.value) {
-				Button()
-					.type('flush')
-					.bindIcon(State.Map(popover, [Follows, work], (_, work) => Follows.followingWork(work)
-						? 'circle-check-big'
-						: 'circle'))
-					.text.bind(State.Map(popover, [Follows, work], (_, work) => quilt =>
-						Follows.followingWork(work)
-							? quilt['work/action/label/unfollow']()
-							: quilt['work/action/label/follow']()
-					))
-					.event.subscribe('click', () => Follows.toggleFollowingWork(work.value))
-					.appendTo(popover)
+					.event.subscribe('click', () => Works.delete(work.value, owner))
+				),
+			)
 
-				Button()
-					.type('flush')
-					.bindIcon(State.Map(popover, [Follows, work], (_, work) => Follows.ignoringWork(work)
-						? 'ban'
-						: 'circle'))
-					.text.bind(State.Map(popover, [Follows, work], (_, work) => quilt =>
-						Follows.ignoringWork(work)
-							? quilt['work/action/label/unignore']()
-							: quilt['work/action/label/ignore']()
-					))
-					.event.subscribe('click', () => Follows.toggleIgnoringWork(work.value))
-					.appendTo(popover)
+			const isOthersWork = State.Map(owner, [work, Session.Auth.author], (work, author) => !!author && author.vanity !== work.author)
+			actions.addFollowing(owner, {
+				isApplicable: isOthersWork,
+				isFollowing: Follows.map(owner, () => Follows.followingWork(work.value)),
+				isIgnoring: Follows.map(owner, () => Follows.ignoringWork(work.value)),
+				follow: () => Follows.followWork(work.value),
+				unfollow: () => Follows.unfollowWork(work.value),
+				ignore: () => Follows.ignoreWork(work.value),
+				unignore: () => Follows.unignoreWork(work.value),
+			})
 
-				if (!Session.Auth.isModerator.value)
-					Button()
-						.type('flush')
-						.setIcon('flag')
-						.text.use('work/action/label/report')
-						.event.subscribe('click', event => ReportDialog.prompt(event.host, WORK_REPORT, {
-							reportedContentName: work.value.name,
-							async onReport (body) {
-								const response = await EndpointReportWork.query({ body, params: Works.reference(work.value) })
-								toast.handleError(response)
-							},
-						}))
-						.appendTo(popover)
-			}
-
-			if (Session.Auth.isModerator.value)
-				Button()
-					.type('flush')
-					.setIcon('shield-halved')
-					.text.use('work/action/label/moderate')
-					.event.subscribe('click', event => ModerationDialog.prompt(event.host, WORK_MODERATION.create(work.value)))
-					.appendTo(popover)
-		})
-
-	return block.extend<WorkExtensions>(component => ({ work, statistics: statisticsWrapper, actions, bookmarkStatus, bookmarkAction }))
+			actions.addModeration(owner, {
+				isApplicable: isOthersWork,
+				report: event => ReportDialog.prompt(event.host, WORK_REPORT, {
+					reportedContentName: work.value.name,
+					async onReport (body) {
+						const response = await EndpointReportWork.query({ body, params: Works.reference(work.value) })
+						toast.handleError(response)
+					},
+				}),
+				moderate: event => ModerationDialog.prompt(event.host, WORK_MODERATION.create(work.value)),
+			})
+		},
+	}))
 })
 
 export default Work

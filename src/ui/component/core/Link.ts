@@ -51,6 +51,10 @@ const Link = Component.Builder('a', (component, route: State<RoutePathWithSearch
 
 		event.preventDefault()
 
+		const closestButton = event.targetComponent?.element.closest('button')?.component
+		if (closestButton && closestButton !== link && !closestButton?.element.contains(link.element))
+			return
+
 		// const closestButtonOrLink = (event.target as Partial<HTMLElement>).component?.closest([Button, Link])
 		// if (closestButtonOrLink !== component)
 		// 	return

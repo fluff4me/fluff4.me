@@ -91,6 +91,8 @@ interface TabinatorExtensions<TAB extends Tab> {
 	removeTab (tab: Tab): this
 	bindURL (tabId: string | undefined, tabHandler: (tabId: string | undefined, tab: TAB | undefined) => RoutePath): this
 	bindViewTitle (): this
+	/** Mark this tabinator as containing "major" content, ie needs big spaces between everything */
+	setMajor (major?: boolean): this
 }
 
 interface Tabinator<TAB extends Tab> extends Block, TabinatorExtensions<TAB> { }
@@ -100,6 +102,8 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 
 	let shouldForceSelect = true
 	const tabs = State<Tab[]>([])
+
+	const major = State(false)
 
 	const getFirstAvailableTab = () => tabs.value.find(tab => !tab.style.has('tabinator-tab--hidden'))
 
@@ -162,6 +166,7 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 
 				newTab.content
 					.style('tabinator-panel--hidden')
+					.style.bind(major, 'tabinator-panel--major')
 					.appendTo(tabinator.content)
 
 				mutable(newTab).tabinator = tabinator
@@ -207,6 +212,10 @@ const Tabinator = Component.Builder((component): Tabinator<Tab> => {
 					.style('tabinator-view-title')
 					.tweak(title => this.tab.use(title, tab => title.text.bind(tab?.text.state)))
 					.appendTo(tabinator.header)
+				return tabinator
+			},
+			setMajor (_major = true) {
+				major.value = _major
 				return tabinator
 			},
 		}))

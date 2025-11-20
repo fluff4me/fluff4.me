@@ -5,9 +5,8 @@ import type { AuthorReference } from 'model/Authors'
 import Chapters from 'model/Chapters'
 import Session from 'model/Session'
 import Component from 'ui/Component'
+import { ActionProviderList, type ActionProvider } from 'ui/component/ActionBlock'
 import Button from 'ui/component/core/Button'
-import type { ActionsMenu, HasActionsMenuExtensions } from 'ui/component/core/ext/CanHasActionsMenu'
-import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Link from 'ui/component/core/Link'
 import Timestamp from 'ui/component/core/Timestamp'
 import ModerationDialog, { ModerationCensor, ModerationDefinition } from 'ui/component/ModerationDialog'
@@ -45,126 +44,137 @@ const CHAPTER_MODERATION = ModerationDefinition((chapter: ChapterData): Moderati
 	}),
 }))
 
-function initActions (actions: ActionsMenu<never>, chapter: StateOr<ChapterMetadata>, work: WorkMetadata, author?: AuthorReference & Partial<AuthorMetadata>, isChapterView = false) {
-	return actions
-
-		.appendAction('patreon', State.get(chapter), (slot, chapter) => true
-			&& !isChapterView
-			&& chapter.visibility === 'Patreon'
-			&& chapter.patreon
-			&& Component()
-				.style('chapter-patreon-tier', 'patreon-icon-after')
-				.text.use(quilt => chapter.patreon && quilt['shared/term/patreon-tier']({
-					NAME: chapter.patreon.tiers[0].tier_name,
-					PRICE: `$${((chapter.patreon.tiers[0].amount ?? 0) / 100).toFixed(2)}`,
-				})))
-
-		.appendAction('edit', Session.Auth.author, (slot, self) => true
-			&& author
-			&& author.vanity === self?.vanity
-			&& Button()
-				.type('flush')
-				.setIcon('pencil')
-				.text.use('chapter/action/label/edit')
-				.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/${State.value(chapter).url}/edit`)))
-
-		.appendAction('delete', Session.Auth.author, (slot, self) => true
-			&& author
-			&& author.vanity === self?.vanity
-			&& Button()
-				.type('flush')
-				.setIcon('trash')
-				.text.use('chapter/action/label/delete')
-				.event.subscribe('click', () => Chapters.delete(State.value(chapter))))
-
-		.appendAction('report', Session.Auth.author, (slot, self) => true
-			&& self
-			&& author?.vanity !== self?.vanity
-			&& !Session.Auth.isModerator.value
-			&& Button()
-				.type('flush')
-				.setIcon('flag')
-				.text.use('chapter/action/label/report')
-				.event.subscribe('click', event => ReportDialog.prompt(event.host, CHAPTER_REPORT, {
-					reportedContentName: State.value(chapter).name ?? (quilt => quilt['view/chapter/number/label'](State.value(chapter).url)),
-					async onReport (body) {
-						const response = await EndpointReportChapter.query({ body, params: Chapters.reference(State.value(chapter)) })
-						toast.handleError(response)
-					},
-				})))
-
-		.appendAction('moderate', Session.Auth.author, (slot, self) => true
-			&& Session.Auth.isModerator.value
-			&& 'body' in State.value(chapter)
-			&& Button()
-				.type('flush')
-				.setIcon('shield-halved')
-				.text.use('chapter/action/label/moderate')
-				.event.subscribe('click', event => ModerationDialog.prompt(event.host, CHAPTER_MODERATION.create(State.value(chapter) as ChapterData)))
-		)
-}
-
-interface ChapterExtensions {
+interface ChapterExtensions extends ActionProvider {
 	readonly chapter: ChapterMetadata
 	readonly number: Component
 	readonly chapterName: Component
 	readonly timestamp?: Component
+	bindEditMode (visible: StateOr<boolean>): this
+	setReorderHandler (handler?: () => unknown): this
 }
 
-interface Chapter extends Component, ChapterExtensions, HasActionsMenuExtensions<'edit' | 'delete'> { }
+interface Chapter extends Component, ChapterExtensions
+// , HasActionsMenuExtensions<'edit' | 'delete'>
+{ }
 
-const Chapter = Object.assign(
-	Component.Builder((component, chapter: ChapterMetadata, work: WorkMetadata, author: AuthorReference & Partial<AuthorMetadata>): Chapter => {
-		component = Link(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}`)
-			.style('chapter')
-			.style.toggle(chapter.visibility === 'Private', 'chapter--private')
-			.style.toggle(chapter.visibility === 'Patreon', 'chapter--patreon', 'patreon-icon-after')
+const Chapter = Component.Builder((component, chapter: ChapterMetadata, work: WorkMetadata, author: AuthorReference & Partial<AuthorMetadata>): Chapter => {
+	component = Link(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}`)
+		.style('chapter')
+		.style.toggle(chapter.visibility === 'Private', 'chapter--private')
+		.style.toggle(chapter.visibility === 'Patreon', 'chapter--patreon', 'patreon-icon-after')
 
-		const chapterNumber = Maths.parseIntOrUndefined(chapter.url)
-		const number = Component()
-			.style('chapter-number')
-			.text.set(chapterNumber ? `${chapterNumber.toLocaleString(navigator.language)}` : '')
-			.appendTo(component)
+	const chapterNumber = Maths.parseIntOrUndefined(chapter.url)
+	const number = Component()
+		.style('chapter-number')
+		.text.set(chapterNumber ? `${chapterNumber.toLocaleString(navigator.language)}` : '')
+		.appendTo(component)
 
-		const chapterName = Component()
-			.style('chapter-name')
-			.style.toggle(!chapter.name, 'chapter-name--auto')
-			.text.set(Chapters.getName(chapter))
-			.appendTo(component)
+	const chapterName = Component()
+		.style('chapter-name')
+		.style.toggle(!chapter.name, 'chapter-name--auto')
+		.text.set(Chapters.getName(chapter))
+		.appendTo(component)
 
-		const right = Component()
-			.style('chapter-right')
-			.appendTo(component)
+	const right = Component()
+		.style('chapter-right')
+		.appendTo(component)
 
-		let timestamp: Component | undefined
-		if (chapter.visibility === 'Private')
-			timestamp = Component()
-				.style('timestamp', 'chapter-timestamp')
-				.text.use('chapter/state/private')
+	let timestamp: Component | undefined
+	if (chapter.visibility === 'Private')
+		timestamp = Component()
+			.style('timestamp', 'chapter-timestamp')
+			.text.use('chapter/state/private')
+			.appendTo(right)
+	else
+		timestamp = !chapter.time_publish ? undefined
+			: Timestamp(chapter.time_publish)
+				.style('chapter-timestamp')
 				.appendTo(right)
-		else
-			timestamp = !chapter.time_publish ? undefined
-				: Timestamp(chapter.time_publish)
-					.style('chapter-timestamp')
-					.appendTo(right)
 
-		return component
-			.and(CanHasActionsMenu)
-			.setActionsMenuButton(button => button
-				.type('inherit-size')
-				.style('chapter-actions-menu-button')
-				.appendTo(right))
-			.setActionsMenu((popover, button) => initActions(popover, chapter, work, author))
-			.extend<ChapterExtensions>(component => ({
-				chapter,
-				number,
-				chapterName,
-				timestamp,
-			}))
-	}),
-	{
-		initActions,
-	}
-)
+	const editMode = State(false)
+	const reorderActionHandler = State<(() => unknown) | undefined>(undefined)
+	return component
+		.style.bind(editMode, 'chapter--edit-mode')
+		// .and(CanHasActionsMenu)
+		// .setActionsMenuButton(button => button
+		// 	.type('inherit-size')
+		// 	.style('chapter-actions-menu-button')
+		// 	.appendTo(right))
+		// .setActionsMenu((popover, button) => initActions(popover, chapter, work, author))
+		.extend<ChapterExtensions>(component => ({
+			chapter,
+			number,
+			chapterName,
+			timestamp,
+			bindEditMode (visible) {
+				if (State.is(visible))
+					editMode.bind(component, State.get(visible))
+				else
+					editMode.value = visible
+				return component
+			},
+			setReorderHandler (handler?: () => unknown) {
+				reorderActionHandler.value = handler
+				return component
+			},
+			getActions (owner, actions) {
+				const isOwnChapter = Session.Auth.loggedInAs(owner, chapter.author)
+				const shouldShowReorder = State.Every(owner, isOwnChapter, reorderActionHandler.truthy)
+				actions.addWhen(shouldShowReorder, Button()
+					.type('flush')
+					.setIcon('arrow-up-arrow-down')
+					.text.use('chapter/action/label/reorder')
+					.event.subscribe('click', () => reorderActionHandler.value?.())
+				)
+
+				actions.addWhen(isOwnChapter,
+					(Button()
+						.type('flush')
+						.setIcon('pencil')
+						.text.use('chapter/action/label/edit')
+						.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/${State.value(chapter).url}/edit`))
+					),
+					(Button()
+						.type('flush')
+						.setIcon('trash')
+						.text.use('chapter/action/label/delete')
+						.event.subscribe('click', () => Chapters.delete(State.value(chapter)))
+					),
+				)
+
+				const isOthersChapter = State.Every(owner, isOwnChapter.falsy, Session.Auth.loggedIn)
+				const shouldShowReporting = State.Every(owner, isOthersChapter, Session.Auth.isModerator.falsy)
+				const shouldShowModeration = State.Every(owner, isOthersChapter, Session.Auth.isModerator)
+				actions.addWhen(shouldShowReporting, Button()
+					.type('flush')
+					.setIcon('flag')
+					.text.use('chapter/action/label/report')
+					.event.subscribe('click', event => ReportDialog.prompt(event.host, CHAPTER_REPORT, {
+						reportedContentName: State.value(chapter).name ?? (quilt => quilt['view/chapter/number/label'](State.value(chapter).url)),
+						async onReport (body) {
+							const response = await EndpointReportChapter.query({ body, params: Chapters.reference(State.value(chapter)) })
+							toast.handleError(response)
+						},
+					}))
+				)
+
+				actions.addWhen(shouldShowModeration, Button()
+					.type('flush')
+					.setIcon('shield-halved')
+					.text.use('chapter/action/label/moderate')
+					.event.subscribe('click', event => ModerationDialog.prompt(event.host, CHAPTER_MODERATION.create(State.value(chapter) as ChapterData)))
+				)
+			},
+		}))
+		.tweak(component => {
+			Component()
+				.style('chapter-actions')
+				.tweak(chapterComponent => ActionProviderList()
+					.provide(component, component)
+					.renderTo(chapterComponent, chapterComponent)
+				)
+				.appendToWhen(editMode, component)
+		})
+})
 
 export default Chapter

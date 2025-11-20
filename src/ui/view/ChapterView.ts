@@ -13,10 +13,12 @@ import Patreon from 'model/Patreon'
 import Session from 'model/Session'
 import TextBody from 'model/TextBody'
 import Component from 'ui/Component'
+import ActionBlock from 'ui/component/ActionBlock'
 import AuthorLink from 'ui/component/AuthorLink'
 import Chapter from 'ui/component/Chapter'
 import Comments from 'ui/component/Comments'
 import Button from 'ui/component/core/Button'
+import Details from 'ui/component/core/Details'
 import GradientText from 'ui/component/core/ext/GradientText'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Heading from 'ui/component/core/Heading'
@@ -103,13 +105,29 @@ export default ViewDefinition({
 			button => button.subText.set(workData.name),
 		)
 
-		Link(`/work/${author?.vanity}/${workData.vanity}`)
-			.and(Work, workData, author)
+		// `/work/${author?.vanity}/${workData.vanity}`
+		const work = Work(workData, author)
 			.tweak(work => work.statistics.remove())
-			.tweak(work => work.actions.remove())
+			.tweak(work => work.bookmarkActions.remove())
 			.viewTransition('chapter-view-work')
 			.style('view-type-chapter-work')
 			.setContainsHeading()
+			.appendTo(view.content)
+
+		Details()
+			.style('view-type-chapter-work-details')
+			.tweak(details => details.summary
+				.type('flush')
+				.bindIcon(details.state.mapManual(open => open ? 'caret-down' : 'caret-right'))
+				.text.bind(details.state.mapManual(open => quilt => quilt[open ? 'view/chapter/work/action/hide-details' : 'view/chapter/work/action/expand-details']()))
+			)
+			.tweak(details => details.append(...work.content.getChildren()))
+			.appendTo(work.content)
+
+		ActionBlock()
+			.viewTransition('chapter-view-work-actions')
+			.attachAbove()
+			.addActions(work)
 			.appendTo(view.content)
 
 		const chapterState = State(initialChapterResponse.data)
@@ -263,17 +281,14 @@ export default ViewDefinition({
 		paginator.header.style('view-type-chapter-block-header')
 		paginator.content.style('view-type-chapter-block-content')
 
-		paginator.header.setActionsMenu(popover => {
-			Chapter.initActions(popover, chapterState, workData, author, true)
+		Slot().appendTo(paginator.primaryActions).use(chapterState, (slot, chapter) => {
+			const chapterComponent = Chapter(chapter, workData, author ?? { vanity: workData.author })
+				.setOwner(slot)
 
-			popover.subscribeReanchor((actionsMenu, isTablet) => {
-				if (isTablet)
-					return
-
-				actionsMenu.anchor.reset()
-					.anchor.add('off right', 'centre')
-					.anchor.orElseHide()
-			})
+			ActionBlock()
+				.flush()
+				.addActions(chapterComponent)
+				.appendTo(slot)
 		})
 
 		const reactions = chapterState.mapManual(chapter => chapter.reactions ?? 0)

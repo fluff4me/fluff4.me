@@ -1,6 +1,10 @@
 #view type="chapter":
 
 	&-work:
+
+		&-details:
+			%margin-top-3
+
 	&-block:
 		#after: .paginator--flush, .block--type-flush
 		%scheme-light-dark
@@ -29,8 +33,8 @@
 			%box-shadow-none
 			%relative
 			%padding-inline-0
-			%margin-bottom-0
 			%top-auto
+			%margin-bottom-3
 
 			@before:
 				%background-none
@@ -54,7 +58,6 @@
 
 		&-title:
 			%wrap-words
-			%margin-bottom-3
 
 		&-actions:
 			#after: .block-actions-primary

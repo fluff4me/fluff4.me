@@ -2,24 +2,13 @@
 
 	&-actions:
 		#after: .work-actions
-		%background-2-a40
-		; %box-shadow-inset-2
-		; %box-shadow-intensity-2
-		%box-shadow-1
-		%border-1
-		%border-colour-4
-		%backdrop-blur
-		%padding-3-4
-		%border-radius-2
-		%padding-top-2
 		%margin-0
-		; %flex
-		; %flex-row
-		; %flex-wrap
-		%justify-content-start
+		%unmargin-top-1
+		%padding-0
 		%align-items-start
-		%gap-3
-
+		%width-max
+		%flex-grow
+		gap: calc($space-3 + $space-1)
 		@before, @after:
 			%hidden
 			%padding-inline-0
@@ -40,6 +29,9 @@
 	&-chapter:
 
 		&-list:
+
+			&--edit-mode:
+				%padding-block-2
 
 			&--moving-chapter:
 				%padding-block-3

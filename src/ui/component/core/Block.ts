@@ -1,6 +1,5 @@
 import Component from 'ui/Component'
 import ActionRow from 'ui/component/core/ActionRow'
-import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Heading from 'ui/component/core/Heading'
 import Link from 'ui/component/core/Link'
 import Paragraph from 'ui/component/core/Paragraph'
@@ -14,7 +13,9 @@ type BlockType = keyof { [KEY in ComponentName as KEY extends `block--type-${inf
 	: KEY extends `block--type-${infer TYPE}` ? TYPE
 	: never]: string[] }
 
-interface BlockHeader extends Component, CanHasActionsMenu { }
+interface BlockHeader extends Component
+// , CanHasActionsMenu
+{ }
 
 export interface BlockExtensions {
 	readonly header: BlockHeader
@@ -32,7 +33,9 @@ export enum BlockClasses {
 	Header = '_block-header',
 }
 
-interface Block extends Component, BlockExtensions, CanHasActionsMenu { }
+interface Block extends Component, BlockExtensions
+// , CanHasActionsMenu
+{ }
 
 const Block = Component.Builder((component): Block => {
 	let header: Component | undefined
@@ -102,20 +105,20 @@ const Block = Component.Builder((component): Block => {
 			.style.bindFrom(block.type.state.mapManual(types => [...types].map(t => `block--type-${t}-header` as const)))
 			.classes.add(BlockClasses.Header)
 			.prependTo(block)
-			.and(CanHasActionsMenu, actionsMenu => actionsMenu
-				.subscribeReanchor((actionsMenu, isTablet) => {
-					if (isTablet)
-						return
+			// .and(CanHasActionsMenu, actionsMenu => actionsMenu
+			// 	.subscribeReanchor((actionsMenu, isTablet) => {
+			// 		if (isTablet)
+			// 			return
 
-					actionsMenu.anchor.reset()
-						.anchor.add('off right', 'centre')
-						.anchor.add('off right', 'centre')
-						.anchor.orElseHide()
-				})
-			)
-			.setActionsMenuButton(button => button
-				.style('block-actions-menu-button')
-				.appendTo(block.primaryActions))
+			// 		actionsMenu.anchor.reset()
+			// 			.anchor.add('off right', 'centre')
+			// 			.anchor.add('off right', 'centre')
+			// 			.anchor.orElseHide()
+			// 	})
+			// )
+			// .setActionsMenuButton(button => button
+			// 	.style('block-actions-menu-button')
+			// 	.appendTo(block.primaryActions))
 		)
 		.extendJIT('title', block => Heading().style('block-title').prependTo(block.header))
 		.extendJIT('primaryActions', block => Component().style('block-actions-primary').appendTo(block.header))
@@ -126,20 +129,20 @@ const Block = Component.Builder((component): Block => {
 			.appendTo(block))
 
 	return block
-		.and(CanHasActionsMenu, actionsMenu => actionsMenu
-			.subscribeReanchor((actionsMenu, isTablet) => {
-				if (isTablet)
-					return
+	// .and(CanHasActionsMenu, actionsMenu => actionsMenu
+	// 	.subscribeReanchor((actionsMenu, isTablet) => {
+	// 		if (isTablet)
+	// 			return
 
-				actionsMenu.anchor.reset()
-					.anchor.add('off right', 'centre', `>> .${BlockClasses.Header}`)
-					.anchor.add('off right', 'centre', `.${BlockClasses.Main}`)
-					.anchor.orElseHide()
-			})
-		)
-		.setActionsMenuButton(button => button
-			.style('block-actions-menu-button')
-			.appendTo(block.primaryActions))
+	// 		actionsMenu.anchor.reset()
+	// 			.anchor.add('off right', 'centre', `>> .${BlockClasses.Header}`)
+	// 			.anchor.add('off right', 'centre', `.${BlockClasses.Main}`)
+	// 			.anchor.orElseHide()
+	// 	})
+	// )
+	// .setActionsMenuButton(button => button
+	// 	.style('block-actions-menu-button')
+	// 	.appendTo(block.primaryActions))
 })
 
 export default Block

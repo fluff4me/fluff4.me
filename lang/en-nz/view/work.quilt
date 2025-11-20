@@ -3,8 +3,8 @@
 ### chapters
 title=shared/term/chapters
 content/empty: This work does not contain any chapters.
-action/label/new=shared/action/new-chapter
-action/label/new-bulk: Add in Bulk
+action/label/edit: Edit Chapters
+action/label/cancel-editing=shared/action/cancel-editing
 
 marker/next-chapter/next: Continue
 marker/next-chapter/furthest: Never Read

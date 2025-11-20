@@ -8,6 +8,7 @@ import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import CanHasActionsMenu from 'ui/component/core/ext/CanHasActionsMenu'
 import Form from 'ui/component/core/Form'
 import InfiniteScroll from 'ui/component/core/InfiniteScroll'
 import LabelledTable from 'ui/component/core/LabelledTable'
@@ -143,6 +144,7 @@ export default Component.Builder(component => {
 							)
 							.tweak(block => block.footer.left.and(Placeholder).and(Small).text.set(`v${item.version}`))
 							.tweak(block => block.footer.right.and(Placeholder).and(Small).text.set(new Date(item.time).toLocaleDateString(navigator.language)))
+							.and(CanHasActionsMenu)
 							.setActionsMenu(popover => {
 								if (!Session.Auth.privileged.ChangelogModify.value)
 									return

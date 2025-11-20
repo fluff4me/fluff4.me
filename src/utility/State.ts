@@ -296,6 +296,13 @@ namespace State {
 			return owner?.removed ?? owner?.closed
 		}
 
+		export function getCombined (...owners: Owner[]): Owner {
+			const combinedOwner = create()
+			for (const owner of owners)
+				getOwnershipState(owner).match(combinedOwner, true, () => combinedOwner.remove())
+			return combinedOwner
+		}
+
 		export type Removable = Extract<Owner, { remove (): void }>
 
 		export function create (): Owner.Removable {

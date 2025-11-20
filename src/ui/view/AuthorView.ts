@@ -6,16 +6,16 @@ import PagedData from 'model/PagedData'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
 import Component from 'ui/Component'
+import ActionBlock from 'ui/component/ActionBlock'
 import Author from 'ui/component/Author'
 import type { CommentData } from 'ui/component/Comment'
 import Comment from 'ui/component/Comment'
+import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
-import Link from 'ui/component/core/Link'
 import Paginator from 'ui/component/core/Paginator'
-import Slot from 'ui/component/core/Slot'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
-import Work from 'ui/component/Work'
+import WorkFeed from 'ui/component/WorkFeed'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import State from 'utility/State'
@@ -37,9 +37,15 @@ export default ViewDefinition({
 	create (params: AuthorViewParams, { author }) {
 		const view = View('author')
 
-		Author(author)
+		const authorComponent = Author(author)
 			.viewTransition('author-view-author')
 			.setContainsHeading()
+			.appendTo(view.content)
+
+		ActionBlock()
+			.viewTransition('author-view-author-actions')
+			.attachAbove()
+			.addActions(authorComponent)
 			.appendTo(view.content)
 
 		const contentTabinator = author.comments_privated && Session.Auth.author.value?.vanity !== author.vanity ? undefined
@@ -51,37 +57,29 @@ export default ViewDefinition({
 			.text.use('view/author/works/title')
 			.addTo(contentTabinator)
 
+		ActionRow()
+			.tweak(row => Button()
+				.type('primary')
+				.text.use('view/author/works/action/label/new')
+				.setIcon('plus')
+				.event.subscribe('click', () => navigate.toURL('/work/new'))
+				.appendTo(row.right)
+			)
+			.appendTo(worksTab?.content ?? view.content)
+
 		const works = PagedListData.fromEndpoint(25, EndpointWorkGetAllAuthor.prep({
 			params: {
 				author: params.vanity,
 			},
 		}))
-		Paginator()
+		WorkFeed()
 			.viewTransition('author-view-works')
-			.tweak(p => p.title.text.use('view/author/works/title'))
-			// .setActionsMenuButton()
-			.setActionsMenu(popover => popover
-				.append(Slot()
-					.if(Session.Auth.author.map(popover, author => author?.vanity === params.vanity), () => Button()
-						.type('flush')
-						.setIcon('plus')
-						.text.use('view/author/works/action/label/new')
-						.event.subscribe('click', () => navigate.toURL('/work/new'))))
+			.setFromWorks(works, State([author]))
+			.setPlaceholder(placeholder => placeholder
+				.removeContents()
+				.and(Block)
+				.tweak(block => block.content.text.use('view/author/works/content/empty'))
 			)
-			.set(works, 0, (slot, works) =>
-				slot.append(...works.map(workData =>
-					Link(`/work/${author.vanity}/${workData.vanity}`)
-						.and(Work, workData, author)
-						.viewTransition(false)
-						.type('flush')
-						.appendTo(slot))))
-			.orElse(slot => Block()
-				.type('flush')
-				.tweak(block => Component()
-					.style('placeholder')
-					.text.use('view/author/works/content/empty')
-					.appendTo(block.content))
-				.appendTo(slot))
 			.appendTo(worksTab?.content ?? view.content)
 
 		if (contentTabinator)

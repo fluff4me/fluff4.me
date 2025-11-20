@@ -290,6 +290,11 @@ $$button-background-gradient-background!colour
 		"magnifying-glass
 		"star
 		"comment
+		"bookmark
+		"eye
+		"eye-slash
+		"caret-down
+		"caret-right
 
 	#each in icons as var icon:
 		&-icon-#{icon}:

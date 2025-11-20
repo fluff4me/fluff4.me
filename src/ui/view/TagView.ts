@@ -2,6 +2,7 @@ import EndpointFeedGet from 'endpoint/feed/EndpointFeedGet'
 import EndpointFeedGetAuthed from 'endpoint/feed/EndpointFeedGetAuthed'
 import Session from 'model/Session'
 import Tags from 'model/Tags'
+import ActionBlock from 'ui/component/ActionBlock'
 import TagBlock from 'ui/component/TagBlock'
 import WorkFeed from 'ui/component/WorkFeed'
 import View from 'ui/view/shared/component/View'
@@ -35,7 +36,14 @@ export default ViewDefinition({
 	create (params: TagViewParams, { tag }) {
 		const view = View('tag')
 
-		TagBlock(tag)
+		const tagBlock = TagBlock(tag)
+			.viewTransition('tag-view-tag')
+			.appendTo(view.content)
+
+		ActionBlock()
+			.viewTransition('tag-view-tag-actions')
+			.attachAbove()
+			.addActions(tagBlock)
 			.appendTo(view.content)
 
 		WorkFeed()

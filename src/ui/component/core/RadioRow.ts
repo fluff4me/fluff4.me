@@ -9,6 +9,7 @@ interface RadioRowExtensions<ID extends string> {
 	readonly selection: State<ID | undefined>
 	readonly default: Applicator.Optional<this, ID>
 	add<NEW_ID extends string> (id: NEW_ID, initialiser: (radio: RadioButton, id: NEW_ID) => unknown): RadioRow<ID | NEW_ID>
+	select (id: ID | undefined): this
 }
 
 interface RadioRow<ID extends string = never> extends Input, RadioRowExtensions<ID> { }
@@ -43,6 +44,10 @@ const RadioRow = Component.Builder((component: Component): RadioRow => {
 				button.style.bind(button.checked, 'radio-row-option--selected')
 				button.bindDisabled(button.checked, 'selection')
 
+				return row
+			},
+			select (id) {
+				selection.value = id
 				return row
 			},
 		}))

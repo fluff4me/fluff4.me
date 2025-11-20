@@ -9,6 +9,9 @@ action/auth-to-patreon=shared/action/auth
 action/unlink-patreon: Unlink ({0})
 action/login: Log In With Patreon
 
+work/action/expand-details: Expand details
+work/action/hide-details: Hide details
+
 ### dialog/patron
 title: Authenticate as Patron
 description: In order to view this content, please sign in to the Patreon account that you pledge with.

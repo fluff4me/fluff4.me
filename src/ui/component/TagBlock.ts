@@ -3,6 +3,7 @@ import Session from 'model/Session'
 import type { TagsManifest } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
+import type { ActionProvider } from 'ui/component/ActionBlock'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import Heading from 'ui/component/core/Heading'
@@ -16,7 +17,7 @@ import { createSearchParams } from 'ui/view/SearchView'
 import AbortPromise from 'utility/AbortPromise'
 import State from 'utility/State'
 
-interface TagBlockExtensions {
+interface TagBlockExtensions extends ActionProvider {
 
 }
 
@@ -27,51 +28,30 @@ const TagBlock = Component.Builder((component, tag: TagData, manifestIn?: TagsMa
 	if (!manifest.value)
 		void Tags.getManifest().then(value => manifest.value = value)
 
+	const id = Tags.toId(tag)
+
 	const block = component
 		.and(Block)
 		.style('tag-block')
-		.extend<TagBlockExtensions>(tab => ({}))
-
-	const id = Tags.toId(tag)
+		.extend<TagBlockExtensions>(tab => ({
+			getActions (owner, actions) {
+				actions.addFollowing(owner, {
+					isApplicable: Session.Auth.loggedIn,
+					isFollowing: Follows.map(owner, () => Follows.followingTag(id)),
+					isIgnoring: Follows.map(owner, () => Follows.ignoringTag(id)),
+					follow: () => Follows.followTag(id),
+					unfollow: () => Follows.unfollowTag(id),
+					ignore: () => Follows.ignoreTag(id),
+					unignore: () => Follows.unignoreTag(id),
+				})
+			},
+		}))
 
 	block.header.style('tag-block-header')
 
 	FollowingBookmark(follows => follows.followingTag(id))
 		.style('tag-block-following-bookmark')
 		.appendTo(block.header)
-
-	block.setActionsMenu(popover => {
-		Session.Auth.loggedIn.use(popover, loggedIn => {
-			if (!loggedIn)
-				return
-
-			Button()
-				.type('flush')
-				.bindIcon(Follows.map(popover, () => Follows.followingTag(id)
-					? 'circle-check-big'
-					: 'circle'))
-				.text.bind(Follows.map(popover, () => quilt =>
-					Follows.followingTag(id)
-						? quilt['tag/action/label/unfollow']()
-						: quilt['tag/action/label/follow']()
-				))
-				.event.subscribe('click', () => Follows.toggleFollowingTag(id))
-				.appendTo(popover)
-
-			Button()
-				.type('flush')
-				.bindIcon(Follows.map(popover, () => Follows.ignoringTag(id)
-					? 'ban'
-					: 'circle'))
-				.text.bind(Follows.map(popover, () => quilt =>
-					Follows.ignoringTag(id)
-						? quilt['tag/action/label/unignore']()
-						: quilt['tag/action/label/ignore']()
-				))
-				.event.subscribe('click', () => Follows.toggleIgnoringTag(id))
-				.appendTo(popover)
-		})
-	})
 
 	const info = Component()
 		.style('tag-block-info')

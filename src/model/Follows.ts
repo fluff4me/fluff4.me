@@ -10,6 +10,7 @@ import EndpointIgnoreRemove from 'endpoint/follow/EndpointIgnoreRemove'
 import EndpointIgnoreRemoveWork from 'endpoint/follow/EndpointIgnoreRemoveWork'
 import Manifest from 'model/Manifest'
 import Works from 'model/Works'
+import State from 'utility/State'
 import Time from 'utility/Time'
 
 const manifest = Manifest<{ [KEY in keyof FollowsManifest]: Partial<FollowsManifest[KEY]> }>({
@@ -38,7 +39,10 @@ const manifest = Manifest<{ [KEY in keyof FollowsManifest]: Partial<FollowsManif
 	},
 })
 
+const changingState = State(false)
 const Util = {
+
+	changingState,
 
 	getTotalFollowing () {
 		return 0
@@ -78,7 +82,9 @@ const Util = {
 		if (Util.followingAuthor(vanity))
 			return // already following
 
+		changingState.value = true
 		const response = await EndpointFollowAdd.Author.query({ params: { id: vanity } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -98,7 +104,9 @@ const Util = {
 		if (!Util.followingAuthor(vanity))
 			return // not following
 
+		changingState.value = true
 		const response = await EndpointFollowRemove.Author.query({ params: { id: vanity } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -120,7 +128,9 @@ const Util = {
 		if (Util.ignoringAuthor(vanity))
 			return // already following
 
+		changingState.value = true
 		const response = await EndpointIgnoreAdd.Author.query({ params: { id: vanity } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -140,7 +150,9 @@ const Util = {
 		if (!Util.ignoringAuthor(vanity))
 			return // not ignoring
 
+		changingState.value = true
 		const response = await EndpointIgnoreRemove.Author.query({ params: { id: vanity } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -173,7 +185,9 @@ const Util = {
 		if (Util.followingWork(work))
 			return // already following
 
+		changingState.value = true
 		const response = await EndpointFollowAddWork.query({ params: { author: work.author, vanity: work.vanity } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -193,7 +207,9 @@ const Util = {
 		if (!Util.followingWork(work))
 			return // not following
 
+		changingState.value = true
 		const response = await EndpointFollowRemoveWork.query({ params: { author: work.author, vanity: work.vanity } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -215,7 +231,9 @@ const Util = {
 		if (Util.ignoringWork(work))
 			return // already following
 
+		changingState.value = true
 		const response = await EndpointIgnoreAddWork.query({ params: { author: work.author, vanity: work.vanity } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -235,7 +253,9 @@ const Util = {
 		if (!Util.ignoringWork(work))
 			return // not ignoring
 
+		changingState.value = true
 		const response = await EndpointIgnoreRemoveWork.query({ params: { author: work.author, vanity: work.vanity } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -268,7 +288,9 @@ const Util = {
 		if (Util.followingTag(tag))
 			return // already following
 
+		changingState.value = true
 		const response = await EndpointFollowAdd.Tag.query({ params: { id: tag } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -288,7 +310,9 @@ const Util = {
 		if (!Util.followingTag(tag))
 			return // not following
 
+		changingState.value = true
 		const response = await EndpointFollowRemove.Tag.query({ params: { id: tag } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -310,7 +334,9 @@ const Util = {
 		if (Util.ignoringTag(tag))
 			return // already following
 
+		changingState.value = true
 		const response = await EndpointIgnoreAdd.Tag.query({ params: { id: tag } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -330,7 +356,9 @@ const Util = {
 		if (!Util.ignoringTag(tag))
 			return // not ignoring
 
+		changingState.value = true
 		const response = await EndpointIgnoreRemove.Tag.query({ params: { id: tag } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -363,7 +391,9 @@ const Util = {
 		if (Util.followingCategory(category))
 			return // already following
 
+		changingState.value = true
 		const response = await EndpointFollowAdd.Category.query({ params: { id: category } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -383,7 +413,9 @@ const Util = {
 		if (!Util.followingCategory(category))
 			return // not following
 
+		changingState.value = true
 		const response = await EndpointFollowRemove.Category.query({ params: { id: category } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -405,7 +437,9 @@ const Util = {
 		if (Util.ignoringCategory(category))
 			return // already following
 
+		changingState.value = true
 		const response = await EndpointIgnoreAdd.Category.query({ params: { id: category } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
@@ -425,7 +459,9 @@ const Util = {
 		if (!Util.ignoringCategory(category))
 			return // not ignoring
 
+		changingState.value = true
 		const response = await EndpointIgnoreRemove.Category.query({ params: { id: category } })
+		changingState.value = false
 		if (toast.handleError(response))
 			return
 
