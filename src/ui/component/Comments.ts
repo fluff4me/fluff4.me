@@ -28,7 +28,7 @@ const Comments = Component.Builder((rawComponent, threadId: UUID, threadAuthor: 
 
 	Slot()
 		.use(Session.Auth.author, AbortPromise.asyncFunction(async (signal, slot, author) => {
-			const comment: CommentData = { comment_id: threadId }
+			const comment: CommentData = { comment_id: threadId, replyable: true }
 			const comments = State<(CommentData | CommentEditor)[]>([comment])
 			const authors = State<AuthorMetadata[]>(!author ? [] : [author])
 
