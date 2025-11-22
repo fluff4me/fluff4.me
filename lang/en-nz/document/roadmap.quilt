@@ -11,10 +11,11 @@ roadmap:
 	#### Customisable home
 	*In the "Home" view, allow setting up multiple custom filters, so you can see what's new, hot, or recently completed in each of them!*
 	</WEAVE>
-
+	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Recommendations
-	*Recommend works to forward the love from your followers! You'll be able to attach a message about why you're recommending the work, and the recommendation will be visible on your profile.*
+	#### Work promotion
+	*Being a supporter will grant you a certain number of monthly "promotions" to use on your works as you see fit. These promotions will place your work in the recommendations sidebar of fluff4.me readers.*
+	{#SUPPORTERS-ONLY:}
 	</WEAVE>
 
 	---
@@ -26,15 +27,6 @@ roadmap:
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
-	#### Work promotion
-	*Being a supporter will grant you a certain number of monthly "promotions" to use on your works as you see fit. These promotions will place your work in the recommendations sidebar of fluff4.me readers.*
-	{#SUPPORTERS-ONLY:}
-	</WEAVE>
-	
-	---
-	## Later
-	
-	<WEAVE TAG=".MINIBLOCK">
 	#### Collections
 	*Imagine a music or video playlist, but instead for works. Useful for:*
 	- *An ongoing series of books (works) — in which case you'll also be able to set it so that following one work is equivalent to following the series itself.*
@@ -42,6 +34,19 @@ roadmap:
 	- *Making a collection of stories you'd like to recommend reading.*
 	- *Making a collection of stories to hold stories by other authors set in one of your universes, or to hold fanfics for one of your stories.*
 	
+	</WEAVE>
+	
+	---
+	## Later
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Events
+	*Both sitewide events joinable by anyone, and custom invite-only events!*
+	</WEAVE>
+	
+	<WEAVE TAG=".MINIBLOCK">
+	#### Forum
+	*Comment threads, but no longer just on works and chapters.*
 	</WEAVE>
 	
 	<WEAVE TAG=".MINIBLOCK">
