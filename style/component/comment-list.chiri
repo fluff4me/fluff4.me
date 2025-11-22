@@ -1,0 +1,13 @@
+.comment-list:
+
+	&-content:
+		; %padding-top-3
+
+	&-comment:
+		%padding-inline-4
+		%margin-top-3
+
+	&-placeholder-wrapper:
+		#after: .block
+		@before:
+			%backdrop-filter-none

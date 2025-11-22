@@ -12,16 +12,27 @@ import Works from 'model/Works'
 import Component from 'ui/Component'
 import ActionBlock from 'ui/component/ActionBlock'
 import Chapter from 'ui/component/Chapter'
+import type { CommentData } from 'ui/component/Comment'
+import Comment from 'ui/component/Comment'
+import type { CommentTreeRenderDefinition } from 'ui/component/CommentTree'
+import CommentTree from 'ui/component/CommentTree'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
+import GradientText from 'ui/component/core/ext/GradientText'
+import Link from 'ui/component/core/Link'
 import Paginator from 'ui/component/core/Paginator'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
+import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import Work from 'ui/component/Work'
+import DynamicDestination from 'ui/utility/DynamicDestination'
+import Viewport from 'ui/utility/Viewport'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import Errors from 'utility/Errors'
+import Objects from 'utility/Objects'
 import State from 'utility/State'
+import type { UUID } from 'utility/string/Strings'
 
 export default ViewDefinition({
 	async load (params: WorkParams) {
@@ -64,7 +75,21 @@ export default ViewDefinition({
 			.style.bind(workData.map(view, work => !!work.bookmarks?.url_read_last && !work.bookmarks.url_next), 'view-type-work-bookmark-action--irrelevant')
 		)
 
-		// TODO add custom bookmark action for being caught up or finished, leaving a recommendation
+		// TODO add custom bookmark action for being caught up or finished, leaving a recommendationg
+
+		const tabletMode = Viewport.tablet
+
+		const tabinator = Tabinator()
+			.viewTransition('work-view-tabinator')
+			.tweak(tabinator => tabinator.header.prependToWhen(tabletMode.truthy, tabinator))
+			.appendTo(view.content)
+
+		const chaptersTab = Tab('chapters')
+			.text.use('view/work/chapters/title')
+			.addTo(tabinator)
+
+		////////////////////////////////////
+		//#region Chapters
 
 		const movingChapter = State<ChapterMetadata | undefined>(undefined)
 		const editMode = State(false)
@@ -254,7 +279,129 @@ export default ViewDefinition({
 				// 			.event.subscribe('click', () => navigate.toURL(`/work/${workData.value.author}/${workData.value.vanity}/chapter/new`))))
 				// )
 			)
-			.appendTo(view.content)
+			.appendTo(chaptersTab.content)
+
+		//#endregion
+		////////////////////////////////////
+
+		const commentsTab = Tab('comments')
+			.text.use('view/work/comments/title')
+			.addToWhen(tabletMode.truthy, tabinator)
+
+		const commentState = workData.mapManual(work => !work.root_comment ? undefined : {
+			threadId: work.root_comment as UUID,
+			threadAuthor: work.author,
+		}, Objects.deepEquals)
+		Block()
+			.style('view-type-work-comment-block')
+			.tweak(block => block.header.style('view-type-work-comment-block-header'))
+			.tweak(block => block.title
+				.setAestheticLevel(4)
+				.text.use('view/work/comments/title')
+			)
+			.tweak(block => block.content.append(Slot().use([commentState, workData], (slot, thread, work) => {
+				if (!thread)
+					return
+
+				const isOwnWork = Session.Auth.loggedInAs(slot, thread.threadAuthor)
+				const commentsRenderDefinition: CommentTreeRenderDefinition = {
+					simpleTimestamps: true,
+					onCommentsUpdate (comments) {
+						const ownRecommendation = comments.find(comment => comment.author === Session.Auth.author.value?.vanity && !comment.edit)
+						if (!work.recommendation && ownRecommendation) {
+							work.recommendation = ownRecommendation
+							workData.emit()
+						}
+					},
+					shouldSkipComment (data) {
+						return true
+							&& data.author === Session.Auth.author.value?.vanity
+							&& !data.edit
+					},
+					onRenderComment (comment, data) {
+						comment
+							.style('view-type-work-comment')
+							.style.toggle(!!comment.editor, 'view-type-work-comment--has-editor')
+							.style.toggle(!data.comment_id, 'view-type-work-comment--is-new-comment')
+
+						if (!comment.editor)
+							return
+
+						comment.editor
+							.setMinimal(tabletMode.falsy)
+							.hint.use()
+
+						if (data.comment_id)
+							// this is an editor for an existing comment
+							return
+
+						// this is the new comment editor (only possible on root)
+						// dynamically replace the editor with hints or the existing recommendation if applicable
+						const existingRecommendation = work.recommendation as CommentData | undefined
+						const canRecommend = !existingRecommendation && !work.bookmarks?.can_recommend ? State(false)
+							: isOwnWork.falsy
+						const noExistingRecommendation = State(!existingRecommendation)
+						const showCommentEditor = State.Every(comment, canRecommend, noExistingRecommendation)
+						const showCommentHint = State.Every(comment, canRecommend.falsy, isOwnWork.falsy, noExistingRecommendation)
+
+						comment.author?.text.use('view/work/comments/action/add/label')
+							.style('view-type-work-comment-editor-author-hint')
+						comment.onRooted(() => {
+							const parent = comment.parent!
+
+							// show comment editor only when able to recommend & no existing recommendation
+							comment.prependToWhen(showCommentEditor, parent)
+
+							// show hint when unable to recommend & no existing recommendation
+							Link(undefined)
+								.and(GradientText)
+								.useGradient(Session.Auth.author.value?.supporter?.username_colours)
+								.style('view-type-work-comment-hint', 'author-link')
+								.text.use('view/work/comments/action/no-add/label')
+								.prependToWhen(showCommentHint, parent)
+
+							// otherwise show existing recommendation
+							if (existingRecommendation) {
+								const existingRecommendationState = State([existingRecommendation])
+								existingRecommendationState.subscribeManual(([existingRecommendation]) => {
+									if (!existingRecommendation) {
+										work.recommendation = undefined
+										workData.emit()
+									}
+								})
+								Comment(
+									{ threadAuthor: thread.threadAuthor, comments: existingRecommendationState, authors: State(existingRecommendation.body?.mentions ?? []) },
+									existingRecommendation,
+									undefined,
+									commentsRenderDefinition,
+								)
+									.prependTo(parent)
+							}
+						})
+					},
+					onNoComments (slot) {
+						Placeholder()
+							.style('view-type-work-comment-placeholder', 'view-type-work-comment-placeholder--empty')
+							.style.bind(isOwnWork, 'view-type-work-comment-placeholder--empty--is-own-work')
+							.text.use('view/work/comments/content/empty')
+							.appendTo(slot)
+					},
+					onCommentsEnd (slot) {
+						Placeholder()
+							.style('view-type-work-comment-placeholder', 'view-type-work-comment-placeholder--end')
+							.text.use('view/work/comments/content/end')
+							.appendTo(slot)
+					},
+				}
+
+				return CommentTree(thread.threadId, thread.threadAuthor, true, commentsRenderDefinition)
+					.style('view-type-work-comment-tree')
+			})))
+			.appendTo(DynamicDestination(view)
+				.addDestination('tab', commentsTab.content)
+				.addDestination('sidebar', view.sidebar)
+				.setStrategy(tabletMode.map(view, tabletMode => tabletMode ? 'tab' : 'sidebar'))
+			)
 
 		return view
 	},

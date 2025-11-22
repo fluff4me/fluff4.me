@@ -1,7 +1,7 @@
 .search:
 	%block
 	%relative
-	#string min-search-width = "calc(#{content-width} + $app-column-width * 2)
+	#string min-search-width = "calc(#{content-width} + $nav-column-width * 2)
 	width: min(#{min-search-width}, 100%)
 	%margin-auto
 

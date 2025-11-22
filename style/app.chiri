@@ -1,4 +1,5 @@
 $app-column-width: #{app-column-width}
+$nav-column-width: #{nav-column-width}
 
 .app:
 	%width-100
@@ -12,7 +13,7 @@ $app-column-width: #{app-column-width}
 		$banner-height
 		1fr
 	grid-template-columns:
-		$app-column-width 1fr $app-column-width
+		$nav-column-width 1fr $app-column-width
 	$banner-height: 0px
 
 	#laptop:
@@ -34,12 +35,6 @@ $app-column-width: #{app-column-width}
 
 	&-content:
 		%contents
-
-		&-related:
-			width: $app-column-width
-
-			#tablet:
-				%hidden
 
 		#flush:
 			$masthead-height: 0px
@@ -96,8 +91,8 @@ $app-column-width: #{app-column-width}
 
 		&--no-sidebar:
 			#after: .app-footer
-			margin-left: calc(0px - $app-column-width - $space-4)
-			grid-template-columns: $app-column-width 1fr repeat(3, calc(($content-width - $space-4 * 2) / 3)) 1fr $app-column-width
+			margin-left: calc(0px - $nav-column-width - $space-4)
+			grid-template-columns: $nav-column-width 1fr repeat(3, calc(($content-width - $space-4 * 2) / 3)) 1fr $nav-column-width
 
 			#tablet:
 				%margin-left-0
@@ -180,7 +175,7 @@ $app-column-width: #{app-column-width}
 
 .masthead:
 	grid-area: masthead
-	grid-template-columns: $app-column-width 1fr $app-column-width
+	grid-template-columns: $nav-column-width 1fr $nav-column-width
 	grid-template-areas: "left mid right"
 
 .sidebar:

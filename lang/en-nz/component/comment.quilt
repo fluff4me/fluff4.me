@@ -21,3 +21,5 @@ context/chapter_private/comment: {#B:commented} on a private chapter
 context/chapter_private/reply: {#B:replied} in a thread on a private chapter
 context/orphaned/comment: has an {#B:orphaned} comment
 context/orphaned/reply: has a reply in an {#B:orphaned} thread
+
+list/empty: And all was quiet...

@@ -1,19 +1,19 @@
 import type { AuthorComment } from 'api.fluff4.me'
 import EndpointAuthorGet from 'endpoint/author/EndpointAuthorGet'
-import EndpointCommentGetAllAuthor from 'endpoint/comment/EndpointCommentGetAllAuthor'
+import EndpointCommentGetAllAuthorChapter from 'endpoint/comment/EndpointCommentGetAllAuthorChapter'
+import EndpointCommentGetAllAuthorWork from 'endpoint/comment/EndpointCommentGetAllAuthorWork'
 import EndpointWorkGetAllAuthor from 'endpoint/work/EndpointWorkGetAllAuthor'
 import PagedData from 'model/PagedData'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
-import Component from 'ui/Component'
 import ActionBlock from 'ui/component/ActionBlock'
 import Author from 'ui/component/Author'
 import type { CommentData } from 'ui/component/Comment'
-import Comment from 'ui/component/Comment'
+import type { CommentListPageData } from 'ui/component/CommentList'
+import CommentList from 'ui/component/CommentList'
 import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
-import Paginator from 'ui/component/core/Paginator'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import WorkFeed from 'ui/component/WorkFeed'
 import View from 'ui/view/shared/component/View'
@@ -83,58 +83,69 @@ export default ViewDefinition({
 			.appendTo(worksTab?.content ?? view.content)
 
 		if (contentTabinator)
+			Tab('recommendations')
+				.setIcon('heart')
+				.text.use('view/author/recommendations/title')
+				.tweak(tab => {
+					const GetCommentData = (comment: AuthorComment): CommentData => ({ ...comment.comment as CommentData, author: author.vanity })
+
+					const comments = PagedData.fromEndpoint(EndpointCommentGetAllAuthorWork.prep(
+						{
+							params: {
+								vanity: params.vanity,
+							},
+						},
+					)).map((authorComments): CommentListPageData => ({
+						comments: authorComments.comments.map(comment => ({
+							data: GetCommentData(comment),
+							metadata: {
+								context: {
+									root_object: comment.root_object,
+									is_reply: comment.is_reply || undefined,
+								},
+							},
+						})),
+						authors: authorComments.authors,
+						works: authorComments.works,
+						chapters: authorComments.chapters,
+					}))
+					CommentList()
+						.viewTransition('author-view-recommendations')
+						.set({ data: comments, placeholder: placeholder => placeholder.text.use('view/author/recommendations/content/empty') })
+						.appendTo(tab.content)
+				})
+				.addTo(contentTabinator)
+
+		if (contentTabinator)
 			Tab('comments')
 				.setIcon('comment')
 				.text.use(quilt => quilt['view/author/comments/title'](author.comments_privated))
 				.tweak(tab => {
 					const GetCommentData = (comment: AuthorComment): CommentData => ({ ...comment.comment as CommentData, author: author.vanity })
 
-					const comments = PagedData.fromEndpoint(EndpointCommentGetAllAuthor.prep(
+					const comments = PagedData.fromEndpoint(EndpointCommentGetAllAuthorChapter.prep(
 						{
 							params: {
 								vanity: params.vanity,
 							},
 						},
-						{
-							filter: 'chapter',
-						},
-					))
-					Paginator()
+					)).map((authorComments): CommentListPageData => ({
+						comments: authorComments.comments.map(comment => ({
+							data: GetCommentData(comment),
+							metadata: {
+								context: {
+									root_object: comment.root_object,
+									is_reply: comment.is_reply || undefined,
+								},
+							},
+						})),
+						authors: authorComments.authors,
+						works: authorComments.works,
+						chapters: authorComments.chapters,
+					}))
+					CommentList()
 						.viewTransition('author-view-comments')
-						.style('view-type-author-comment-paginator')
-						.tweak(p => p.content
-							.style('view-type-author-comment-paginator-content')
-						)
-						// .tweak(p => p.title.text.use('view/author/comments/title'))
-						.set(comments, 0, (slot, { comments, authors, works, chapters }) =>
-							slot.append(...comments.map(commentData =>
-								Comment(
-									{
-										threadAuthor: '@',
-										comments: State(comments.map(GetCommentData)),
-										authors: State([author]),
-									},
-									GetCommentData(commentData),
-									{
-										context: {
-											root_object: commentData.root_object,
-											is_reply: commentData.is_reply || undefined,
-											authors,
-											works,
-											chapters,
-										},
-									},
-								)
-									.style('view-type-author-comment')
-									.appendTo(slot)
-							)))
-						.orElse(slot => Block()
-							.type('flush')
-							.tweak(block => Component()
-								.style('placeholder')
-								.text.use('view/author/comments/content/empty')
-								.appendTo(block.content))
-							.appendTo(slot))
+						.set({ data: comments, placeholder: placeholder => placeholder.text.use('view/author/comments/content/empty') })
 						.appendTo(tab.content)
 				})
 				.addTo(contentTabinator)

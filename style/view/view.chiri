@@ -11,6 +11,13 @@
 		grid-template-columns: 1fr auto $space-4 minmax(auto, $app-column-width) 1fr
 		%column-gap-0
 
+	&--has-sidebar:
+		#after: .view
+		grid-template-columns: 1fr auto $app-column-width 1fr
+
+		#laptop:
+			grid-template-columns: 1fr auto $space-4 minmax(auto, $app-column-width) 1fr
+
 	#tablet:
 		%flex
 		%flex-column
@@ -168,6 +175,14 @@
 
 		#laptop:
 			%align-self-centre
+
+	&-sidebar:
+		%column-3
+		%align-self-start
+		$content-width: $app-column-width
+
+		#laptop:
+			%column-4
 
 #macro view:
 	#string type

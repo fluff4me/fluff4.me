@@ -1,5 +1,6 @@
 # notification
 comment-chapter: {TRIGGERED_BY} has commented on {CHAPTER} of {WORK}
+comment-work: {TRIGGERED_BY} has left a recommendation on {WORK}
 comment-reply: {TRIGGERED_BY} has replied to your comment on {CHAPTER} of {WORK}
 comment-mention: {TRIGGERED_BY} has mentioned you in a comment on {CHAPTER} of {WORK}
 report/label/reason: Reason given:
@@ -16,7 +17,8 @@ report-harassment: {AUTHOR} has been reported for harassment by {TRIGGERED_BY}{C
 report-work-unlock: {TRIGGERED_BY} has requested their work {WORK} to be unlocked
 work-locked: Your work {WORK} has been locked due to a Terms of Service violation
 work-unlocked: Your work {WORK} is no longer locked
-author-censored: One or more fields in your profile have been removed due to Terms of Service violations
-work-censored: One or more fields in your work {WORK} have been removed due to Terms of Service violations
-chapter-censored: One or more fields in your chapter {CHAPTER} of work {WORK} have been removed due to Terms of Service violations
-patreon-needs-reauth: The fluff4.me campaign must be [reauthenticated](https://api.fluff4.me/admin/auth/campaign/begin)
+censored-author: One or more fields in your profile have been removed due to Terms of Service violations
+censored-work: One or more fields in your work {WORK} have been removed due to Terms of Service violations
+censored-chapter: One or more fields in your chapter {CHAPTER} of work {WORK} have been removed due to Terms of Service violations
+moderation-patreon-needs-reauth: The fluff4.me campaign must be [reauthenticated](https://api.fluff4.me/admin/auth/campaign/begin)
+moderation-suspicious-author: {AUTHOR} is suspicious

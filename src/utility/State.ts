@@ -9,7 +9,7 @@ import { NonNullish as FilterNonNullish } from 'utility/Arrays'
 import Define from 'utility/Define'
 import Functions from 'utility/Functions'
 import Objects, { mutable } from 'utility/Objects'
-import type { Mutable as MakeMutable, SupplierOr } from 'utility/Type'
+import type { AnyFunction, Mutable as MakeMutable, SupplierOr } from 'utility/Type'
 
 export type StateOr<T> = State<T> | T
 export type MutableStateOr<T> = MutableState<T> | T
@@ -80,6 +80,7 @@ interface InternalState<T> {
 function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): MutableState<T> {
 	let unuseBoundState: UnsubscribeState | undefined
 	let equalsMap: Map<T, State.Generator<boolean>> | undefined
+	const subscriptionMap = new WeakMap<AnyFunction, AnyFunction>()
 	const result: MakeMutable<MutableState<T>> & InternalState<T> = {
 		isState: true,
 		setId (id) {
@@ -134,6 +135,7 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 			let subOwner: State.Owner.Removable | undefined
 			result.subscribe(owner, executeSubscriber)
 			executeSubscriber(result[SYMBOL_VALUE], undefined)
+			subscriptionMap.set(subscriber, executeSubscriber)
 			return () => result.unsubscribe(executeSubscriber)
 
 			function executeSubscriber (value: T, oldValue: T | undefined) {
@@ -145,6 +147,7 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 			let subOwner: State.Owner.Removable | undefined
 			result.subscribeManual(executeSubscriber)
 			executeSubscriber(result[SYMBOL_VALUE], undefined)
+			subscriptionMap.set(subscriber, executeSubscriber)
 			return () => result.unsubscribe(executeSubscriber)
 
 			function executeSubscriber (value: T, oldValue: T | undefined) {
@@ -176,7 +179,8 @@ function State<T> (defaultValue: T, comparator?: ComparatorFunction<T>): Mutable
 			return () => result.unsubscribe(subscriber)
 		},
 		unsubscribe: subscriber => {
-			result[SYMBOL_SUBSCRIBERS].filterInPlace(s => s !== subscriber)
+			const derefedActualSubscriber = subscriptionMap.get(subscriber)
+			result[SYMBOL_SUBSCRIBERS].filterInPlace(s => s !== subscriber && s !== derefedActualSubscriber)
 			return result
 		},
 		match (owner, values, then) {
@@ -311,6 +315,12 @@ namespace State {
 				removed,
 				remove: () => removed.value = true,
 			}
+		}
+
+		export function sub (owner: State.Owner): Owner.Removable {
+			const subOwner = State.Owner.create()
+			State.Owner.getOwnershipState(owner).match(subOwner, true, subOwner.remove)
+			return subOwner
 		}
 	}
 

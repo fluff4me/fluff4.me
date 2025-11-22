@@ -30,12 +30,15 @@ interface Page<T> extends Slot {
 	content: PromiseOr<State<T | false | null>>
 }
 
+export type PaginatorHasResultsPredicate<DATA> = (data: DATA, hasResults: (data: unknown) => boolean) => unknown
+
 interface PaginatorExtensions<DATA = any> {
 	readonly headerActions: ActionRow
 	readonly page: State.Mutable<number>
 	readonly data: State<DATA>
 	readonly scrollAnchorBottom: Component
 	set<DATA_SOURCE extends PagedData<DATA>> (data: DATA_SOURCE, page: number, initialiser: (slot: Slot, data: DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never, page: number, source: DATA_SOURCE, paginator: this) => unknown): Paginator<DATA_SOURCE extends PagedData<infer NEW_DATA> ? NEW_DATA : never>
+	setHasResults (predicate?: PaginatorHasResultsPredicate<DATA | undefined | null | false>): this
 	orElse (initialiser: (slot: Slot, paginator: this) => unknown): this
 	setScroll (scroll: boolean | ((target: HTMLElement, direction: 'forward' | 'backward', context: ScrollContext) => unknown)): this
 	getPages (): (Page<DATA> | undefined)[]
@@ -157,6 +160,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 
 	let initialiser: ((slot: Slot, data: T, page: number, source: PagedData<T>, paginator: Paginator<T>) => unknown) | undefined
 	let orElseInitialiser: ((slot: Slot, paginator: Paginator<T>) => unknown) | undefined
+	let hasResultsPredicate: PaginatorHasResultsPredicate<T | undefined | null | false> | undefined
 
 	let scrollOption: boolean | undefined | ((target: HTMLElement, direction: 'forward' | 'backward', context: ScrollContext) => unknown)
 
@@ -184,15 +188,19 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				data.event.subscribe('DeletePage', emitCursorUpdate)
 				unsubscribeDataDeletePage = () => data.event.unsubscribe('DeletePage', emitCursorUpdate)
 				unuseComponentRemoveToUnsubscribeDataDeletePage = component.removed.matchManual(true, unsubscribeDataDeletePage)
-				return this as never
+				return component
 			},
 			orElse (initialiser) {
 				orElseInitialiser = initialiser
-				return this
+				return component
+			},
+			setHasResults (predicate) {
+				hasResultsPredicate = predicate
+				return component
 			},
 			setScroll (scroll = true) {
 				scrollOption = scroll
-				return this
+				return component
 			},
 			getPages () {
 				return pages
@@ -280,7 +288,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 
 				const content = await newPage.content
 
-				const hasContent = content?.value === false || hasResults(content?.value)
+				const hasContent = content?.value === false || (hasResultsPredicate ?? hasResults)(content?.value, hasResults)
 				if (hasContent) {
 					newPage.style.remove('paginator-page--hidden')
 					// waiting for transition end is broken by some kind of transition bug causing the event to never fire
@@ -348,7 +356,7 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 				const pageContent = data.get(pageNumber)
 				void Promise.resolve(pageContent).then(pageContent => {
 					pageContent.use(slot, async content => {
-						const hasContent = hasResults(content)
+						const hasContent = (hasResultsPredicate ?? hasResults)(content, hasResults)
 						if (hasContent) {
 							if (paginator.getViewTransition())
 								ViewTransition.perform('subview', viewTransitionName, swap)

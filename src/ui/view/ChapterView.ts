@@ -16,7 +16,7 @@ import Component from 'ui/Component'
 import ActionBlock from 'ui/component/ActionBlock'
 import AuthorLink from 'ui/component/AuthorLink'
 import Chapter from 'ui/component/Chapter'
-import Comments from 'ui/component/Comments'
+import CommentTree from 'ui/component/CommentTree'
 import Button from 'ui/component/core/Button'
 import Details from 'ui/component/core/Details'
 import GradientText from 'ui/component/core/ext/GradientText'
@@ -324,7 +324,7 @@ export default ViewDefinition({
 									return
 
 								const reactions = Random.shuffle(chapter.supporter_reactions)
-								const detailed = chapter.supporter_reactions.length < 5
+								const detailed = chapter.supporter_reactions.length < 9
 
 								list.style('view-type-chapter-block-supporter-reaction-list')
 									.style.toggle(detailed, 'view-type-chapter-block-supporter-reaction-list--detailed')
@@ -507,7 +507,7 @@ export default ViewDefinition({
 				if (!thread)
 					return
 
-				return Comments(thread.threadId, thread.threadAuthor, true)
+				return CommentTree(thread.threadId, thread.threadAuthor, true)
 			})
 			.appendTo(view.content)
 

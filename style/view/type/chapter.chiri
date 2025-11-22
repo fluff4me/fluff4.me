@@ -233,8 +233,9 @@
 		&-supporter-reaction-list:
 			%style-normal
 			&--detailed:
-				%flex
-				%flex-column
+				%grid
+				grid-template-columns: 1fr 1fr
+				max-width: min($space-8, calc(100vw - $space-3))
 			&--compressed:
 				%flex
 				%flex-wrap
@@ -248,6 +249,7 @@
 				%flex
 				%gap-1
 				%align-items-centre
+				%clamp-1
 
 		&-author-statistics:
 			%unmargin-top-2

@@ -1,5 +1,12 @@
 ## work
 
+### comments
+title: Recommendations
+content/empty: No recommendations yet...
+content/end: No more recommendations
+action/add/label: Recommend this work:
+action/no-add/label: Read more of this work to leave a recommendation!
+
 ### chapters
 title=shared/term/chapters
 content/empty: This work does not contain any chapters.

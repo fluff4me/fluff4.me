@@ -26,6 +26,65 @@
 			#after: .view-type-work-bookmark-action
 			%hidden
 
+	&-comment:
+		&-block:
+			$block-padding: $space-3
+			&-header:
+				#after: .block-header, .paginator-header
+				; %padding-inline-3
+
+		&-hint:
+			#after: .link
+			%block
+			%padding-bottom-3
+			%border-bottom-1
+			%border-colour-5
+			%no-pointer-events
+
+		&-editor-author-hint:
+			#after: .link
+			%no-pointer-events
+
+		&--has-editor:
+			padding-bottom: calc($space-3 + $space-2)
+
+		&--is-new-comment:
+			%border-bottom-1
+			%border-colour-5
+
+		&-placeholder:
+			%flex
+			%align-items-centre
+			%gap-2
+			%colour-5
+			%font-2
+
+			&--empty:
+				%margin-block-3
+
+				&--is-own-work:
+					#after: .view-type-work-comment-placeholder--empty
+					%margin-top-0
+
+			&--end:
+				%margin-bottom-3
+
+				@before:
+				@after:
+				@before, @after:
+					%block
+					%flex-grow
+					%border-bottom-1
+					%border-colour-5
+
+		&-tree:
+			#after: .comment-tree
+			@before: %backdrop-filter-none
+			%width-auto
+			%padding-0
+			%unmargin-top-1
+			%unmargin-bottom-3
+
 	&-chapter:
 
 		&-list:

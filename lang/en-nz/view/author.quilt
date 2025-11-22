@@ -5,6 +5,10 @@ title: Works
 content/empty: This author has not yet shared any work...
 action/label/new: New Work
 
+### recommendations
+title: Recommendations
+content/empty: This author has not yet recommended a work...
+
 ### comments
 title: Comments{0? (Private)}
 content/empty: This author has not yet left a comment...

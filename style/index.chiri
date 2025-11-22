@@ -87,6 +87,8 @@
 	component/oauth-service
 	component/tags-editor
 	component/comment
+	component/comment-tree
+	component/comment-list
 	component/reaction
 	component/notification
 	component/mention

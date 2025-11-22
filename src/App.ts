@@ -159,8 +159,8 @@ async function App (): Promise<App> {
 		// 	.appendTo(document.head)
 	})
 
-	const related = Component()
-		.style('app-content-related')
+	// const related = Component()
+	// 	.style('app-content-related')
 
 	AppFooter()
 		.style.bind(masthead.sidebar.state.falsy, 'app-footer--no-sidebar')
@@ -169,7 +169,9 @@ async function App (): Promise<App> {
 
 	const content = Component()
 		.style('app-content')
-		.append(view, related)
+		.append(view
+			// , related
+		)
 
 	Component.getBody().monitorScrollEvents()
 	Component.getDocument().monitorScrollEvents()
@@ -207,7 +209,7 @@ async function App (): Promise<App> {
 			})
 			.appendTo(document.body)
 
-	ToSManager.ensureAccepted()
+	void ToSManager.ensureAccepted()
 	SiteStatusListener.listen()
 
 	await app.navigate.fromURL()

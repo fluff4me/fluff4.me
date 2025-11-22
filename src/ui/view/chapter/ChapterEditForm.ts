@@ -108,7 +108,7 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 		.default.bind(inputState.map(component, chapter => chapter?.notes_before ?? undefined))
 		.hint.use('view/chapter-edit/shared/form/notes/hint')
 		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.chapter?.notes))
-		.setMinimalByDefault()
+		.setDefaultToolbarVisibility(false)
 	table.label(label => label.text.use('view/chapter-edit/shared/form/notes/label'))
 		.content((content, label) => content.append(notesBeforeInput.setLabel(label)))
 
@@ -122,7 +122,7 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 		.default.bind(inputState.map(component, chapter => chapter?.notes_after ?? undefined))
 		.hint.use('view/chapter-edit/shared/form/notes/hint')
 		.setMaxLength(FormInputLengths.map(table, lengths => lengths?.chapter?.notes))
-		.setMinimalByDefault()
+		.setDefaultToolbarVisibility(false)
 	table.label(label => label.text.use('view/chapter-edit/shared/form/notes/label'))
 		.content((content, label) => content.append(notesAfterInput.setLabel(label)))
 

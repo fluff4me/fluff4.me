@@ -24,6 +24,7 @@ import ReportDialog, { ReportDefinition } from 'ui/component/ReportDialog'
 import WorkLink from 'ui/component/WorkLink'
 import type { Quilt } from 'ui/utility/StringApplicator'
 import { QuiltHelper } from 'ui/utility/StringApplicator'
+import type { StateOr } from 'utility/State'
 import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
 
@@ -49,18 +50,19 @@ export interface CommentEditor extends Omit<Partial<CommentData>, 'edit'> {
 }
 
 interface CommentExtensions {
-
+	readonly author?: Link
+	readonly editor?: TextEditor
 }
 
 interface Comment extends Component, CommentExtensions { }
 
-interface CommentDataSource {
+export interface CommentDataSource {
 	threadAuthor: string
 	comments: State.Mutable<(CommentData | CommentEditor)[]>
-	authors: State.Mutable<AuthorMetadata[]>
+	authors: State<AuthorMetadata[]>
 }
 
-interface CommentMetadata {
+export interface CommentMetadata {
 	// basic comment rendering metadata
 	depth?: number
 	isRootComment?: true
@@ -72,21 +74,35 @@ interface CommentMetadata {
 	context?: {
 		root_object: AuthorComment['root_object']
 		is_reply?: true
-		authors?: AuthorMetadata[]
-		works?: WorkMetadata[]
-		chapters?: ChapterMetadata[]
+		authors?: StateOr<AuthorMetadata[]>
+		works?: StateOr<WorkMetadata[]>
+		chapters?: StateOr<ChapterMetadata[]>
 	}
 }
 
-const Comment = Component.Builder((component, source: CommentDataSource, commentData: CommentData | CommentEditor, meta?: CommentMetadata): Comment => {
+export interface CommentRenderDefinition {
+	simpleTimestamps?: true
+	shouldSkipComment?(data: CommentData | CommentEditor): boolean | undefined
+	onRenderComment?(comment: Comment, data: CommentData | CommentEditor): unknown
+}
+
+const Comment = Component.Builder((component, source: CommentDataSource, commentData: CommentData | CommentEditor, meta?: CommentMetadata, renderDefinition?: CommentRenderDefinition): Comment => {
+	let authorLink: Link | undefined
+	let editor: TextEditor | undefined
 	const comment = component.and(Slot)
 		.style('comment')
 		.extend<CommentExtensions>(comment => ({}))
+		.extendMagic('editor', () => ({ get: () => editor }))
+		.extendMagic('author', () => ({ get: () => authorLink }))
 
-	const comments = source.comments.map(comment, comments =>
-		comments.filter(comment => comment === commentData || comment.parent_id === commentData.comment_id))
+	const comments = source.comments.map(comment,
+		comments => comments.filter(comment => comment === commentData || comment.parent_id === commentData.comment_id),
+		() => false,
+	)
 
 	comment.use(comments, (slot, commentsData) => {
+		editor = undefined
+
 		const isThread = false
 			// has siblings & is not a top level comment
 			|| (!meta?.noSiblings && !!meta?.hasParent)
@@ -108,12 +124,12 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 			const author = source.authors.value.find(author => author.vanity === commentData.author)
 			if (!author)
-				Link(undefined)
+				authorLink = Link(undefined)
 					.style('comment-header-author')
 					.text.use('comment/deleted/author')
 					.appendTo(header)
 			else
-				AuthorLink(author)
+				authorLink = AuthorLink(author)
 					.style('comment-header-author')
 					.appendTo(header)
 
@@ -130,9 +146,9 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 				const authorVanity = ChapterContext()?.chapter.author ?? WorkContext()?.work.author
 				const workVanity = ChapterContext()?.chapter.work ?? WorkContext()?.work.vanity
 				const chapterUrl = ChapterContext()?.chapter.url
-				const author = !authorVanity ? undefined : meta.context.authors?.find(a => a.vanity === authorVanity)
-				const work = !workVanity ? undefined : meta.context.works?.find(w => w.author === authorVanity && w.vanity === workVanity)
-				const chapter = !chapterUrl ? undefined : meta.context.chapters?.find(c => c.author === authorVanity && c.work === workVanity && c.url === chapterUrl)
+				const author = !authorVanity ? undefined : State.value(meta.context.authors)?.find(a => a.vanity === authorVanity)
+				const work = !workVanity ? undefined : State.value(meta.context.works)?.find(w => w.author === authorVanity && w.vanity === workVanity)
+				const chapter = !chapterUrl ? undefined : State.value(meta.context.chapters)?.find(c => c.author === authorVanity && c.work === workVanity && c.url === chapterUrl)
 
 				isOnPrivateObject = meta.context.root_object.type === 'work_private' || meta.context.root_object.type === 'chapter_private'
 				isOnPatronOnlyObject = chapter?.visibility === 'Patreon'
@@ -167,7 +183,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 			if (time)
 				Timestamp(time)
 					.style('comment-header-timestamp')
-					.setSimple(!!meta?.context)
+					.setSimple(!!meta?.context || !!renderDefinition?.simpleTimestamps)
 					.setTranslation(!commentData.edited_time ? undefined : quilt => quilt['comment/timestamp/edited'])
 					.appendTo(header)
 
@@ -175,7 +191,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 				////////////////////////////////////
 				//#region Text Editor Body
 
-				const textEditor = TextEditor()
+				const textEditor = editor = TextEditor()
 					.default.set(commentData.body?.body ?? '')
 					.setMaxLength(FormInputLengths.map(slot, lengths => lengths?.comment?.body))
 					.hint.use('comment/hint')
@@ -193,7 +209,9 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 						.style('comment-footer-action')
 						.text.use('comment/action/delete')
 						.event.subscribe('click', async () => {
+							savingComment.value = true
 							const response = await EndpointCommentDelete.query({ params: { id: commentData.comment_id! } })
+							savingComment.value = false
 							if (toast.handleError(response))
 								return
 
@@ -202,17 +220,18 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 						})
 						.appendTo(footer.right)
 
-				Button()
-					.style('comment-footer-action')
-					.text.use('comment/action/cancel')
-					.event.subscribe('click', () => {
-						if (commentData.created_time)
-							delete (commentData as CommentDataRaw as CommentData).edit
-						else
-							source.comments.value.filterInPlace(comment => comment !== commentData)
-						source.comments.emit()
-					})
-					.appendTo(footer.right)
+				if (meta?.hasParent)
+					Button()
+						.style('comment-footer-action')
+						.text.use('comment/action/cancel')
+						.event.subscribe('click', () => {
+							if (commentData.created_time)
+								delete (commentData as CommentDataRaw as CommentData).edit
+							else
+								source.comments.value.filterInPlace(comment => comment !== commentData)
+							source.comments.emit()
+						})
+						.appendTo(footer.right)
 
 				const savingComment = State(false)
 				Button()
@@ -240,8 +259,16 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 							const newComment = response.data
 
-							source.comments.value.filterInPlace(comment => comment !== commentData)
-							source.comments.value.push(newComment as CommentData)
+							for (const key of Object.keys(commentData))
+								// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+								delete (commentData as any)[key]
+
+							Object.assign(commentData, newComment)
+
+							// source.comments.value.filterInPlace(comment => comment !== commentData)
+							if (!source.comments.value.some(comment => comment.comment_id === commentData.comment_id))
+								source.comments.value.push(newComment as CommentData)
+
 							source.comments.emit()
 						})()
 						savingComment.value = false
@@ -275,6 +302,8 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 				const commentAuthor = author
 				Slot()
 					.use(Session.Auth.author, (slot, author) => {
+						const deletingComment = State(false)
+
 						const footer = Component('footer')
 							.style('comment-footer')
 							.appendTo(slot)
@@ -291,12 +320,18 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 							.style('comment-footer-section')
 							.appendTo(footer)
 
+						////////////////////////////////////
+						//#region Reactions
+
 						const changingReactionState = State(false)
 						const isThreadAuthor = source.threadAuthor === Session.Auth.author.value?.vanity
 						const changingAuthorHeartState = isThreadAuthor ? changingReactionState : State(false)
 						if (commentData.reactions || !commentData.reacted || !isThreadAuthor)
 							Reaction('love', commentData.reactions ?? 0, !!commentData.reacted, changingReactionState)
-								.tweak(r => r.icon.setDisabled(isOnNotViewableObject, 'not viewable'))
+								.tweak(r => r.icon
+									.setDisabled(isOnNotViewableObject, 'not viewable')
+									.bindDisabled(Session.Auth.loggedIn.falsy, 'not logged in')
+								)
 								.event.subscribe('click', async () => {
 									if (!author)
 										return
@@ -359,6 +394,9 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 							comments.emit()
 						}
 
+						//#endregion
+						////////////////////////////////////
+
 						if (!author)
 							// actions are not available to non-logged in users
 							return
@@ -373,8 +411,14 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 								.setIcon(commentData.author === author.vanity || source.threadAuthor === author.vanity ? 'trash' : 'shield-halved')
 								.text.use('comment/action/delete')
 								.event.subscribe('click', async event => {
+									deletingComment.value = true
 									const response = await EndpointCommentDelete.query({ params: { id: commentData.comment_id } })
-									toast.handleError(response)
+									deletingComment.value = false
+									if (toast.handleError(response))
+										return
+
+									source.comments.value.filterInPlace(comment => comment !== commentData)
+									source.comments.emit()
 								})
 						)
 
@@ -392,9 +436,9 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 						if (isOwnComment)
 							DeleteButton()
-								?.appendTo(primaryActionsWrapper)
+								?.appendToWhen(deletingComment.falsy, primaryActionsWrapper)
 
-						if (!isOnNotViewableObject)
+						if (!isOnNotViewableObject && commentData.replyable)
 							Button()
 								.style('comment-footer-action')
 								.type('flush')
@@ -423,7 +467,15 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 						if (source.threadAuthor === author.vanity || Session.Auth.isModerator.value)
 							DeleteButton()
-								?.appendTo(secondaryActionsWrapper)
+								?.appendToWhen(deletingComment.falsy, secondaryActionsWrapper)
+
+						Loading()
+							.tweak(loading => {
+								loading.style('comment-footer-action-loading')
+								loading.enabled.bind(loading, deletingComment)
+								loading.flag.style('comment-footer-action-loading-flag')
+							})
+							.appendToWhen(deletingComment, footer)
 					})
 					.appendTo(slot)
 
@@ -432,32 +484,42 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 			}
 		}
 
-		if (!commentData.comment_id || commentsData.length <= 1)
-			return
+		////////////////////////////////////
+		//#region Children
 
-		const hasChildren = commentsData.length > 2
+		if (commentData.comment_id && commentsData.length > 1) {
+			const hasChildren = commentsData.length > 2
 
-		const shouldBeFlush = false
-			|| !!meta?.isRootComment
-			// this is part of a thread, so flatten it
-			|| (meta?.noSiblings && !hasChildren)
-			// border is handled by child comments rather than being on the wrapper
-			|| (commentsData.length > 3)
+			const shouldBeFlush = false
+				|| !!meta?.isRootComment
+				// this is part of a thread, so flatten it
+				|| (meta?.noSiblings && !hasChildren)
+				// border is handled by child comments rather than being on the wrapper
+				|| (commentsData.length > 3)
 
-		const childrenWrapper = Component()
-			.style('comment-children')
-			.style.toggle(shouldBeFlush, 'comment-children--flush')
-			.appendTo(slot)
+			const childrenWrapper = Component()
+				.style('comment-children')
+				.style.toggle(shouldBeFlush, 'comment-children--flush')
+				.appendTo(slot)
 
-		const timeValue = (c: CommentData | CommentEditor) => !c.created_time ? Infinity : new Date(c.created_time).getTime()
-		for (const comment of commentsData.sort((a, b) => timeValue(b) - timeValue(a))) {
-			if (comment === commentData)
-				continue
+			const timeValue = (c: CommentData | CommentEditor) => !c.created_time ? Infinity : new Date(c.created_time).getTime()
+			for (const comment of commentsData.sort((a, b) => timeValue(b) - timeValue(a))) {
+				if (comment === commentData)
+					continue
 
-			const noSiblings = commentsData.length <= 2 ? true : undefined
-			Comment(source, comment, { noSiblings, hasParent: !meta?.isRootComment ? true : undefined, hasGrandparent: meta?.hasParent, depth: (meta?.depth ?? 0) + 1 })
-				.appendTo(childrenWrapper)
+				if (renderDefinition?.shouldSkipComment?.(comment))
+					continue
+
+				const noSiblings = commentsData.length <= 2 ? true : undefined
+				Comment(source, comment, { noSiblings, hasParent: !meta?.isRootComment ? true : undefined, hasGrandparent: meta?.hasParent, depth: (meta?.depth ?? 0) + 1 }, renderDefinition)
+					.appendTo(childrenWrapper)
+			}
 		}
+
+		//#endregion
+		////////////////////////////////////
+
+		renderDefinition?.onRenderComment?.(comment, commentData)
 	})
 
 	return comment

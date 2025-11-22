@@ -40,7 +40,7 @@ import Arrays from 'utility/Arrays'
 import Define from 'utility/Define'
 import Env from 'utility/Env'
 import Objects from 'utility/Objects'
-import type { UnsubscribeState } from 'utility/State'
+import type { StateOr, UnsubscribeState } from 'utility/State'
 import State from 'utility/State'
 import Store from 'utility/Store'
 import Markdown from 'utility/string/Markdown'
@@ -953,7 +953,8 @@ interface TextEditorExtensions {
 	document?: Input
 	mirror?: EditorView
 	useMarkdown (): string
-	setMinimalByDefault (minimal?: boolean): this
+	setDefaultToolbarVisibility (visible: boolean): this
+	setMinimal (minimal?: StateOr<boolean>): this
 	/** Prevents this text editor's contents persisting, ie disables save/load */
 	disablePersistence (): this
 	importMarkdown (markdown: string): this
@@ -971,8 +972,10 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	const isFullscreen = State<boolean>(false)
 	const touched = State(false)
 
-	const minimal = State<boolean>(false)
-	const isMinimal = State.MapManual([minimal, content], (minimal, content) => minimal && !content.trim())
+	const minimalSetting = State<boolean>(false)
+	const minimal = State.Every(State.Owner.create(), minimalSetting, isFullscreen.falsy)
+	const toolbarHiddenByDefault = State<boolean>(false)
+	const shouldHideToolbar = State.MapManual([toolbarHiddenByDefault, content], (minimal, content) => minimal && !content.trim())
 
 	// eslint-disable-next-line prefer-const
 	let editor!: TextEditor
@@ -1256,7 +1259,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 	const toolbar = Component()
 		.style('text-editor-toolbar')
 		.style.bind(isFullscreen, 'text-editor-toolbar--fullscreen')
-		.style.bind(isMinimal, 'text-editor-toolbar--minimal')
+		.style.bind(shouldHideToolbar, 'text-editor-toolbar--minimal')
 		.ariaRole('toolbar')
 		.append(Component()
 			.style('text-editor-toolbar-left')
@@ -1274,7 +1277,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 						.append(ToolbarButtonMark('superscript').setIcon('superscript'))
 						.append(ToolbarButtonMark('code').setIcon('code'))
 					)))
-			.append(ToolbarButtonGroup()
+			.appendWhen(minimal.falsy, ToolbarButtonGroup()
 				.ariaLabel.use('text-editor/toolbar/group/block')
 				.append(
 					ToolbarButtonPopover('centre')
@@ -1294,7 +1297,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 							})
 						})
 				))
-			.append(ToolbarButtonGroup()
+			.appendWhen(minimal.falsy, ToolbarButtonGroup()
 				.ariaRole()
 				.append(ToolbarButtonPopover('centre')
 					.tweakPopover(popover => popover
@@ -1325,7 +1328,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 							)
 						})
 					})))
-			.append(ToolbarButtonGroup()
+			.appendWhen(minimal.falsy, ToolbarButtonGroup()
 				.ariaLabel.use('text-editor/toolbar/group/wrapper')
 				.append(ToolbarButton(wrapCmd(lift)).and(ToolbarButtonTypeOther, 'lift')
 					.setIcon('outdent')
@@ -1334,7 +1337,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 				.append(ToolbarButtonList('bullet-list').setIcon('list-ul'))
 				.append(ToolbarButtonList('ordered-list').setIcon('list-ol'))
 			)
-			.append(ToolbarButtonGroup()
+			.appendWhen(minimal.falsy, ToolbarButtonGroup()
 				.ariaLabel.use('text-editor/toolbar/group/insert')
 				.append(ToolbarButton(wrapCmd((state, dispatch) => {
 					dispatch?.(state.tr.replaceSelectionWith(schema.nodes.horizontal_rule.create()))
@@ -1395,7 +1398,7 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 		.and(Slot)
 		.and(Input)
 		.and(HandlesKeyboardEvents)
-		.style.bind(isMinimal, 'text-editor--minimal')
+		.style.bind(shouldHideToolbar, 'text-editor--minimal')
 		.append(actualEditor)
 		.pipeValidity(hiddenInput)
 		.extend<TextEditorExtensions & Partial<InputExtensions>>(editor => ({
@@ -1428,8 +1431,15 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 				clearLocal()
 				return !state.value ? '' : MarkdownContent.trim(markdownSerializer.serialize(state.value?.doc))
 			},
-			setMinimalByDefault (value = true) {
-				minimal.value = value
+			setDefaultToolbarVisibility (visible) {
+				toolbarHiddenByDefault.value = !visible
+				return editor
+			},
+			setMinimal (_minimal = true) {
+				if (State.is(_minimal))
+					minimalSetting.bind(editor, _minimal)
+				else
+					minimalSetting.value = _minimal
 				return editor
 			},
 			disablePersistence () {

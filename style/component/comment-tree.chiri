@@ -1,0 +1,22 @@
+.comment-tree:
+	#after: .block--type-flush
+	%width-100
+	%width-clamp-content
+	%scheme-light-dark
+	%padding-3-4
+	; %border-radius-2
+	%max-width-none
+	width: calc(#{content-width})
+	max-width: 100vw
+
+	#flush:
+		%margin-0
+		%padding-inline-3
+
+	:scheme light:
+		%background-0-a80
+
+	&-loading:
+		#after: .loading
+		%width-100
+		%margin-bottom-3

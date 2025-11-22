@@ -12,6 +12,7 @@ interface ViewExtensions {
 	readonly breadcrumbs: Breadcrumbs
 	readonly content: Component
 	readonly titleComponent: State<Component | undefined>
+	readonly sidebar: Component
 }
 
 interface View extends Component, ViewExtensions { }
@@ -30,6 +31,7 @@ const View = Component.Builder((component, id: ViewId): View => {
 			breadcrumbs: undefined!,
 			content,
 			titleComponent: undefined!,
+			sidebar: undefined!,
 		}))
 		.extendJIT('hash', view => `${view.viewId}${view.params ? `_${JSON.stringify(view.params)}` : ''}`
 			.replaceAll(/\W+/g, '-'))
@@ -69,6 +71,10 @@ const View = Component.Builder((component, id: ViewId): View => {
 					?? view.getFirstDescendant(Heading)
 			}
 		})
+		.extendJIT('sidebar', view => Component('aside')
+			.style('view-sidebar')
+			.appendTo(view.style('view--has-sidebar'))
+		)
 })
 
 export default View

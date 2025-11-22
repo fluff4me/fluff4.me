@@ -24,6 +24,7 @@ interface PagedData<T> {
 	delete (page: number): void
 	setPageCount (count: number | true): void
 	clear (): void
+	map<U> (mapper: (item: T, page: number, index: number) => U): PagedData<U>
 }
 
 export interface PagedDataDefinition<T> {
@@ -102,6 +103,42 @@ const PagedData = Object.assign(
 			clear () {
 				pages.value = []
 				pageCount.value = undefined
+			},
+			map (mapper) {
+				type U = ReturnType<typeof mapper>
+				const sourcePagedData = result
+				const pagedData = PagedData<U>({
+					get (page, pagedData) {
+						const originalPage = sourcePagedData.get(page)
+						if (originalPage instanceof Promise)
+							return originalPage.then(state => mapper(state.value as T, page, page))
+						else
+							return mapper(originalPage.value as T, page, page)
+					},
+				})
+
+				mutable(pagedData).pageCount = sourcePagedData.pageCount
+
+				const baseClear = pagedData.clear
+				const baseDelete = pagedData.delete
+				return Object.assign(
+					pagedData,
+					{
+						pageCount: sourcePagedData.pageCount,
+						setPageCount: sourcePagedData.setPageCount,
+						set (page, data, isLastPage) {
+							throw new Error('Mapped PagedData is read-only')
+						},
+						delete (page) {
+							baseDelete(page)
+							sourcePagedData.delete(page)
+						},
+						clear () {
+							baseClear()
+							sourcePagedData.clear()
+						},
+					} satisfies Pick<PagedData<U>, 'pageCount' | 'set' | 'delete' | 'setPageCount' | 'clear'>,
+				)
 			},
 		}
 
