@@ -119,7 +119,10 @@ export default ViewDefinition({
 							vanity: workData.value.vanity,
 						},
 					})),
-					Math.floor((workData.value.bookmarks?.url_next_page ?? 0) / 25),
+					Math.min(
+						Math.floor((workData.value.bookmarks?.url_next_page ?? 0) / 25),
+						Math.max(0, Math.floor(((workData.value.chapter_count ?? workData.value.chapter_count_public) - 1) / 25)),
+					),
 					(slot, chapters) => {
 						slot.style('chapter-list')
 							.style.bind(movingChapter.truthy, 'view-type-work-chapter-list--moving-chapter')
