@@ -1,4 +1,4 @@
-import type { AuthorComment } from 'api.fluff4.me'
+import type { ContextualComment } from 'api.fluff4.me'
 import EndpointAuthorGet from 'endpoint/author/EndpointAuthorGet'
 import EndpointCommentGetAllAuthorChapter from 'endpoint/comment/EndpointCommentGetAllAuthorChapter'
 import EndpointCommentGetAllAuthorWork from 'endpoint/comment/EndpointCommentGetAllAuthorWork'
@@ -87,7 +87,7 @@ export default ViewDefinition({
 				.setIcon('heart')
 				.text.use('view/author/recommendations/title')
 				.tweak(tab => {
-					const GetCommentData = (comment: AuthorComment): CommentData => ({ ...comment.comment as CommentData, author: author.vanity })
+					const GetCommentData = (comment: ContextualComment): CommentData => ({ ...comment.comment as CommentData, author: author.vanity })
 
 					const comments = PagedData.fromEndpoint(EndpointCommentGetAllAuthorWork.prep(
 						{
@@ -121,7 +121,7 @@ export default ViewDefinition({
 				.setIcon('comment')
 				.text.use(quilt => quilt['view/author/comments/title'](author.comments_privated))
 				.tweak(tab => {
-					const GetCommentData = (comment: AuthorComment): CommentData => ({ ...comment.comment as CommentData, author: author.vanity })
+					const GetCommentData = (comment: ContextualComment): CommentData => ({ ...comment.comment as CommentData, author: author.vanity })
 
 					const comments = PagedData.fromEndpoint(EndpointCommentGetAllAuthorChapter.prep(
 						{

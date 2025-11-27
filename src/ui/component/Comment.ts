@@ -1,4 +1,4 @@
-import type { AuthorComment, AuthorMetadata, ChapterMetadata, Comment as CommentDataRaw, ReportCommentBody, WorkMetadata } from 'api.fluff4.me'
+import type { AuthorMetadata, ChapterMetadata, Comment as CommentDataRaw, ContextualComment, ReportCommentBody, WorkMetadata } from 'api.fluff4.me'
 import EndpointCommentAdd from 'endpoint/comment/EndpointCommentAdd'
 import EndpointCommentDelete from 'endpoint/comment/EndpointCommentDelete'
 import EndpointCommentUpdate from 'endpoint/comment/EndpointCommentUpdate'
@@ -72,7 +72,7 @@ export interface CommentMetadata {
 
 	/** context for comments pulled out of that context */
 	context?: {
-		root_object: AuthorComment['root_object']
+		root_object: ContextualComment['root_object']
 		is_reply?: true
 		authors?: StateOr<AuthorMetadata[]>
 		works?: StateOr<WorkMetadata[]>

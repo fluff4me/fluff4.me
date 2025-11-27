@@ -2,6 +2,7 @@ import type { FollowsManifest, WorkReference } from 'api.fluff4.me'
 import EndpointFollowAdd from 'endpoint/follow/EndpointFollowAdd'
 import EndpointFollowAddWork from 'endpoint/follow/EndpointFollowAddWork'
 import EndpointFollowGetManifest from 'endpoint/follow/EndpointFollowGetManifest'
+import EndpointFollowIgnoreWorkComments from 'endpoint/follow/EndpointFollowIgnoreWorkComments'
 import EndpointFollowRemove from 'endpoint/follow/EndpointFollowRemove'
 import EndpointFollowRemoveWork from 'endpoint/follow/EndpointFollowRemoveWork'
 import EndpointIgnoreAdd from 'endpoint/follow/EndpointIgnoreAdd'
@@ -66,6 +67,10 @@ const Util = {
 	},
 	ignoringAuthor (vanity: string) {
 		return !!manifest.value?.ignoring.author?.some(ignore => ignore.author === vanity)
+	},
+	ignoringAuthorWorkComments (vanity: string) {
+		const follow = manifest.value?.following.author?.find(follow => follow.author === vanity)
+		return !!follow?.ignoring_work_comments
 	},
 	async toggleFollowingAuthor (vanity: string) {
 		if (Util.followingAuthor(vanity))
@@ -157,6 +162,54 @@ const Util = {
 			return
 
 		manifest.value.ignoring.author?.filterInPlace(follow => follow.author !== vanity)
+		manifest.emit()
+	},
+	async toggleIgnoringAuthorWorkComments (vanity: string) {
+		if (Util.ignoringAuthorWorkComments(vanity))
+			await Util.unignoreAuthorWorkComments(vanity)
+		else
+			await Util.ignoreAuthorWorkComments(vanity)
+	},
+	async ignoreAuthorWorkComments (vanity: string) {
+		if (!manifest.value) {
+			console.warn('Cannot modify ignores state, not loaded yet')
+			return
+		}
+
+		if (Util.ignoringAuthorWorkComments(vanity))
+			return // already ignoring
+
+		changingState.value = true
+		const response = await EndpointFollowIgnoreWorkComments.query({ params: { vanity } })
+		changingState.value = false
+		if (toast.handleError(response))
+			return
+
+		const follow = manifest.value?.following.author?.find(authorFollow => authorFollow.author === vanity)
+		if (follow)
+			follow.ignoring_work_comments = true
+
+		manifest.emit()
+	},
+	async unignoreAuthorWorkComments (vanity: string) {
+		if (!manifest.value) {
+			console.warn('Cannot modify ignores state, not loaded yet')
+			return
+		}
+
+		if (!Util.ignoringAuthorWorkComments(vanity))
+			return // not ignoring
+
+		changingState.value = true
+		const response = await EndpointFollowIgnoreWorkComments.query({ params: { vanity } })
+		changingState.value = false
+		if (toast.handleError(response))
+			return
+
+		const follow = manifest.value?.following.author?.find(authorFollow => authorFollow.author === vanity)
+		if (follow)
+			follow.ignoring_work_comments = undefined
+
 		manifest.emit()
 	},
 	//#endregion

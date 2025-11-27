@@ -1,3 +1,10 @@
 ## feed
 main/title: Feed
 main/description: New works and new chapters from the things you follow!
+
+### works
+title=shared/term/works
+
+### recommendations
+title=shared/term/recommendations
+content/empty: Your followed authors have not recently recommended a work...

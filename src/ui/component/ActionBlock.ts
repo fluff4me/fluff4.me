@@ -71,7 +71,18 @@ export interface ActionFollowingDefinition {
 	unfollow (): Promise<unknown>
 	ignore (): Promise<unknown>
 	unignore (): Promise<unknown>
+	tweakButton?(button: Button, which: ActionFollowingButtonId): unknown
+	tweakDropdown?(dropdown: RadioDropdown<string>, which: 'following' | 'ignoring'): unknown
+	onOtherOption?(selection: string): unknown
 }
+
+export type ActionFollowingButtonId =
+	| 'follow'
+	| 'ignore'
+	| 'following'
+	| 'ignoring'
+	| 'unfollow'
+	| 'unignore'
 
 export interface ActionModerationDefinition {
 	/** Whether the user is logged in and should be able to report or moderate this object */
@@ -129,11 +140,13 @@ export function ActionProviderList (): ActionProviderList {
 					.type('flush').style.remove('radio-row-option')
 					.setIcon('bookmark')
 					.text.use('shared/action/follow')
+					.tweak(definition.tweakButton, 'follow')
 				)
 				.add('ignore', button => button
 					.type('flush').style.remove('radio-row-option')
 					.setIcon('eye-slash')
 					.text.use('shared/action/ignore')
+					.tweak(definition.tweakButton, 'ignore')
 				)
 				.tweak(row => {
 					row.selection.subscribeManual(selection => {
@@ -156,17 +169,33 @@ export function ActionProviderList (): ActionProviderList {
 				Follows.changingState.falsy,
 			)
 			providerList.addWhen(isFollowing, RadioDropdown()
-				.tweak(dropdown => dropdown.button.type('flush').setIcon('bookmark'))
+				.tweak(dropdown => dropdown.button
+					.type('flush')
+					.setIcon('bookmark')
+					.tweak(definition.tweakButton, 'following')
+				)
 				.setSimple()
-				.add('following', { translation: id => quilt => quilt['shared/action/following']() })
-				.add('unfollow', { translation: id => quilt => quilt['shared/action/unfollow'](), tweakButton: button => button.setIcon('bookmark') })
-				.add('ignore', { translation: id => quilt => quilt['shared/action/ignore'](), tweakButton: button => button.setIcon('eye-slash') })
+				.add('following', {
+					translation: id => quilt => quilt['shared/action/following'](),
+					tweakButton: button => button.tweak(definition.tweakButton, 'following'),
+				})
+				.tweak(definition.tweakDropdown, 'following')
+				.add('unfollow', {
+					translation: id => quilt => quilt['shared/action/unfollow'](),
+					tweakButton: button => button.setIcon('bookmark').tweak(definition.tweakButton, 'unfollow'),
+				})
+				.add('ignore', {
+					translation: id => quilt => quilt['shared/action/ignore'](),
+					tweakButton: button => button.setIcon('eye-slash').tweak(definition.tweakButton, 'ignore'),
+				})
 				.tweak(dropdown => {
 					dropdown.selection.subscribeManual(selection => {
 						if (selection === 'unfollow')
 							return definition.unfollow()
 						if (selection === 'ignore')
 							return definition.ignore()
+						if (selection)
+							definition.onOtherOption?.(selection)
 					})
 
 					isFollowing.useManual(isFollowing => dropdown.select(isFollowing ? 'following' : undefined))
@@ -179,17 +208,33 @@ export function ActionProviderList (): ActionProviderList {
 				Follows.changingState.falsy,
 			)
 			providerList.addWhen(isIgnoring, RadioDropdown()
-				.tweak(dropdown => dropdown.button.type('flush').setIcon('eye-slash'))
+				.tweak(dropdown => dropdown
+					.button.type('flush')
+					.setIcon('eye-slash')
+					.tweak(definition.tweakButton, 'ignoring')
+				)
 				.setSimple()
-				.add('ignoring', { translation: id => quilt => quilt['shared/action/ignoring']() })
-				.add('unignore', { translation: id => quilt => quilt['shared/action/unignore'](), tweakButton: button => button.setIcon('eye-slash') })
-				.add('follow', { translation: id => quilt => quilt['shared/action/follow'](), tweakButton: button => button.setIcon('bookmark') })
+				.add('ignoring', {
+					translation: id => quilt => quilt['shared/action/ignoring'](),
+					tweakButton: button => button.tweak(definition.tweakButton, 'ignoring'),
+				})
+				.tweak(definition.tweakDropdown, 'ignoring')
+				.add('unignore', {
+					translation: id => quilt => quilt['shared/action/unignore'](),
+					tweakButton: button => button.setIcon('eye-slash').tweak(definition.tweakButton, 'unignore'),
+				})
+				.add('follow', {
+					translation: id => quilt => quilt['shared/action/follow'](),
+					tweakButton: button => button.setIcon('bookmark').tweak(definition.tweakButton, 'follow'),
+				})
 				.tweak(dropdown => {
 					dropdown.selection.subscribeManual(selection => {
 						if (selection === 'unignore')
 							return definition.unignore()
 						if (selection === 'follow')
 							return definition.follow()
+						if (selection)
+							definition.onOtherOption?.(selection)
 					})
 
 					isIgnoring.useManual(isIgnoring => dropdown.select(isIgnoring ? 'ignoring' : undefined))

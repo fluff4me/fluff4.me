@@ -38,3 +38,7 @@
 		%gap-0
 		%font-1
 		%margin-top-3
+
+	&-action:
+		&-following:
+			$dropdown-option-display: inline-grid

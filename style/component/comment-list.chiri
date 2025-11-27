@@ -1,10 +1,11 @@
 .comment-list:
 
 	&-content:
-		; %padding-top-3
+		#after: .block-content
+		; padding-top: $block-padding
 
 	&-comment:
-		%padding-inline-4
+		padding-inline: $block-padding
 		%margin-top-3
 
 	&-placeholder-wrapper:

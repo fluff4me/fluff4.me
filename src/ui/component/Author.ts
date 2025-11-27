@@ -7,7 +7,7 @@ import EndpointReportAuthor from 'endpoint/report/EndpointReportAuthor'
 import Follows from 'model/Follows'
 import Session from 'model/Session'
 import Component from 'ui/Component'
-import type { ActionProvider } from 'ui/component/ActionBlock'
+import type { ActionFollowingButtonId, ActionProvider } from 'ui/component/ActionBlock'
 import ActionRow from 'ui/component/core/ActionRow'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
@@ -276,6 +276,7 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 			)
 
 			const isOther = State.Every(owner, Session.Auth.loggedIn, isSelf.falsy)
+			const isIgnoringRecommendations = Follows.map(owner, follows => follows?.following.author?.find(authorFollow => authorFollow.author === author.value.vanity)?.ignoring_work_comments || false)
 			actions.addFollowing(owner, {
 				isApplicable: isOther,
 				isFollowing: Follows.map(owner, () => Follows.followingAuthor(author.value.vanity)),
@@ -284,6 +285,28 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 				unfollow: async () => Follows.unfollowAuthor(author.value.vanity),
 				ignore: async () => Follows.ignoreAuthor(author.value.vanity),
 				unignore: async () => Follows.unignoreAuthor(author.value.vanity),
+				tweakButton: (button, type) => ({
+					following: button => (button
+						.subText.bind(isIgnoringRecommendations.map(button, ignoring => quilt => quilt[ignoring ? 'author/action/label/following/no-recommendations' : 'author/action/label/following/both']()))
+					),
+					// follow: button => (button
+
+					// ),
+				} as Partial<Record<ActionFollowingButtonId, (button: Button) => unknown>>)[type]?.(button),
+				tweakDropdown: (dropdown, which) => which === 'ignoring' ? undefined : (dropdown
+					.add('follow-change-state', {
+						translation: id => quilt => quilt['shared/action/follow'](),
+						tweakButton: button => (button
+							.style('author-action-following')
+							.setIcon('bookmark')
+							.subText.bind(isIgnoringRecommendations.map(button, ignoring => quilt => quilt[ignoring ? 'author/action/label/following/both' : 'author/action/label/following/only-works']()))
+						),
+					})
+				),
+				onOtherOption (selection) {
+					if (selection === 'follow-change-state')
+						void Follows.toggleIgnoringAuthorWorkComments(author.value.vanity)
+				},
 			})
 
 			actions.addModeration(owner, {

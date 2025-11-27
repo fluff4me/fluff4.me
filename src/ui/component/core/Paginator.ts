@@ -318,13 +318,16 @@ const Paginator = Component.Builder(<T> (component: Component): Paginator<T> => 
 					cursor.value = previousPageNumber
 				}
 				else {
+					const hasNoValidPages = data.pages.every(page => false
+						// || page.value === false
+						// || page.value === null
+						// || (Array.isArray(page.value) && !page.value.length)
+						|| !hasResults(page.value)
+					)
 					const isTotallyEmpty = false
 						|| data.pageCount.value === 0
-						|| data.pages.every(page => false
-							|| page.value === false
-							|| page.value === null
-							|| (Array.isArray(page.value) && !page.value.length)
-						)
+						|| hasNoValidPages
+						|| (data.pageCount.value === undefined && hasNoValidPages)
 					if (isTotallyEmpty) {
 						orElseInitialiser?.(newPage, paginator)
 						newPage.style.remove('paginator-page--hidden')

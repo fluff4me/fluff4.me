@@ -175,6 +175,7 @@ namespace Session {
 			ModerationViewPatronOnly: privileged.ModerationViewPatronOnly,
 			ModerationAuthorTag: privileged.ModerationAuthorTag,
 			ModerationViewComments: privileged.ModerationViewComments,
+			ModerationManageDefaultShelves: privileged.ModerationManageDefaultShelves,
 		} satisfies Record<ModerationTypes, State.Generator<boolean>>)
 		export const isModerator = State.Generator(() => moderationPrivileges.some(privilege => privilege.value))
 			.observeManual(...moderationPrivileges)

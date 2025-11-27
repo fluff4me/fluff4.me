@@ -3,3 +3,6 @@ time-join/label=shared/term/time-join
 description/empty: This author prefers to remain elusive and mysterious...
 default-license: Default Work License
 action/label/edit=shared/action/edit
+action/label/following/both: Works & recs
+action/label/following/no-recommendations: Only works, no recs
+action/label/following/only-works: Only works
