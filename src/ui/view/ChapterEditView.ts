@@ -4,6 +4,7 @@ import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import Chapters from 'model/Chapters'
 import PagedData from 'model/PagedData'
+import Session from 'model/Session'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'
 import Link from 'ui/component/core/Link'
@@ -31,6 +32,9 @@ export default ViewDefinition({
 		const workResponse = await EndpointWorkGet.query({ params: Chapters.work(params) })
 		if (workResponse instanceof Error)
 			throw workResponse
+
+		if (workResponse.data.author !== Session.Auth.author.value?.vanity)
+			void navigate.toURL(`/work/${workResponse.data.author}/${workResponse.data.vanity}${params.url ? `/chapter/${params.url}` : ''}`)
 
 		return { initialChapterResponse, work: workResponse.data as WorkMetadata & Partial<WorkData> }
 	},

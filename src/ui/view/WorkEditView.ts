@@ -1,5 +1,6 @@
 import type { Work } from 'api.fluff4.me'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
+import Session from 'model/Session'
 import Works from 'model/Works'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
@@ -21,6 +22,9 @@ export default ViewDefinition({
 		const response = params && await EndpointWorkGet.query({ params })
 		if (response instanceof Error)
 			throw response
+
+		if (response && response?.data.author !== Session.Auth.author.value?.vanity)
+			void navigate.toURL(`/work/${response.data.author}/${response.data.vanity}`)
 
 		const work = response?.data
 		return { work }
