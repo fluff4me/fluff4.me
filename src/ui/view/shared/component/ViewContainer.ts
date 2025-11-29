@@ -91,10 +91,10 @@ const ViewContainer = (): ViewContainer => {
 					}
 				}
 
-				container.style('view-container--loading')
-
 				let loading: Loading | undefined
 				if (definition.load) {
+					container.style('view-container--loading')
+
 					loading = Loading()
 						.setOwner(loadingOwner)
 						.style('view-container-loading')
