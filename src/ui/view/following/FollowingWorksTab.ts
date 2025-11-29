@@ -4,6 +4,7 @@ import Follows from 'model/Follows'
 import PagedListData from 'model/PagedListData'
 import Works from 'model/Works'
 import Component from 'ui/Component'
+import ActionBlock from 'ui/component/ActionBlock'
 import Link from 'ui/component/core/Link'
 import Paginator from 'ui/component/core/Paginator'
 import Placeholder from 'ui/component/core/Placeholder'
@@ -21,7 +22,7 @@ interface FollowingWorksTabExtensions {
 interface FollowingWorksTab extends Tab, FollowingWorksTabExtensions { }
 
 const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ignoring'): FollowingWorksTab => {
-	const tab = component.and(Tab)
+	const tab = component.and(Tab, 'works')
 		.text.use('view/following/tab/works')
 		.extend<FollowingWorksTabExtensions>(tab => ({}))
 
@@ -62,9 +63,15 @@ const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ign
 				.viewTransition(false)
 				.set(works, 0, (slot, works) => {
 					for (const work of works) {
-						Link(`/work/${work.author}/${work.vanity}`)
+						const workComponent = Link(`/work/${work.author}/${work.vanity}`)
 							.and(Work, work, authors.value.find(author => author.vanity === work.author), true)
 							.viewTransition(false)
+							.appendTo(slot)
+
+						ActionBlock()
+							.style('view-type-following-action-block')
+							.attachAbove()
+							.addActions(workComponent)
 							.appendTo(slot)
 					}
 				})

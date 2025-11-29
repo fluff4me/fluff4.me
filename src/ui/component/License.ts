@@ -1,4 +1,4 @@
-import type { WorkLicense } from 'api.fluff4.me'
+import type { License as WorkLicense } from 'api.fluff4.me'
 import Component from 'ui/Component'
 import ExternalLink from 'ui/component/core/ExternalLink'
 import Slot from 'ui/component/core/Slot'

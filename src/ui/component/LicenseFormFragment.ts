@@ -1,4 +1,4 @@
-import type { WorkLicense } from 'api.fluff4.me'
+import type { License as WorkLicense } from 'api.fluff4.me'
 import FormInputLengths from 'model/FormInputLengths'
 import Component from 'ui/Component'
 import Button from 'ui/component/core/Button'

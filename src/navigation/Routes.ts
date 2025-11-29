@@ -42,7 +42,9 @@ const Routes = [
 	Route('/search', SearchView.navigate),
 
 	Route('/following', FollowingView.navigate),
+	Route('/following/$tab', FollowingView.navigate),
 	Route('/ignoring', IgnoringView.navigate),
+	Route('/ignoring/$tab', IgnoringView.navigate),
 
 	Route('/login', LoginView.navigate),
 	Route('/account', AccountView.navigate),

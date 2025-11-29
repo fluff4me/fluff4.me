@@ -1,1 +1,6 @@
 #view type="following":
+
+	&-action-block:
+		#after: .action-block--attached-above
+		%unmargin-top-4
+		%padding-top-4

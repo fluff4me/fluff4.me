@@ -1,7 +1,9 @@
-import EndpointAuthorsResolveReferences from 'endpoint/author/EndpointAuthorsResolveReferences'
+import type { AuthorMetadata } from 'api.fluff4.me'
+import EndpointAuthorsResolveReferencesFull from 'endpoint/author/EndpointAuthorsResolveReferencesFull'
 import Follows from 'model/Follows'
 import PagedListData from 'model/PagedListData'
 import Component from 'ui/Component'
+import ActionBlock from 'ui/component/ActionBlock'
 import Author from 'ui/component/Author'
 import Link from 'ui/component/core/Link'
 import Paginator from 'ui/component/core/Paginator'
@@ -10,6 +12,7 @@ import Slot from 'ui/component/core/Slot'
 import { Tab } from 'ui/component/core/Tabinator'
 import AbortPromise from 'utility/AbortPromise'
 import { NonNullish } from 'utility/Arrays'
+import State from 'utility/State'
 
 interface FollowingAuthorsTabExtensions {
 
@@ -18,7 +21,7 @@ interface FollowingAuthorsTabExtensions {
 interface FollowingAuthorsTab extends Tab, FollowingAuthorsTabExtensions { }
 
 const FollowingAuthorsTab = Component.Builder((component, type: 'following' | 'ignoring'): FollowingAuthorsTab => {
-	const tab = component.and(Tab)
+	const tab = component.and(Tab, 'authors')
 		.text.use('view/following/tab/authors')
 		.extend<FollowingAuthorsTabExtensions>(tab => ({}))
 
@@ -33,17 +36,19 @@ const FollowingAuthorsTab = Component.Builder((component, type: 'following' | 'i
 	let page = 0
 	Slot()
 		.use(authors, AbortPromise.asyncFunction(async (signal, slot, follows) => {
+			const mentions = State<AuthorMetadata[]>([])
 			const authors = PagedListData(25, {
 				async get (page) {
 					const slice = follows.slice(page * 25, (page + 1) * 25) ?? []
 					if (!slice.length)
 						return null
 
-					const response = await EndpointAuthorsResolveReferences.query(undefined, { authors: slice.map(follow => follow.author).filterInPlace(NonNullish) })
+					const response = await EndpointAuthorsResolveReferencesFull.query(undefined, { authors: slice.map(follow => follow.author).filterInPlace(NonNullish) })
 					if (toast.handleError(response))
 						return false
 
-					return response.data
+					mentions.value = response.data.mentions
+					return response.data.authors
 				},
 			})
 
@@ -54,9 +59,15 @@ const FollowingAuthorsTab = Component.Builder((component, type: 'following' | 'i
 				.viewTransition(false)
 				.set(authors, 0, (slot, authors) => {
 					for (const author of authors) {
-						Link(`/author/${author.vanity}`)
+						const authorComponent = Link(`/author/${author.vanity}`)
 							.and(Author, author)
 							.viewTransition(false)
+							.appendTo(slot)
+
+						ActionBlock()
+							.style('view-type-following-action-block')
+							.attachAbove()
+							.addActions(authorComponent)
 							.appendTo(slot)
 					}
 				})

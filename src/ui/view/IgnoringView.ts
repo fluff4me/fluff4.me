@@ -5,8 +5,12 @@ import FollowingWorksTab from 'ui/view/following/FollowingWorksTab'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 
+interface IgnoringViewParams {
+	tab?: string
+}
+
 export default ViewDefinition({
-	create: () => {
+	create: ({ tab }: IgnoringViewParams | undefined = {}) => {
 		const view = View('ignoring')
 
 		view.breadcrumbs.title.text.use('view/ignoring/main/title')
@@ -16,6 +20,7 @@ export default ViewDefinition({
 			.addTab(FollowingWorksTab('ignoring'))
 			.addTab(FollowingAuthorsTab('ignoring'))
 			.addTab(FollowingTagsTab('ignoring'))
+			.bindURL(tab, tab => `/ignoring/${tab ?? 'works'}`)
 			.appendTo(view.content)
 
 		return view
