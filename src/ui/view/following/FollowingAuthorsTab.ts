@@ -47,8 +47,10 @@ const FollowingAuthorsTab = Component.Builder((component, type: 'following' | 'i
 					if (toast.handleError(response))
 						return false
 
-					mentions.value = response.data.mentions
-					return response.data.authors
+					mentions.value.push(...response.data.mentions)
+					mentions.value.distinctInPlace(author => author.vanity)
+					mentions.emit()
+					return response.data.authors.sort((a, b) => slice.findIndex(follow => follow.author === a.vanity) - slice.findIndex(follow => follow.author === b.vanity))
 				},
 			})
 
@@ -59,6 +61,7 @@ const FollowingAuthorsTab = Component.Builder((component, type: 'following' | 'i
 				.viewTransition(false)
 				.set(authors, 0, (slot, authors) => {
 					for (const author of authors) {
+						author.description.mentions = mentions.value
 						const authorComponent = Link(`/author/${author.vanity}`)
 							.and(Author, author)
 							.viewTransition(false)

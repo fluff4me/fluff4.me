@@ -52,7 +52,7 @@ const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ign
 					authors.value.distinctInPlace(author => author.vanity)
 					authors.emit()
 
-					return response.data.works
+					return response.data.works.sort((a, b) => slice.findIndex(follow => follow.work?.author === a.author && follow.work?.vanity === a.vanity) - slice.findIndex(follow => follow.work?.author === b.author && follow.work?.vanity === b.vanity))
 				},
 			})
 

@@ -31,7 +31,9 @@ const FollowingTagsTab = Component.Builder((component, type: 'following' | 'igno
 
 	Slot()
 		.use(tags, AbortPromise.asyncFunction(async (signal, slot, follows) => {
-			const tags = await Tags.resolve(follows.map(follow => follow.tag).filterInPlace(NonNullish))
+			const tagFollows = follows.map(follow => follow.tag).filterInPlace(NonNullish)
+			const tags = await Tags.resolve(tagFollows)
+			tags.sort((a, b) => tagFollows.indexOf(`${a.category}: ${a.name}`) - tagFollows.indexOf(`${b.category}: ${b.name}`))
 
 			if (!tags.length)
 				return Placeholder()
