@@ -217,20 +217,27 @@ function BaseStringApplicator<HOST> (
 	let unbind: UnsubscribeState | undefined
 	let unown: UnsubscribeState | undefined
 	let subUnown: UnsubscribeState | undefined
+	let subscribed = false
 	let removed = false
 	const state = State(defaultValue)
 	const result = makeApplicator(host)
 	const setInternal = set.bind(null, result)
 	return result
 
-	function makeApplicator<HOST> (host: HOST): StringApplicator.Optional<HOST> {
+	function ensureSubscribed () {
+		if (subscribed)
+			return
+
+		subscribed = true
 		State.Owner.getOwnershipState(host)?.matchManual(true, () => {
 			removed = true
 			unbind?.(); unbind = undefined
 			unown?.(); unown = undefined
 			subUnown?.(); subUnown = undefined
 		})
+	}
 
+	function makeApplicator<HOST> (host: HOST): StringApplicator.Optional<HOST> {
 		return {
 			state,
 			set: value => {
@@ -246,6 +253,7 @@ function BaseStringApplicator<HOST> (
 				unown?.(); unown = undefined
 				subUnown?.(); subUnown = undefined
 
+				ensureSubscribed()
 				setInternal(value)
 				return host
 			},
@@ -257,6 +265,7 @@ function BaseStringApplicator<HOST> (
 				unown?.(); unown = undefined
 				subUnown?.(); subUnown = undefined
 
+				ensureSubscribed()
 				if (typeof translation === 'string') {
 					unown = quiltState.useManual(quilt => setInternal(quilt[translation]()))
 					return host
@@ -273,6 +282,7 @@ function BaseStringApplicator<HOST> (
 				unown?.(); unown = undefined
 				subUnown?.(); subUnown = undefined
 
+				ensureSubscribed()
 				if (state === undefined || state === null) {
 					setInternal(defaultValue)
 					return host
