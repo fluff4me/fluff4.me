@@ -21,7 +21,7 @@ interface Manifest<T> extends State<T | undefined> {
 
 function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 	let promise: Promise<T> | undefined
-	const hasSaveWatcher = false
+	let hasSaveWatcher = false
 
 	let lastTime: number | undefined
 	let unuseState: UnsubscribeState | undefined = undefined
@@ -146,6 +146,7 @@ function Manifest<T> (definition: ManifestDefinition<T>): Manifest<T> {
 				JSON.stringify({ time: lastTime, data })
 			)
 		})
+		hasSaveWatcher = true
 	}
 }
 
