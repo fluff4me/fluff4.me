@@ -74,7 +74,7 @@ function Route<PATH extends `/${string}`, PARAMS extends RouteParams<PATH>> (pat
 					return undefined
 				}
 
-				params[groupName] = group
+				params[groupName] = decodeURIComponent(group)
 			}
 
 			return params as any as PARAMS
