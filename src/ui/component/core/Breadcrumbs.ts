@@ -74,7 +74,8 @@ const Breadcrumbs = Component.Builder((component): Breadcrumbs => {
 				url = State.get(url)
 				RSSButton(url.mapManual(url => url ?? ''))
 					.style('breadcrumbs-rss-button')
-					.appendToWhen(url.truthy, breadcrumbs.info)
+					.style.toggle(!!title, 'breadcrumbs-rss-button--with-title')
+					.appendToWhen(url.truthy, title ?? breadcrumbs.info)
 				return breadcrumbs
 			},
 			getTitleIfExists () {

@@ -29,6 +29,7 @@ export default ViewDefinition({
 		Link('/following')
 			.and(Button)
 			.type('flush')
+			.style('breadcrumbs-actions-action')
 			.setIcon('bookmark')
 			.text.bind(Follows.map(view, () => quilt =>
 				quilt['view/shared/info/following'](Follows.getTotalFollowing())))
@@ -37,6 +38,7 @@ export default ViewDefinition({
 		Link('/ignoring')
 			.and(Button)
 			.type('flush')
+			.style('breadcrumbs-actions-action')
 			.setIcon('eye-slash')
 			.text.bind(Follows.map(view, () => quilt =>
 				quilt['view/shared/info/ignoring'](Follows.getTotalIgnoring())))

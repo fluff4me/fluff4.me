@@ -1,13 +1,16 @@
 .breadcrumbs:
 
 	&-meta:
-		%z-index-fg
+		%z-index-fg-2
 		%relative
 
 	&-info:
 		%relative
 
 	&-title:
+		%flex
+		%flex-wrap
+		%gap-3
 
 	&-description:
 
@@ -21,6 +24,10 @@
 		&-action:
 			#after: .button
 			%font-2
+			%padding-block-1
+			%padding-left-3
+			%padding-right-2
+			%unmargin-left-3
 
 	&-back-button:
 
@@ -40,3 +47,12 @@
 		%margin-right-2
 		%top-0
 		%margin-top-0
+		%height-fit
+
+		&--with-title:
+			#after: .breadcrumbs-rss-button
+			%relative
+			%right-auto
+			%margin-right-0
+			%margin-left-3
+			%font-1
