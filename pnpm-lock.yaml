@@ -96,8 +96,8 @@ importers:
         specifier: 8.26.0
         version: 8.26.0(eslint@9.39.1)(typescript@5.8.2)
       weaving:
-        specifier: github:chirivulpes/weaving#627e59ab59b2f2355bc779251551031e9ce3344b
-        version: https://codeload.github.com/chirivulpes/weaving/tar.gz/627e59ab59b2f2355bc779251551031e9ce3344b
+        specifier: github:chirivulpes/weaving#fc532b3e2025f424747e382caf66ad1661932c9a
+        version: https://codeload.github.com/chirivulpes/weaving/tar.gz/fc532b3e2025f424747e382caf66ad1661932c9a
       ws:
         specifier: 8.18.0
         version: 8.18.0
@@ -440,8 +440,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  baseline-browser-mapping@2.8.30:
-    resolution: {integrity: sha512-aTUKW4ptQhS64+v2d6IkPzymEzzhw+G0bA1g3uBRV3+ntkH+svttKseW5IOR4Ed6NUVKqnY7qT3dKvzQ7io4AA==}
+  baseline-browser-mapping@2.8.31:
+    resolution: {integrity: sha512-a28v2eWrrRWPpJSzxc+mKwm0ZtVx/G8SepdQZDArnXYU/XS+IF6mp8aB/4E+hH1tyGCoDo3KlUCdlSxGDsRkAw==}
     hasBin: true
 
   binary-extensions@2.3.0:
@@ -1748,8 +1748,8 @@ packages:
   wbuf@1.7.3:
     resolution: {integrity: sha512-O84QOnr0icsbFGLS0O3bI5FswxzRr8/gHwWkDlQFskhSPryQXvrTMxjxGP4+iWYoauLoBvfDpkrOauZ+0iZpDA==}
 
-  weaving@https://codeload.github.com/chirivulpes/weaving/tar.gz/627e59ab59b2f2355bc779251551031e9ce3344b:
-    resolution: {tarball: https://codeload.github.com/chirivulpes/weaving/tar.gz/627e59ab59b2f2355bc779251551031e9ce3344b}
+  weaving@https://codeload.github.com/chirivulpes/weaving/tar.gz/fc532b3e2025f424747e382caf66ad1661932c9a:
+    resolution: {tarball: https://codeload.github.com/chirivulpes/weaving/tar.gz/fc532b3e2025f424747e382caf66ad1661932c9a}
     version: 3.0.0
     hasBin: true
 
@@ -2213,7 +2213,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  baseline-browser-mapping@2.8.30: {}
+  baseline-browser-mapping@2.8.31: {}
 
   binary-extensions@2.3.0: {}
 
@@ -2251,7 +2251,7 @@ snapshots:
 
   browserslist@4.28.0:
     dependencies:
-      baseline-browser-mapping: 2.8.30
+      baseline-browser-mapping: 2.8.31
       caniuse-lite: 1.0.30001756
       electron-to-chromium: 1.5.259
       node-releases: 2.0.27
@@ -3578,7 +3578,7 @@ snapshots:
     dependencies:
       minimalistic-assert: 1.0.1
 
-  weaving@https://codeload.github.com/chirivulpes/weaving/tar.gz/627e59ab59b2f2355bc779251551031e9ce3344b:
+  weaving@https://codeload.github.com/chirivulpes/weaving/tar.gz/fc532b3e2025f424747e382caf66ad1661932c9a:
     dependencies:
       chokidar: 3.6.0
       yargs: 17.7.2

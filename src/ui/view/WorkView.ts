@@ -8,6 +8,7 @@ import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
+import Tags from 'model/Tags'
 import Works from 'model/Works'
 import Component from 'ui/Component'
 import ActionBlock from 'ui/component/ActionBlock'
@@ -27,6 +28,7 @@ import Tabinator, { Tab } from 'ui/component/core/Tabinator'
 import Work from 'ui/component/Work'
 import DynamicDestination from 'ui/utility/DynamicDestination'
 import Viewport from 'ui/utility/Viewport'
+import LoginView from 'ui/view/LoginView'
 import View from 'ui/view/shared/component/View'
 import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import Errors from 'utility/Errors'
@@ -75,14 +77,30 @@ export default ViewDefinition({
 			.style.bind(workData.map(view, work => !!work.bookmarks?.url_read_last && !work.bookmarks.url_next), 'view-type-work-bookmark-action--irrelevant')
 		)
 
-		// TODO add custom bookmark action for being caught up or finished, leaving a recommendationg
+		const ageRestricted = State.Map(view, [workData, Tags, Session.Auth.account], (work, tags, author) => true
+			&& Tags.hasMature(work.global_tags)
+			&& (!author || author.age !== 'eighteen_plus')
+		)
+
+		Block()
+			.tweak(block => block.title.text.use('view/work/age-restricted/title'))
+			.tweak(block => block.description.text.use('view/work/age-restricted/description'))
+			.tweak(block => block.content
+				.append(Button()
+					.type('primary')
+					.setIcon('circle-user')
+					.text.use('shared/action/login-or-signup')
+					.event.subscribe('click', () => navigate.ephemeral(LoginView, undefined))
+				)
+			)
+			.appendToWhen(ageRestricted, view.content)
 
 		const tabletMode = Viewport.tablet
 
 		const tabinator = Tabinator()
 			.viewTransition('work-view-tabinator')
 			.tweak(tabinator => tabinator.header.prependToWhen(tabletMode.truthy, tabinator))
-			.appendTo(view.content)
+			.appendToWhen(ageRestricted.falsy, view.content)
 
 		const chaptersTab = Tab('chapters')
 			.text.use('view/work/chapters/title')
@@ -97,7 +115,7 @@ export default ViewDefinition({
 
 		const chaptersListState = State(null)
 		Slot()
-			.use(chaptersListState, () => Paginator()
+			.use([ageRestricted, chaptersListState], (slot, ageRestricted) => ageRestricted ? undefined : Paginator()
 				.viewTransition('work-view-chapters')
 				.style('view-type-work-chapter-list')
 				.tweak(paginator => {
@@ -299,8 +317,8 @@ export default ViewDefinition({
 				.setAestheticLevel(4)
 				.text.use('view/work/comments/title')
 			)
-			.tweak(block => block.content.append(Slot().use([commentState, workData], (slot, thread, work) => {
-				if (!thread)
+			.tweak(block => block.content.append(Slot().use([commentState, workData, ageRestricted], (slot, thread, work, ageRestricted) => {
+				if (!thread || ageRestricted)
 					return
 
 				const isOwnWork = Session.Auth.loggedInAs(slot, thread.threadAuthor)
@@ -400,7 +418,10 @@ export default ViewDefinition({
 			.appendTo(DynamicDestination(view)
 				.addDestination('tab', commentsTab.content)
 				.addDestination('sidebar', view.sidebar)
-				.setStrategy(tabletMode.map(view, tabletMode => tabletMode ? 'tab' : 'sidebar'))
+				.setStrategy(State.Map(view, [tabletMode, ageRestricted], (tabletMode, ageRestricted) =>
+					ageRestricted ? undefined
+						: tabletMode ? 'tab' : 'sidebar'
+				))
 			)
 
 		return view

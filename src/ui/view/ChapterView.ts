@@ -88,8 +88,12 @@ export default ViewDefinition({
 			throw response
 
 		const initialChapterResponse = await EndpointChapterGet.query({ params })
-		if (initialChapterResponse instanceof Error)
+		if (initialChapterResponse instanceof Error) {
+			if (initialChapterResponse.type === 'age_restriction')
+				void navigate.toURL(`/work/${params.author}/${params.work}`)
+
 			throw initialChapterResponse
+		}
 
 		return { workData: response.data as WorkMetadata & Partial<WorkData>, initialChapterResponse }
 	},

@@ -38,7 +38,7 @@
 		"tsconfig-paths": "4.2.0",
 		"typescript": "5.8.2",
 		"typescript-eslint": "8.26.0",
-		"weaving": "github:chirivulpes/weaving#627e59ab59b2f2355bc779251551031e9ce3344b",
+		"weaving": "github:chirivulpes/weaving#fc532b3e2025f424747e382caf66ad1661932c9a",
 		"ws": "8.18.0"
 	}
 }

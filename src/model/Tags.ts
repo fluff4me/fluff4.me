@@ -157,6 +157,9 @@ const Tags = Object.assign(
 
 			Tags.emit()
 		},
+		hasMature (workTags?: string[] | null): boolean {
+			return !!workTags?.some(tagId => Tags.value?.tags[tagId as TagId]?.is_mature)
+		},
 	},
 )
 

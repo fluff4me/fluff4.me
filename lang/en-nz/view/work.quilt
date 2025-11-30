@@ -16,3 +16,7 @@ action/label/cancel-editing=shared/action/cancel-editing
 marker/next-chapter/next: Continue
 marker/next-chapter/furthest: Never Read
 marker/action/remove: Remove Bookmark
+
+### age-restricted
+title: Age Restricted
+description: This work has mature content. To confirm you're of age, you must log in.
