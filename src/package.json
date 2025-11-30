@@ -10,7 +10,21 @@
 		"qrcode": "1.5.1",
 		"source-map-support": "0.5.21"
 	},
+	"pnpm": {
+		"overrides": {
+			"prosemirror-commands": "1.6.1",
+			"prosemirror-dropcursor": "1.8.1",
+			"prosemirror-gapcursor": "1.3.2",
+			"prosemirror-history": "1.4.1",
+			"prosemirror-inputrules": "1.4.0",
+			"prosemirror-keymap": "1.2.2",
+			"prosemirror-menu": "1.2.4",
+			"prosemirror-model": "1.23.0",
+			"prosemirror-schema-list": "1.4.1",
+			"prosemirror-transform": "1.10.2"
+		}
+	},
 	"devDependencies": {
-		"api.fluff4.me": "^1.0.1105"
+		"api.fluff4.me": "^1.0.1108"
 	}
 }

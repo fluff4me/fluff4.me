@@ -32,13 +32,13 @@
 		"parseurl": "1.3.3",
 		"postcss": "8.5.3",
 		"serve-static": "1.16.2",
-		"task": "github:chirivulpes/task#7f24d8cff0e18a887219d7b16c771b33c3622b72",
+		"task": "github:chirivulpes/task#e81c106500da010fa22ad15fb7ca311786e550f1",
 		"terser": "5.39.0",
 		"ts-node": "10.9.2",
 		"tsconfig-paths": "4.2.0",
 		"typescript": "5.8.2",
 		"typescript-eslint": "8.26.0",
-		"weaving": "github:chirivulpes/weaving#e06bdbb7d5400891f215c5a48d4112f918392c80",
+		"weaving": "github:chirivulpes/weaving#627e59ab59b2f2355bc779251551031e9ce3344b",
 		"ws": "8.18.0"
 	}
 }

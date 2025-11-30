@@ -78,8 +78,8 @@ importers:
         specifier: 1.16.2
         version: 1.16.2
       task:
-        specifier: github:chirivulpes/task#7f24d8cff0e18a887219d7b16c771b33c3622b72
-        version: https://codeload.github.com/chirivulpes/task/tar.gz/7f24d8cff0e18a887219d7b16c771b33c3622b72
+        specifier: github:chirivulpes/task#e81c106500da010fa22ad15fb7ca311786e550f1
+        version: https://codeload.github.com/chirivulpes/task/tar.gz/e81c106500da010fa22ad15fb7ca311786e550f1
       terser:
         specifier: 5.39.0
         version: 5.39.0
@@ -96,8 +96,8 @@ importers:
         specifier: 8.26.0
         version: 8.26.0(eslint@9.39.1)(typescript@5.8.2)
       weaving:
-        specifier: github:chirivulpes/weaving#e06bdbb7d5400891f215c5a48d4112f918392c80
-        version: https://codeload.github.com/chirivulpes/weaving/tar.gz/e06bdbb7d5400891f215c5a48d4112f918392c80
+        specifier: github:chirivulpes/weaving#627e59ab59b2f2355bc779251551031e9ce3344b
+        version: https://codeload.github.com/chirivulpes/weaving/tar.gz/627e59ab59b2f2355bc779251551031e9ce3344b
       ws:
         specifier: 8.18.0
         version: 8.18.0
@@ -1626,8 +1626,8 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  task@https://codeload.github.com/chirivulpes/task/tar.gz/7f24d8cff0e18a887219d7b16c771b33c3622b72:
-    resolution: {tarball: https://codeload.github.com/chirivulpes/task/tar.gz/7f24d8cff0e18a887219d7b16c771b33c3622b72}
+  task@https://codeload.github.com/chirivulpes/task/tar.gz/e81c106500da010fa22ad15fb7ca311786e550f1:
+    resolution: {tarball: https://codeload.github.com/chirivulpes/task/tar.gz/e81c106500da010fa22ad15fb7ca311786e550f1}
     version: 1.0.0
     hasBin: true
 
@@ -1748,8 +1748,8 @@ packages:
   wbuf@1.7.3:
     resolution: {integrity: sha512-O84QOnr0icsbFGLS0O3bI5FswxzRr8/gHwWkDlQFskhSPryQXvrTMxjxGP4+iWYoauLoBvfDpkrOauZ+0iZpDA==}
 
-  weaving@https://codeload.github.com/chirivulpes/weaving/tar.gz/e06bdbb7d5400891f215c5a48d4112f918392c80:
-    resolution: {tarball: https://codeload.github.com/chirivulpes/weaving/tar.gz/e06bdbb7d5400891f215c5a48d4112f918392c80}
+  weaving@https://codeload.github.com/chirivulpes/weaving/tar.gz/627e59ab59b2f2355bc779251551031e9ce3344b:
+    resolution: {tarball: https://codeload.github.com/chirivulpes/weaving/tar.gz/627e59ab59b2f2355bc779251551031e9ce3344b}
     version: 3.0.0
     hasBin: true
 
@@ -1784,11 +1784,6 @@ packages:
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
     engines: {node: '>=10'}
-
-  yaml@2.8.1:
-    resolution: {integrity: sha512-lcYcMxX2PO9XMGvAJkJ3OsNMw+/7FKes7/hgerGUYWIoWu5j/+YQqcZr5JnPZWzOsEBgMbSbiSTn/dv/69Mkpw==}
-    engines: {node: '>= 14.6'}
-    hasBin: true
 
   yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
@@ -3455,7 +3450,7 @@ snapshots:
       picocolors: 1.1.1
       sax: 1.4.3
 
-  task@https://codeload.github.com/chirivulpes/task/tar.gz/7f24d8cff0e18a887219d7b16c771b33c3622b72:
+  task@https://codeload.github.com/chirivulpes/task/tar.gz/e81c106500da010fa22ad15fb7ca311786e550f1:
     dependencies:
       '@types/node': 22.16.0
       '@types/ws': 8.5.13
@@ -3466,7 +3461,6 @@ snapshots:
       tinyglobby: 0.2.14
       tsconfig-paths: 4.2.0
       ws: 8.18.0
-      yaml: 2.8.1
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -3584,7 +3578,7 @@ snapshots:
     dependencies:
       minimalistic-assert: 1.0.1
 
-  weaving@https://codeload.github.com/chirivulpes/weaving/tar.gz/e06bdbb7d5400891f215c5a48d4112f918392c80:
+  weaving@https://codeload.github.com/chirivulpes/weaving/tar.gz/627e59ab59b2f2355bc779251551031e9ce3344b:
     dependencies:
       chokidar: 3.6.0
       yargs: 17.7.2
@@ -3606,8 +3600,6 @@ snapshots:
   ws@8.18.0: {}
 
   y18n@5.0.8: {}
-
-  yaml@2.8.1: {}
 
   yargs-parser@21.1.1: {}
 
