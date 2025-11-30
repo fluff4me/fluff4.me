@@ -1,5 +1,6 @@
 {
 	"typescript.format.semicolons": "remove",
 	"javascript.format.insertSpaceBeforeFunctionParenthesis": true,
-	"typescript.format.insertSpaceBeforeFunctionParenthesis": true
+	"typescript.format.insertSpaceBeforeFunctionParenthesis": true,
+	"eslint.nodePath": "node_modules\\lint\\node_modules\\eslint"
 }

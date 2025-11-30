@@ -12,14 +12,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
       
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm ci --force
+        run: pnpm install
       
       # - name: Force install latest chirilang & weaving
       #   run: |
@@ -41,11 +46,11 @@ jobs:
           URL_ORIGIN: https://fluff4.me/
           BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
           BUILD_SHA: ${{ github.sha }}
-        run: npx task install build
+        run: pnpm exec task install build
 
       - name: Notify Discord on failure
         if: failure()
-        run: npm run notify
+        run: pnpm run notify
         env:
           BUILD_WEBHOOK: ${{ secrets.BUILD_WEBHOOK }}
           NOTIFY_TYPE: failure

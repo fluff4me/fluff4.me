@@ -1,0 +1,6 @@
+excludeLinksFromLockfile: true
+
+minimumReleaseAgeExclude:
+  - api.fluff4.me
+
+sharedWorkspaceLockfile: false

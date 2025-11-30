@@ -37,18 +37,24 @@ jobs:
       - name: Checkout main
         if: success()
         uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - name: Setup Node.js environment
         if: success()
-        uses: actions/setup-node@v4
-
+        uses: actions/setup-node@v6
+        with:
+          cache: "pnpm"
+      
       - name: Install dependencies
         if: success()
-        run: npm ci --force
+        run: pnpm install
 
       - name: Notify Discord
         if: success()
-        run: npm run notify
+        run: pnpm run notify
         env:
           BUILD_WEBHOOK: ${{ secrets.BUILD_WEBHOOK }}
           NOTIFY_TYPE: success
