@@ -19,4 +19,5 @@ marker/action/remove: Remove Bookmark
 
 ### age-restricted
 title: Age Restricted
-description: This work has mature content. To confirm you're of age, you must log in.
+description/logged-out: This work has mature content. To confirm you're of age, you must log in.
+description/logged-in: Sorry, you're not of age to view this content.

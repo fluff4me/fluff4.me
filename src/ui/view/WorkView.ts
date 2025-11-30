@@ -84,9 +84,11 @@ export default ViewDefinition({
 
 		Block()
 			.tweak(block => block.title.text.use('view/work/age-restricted/title'))
-			.tweak(block => block.description.text.use('view/work/age-restricted/description'))
 			.tweak(block => block.content
-				.append(Button()
+				.append(Placeholder()
+					.text.bind(Session.Auth.loggedIn.map(block, loggedIn => quilt => quilt[loggedIn ? 'view/work/age-restricted/description/logged-in' : 'view/work/age-restricted/description/logged-out']()))
+				)
+				.appendWhen(Session.Auth.loggedIn.falsy, Button()
 					.type('primary')
 					.setIcon('circle-user')
 					.text.use('shared/action/login-or-signup')
