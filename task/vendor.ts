@@ -81,18 +81,11 @@ export default Task('vendor', async () => {
 	let js = ''
 	for (let script of VENDOR_SCRIPTS) {
 		if (typeof script === 'string' || !script.file) {
-			interface PackageJson {
-				main?: string
-			}
-
 			const name = typeof script === 'string' ? script : script.package ?? script.name
-			const packageJson = JSON.parse(await fs.readFile(`src/node_modules/${name}/package.json`, 'utf8').catch(() => 'null')) as PackageJson | null
-			if (!packageJson?.main)
-				throw new Error(`Unable to resolve "main" for module "${name}"`)
 
 			script = {
 				name,
-				file: path.join(`src/node_modules/${name}`, packageJson.main),
+				file: require.resolve(name, { paths: ['src'] }),
 			}
 		}
 		else {
