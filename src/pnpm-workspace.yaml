@@ -4,3 +4,4 @@ minimumReleaseAgeExclude:
   - api.fluff4.me
 
 sharedWorkspaceLockfile: false
+shamefullyHoist: true
