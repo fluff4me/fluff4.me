@@ -182,8 +182,7 @@ export default ViewDefinition({
 				if (Session.Auth.loggedIn.value)
 					void EndpointHistoryAddChapter.query({ params: chapter })
 
-				const isOwnWork = Session.Auth.loggedInAs(slot, workData.author)
-				Slot().appendTo(slot).if(isOwnWork, slot => Statistics()
+				if (chapter.statistics) Statistics()
 					.style('view-type-chapter-block-author-statistics')
 					.section('shared/stat/section/logged-in', section => section
 						.stat('chapter/stat/reads/label', chapter.statistics?.read_count)
@@ -193,7 +192,7 @@ export default ViewDefinition({
 					.section('shared/stat/section/logged-out', section => section
 						.stat('chapter/stat/visits/label', chapter.statistics?.visits ? BigInt(chapter.statistics.visits) : undefined)
 					)
-				)
+					.appendTo(slot)
 
 				if (chapter.notes_before || chapter.global_tags?.length || chapter.custom_tags?.length)
 					Component()

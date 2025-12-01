@@ -481,10 +481,8 @@ const Work = Component.Builder((component, workDataIn: State.Or<WorkMetadata & P
 	RSSButton(work.map(component, work => `${Env.API_ORIGIN}work/${work.author}/${work.vanity}/rss.xml`))
 		.appendTo(block.footer.right)
 
-	const workAuthor = work.map(component, work => work.author)
-	const isOwnWork = Session.Auth.loggedInAs(component, workAuthor)
 	const statistics = work.map(component, work => work.statistics)
-	const statisticsWrapper = Slot().appendTo(block.footer).use(State.Use(component, { isOwnWork, statistics }), (slot, { isOwnWork, statistics }) => isOwnWork && statistics
+	const statisticsWrapper = Slot().appendTo(block.footer).use(statistics, (slot, statistics) => statistics
 		&& Statistics()
 			.style('work-author-statistics')
 			.section('shared/stat/section/logged-in', section => section
