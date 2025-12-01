@@ -7,6 +7,7 @@ import type { CheckDropdown } from 'ui/component/core/Dropdown'
 import { RadioDropdown } from 'ui/component/core/Dropdown'
 import type Heading from 'ui/component/core/Heading'
 import Loading from 'ui/component/core/Loading'
+import Paginator from 'ui/component/core/Paginator'
 import RadioRow from 'ui/component/core/RadioRow'
 import type { EventHandler } from 'ui/utility/EventManipulator'
 import type { UnsubscribeState } from 'utility/State'
@@ -22,7 +23,9 @@ interface ActionBlock extends Component, ActionBlockExtensions { }
 
 const ActionBlock = Component.Builder((component): ActionBlock => {
 	let unuseActions: UnsubscribeState | undefined
+	const withinPaginator = component.getStateForClosest(Paginator)
 	return component.style('action-block')
+		.style.bind(withinPaginator.truthy, 'action-block--in-paginator')
 		.extend<ActionBlockExtensions>(block => ({
 			flush () {
 				block.style('action-block--flush')

@@ -38,6 +38,11 @@
 		%border-top-radius-0
 		padding-top: calc($space-3 + $space-2)
 
+	&--in-paginator:
+		#after: .action-block--attached-above
+		%unmargin-top-4
+		%padding-top-4
+
 	&-column:
 		%flex
 		flex-direction: ${action-group-direction: column}

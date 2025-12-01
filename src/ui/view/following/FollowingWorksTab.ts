@@ -69,7 +69,6 @@ const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ign
 							.appendTo(slot)
 
 						ActionBlock()
-							.style('view-type-following-action-block')
 							.attachAbove()
 							.addActions(workComponent)
 							.appendTo(slot)

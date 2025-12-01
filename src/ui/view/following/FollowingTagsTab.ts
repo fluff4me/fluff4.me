@@ -47,7 +47,6 @@ const FollowingTagsTab = Component.Builder((component, type: 'following' | 'igno
 					.appendTo(slot)
 
 				ActionBlock()
-					.style('view-type-following-action-block')
 					.attachAbove()
 					.addActions(tagComponent)
 					.appendTo(slot)

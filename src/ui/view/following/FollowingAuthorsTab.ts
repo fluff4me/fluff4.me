@@ -68,7 +68,6 @@ const FollowingAuthorsTab = Component.Builder((component, type: 'following' | 'i
 							.appendTo(slot)
 
 						ActionBlock()
-							.style('view-type-following-action-block')
 							.attachAbove()
 							.addActions(authorComponent)
 							.appendTo(slot)

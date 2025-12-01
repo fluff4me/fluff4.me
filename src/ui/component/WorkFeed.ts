@@ -1,9 +1,12 @@
 import type { AuthorMetadata, FeedResponse, WorkMetadata } from 'api.fluff4.me'
 import type { PreparedPaginatedQueryReturning } from 'endpoint/Endpoint'
 import PagedListData from 'model/PagedListData'
+import Session from 'model/Session'
 import Component from 'ui/Component'
+import ActionBlock from 'ui/component/ActionBlock'
 import Link from 'ui/component/core/Link'
 import Paginator from 'ui/component/core/Paginator'
+import Slot from 'ui/component/core/Slot'
 import Work from 'ui/component/Work'
 import State from 'utility/State'
 
@@ -62,10 +65,15 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 
 				for (const workData of works) {
 					const author = authors.value.find(author => author.vanity === workData.author)
-					Link(author && `/work/${author.vanity}/${workData.vanity}`)
+					const workCard = Link(author && `/work/${author.vanity}/${workData.vanity}`)
 						.and(Work, workData, author, true)
 						.viewTransition(false)
 						.appendTo(slot)
+
+					Slot().appendTo(slot).if(Session.Auth.loggedInAs(slot, workData.author), slot => ActionBlock()
+						.attachAbove()
+						.addActions(workCard)
+					)
 				}
 			})
 			return feed
