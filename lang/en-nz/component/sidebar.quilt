@@ -10,6 +10,7 @@ link/create-work: Create Work
 
 section/manage: Manage
 link/tags: Tags
+link/comments: Comments
 
 section/profile=shared/term/profile
 link/login: Log In/Sign up

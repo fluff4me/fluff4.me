@@ -49,6 +49,7 @@ container/alt: main content
 ~view/work-edit
 ~view/work
 ~view/search
+~view/manage-comments
 
 # document
 ~document/about

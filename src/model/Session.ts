@@ -159,8 +159,8 @@ namespace Session {
 		export const privileged = new Proxy({} as Record<Privilege, State.Generator<boolean>>, {
 			get (target, p) {
 				const privilege = p as Privilege
-				return privilegeStates[privilege]
-					??= Session.Auth.account.mapManual(author =>
+				return privilegeStates[privilege] ??=
+					Session.Auth.account.mapManual(author =>
 						author?.roles?.some(role => role.privileges?.includes(privilege)) ?? false)
 			},
 		})
@@ -176,6 +176,7 @@ namespace Session {
 			ModerationAuthorTag: privileged.ModerationAuthorTag,
 			ModerationViewComments: privileged.ModerationViewComments,
 			ModerationManageDefaultShelves: privileged.ModerationManageDefaultShelves,
+			ModerationViewStatistics: privileged.ModerationViewStatistics,
 		} satisfies Record<ModerationTypes, State.Generator<boolean>>)
 		export const isModerator = State.Generator(() => moderationPrivileges.some(privilege => privilege.value))
 			.observeManual(...moderationPrivileges)

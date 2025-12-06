@@ -15,6 +15,7 @@ import HistoryView from 'ui/view/HistoryView'
 import IgnoringView from 'ui/view/IgnoringView'
 import LegalView from 'ui/view/LegalView'
 import LoginView from 'ui/view/LoginView'
+import ManageCommentsView from 'ui/view/ManageCommentsView'
 import ManageTagsView from 'ui/view/ManageTagsView'
 import NewView from 'ui/view/NewView'
 import NotificationsView from 'ui/view/NotificationsView'
@@ -66,6 +67,8 @@ const Routes = [
 	// Route('/tag/$custom_name', TagView.navigate),
 
 	Route('/manage/tags', ManageTagsView.navigate),
+	Route('/manage/comments', ManageCommentsView.navigate),
+	Route('/manage/comments/$tab', ManageCommentsView.navigate),
 
 	// Route('/supporter/finish', SupporterFinishView.navigate),
 

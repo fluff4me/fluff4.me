@@ -6,7 +6,7 @@ content/empty: This author has not yet shared any work...
 action/label/new: New Work
 
 ### recommendations
-title: Recommendations
+title=shared/term/recommendations
 content/empty: This author has not yet recommended a work...
 
 ### comments

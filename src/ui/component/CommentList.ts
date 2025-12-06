@@ -1,4 +1,4 @@
-import type { AuthorMetadata, ChapterMetadata, WorkMetadata } from 'api.fluff4.me'
+import type { AuthorMetadata, ChapterMetadata, ContextualComment as RawContextualComment, WorkMetadata } from 'api.fluff4.me'
 import type PagedData from 'model/PagedData'
 import Component from 'ui/Component'
 import type { CommentData, CommentMetadata } from 'ui/component/Comment'
@@ -12,6 +12,19 @@ import State from 'utility/State'
 export interface ContextualComment {
 	data: CommentData
 	metadata?: CommentMetadata
+}
+export namespace ContextualComment {
+	export function fromRaw (raw: RawContextualComment): ContextualComment {
+		return {
+			data: raw.comment as CommentData,
+			metadata: {
+				context: {
+					root_object: raw.root_object,
+					is_reply: raw.is_reply || undefined,
+				},
+			},
+		}
+	}
 }
 
 export interface CommentListPageData {

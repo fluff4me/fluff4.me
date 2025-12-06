@@ -10,7 +10,7 @@ import type { SlotInitialiserReturn } from 'ui/component/core/Slot'
 import Slot from 'ui/component/core/Slot'
 import { Quilt } from 'ui/utility/StringApplicator'
 import Env from 'utility/Env'
-import type State from 'utility/State'
+import State from 'utility/State'
 
 export default Component.Builder(nav => {
 	nav.style('primary-nav')
@@ -33,6 +33,7 @@ export default Component.Builder(nav => {
 	interface GroupInsertionTransaction extends ComponentInsertionTransaction, GroupInsertion { }
 
 	interface GroupExtensions extends GroupInsertion {
+		addWhen (predicate: State<boolean>, path: RoutePath, translation: Quilt.SimpleKey | Quilt.Handler, initialiser?: (button: Link & Button) => unknown): this
 		using<T> (state: State<T>, initialiser: (slot: GroupInsertionTransaction, value: T) => SlotInitialiserReturn): this
 	}
 
@@ -47,6 +48,9 @@ export default Component.Builder(nav => {
 				.text.use(translation))
 			.extend<GroupExtensions>(group => ({
 				add: createAddFunction(group),
+				addWhen (predicate, path, translation, initialiser) {
+					return group.using(predicate, (slot, visible) => visible && slot.add(path, translation, initialiser))
+				},
 				using: (state, initialiser) => {
 					Slot()
 						.use(state, (transaction, value) =>
@@ -106,10 +110,13 @@ export default Component.Builder(nav => {
 		)
 		.appendTo(top)
 
+	const Privilege = Session.Auth.privileged
+	const hasManagePrivileges = State.Some(nav, Privilege.TagGlobalDelete, Privilege.ModerationViewComments)
 	Slot()
-		.if(Session.Auth.privileged.TagGlobalDelete, () =>
+		.if(hasManagePrivileges, () =>
 			Group('top', 'sidebar/section/manage')
-				.add('/manage/tags', 'sidebar/link/tags', button => button.setIcon('tag'))
+				.addWhen(Privilege.TagGlobalDelete, '/manage/tags', 'sidebar/link/tags', button => button.setIcon('tag'))
+				.addWhen(Privilege.ModerationViewComments, '/manage/comments', 'sidebar/link/comments', button => button.setIcon('comment'))
 		)
 		.appendTo(top)
 

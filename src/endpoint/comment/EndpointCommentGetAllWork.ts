@@ -1,3 +1,3 @@
 import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint('/recommendations', 'get')
+export default Endpoint('/comments/work', 'get')

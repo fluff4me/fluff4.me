@@ -135,5 +135,6 @@
 	view/type/legal
 	view/type/fundraiser
 	view/type/search
+	view/type/manage-comments
 
 #import: app
