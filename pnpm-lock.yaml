@@ -78,8 +78,8 @@ importers:
         specifier: 1.16.2
         version: 1.16.2
       task:
-        specifier: github:chirivulpes/task#94c1d24a0310614f5a2022a723aacc402b6bfced
-        version: https://codeload.github.com/chirivulpes/task/tar.gz/94c1d24a0310614f5a2022a723aacc402b6bfced
+        specifier: github:chirivulpes/task#ef1975228fec597c8112a51ec4786b5b210c83d9
+        version: https://codeload.github.com/chirivulpes/task/tar.gz/ef1975228fec597c8112a51ec4786b5b210c83d9
       terser:
         specifier: 5.39.0
         version: 5.39.0
@@ -1630,8 +1630,8 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  task@https://codeload.github.com/chirivulpes/task/tar.gz/94c1d24a0310614f5a2022a723aacc402b6bfced:
-    resolution: {tarball: https://codeload.github.com/chirivulpes/task/tar.gz/94c1d24a0310614f5a2022a723aacc402b6bfced}
+  task@https://codeload.github.com/chirivulpes/task/tar.gz/ef1975228fec597c8112a51ec4786b5b210c83d9:
+    resolution: {tarball: https://codeload.github.com/chirivulpes/task/tar.gz/ef1975228fec597c8112a51ec4786b5b210c83d9}
     version: 1.0.0
     hasBin: true
 
@@ -3456,7 +3456,7 @@ snapshots:
       picocolors: 1.1.1
       sax: 1.4.3
 
-  task@https://codeload.github.com/chirivulpes/task/tar.gz/94c1d24a0310614f5a2022a723aacc402b6bfced:
+  task@https://codeload.github.com/chirivulpes/task/tar.gz/ef1975228fec597c8112a51ec4786b5b210c83d9:
     dependencies:
       '@types/node': 22.16.0
       '@types/ws': 8.5.13

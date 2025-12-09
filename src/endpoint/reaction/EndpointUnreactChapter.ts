@@ -1,3 +1,3 @@
 import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint('/work/{author}/{work}/chapter/{url}/unreact', 'post')
+export default Endpoint('/reactions/chapter/{author}/{work}/{url}/{type}/remove', 'post')

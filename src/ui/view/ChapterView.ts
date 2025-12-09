@@ -3,8 +3,6 @@ import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
 import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
 import EndpointHistoryAddChapter from 'endpoint/history/EndpointHistoryAddChapter'
 import EndpointReactChapter from 'endpoint/reaction/EndpointReactChapter'
-import EndpointSupporterReactChapter from 'endpoint/reaction/EndpointSupporterReactChapter'
-import EndpointSupporterUnreactChapter from 'endpoint/reaction/EndpointSupporterUnreactChapter'
 import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
 import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
 import Chapters from 'model/Chapters'
@@ -315,7 +313,7 @@ export default ViewDefinition({
 				////////////////////////////////////
 				//#region Supporter Reaction
 				.appendWhen(supporterReactions.map(slot, reactions => !!reactions || !!Session.Auth.author.value?.supporter?.tier),
-					Reaction('supporter_heart', supporterReactions, reactedSupporter, reactingSupporter)
+					Reaction('supporter_love', supporterReactions, reactedSupporter, reactingSupporter)
 						.tweak(reaction => reaction.icon.setDisabled(!Session.Auth.author.value?.supporter?.tier, 'not a supporter'))
 						.and(GradientText, 'heart-gradient', '115deg')
 						.useGradient(Session.Auth.author.map(slot, author => author?.supporter?.username_colours))
@@ -362,10 +360,10 @@ export default ViewDefinition({
 							if (!Session.Auth.loggedIn.value || reactingSupporter.value)
 								return
 
-							const params = { ...Chapters.reference(chapterState.value), type: 'heart' } as const
+							const params = { ...Chapters.reference(chapterState.value), type: 'supporter_love' } as const
 							if (reactedSupporter.value) {
 								reactingSupporter.value = true
-								const response = await EndpointSupporterUnreactChapter.query({ params })
+								const response = await EndpointUnreactChapter.query({ params })
 								reactingSupporter.value = false
 								if (toast.handleError(response))
 									return
@@ -376,7 +374,7 @@ export default ViewDefinition({
 							}
 							else {
 								reactingSupporter.value = true
-								const response = await EndpointSupporterReactChapter.query({ params })
+								const response = await EndpointReactChapter.query({ params })
 								reactingSupporter.value = false
 								if (toast.handleError(response))
 									return

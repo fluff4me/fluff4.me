@@ -375,7 +375,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 						async function unreact () {
 							changingReactionState.value = true
-							const response = await EndpointUnreactComment.query({ params: { comment_id: (commentData as CommentDataRaw).comment_id } })
+							const response = await EndpointUnreactComment.query({ params: { id: (commentData as CommentDataRaw).comment_id, type: 'love' } })
 							changingReactionState.value = false
 							if (toast.handleError(response))
 								return

@@ -32,7 +32,7 @@
 		"parseurl": "1.3.3",
 		"postcss": "8.5.3",
 		"serve-static": "1.16.2",
-		"task": "github:chirivulpes/task#94c1d24a0310614f5a2022a723aacc402b6bfced",
+		"task": "github:chirivulpes/task#ef1975228fec597c8112a51ec4786b5b210c83d9",
 		"terser": "5.39.0",
 		"ts-node": "10.9.2",
 		"tsconfig-paths": "4.2.0",

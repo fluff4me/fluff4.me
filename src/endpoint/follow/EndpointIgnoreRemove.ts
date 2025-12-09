@@ -5,7 +5,7 @@ type FollowType = Extract<keyof Paths, `/unignore/${string}/{id}`> extends `/uni
 
 export default {
 	Author: Endpoint('/unignore/author/{id}', 'post'),
-	Work: Endpoint('/unignore/work/{id}', 'post'),
+	// Work: Endpoint('/unignore/work/{id}', 'post'),
 	Tag: Endpoint('/unignore/tag/{id}', 'post'),
 	Category: Endpoint('/unignore/category/{id}', 'post'),
 } satisfies { [TYPE in FollowType as Capitalize<TYPE>]: Endpoint<`/unignore/${TYPE}/{id}`> }
