@@ -37,6 +37,8 @@ export default ViewDefinition({
 	create (params: AuthorViewParams, { author }) {
 		const view = View('author')
 
+		const isSelf = Session.Auth.loggedInAs(view, author.vanity)
+
 		const authorComponent = Author(author)
 			.viewTransition('author-view-author')
 			.setContainsHeading()
@@ -65,7 +67,7 @@ export default ViewDefinition({
 				.event.subscribe('click', () => navigate.toURL('/work/new'))
 				.appendTo(row.right)
 			)
-			.appendTo(worksTab?.content ?? view.content)
+			.appendToWhen(isSelf, worksTab?.content ?? view.content)
 
 		const works = PagedListData.fromEndpoint(25, EndpointWorkGetAllAuthor.prep({
 			params: {
