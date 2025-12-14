@@ -1,6 +1,6 @@
 import type { Work } from 'api.fluff4.me'
-import EndpointWorkCreate from 'endpoint/work/EndpointWorkCreate'
-import EndpointWorkUpdate from 'endpoint/work/EndpointWorkUpdate'
+import EndpointWorks$authorVanity$workVanityUpdate from 'endpoint/works/$author_vanity/$work_vanity/EndpointWorks$authorVanity$workVanityUpdate'
+import EndpointWorksCreate from 'endpoint/works/EndpointWorksCreate'
 import quilt from 'lang/en-nz'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
@@ -110,7 +110,7 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 		const response = await (() => {
 			switch (type) {
 				case 'create':
-					return EndpointWorkCreate.query({
+					return EndpointWorksCreate.query({
 						body: {
 							name,
 							vanity: vanityInput.value,
@@ -132,10 +132,10 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 					if (!authorVanity)
 						return new Error('Cannot update a work when not signed in')
 
-					return EndpointWorkUpdate.query({
+					return EndpointWorks$authorVanity$workVanityUpdate.query({
 						params: {
-							author: authorVanity,
-							vanity: state.value.vanity,
+							author_vanity: authorVanity,
+							work_vanity: state.value.vanity,
 						},
 						body: {
 							name,

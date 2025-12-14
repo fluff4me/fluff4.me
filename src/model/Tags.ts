@@ -1,5 +1,5 @@
 import type { ErrorResponse, ManifestGlobalTags, Response, Tag, TagCategory } from 'api.fluff4.me'
-import EndpointTagManifest from 'endpoint/tag/EndpointTagManifest'
+import EndpointTagsManifest from 'endpoint/tags/EndpointTagsManifest'
 import Manifest from 'model/Manifest'
 import Arrays from 'utility/Arrays'
 import Time from 'utility/Time'
@@ -28,7 +28,7 @@ const Tags = Object.assign(
 		cacheId: 'tags',
 		valid: Time.minutes(5),
 		async get () {
-			const response = await EndpointTagManifest.query()
+			const response = await EndpointTagsManifest.query()
 			if (!response.data)
 				return response as ErrorResponse<Response<TagsManifest>>
 

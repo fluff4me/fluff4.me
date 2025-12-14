@@ -1,5 +1,5 @@
 import EndpointFeedGet from 'endpoint/feed/EndpointFeedGet'
-import EndpointFeedGetAuthed from 'endpoint/feed/EndpointFeedGetAuthed'
+import EndpointFeedGetAuthed from 'endpoint/feed/get/EndpointFeedGetAuthed'
 import Session from 'model/Session'
 import Tags from 'model/Tags'
 import ActionBlock from 'ui/component/ActionBlock'

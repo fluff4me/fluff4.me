@@ -1,8 +1,8 @@
 import type { AuthorMetadata, ReportWorkBody, WorkCensorBody, Work as WorkData, WorkMetadata } from 'api.fluff4.me'
-import EndpointModerateWorkCensor from 'endpoint/moderation/EndpointModerateWorkCensor'
-import EndpointModerateWorkLock from 'endpoint/moderation/EndpointModerateWorkLock'
-import EndpointModerateWorkUnlock from 'endpoint/moderation/EndpointModerateWorkUnlock'
-import EndpointReportWork from 'endpoint/report/EndpointReportWork'
+import EndpointModerationWork$authorVanity$workVanityCensor from 'endpoint/moderation/work/$author_vanity/$work_vanity/EndpointModerationWork$authorVanity$workVanityCensor'
+import EndpointModerationWork$authorVanity$workVanityLock from 'endpoint/moderation/work/$author_vanity/$work_vanity/EndpointModerationWork$authorVanity$workVanityLock'
+import EndpointModerationWork$authorVanity$workVanityUnlock from 'endpoint/moderation/work/$author_vanity/$work_vanity/EndpointModerationWork$authorVanity$workVanityUnlock'
+import EndpointReportsWork$authorVanity$workVanityAdd from 'endpoint/reports/work/$author_vanity/$work_vanity/EndpointReportsWork$authorVanity$workVanityAdd'
 import Follows from 'model/Follows'
 import FormInputLengths from 'model/FormInputLengths'
 import Patreon from 'model/Patreon'
@@ -74,7 +74,7 @@ const WORK_MODERATION = ModerationDefinition((work: WorkMetadata & Partial<WorkD
 								if (!confirmed)
 									return
 
-								const response = await EndpointModerateWorkUnlock.query({ params: Works.reference(work) })
+								const response = await EndpointModerationWork$authorVanity$workVanityUnlock.query({ params: Works.reference(work) })
 								if (toast.handleError(response))
 									return
 
@@ -93,7 +93,7 @@ const WORK_MODERATION = ModerationDefinition((work: WorkMetadata & Partial<WorkD
 								if (!confirmed)
 									return
 
-								const response = await EndpointModerateWorkLock.query({ params: Works.reference(work), body: { reason: reasonInput.value } })
+								const response = await EndpointModerationWork$authorVanity$workVanityLock.query({ params: Works.reference(work), body: { reason: reasonInput.value } })
 								if (toast.handleError(response))
 									return
 
@@ -113,7 +113,7 @@ const WORK_MODERATION = ModerationDefinition((work: WorkMetadata & Partial<WorkD
 			license: ModerationCensor.plaintext(work.license && `${work.license.name}: ${work.license.link}`),
 		},
 		async censor (censor) {
-			const response = await EndpointModerateWorkCensor.query({ params: Works.reference(work), body: censor })
+			const response = await EndpointModerationWork$authorVanity$workVanityCensor.query({ params: Works.reference(work), body: censor })
 			toast.handleError(response)
 		},
 	}),
@@ -547,7 +547,7 @@ const Work = Component.Builder((component, workDataIn: State.Or<WorkMetadata & P
 				report: event => ReportDialog.prompt(event.host, WORK_REPORT, {
 					reportedContentName: work.value.name,
 					async onReport (body) {
-						const response = await EndpointReportWork.query({ body, params: Works.reference(work.value) })
+						const response = await EndpointReportsWork$authorVanity$workVanityAdd.query({ body, params: Works.reference(work.value) })
 						toast.handleError(response)
 					},
 				}),

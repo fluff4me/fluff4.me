@@ -1,5 +1,5 @@
 import type { AuthorMetadata } from 'api.fluff4.me'
-import EndpointWorksResolveReferences from 'endpoint/work/EndpointWorksResolveReferences'
+import EndpointWorksResolve from 'endpoint/works/EndpointWorksResolve'
 import Follows from 'model/Follows'
 import PagedListData from 'model/PagedListData'
 import Works from 'model/Works'
@@ -44,7 +44,7 @@ const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ign
 					if (!slice.length)
 						return null
 
-					const response = await EndpointWorksResolveReferences.query(undefined, { works: slice.map(follow => Works.reference(follow.work)).filterInPlace(NonNullish) })
+					const response = await EndpointWorksResolve.query(undefined, { works: slice.map(follow => Works.reference(follow.work)).filterInPlace(NonNullish) })
 					if (toast.handleError(response))
 						return false
 

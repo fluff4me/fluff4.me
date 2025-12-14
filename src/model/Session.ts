@@ -1,8 +1,8 @@
 import type { Author, AuthorMetadata, AuthorSelf, Privilege } from 'api.fluff4.me'
 import { type Authorisation, type AuthService, type Session } from 'api.fluff4.me'
 import EndpointAuthRemove from 'endpoint/auth/EndpointAuthDelete'
-import EndpointSessionGet from 'endpoint/session/EndpointSessionGet'
-import EndpointSessionReset from 'endpoint/session/EndpointSessionReset'
+import EndpointSessionsGet from 'endpoint/sessions/EndpointSessionsGet'
+import EndpointSessionsReset from 'endpoint/sessions/EndpointSessionsReset'
 import type Component from 'ui/Component'
 import Objects from 'utility/Objects'
 import Popup from 'utility/Popup'
@@ -37,7 +37,7 @@ namespace Session {
 	export async function refresh () {
 		const oldSessionAuthor = Store.items.session?.author?.vanity
 
-		const session = await EndpointSessionGet.query()
+		const session = await EndpointSessionsGet.query()
 		const stateToken = session.headers.get('State-Token')
 		if (stateToken)
 			Store.items.stateToken = stateToken
@@ -60,7 +60,7 @@ namespace Session {
 	export async function reset (skipRefresh = false) {
 		const oldSessionAuthor = Store.items.session?.author?.vanity
 
-		await EndpointSessionReset.query()
+		await EndpointSessionsReset.query()
 		delete Store.items.session
 		_state.value = undefined
 

@@ -1,5 +1,5 @@
 import type { WorkReference } from 'api.fluff4.me'
-import EndpointHistoryGet from 'endpoint/history/EndpointHistoryGet'
+import EndpointHistoryAll from 'endpoint/history/EndpointHistoryAll'
 import Authors from 'model/Authors'
 import PagedListData from 'model/PagedListData'
 import Works from 'model/Works'
@@ -21,7 +21,7 @@ export default ViewDefinition({
 		Paginator()
 			.type('flush')
 			.set(
-				PagedListData.fromEndpoint(25, EndpointHistoryGet.prep(), data => ({
+				PagedListData.fromEndpoint(25, EndpointHistoryAll.prep(), data => ({
 					content: data.items,
 					auxiliary: data,
 				})),

@@ -1,7 +1,7 @@
-import EndpointTagCreateGlobal from 'endpoint/tag/EndpointTagCreateGlobal'
-import EndpointTagDeleteGlobal from 'endpoint/tag/EndpointTagDeleteGlobal'
-import EndpointTagGlobalRecategorise from 'endpoint/tag/EndpointTagGlobalRecategorise'
-import EndpointTagUpdateGlobal from 'endpoint/tag/EndpointTagUpdateGlobal'
+import EndpointTagsGlobal$globalTagIdUpdate from 'endpoint/tags/global/$global_tag_id/EndpointTagsGlobal$globalTagIdUpdate'
+import EndpointTagsGlobalCreate from 'endpoint/tags/global/EndpointTagsGlobalCreate'
+import EndpointTagsGlobalDelete from 'endpoint/tags/global/EndpointTagsGlobalDelete'
+import EndpointTagsGlobalRecategorise from 'endpoint/tags/global/EndpointTagsGlobalRecategorise'
 import type { TagId, TagsManifest, TagsManifestTag } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
@@ -139,7 +139,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!body)
 				return
 
-			const response = await EndpointTagCreateGlobal.query({ body })
+			const response = await EndpointTagsGlobalCreate.query({ body })
 			if (toast.handleError(response))
 				return
 
@@ -199,7 +199,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!confirmed)
 				return
 
-			const response = await EndpointTagGlobalRecategorise.query({ body: { tags, category } })
+			const response = await EndpointTagsGlobalRecategorise.query({ body: { tags, category } })
 			if (toast.handleError(response))
 				return
 
@@ -234,7 +234,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				if (!confirmed)
 					return
 
-				const response = await EndpointTagUpdateGlobal.query({ params: { id: tagId }, body })
+				const response = await EndpointTagsGlobal$globalTagIdUpdate.query({ params: { global_tag_id: tagId }, body })
 				if (toast.handleError(response))
 					return
 
@@ -286,7 +286,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!confirmed)
 				return
 
-			const response = await EndpointTagDeleteGlobal.query({ body: { tags: tagsToDelete } })
+			const response = await EndpointTagsGlobalDelete.query({ body: { tags: tagsToDelete } })
 			if (toast.handleError(response))
 				return
 

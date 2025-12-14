@@ -1,6 +1,6 @@
-import EndpointTagCreateCategory from 'endpoint/tag/EndpointTagCreateCategory'
-import EndpointTagDeleteCategory from 'endpoint/tag/EndpointTagDeleteCategory'
-import EndpointTagUpdateCategory from 'endpoint/tag/EndpointTagUpdateCategory'
+import EndpointTagsCategory$tagCategoryNameDelete from 'endpoint/tags/category/$tag_category_name/EndpointTagsCategory$tagCategoryNameDelete'
+import EndpointTagsCategory$tagCategoryNameUpdate from 'endpoint/tags/category/$tag_category_name/EndpointTagsCategory$tagCategoryNameUpdate'
+import EndpointTagsCategoryCreate from 'endpoint/tags/category/EndpointTagsCategoryCreate'
 import type { TagsManifest, TagsManifestCategory } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
@@ -104,7 +104,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!body)
 				return
 
-			const response = await EndpointTagCreateCategory.query({ body })
+			const response = await EndpointTagsCategoryCreate.query({ body })
 			if (toast.handleError(response))
 				return
 
@@ -141,7 +141,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 				if (!confirmed)
 					return
 
-				const response = await EndpointTagUpdateCategory.query({ params: { name: category }, body })
+				const response = await EndpointTagsCategory$tagCategoryNameUpdate.query({ params: { tag_category_name: category }, body })
 				if (toast.handleError(response))
 					return
 
@@ -202,7 +202,7 @@ export default Component.Builder((component, manifest: State<TagsManifest | unde
 			if (!confirmed)
 				return
 
-			const response = await EndpointTagDeleteCategory.query({ params: { name: category } })
+			const response = await EndpointTagsCategory$tagCategoryNameDelete.query({ params: { tag_category_name: category } })
 			if (toast.handleError(response))
 				return
 

@@ -1,7 +1,7 @@
 import type { CustomTagUsage } from 'api.fluff4.me'
-import EndpointTagCustomDelete from 'endpoint/tag/EndpointTagCustomDelete'
-import EndpointTagCustomPromote from 'endpoint/tag/EndpointTagCustomPromote'
-import EndpointTagCustomRename from 'endpoint/tag/EndpointTagCustomRename'
+import EndpointTagsCustom$customTagNameRename from 'endpoint/tags/custom/$custom_tag_name/EndpointTagsCustom$customTagNameRename'
+import EndpointTagsCustomDelete from 'endpoint/tags/custom/EndpointTagsCustomDelete'
+import EndpointTagsCustomPromote from 'endpoint/tags/custom/EndpointTagsCustomPromote'
 import type { TagId } from 'model/Tags'
 import Tags from 'model/Tags'
 import Component from 'ui/Component'
@@ -141,7 +141,7 @@ export default Component.Builder((component, manifest: Tags, customTags: State<C
 			if (!confirmed)
 				return
 
-			const response = await EndpointTagCustomRename.query({ params: { name: oldName }, body: { name: newName } })
+			const response = await EndpointTagsCustom$customTagNameRename.query({ params: { custom_tag_name: oldName }, body: { name: newName } })
 			if (toast.handleError(response))
 				return
 
@@ -207,7 +207,7 @@ export default Component.Builder((component, manifest: Tags, customTags: State<C
 			if (!confirmed)
 				return
 
-			const response = await EndpointTagCustomPromote.query({
+			const response = await EndpointTagsCustomPromote.query({
 				body: {
 					into_new_tag: newTag,
 					promoted_from_tags: promotedTags,
@@ -318,7 +318,7 @@ export default Component.Builder((component, manifest: Tags, customTags: State<C
 			if (!confirmed)
 				return
 
-			const response = await EndpointTagCustomPromote.query({
+			const response = await EndpointTagsCustomPromote.query({
 				body: {
 					into_existing_tag: {
 						id: tagId,
@@ -388,7 +388,7 @@ export default Component.Builder((component, manifest: Tags, customTags: State<C
 			if (!confirmed)
 				return
 
-			const response = await EndpointTagCustomDelete.query({ body: { tags: tagsToDelete } })
+			const response = await EndpointTagsCustomDelete.query({ body: { tags: tagsToDelete } })
 			if (toast.handleError(response))
 				return
 

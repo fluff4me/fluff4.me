@@ -1,14 +1,15 @@
 import type { ChapterMetadata } from 'api.fluff4.me'
-import EndpointChapterGetAll from 'endpoint/chapter/EndpointChapterGetAll'
-import EndpointChapterReorder from 'endpoint/chapter/EndpointChapterReorder'
-import EndpointHistoryAddWork from 'endpoint/history/EndpointHistoryAddWork'
-import EndpointHistoryBookmarksDeleteFurthestRead from 'endpoint/history/EndpointHistoryBookmarksDeleteFurthestRead'
-import EndpointHistoryBookmarksDeleteLastRead from 'endpoint/history/EndpointHistoryBookmarksDeleteLastRead'
-import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
-import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
+import EndpointChapters$authorVanity$workVanity$chapterUrlReorder from 'endpoint/chapters/$author_vanity/$work_vanity/$chapter_url/EndpointChapters$authorVanity$workVanity$chapterUrlReorder'
+import EndpointChapters$authorVanity$workVanity from 'endpoint/chapters/$author_vanity/EndpointChapters$authorVanity$workVanity'
+import EndpointHistoryBookmarks$authorVanity$workVanityDeleteFurthestRead from 'endpoint/history/bookmarks/$author_vanity/$work_vanity/delete/EndpointHistoryBookmarks$authorVanity$workVanityDeleteFurthestRead'
+import EndpointHistoryBookmarks$authorVanity$workVanityDeleteLastRead from 'endpoint/history/bookmarks/$author_vanity/$work_vanity/delete/EndpointHistoryBookmarks$authorVanity$workVanityDeleteLastRead'
+import EndpointHistoryWork$authorVanity$workVanityAdd from 'endpoint/history/work/$author_vanity/$work_vanity/EndpointHistoryWork$authorVanity$workVanityAdd'
+import EndpointWorks$authorVanity$workVanityGet from 'endpoint/works/$author_vanity/$work_vanity/EndpointWorks$authorVanity$workVanityGet'
+import Chapters from 'model/Chapters'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
 import Tags from 'model/Tags'
+import type { NewWorkReference } from 'model/Works'
 import Works from 'model/Works'
 import Component from 'ui/Component'
 import ActionBlock from 'ui/component/ActionBlock'
@@ -37,21 +38,21 @@ import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
 
 export default ViewDefinition({
-	async load (params: WorkParams) {
-		const response = await EndpointWorkGet.query({ params })
+	async load (params: NewWorkReference) {
+		const response = await EndpointWorks$authorVanity$workVanityGet.query({ params })
 		if (response instanceof Error)
 			throw response
 
 		const work = response.data
 		return { work }
 	},
-	create (params: WorkParams, { work: workDataIn }) {
+	create (params: NewWorkReference, { work: workDataIn }) {
 		const view = View('work')
 
 		const workData = State(workDataIn)
 
 		if (Session.Auth.loggedIn.value)
-			void EndpointHistoryAddWork.query({ params })
+			void EndpointHistoryWork$authorVanity$workVanityAdd.query({ params })
 
 		const authorData = workData.value.synopsis.mentions.find(author => author.vanity === workData.value.author)!
 		if (!authorData)
@@ -158,11 +159,8 @@ export default ViewDefinition({
 						.appendTo(paginator.header)
 				})
 				.set(
-					PagedListData.fromEndpoint(25, EndpointChapterGetAll.prep({
-						params: {
-							author: workData.value.author,
-							vanity: workData.value.vanity,
-						},
+					PagedListData.fromEndpoint(25, EndpointChapters$authorVanity$workVanity.prep({
+						params: Works.reference(workData.value),
 					})),
 					Math.min(
 						Math.floor((workData.value.bookmarks?.url_next_page ?? 0) / 25),
@@ -181,7 +179,7 @@ export default ViewDefinition({
 						for (const chapterData of chapters) {
 							const isMoving = movingChapter.map(slot, movingChapter => movingChapter === chapterData)
 
-							const Marker = Component.Builder((component, EndpointDelete: typeof EndpointHistoryBookmarksDeleteLastRead | typeof EndpointHistoryBookmarksDeleteFurthestRead) => {
+							const Marker = Component.Builder((component, EndpointDelete: typeof EndpointHistoryBookmarks$authorVanity$workVanityDeleteLastRead | typeof EndpointHistoryBookmarks$authorVanity$workVanityDeleteFurthestRead) => {
 								return component
 									.style('view-type-work-chapter-marker')
 									.onRooted(marker => {
@@ -216,13 +214,13 @@ export default ViewDefinition({
 							const nextFurthestUrl = workData.value.bookmarks?.url_next_furthest
 							const nextIsFurthest = nextUrl === nextFurthestUrl
 							if (chapterData.url === nextUrl)
-								Marker(EndpointHistoryBookmarksDeleteLastRead)
+								Marker(EndpointHistoryBookmarks$authorVanity$workVanityDeleteLastRead)
 									.style(nextIsFurthest ? 'view-type-work-chapter-marker--next-furthest' : 'view-type-work-chapter-marker--next')
 									.text.use('view/work/chapters/marker/next-chapter/next')
 									.appendTo(slot)
 
 							if (chapterData.url === nextFurthestUrl && nextUrl !== nextFurthestUrl)
-								Marker(EndpointHistoryBookmarksDeleteFurthestRead)
+								Marker(EndpointHistoryBookmarks$authorVanity$workVanityDeleteFurthestRead)
 									.style('view-type-work-chapter-marker--next-furthest')
 									.text.use('view/work/chapters/marker/next-chapter/furthest')
 									.appendTo(slot)
@@ -265,8 +263,8 @@ export default ViewDefinition({
 											return
 										}
 
-										const response = await EndpointChapterReorder.query({
-											params: movingChapterData,
+										const response = await EndpointChapters$authorVanity$workVanity$chapterUrlReorder.query({
+											params: Chapters.reference(movingChapterData),
 											body: {
 												relative_to: chapter.url,
 												position: direction,

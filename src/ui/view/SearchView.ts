@@ -1,5 +1,5 @@
 import type { FeedSearch, PaginationSearch, WorkStatus } from 'api.fluff4.me'
-import EndpointFeedGetAuthed from 'endpoint/feed/EndpointFeedGetAuthed'
+import EndpointFeedGetAuthed from 'endpoint/feed/get/EndpointFeedGetAuthed'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
 import type { TagId } from 'model/Tags'

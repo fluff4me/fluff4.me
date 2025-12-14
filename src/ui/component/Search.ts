@@ -1,5 +1,5 @@
 import type { SearchResponse } from 'api.fluff4.me'
-import EndpointSearchGet from 'endpoint/search/EndpointSearchGet'
+import EndpointSearch from 'endpoint/EndpointSearch'
 import Session from 'model/Session'
 import Tags from 'model/Tags'
 import type { RoutePath, RoutePathWithSearch } from 'navigation/RoutePath'
@@ -315,7 +315,7 @@ export default Component.Builder(component => {
 
 		loading.value = true
 		searchResults.value = textInput.value.length < 3 ? undefined
-			: await EndpointSearchGet.query(undefined, { text: textInput.value })
+			: await EndpointSearch.query(undefined, { text: textInput.value })
 				.then(response => response.data ?? undefined)
 				.catch(() => undefined)
 		loading.value = false

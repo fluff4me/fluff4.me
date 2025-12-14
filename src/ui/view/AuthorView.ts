@@ -1,8 +1,8 @@
 import type { ContextualComment } from 'api.fluff4.me'
-import EndpointAuthorGet from 'endpoint/author/EndpointAuthorGet'
-import EndpointCommentGetAllAuthorChapter from 'endpoint/comment/EndpointCommentGetAllAuthorChapter'
-import EndpointCommentGetAllAuthorWork from 'endpoint/comment/EndpointCommentGetAllAuthorWork'
-import EndpointWorkGetAllAuthor from 'endpoint/work/EndpointWorkGetAllAuthor'
+import EndpointAuthors$authorVanity from 'endpoint/authors/EndpointAuthors$authorVanity'
+import EndpointCommentsAuthor$authorVanityChapter from 'endpoint/comments/author/$author_vanity/EndpointCommentsAuthor$authorVanityChapter'
+import EndpointCommentsAuthor$authorVanityWork from 'endpoint/comments/author/$author_vanity/EndpointCommentsAuthor$authorVanityWork'
+import EndpointWorks$authorVanity from 'endpoint/works/EndpointWorks$authorVanity'
 import PagedData from 'model/PagedData'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
@@ -21,13 +21,13 @@ import ViewDefinition from 'ui/view/shared/component/ViewDefinition'
 import State from 'utility/State'
 
 interface AuthorViewParams {
-	vanity: string
+	author_vanity: string
 	tab?: string
 }
 
 export default ViewDefinition({
 	async load (params: AuthorViewParams) {
-		const response = await EndpointAuthorGet.query({ params })
+		const response = await EndpointAuthors$authorVanity.query({ params })
 		if (response instanceof Error)
 			throw response
 
@@ -69,9 +69,9 @@ export default ViewDefinition({
 			)
 			.appendToWhen(isSelf, worksTab?.content ?? view.content)
 
-		const works = PagedListData.fromEndpoint(25, EndpointWorkGetAllAuthor.prep({
+		const works = PagedListData.fromEndpoint(25, EndpointWorks$authorVanity.prep({
 			params: {
-				author: params.vanity,
+				author_vanity: params.author_vanity,
 			},
 		}))
 		WorkFeed()
@@ -91,10 +91,10 @@ export default ViewDefinition({
 				.tweak(tab => {
 					const GetCommentData = (comment: ContextualComment): CommentData => ({ ...comment.comment as CommentData, author: author.vanity })
 
-					const comments = PagedData.fromEndpoint(EndpointCommentGetAllAuthorWork.prep(
+					const comments = PagedData.fromEndpoint(EndpointCommentsAuthor$authorVanityWork.prep(
 						{
 							params: {
-								vanity: params.vanity,
+								author_vanity: params.author_vanity,
 							},
 						},
 					)).map((authorComments): CommentListPageData => ({
@@ -125,10 +125,10 @@ export default ViewDefinition({
 				.tweak(tab => {
 					const GetCommentData = (comment: ContextualComment): CommentData => ({ ...comment.comment as CommentData, author: author.vanity })
 
-					const comments = PagedData.fromEndpoint(EndpointCommentGetAllAuthorChapter.prep(
+					const comments = PagedData.fromEndpoint(EndpointCommentsAuthor$authorVanityChapter.prep(
 						{
 							params: {
-								vanity: params.vanity,
+								author_vanity: params.author_vanity,
 							},
 						},
 					)).map((authorComments): CommentListPageData => ({
@@ -152,7 +152,7 @@ export default ViewDefinition({
 				})
 				.addTo(contentTabinator)
 
-		contentTabinator?.bindURL(params.tab, tab => tab && tab !== 'works' ? `/author/${params.vanity}/${tab}` : `/author/${params.vanity}`)
+		contentTabinator?.bindURL(params.tab, tab => tab && tab !== 'works' ? `/author/${params.author_vanity}/${tab}` : `/author/${params.author_vanity}`)
 
 		return view
 	},

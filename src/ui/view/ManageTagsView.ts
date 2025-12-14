@@ -1,4 +1,4 @@
-import EndpointTagCustomGetAll from 'endpoint/tag/EndpointTagCustomGetAll'
+import EndpointTagsCustom from 'endpoint/tags/EndpointTagsCustom'
 import Session from 'model/Session'
 import Tags from 'model/Tags'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
@@ -15,7 +15,7 @@ export default ViewDefinition({
 		if (!Session.Auth.privileged.TagGlobalDelete.value)
 			throw Errors.Forbidden()
 
-		const customTags = await EndpointTagCustomGetAll.query()
+		const customTags = await EndpointTagsCustom.query()
 		if (toast.handleError(customTags))
 			throw Errors.NotFound()
 

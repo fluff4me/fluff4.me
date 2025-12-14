@@ -1,5 +1,5 @@
-import EndpointCommentGetAllChapter from 'endpoint/comment/EndpointCommentGetAllChapter'
-import EndpointCommentGetAllWork from 'endpoint/comment/EndpointCommentGetAllWork'
+import EndpointCommentsModerationAllChapter from 'endpoint/comments/moderation/all/EndpointCommentsModerationAllChapter'
+import EndpointCommentsModerationAllWork from 'endpoint/comments/moderation/all/EndpointCommentsModerationAllWork'
 import PagedData from 'model/PagedData'
 import Session from 'model/Session'
 import type { CommentListPageData } from 'ui/component/CommentList'
@@ -25,7 +25,7 @@ export default ViewDefinition({
 		const tabinator = Tabinator()
 			.appendTo(view.content)
 
-		const comments = PagedData.fromEndpoint(EndpointCommentGetAllChapter.prep())
+		const comments = PagedData.fromEndpoint(EndpointCommentsModerationAllChapter.prep())
 			.map((page): CommentListPageData => ({
 				...page,
 				comments: page.comments.map(ContextualComment.fromRaw),
@@ -40,7 +40,7 @@ export default ViewDefinition({
 				))
 			.addTo(tabinator)
 
-		const recommendations = PagedData.fromEndpoint(EndpointCommentGetAllWork.prep())
+		const recommendations = PagedData.fromEndpoint(EndpointCommentsModerationAllWork.prep())
 			.map((page): CommentListPageData => ({
 				...page,
 				comments: page.comments.map(ContextualComment.fromRaw),

@@ -1,5 +1,5 @@
 import EndpointFeedGet from 'endpoint/feed/EndpointFeedGet'
-import EndpointFeedGetAuthed from 'endpoint/feed/EndpointFeedGetAuthed'
+import EndpointFeedGetAuthed from 'endpoint/feed/get/EndpointFeedGetAuthed'
 import Session from 'model/Session'
 import Slot from 'ui/component/core/Slot'
 import WorkFeed from 'ui/component/WorkFeed'

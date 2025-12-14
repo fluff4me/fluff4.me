@@ -1,5 +1,5 @@
 import type { WorkMetadata, WorkReference, WorkStatus } from 'api.fluff4.me'
-import EndpointWorkDelete from 'endpoint/work/EndpointWorkDelete'
+import EndpointWorks$authorVanity$workVanityDelete from 'endpoint/works/$author_vanity/$work_vanity/EndpointWorks$authorVanity$workVanityDelete'
 import type { ButtonIcon } from 'ui/component/core/Button'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import Enums from 'utility/Enums'
@@ -7,12 +7,17 @@ import type State from 'utility/State'
 
 export const WORK_STATUSES = Enums.type<WorkStatus>().values('Complete', 'Ongoing', 'Hiatus', 'Cancelled')
 
-export const WORK_STATUS_ICONS = ({
+export const WORK_STATUS_ICONS = {
 	Cancelled: 'circle-xmark',
 	Complete: 'circle-check',
 	Ongoing: 'circle-play',
 	Hiatus: 'circle-pause',
-} satisfies Record<WorkMetadata['status'], ButtonIcon>)
+} satisfies Record<WorkMetadata['status'], ButtonIcon>
+
+export interface NewWorkReference extends WorkReference {
+	author_vanity: string
+	work_vanity: string
+}
 
 namespace Works {
 	export function resolve (reference: WorkReference | null | undefined, works: WorkMetadata[]): WorkMetadata | undefined {
@@ -23,10 +28,10 @@ namespace Works {
 		return !!a && !!b && a.author === b.author && a.vanity === b.vanity
 	}
 
-	export function reference (work: WorkReference): WorkReference
-	export function reference (work?: WorkReference | null): WorkReference | null
-	export function reference (work?: WorkReference | null): WorkReference | null {
-		return work ? { author: work.author, vanity: work.vanity } : null
+	export function reference (work: WorkReference): NewWorkReference
+	export function reference (work?: WorkReference | null): NewWorkReference | null
+	export function reference (work?: WorkReference | null): NewWorkReference | null {
+		return work ? { author_vanity: work.author ?? work.author_vanity!, work_vanity: work.vanity ?? work.work_vanity! } : null
 	}
 }
 
@@ -44,7 +49,7 @@ export default Object.assign(
 			if (!result)
 				return false
 
-			const response = await EndpointWorkDelete.query({ params: work })
+			const response = await EndpointWorks$authorVanity$workVanityDelete.query({ params: Works.reference(work) })
 			if (toast.handleError(response))
 				return false
 

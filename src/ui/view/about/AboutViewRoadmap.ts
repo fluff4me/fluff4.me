@@ -1,8 +1,8 @@
 import type { ChangelogInsertBody, ChangelogItem } from 'api.fluff4.me'
-import EndpointChangelogAdd from 'endpoint/changelog/EndpointChangelogAdd'
-import EndpointChangelogDelete from 'endpoint/changelog/EndpointChangelogDelete'
-import EndpointChangelogGet from 'endpoint/changelog/EndpointChangelogGet'
-import EndpointChangelogUpdate from 'endpoint/changelog/EndpointChangelogUpdate'
+import EndpointChangelogs$changelogIdDelete from 'endpoint/changelogs/$changelog_id/EndpointChangelogs$changelogIdDelete'
+import EndpointChangelogs$changelogIdUpdate from 'endpoint/changelogs/$changelog_id/EndpointChangelogs$changelogIdUpdate'
+import EndpointChangelogsAdd from 'endpoint/changelogs/EndpointChangelogsAdd'
+import EndpointChangelogsList from 'endpoint/changelogs/EndpointChangelogsList'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
 import Component from 'ui/Component'
@@ -105,8 +105,8 @@ export default Component.Builder(component => {
 								time: !timeInput.value ? undefined : new Date(timeInput.value).toISOString(),
 							}
 							const response = editingItem.value
-								? await EndpointChangelogUpdate.query({ params: { id: editingItem.value.id }, body })
-								: await EndpointChangelogAdd.query({ body })
+								? await EndpointChangelogs$changelogIdUpdate.query({ params: { changelog_id: editingItem.value.id }, body })
+								: await EndpointChangelogsAdd.query({ body })
 
 							submitting = false
 							if (toast.handleError(response))
@@ -131,7 +131,7 @@ export default Component.Builder(component => {
 				.appendToWhen(Session.Auth.privileged.ChangelogModify, block.content)
 
 			changelog
-				.setFromEndpoint(EndpointChangelogGet.prep(), (changelogItems, slot, signal) => {
+				.setFromEndpoint(EndpointChangelogsList.prep(), (changelogItems, slot, signal) => {
 					for (const item of changelogItems) {
 						Block()
 							.style('view-type-about-changelog-item')
@@ -167,7 +167,7 @@ export default Component.Builder(component => {
 									.setIcon('trash')
 									.text.use('view/about/roadmap/changelog-editor/action/delete')
 									.event.subscribe('click', async () => {
-										const response = await EndpointChangelogDelete.query({ params: { id: item.id } })
+										const response = await EndpointChangelogs$changelogIdDelete.query({ params: { changelog_id: item.id } })
 										if (toast.handleError(response))
 											return
 

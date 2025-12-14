@@ -1,8 +1,8 @@
 import type { AuthorMetadata, ChapterMetadata, Comment, Notification, WorkMetadata } from 'api.fluff4.me'
-import EndpointNotificationGetAll from 'endpoint/notification/EndpointNotificationGetAll'
-import EndpointNotificationGetCount from 'endpoint/notification/EndpointNotificationGetCount'
-import EndpointNotificationMarkRead from 'endpoint/notification/EndpointNotificationMarkRead'
-import EndpointNotificationMarkUnread from 'endpoint/notification/EndpointNotificationMarkUnread'
+import EndpointNotificationsGetAll from 'endpoint/notifications/get/EndpointNotificationsGetAll'
+import EndpointNotificationsGetCount from 'endpoint/notifications/get/EndpointNotificationsGetCount'
+import EndpointNotificationsMarkRead from 'endpoint/notifications/mark/EndpointNotificationsMarkRead'
+import EndpointNotificationsMarkUnread from 'endpoint/notifications/mark/EndpointNotificationsMarkUnread'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
 import PageListener from 'ui/utility/PageListener'
@@ -50,7 +50,7 @@ namespace Notifications {
 			const end = (page + 1) * pageSize
 
 			if (simpleCache.length < start) {
-				const response = await EndpointNotificationGetAll.query(undefined, { page, page_size: pageSize })
+				const response = await EndpointNotificationsGetAll.query(undefined, { page, page_size: pageSize })
 				if (toast.handleError(response))
 					return false
 
@@ -107,7 +107,7 @@ namespace Notifications {
 	}
 
 	export async function markRead (read: boolean, ...ids: string[]) {
-		const endpoint = read ? EndpointNotificationMarkRead : EndpointNotificationMarkUnread
+		const endpoint = read ? EndpointNotificationsMarkRead : EndpointNotificationsMarkUnread
 		const response = await endpoint.query({ body: { notification_ids: ids } })
 		if (toast.handleError(response))
 			return false
@@ -170,7 +170,7 @@ namespace Notifications {
 		let resolve!: () => void
 		activeCheck = new Promise(r => resolve = r)
 		try {
-			const response = await EndpointNotificationGetCount.query()
+			const response = await EndpointNotificationsGetCount.query()
 			if (toast.handleError(response))
 				return
 
@@ -178,7 +178,7 @@ namespace Notifications {
 			if (time <= (notifications.lastUpdate ?? 0))
 				return
 
-			const firstPage = await EndpointNotificationGetAll.query()
+			const firstPage = await EndpointNotificationsGetAll.query()
 			if (toast.handleError(firstPage))
 				return
 

@@ -1,10 +1,10 @@
 import type { AuthorMetadata, ChapterMetadata, Comment as CommentDataRaw, ContextualComment, ReportCommentBody, WorkMetadata } from 'api.fluff4.me'
-import EndpointCommentAdd from 'endpoint/comment/EndpointCommentAdd'
-import EndpointCommentDelete from 'endpoint/comment/EndpointCommentDelete'
-import EndpointCommentUpdate from 'endpoint/comment/EndpointCommentUpdate'
-import EndpointReactComment from 'endpoint/reaction/EndpointReactComment'
-import EndpointUnreactComment from 'endpoint/reaction/EndpointUnreactComment'
-import EndpointReportComment from 'endpoint/report/EndpointReportComment'
+import EndpointComments$commentIdAdd from 'endpoint/comments/$comment_id/EndpointComments$commentIdAdd'
+import EndpointComments$commentIdDelete from 'endpoint/comments/$comment_id/EndpointComments$commentIdDelete'
+import EndpointComments$commentIdUpdate from 'endpoint/comments/$comment_id/EndpointComments$commentIdUpdate'
+import EndpointReactionsComment$commentId$reactionTypeAdd from 'endpoint/reactions/comment/$comment_id/$reaction_type/EndpointReactionsComment$commentId$reactionTypeAdd'
+import EndpointReactionsComment$commentId$reactionTypeRemove from 'endpoint/reactions/comment/$comment_id/$reaction_type/EndpointReactionsComment$commentId$reactionTypeRemove'
+import EndpointReportsComment$commentIdAdd from 'endpoint/reports/comment/$comment_id/EndpointReportsComment$commentIdAdd'
 import type { WeavingArg } from 'lang/en-nz'
 import quilt from 'lang/en-nz'
 import Chapters from 'model/Chapters'
@@ -210,7 +210,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 						.text.use('comment/action/delete')
 						.event.subscribe('click', async () => {
 							savingComment.value = true
-							const response = await EndpointCommentDelete.query({ params: { id: commentData.comment_id! } })
+							const response = await EndpointComments$commentIdDelete.query({ params: { comment_id: commentData.comment_id! } })
 							savingComment.value = false
 							if (toast.handleError(response))
 								return
@@ -246,12 +246,12 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 								return
 
 							const response = commentData.comment_id
-								? await EndpointCommentUpdate.query({
-									params: { id: commentData.comment_id },
+								? await EndpointComments$commentIdUpdate.query({
+									params: { comment_id: commentData.comment_id },
 									body: { body: textEditor.useMarkdown() },
 								})
-								: await EndpointCommentAdd.query({
-									params: { under: commentData.parent_id },
+								: await EndpointComments$commentIdAdd.query({
+									params: { comment_id: commentData.parent_id },
 									body: { body: textEditor.useMarkdown() },
 								})
 							if (toast.handleError(response))
@@ -341,7 +341,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 									}
 									else {
 										changingReactionState.value = true
-										const response = await EndpointReactComment.query({ params: { comment_id: commentData.comment_id, type: 'love' } })
+										const response = await EndpointReactionsComment$commentId$reactionTypeAdd.query({ params: { comment_id: commentData.comment_id, reaction_type: 'love' } })
 										changingReactionState.value = false
 										if (toast.handleError(response))
 											return
@@ -375,7 +375,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 						async function unreact () {
 							changingReactionState.value = true
-							const response = await EndpointUnreactComment.query({ params: { id: (commentData as CommentDataRaw).comment_id, type: 'love' } })
+							const response = await EndpointReactionsComment$commentId$reactionTypeRemove.query({ params: { comment_id: (commentData as CommentDataRaw).comment_id, reaction_type: 'love' } })
 							changingReactionState.value = false
 							if (toast.handleError(response))
 								return
@@ -412,7 +412,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 								.text.use('comment/action/delete')
 								.event.subscribe('click', async event => {
 									deletingComment.value = true
-									const response = await EndpointCommentDelete.query({ params: { id: commentData.comment_id } })
+									const response = await EndpointComments$commentIdDelete.query({ params: { comment_id: commentData.comment_id } })
 									deletingComment.value = false
 									if (toast.handleError(response))
 										return
@@ -459,7 +459,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 								.event.subscribe('click', event => ReportDialog.prompt(event.host, COMMENT_REPORT, {
 									reportedContentName: quilt => quilt['shared/term/comment-by'](commentAuthor?.name),
 									async onReport (body) {
-										const response = await EndpointReportComment.query({ body, params: { id: commentData.comment_id } })
+										const response = await EndpointReportsComment$commentIdAdd.query({ body, params: { comment_id: commentData.comment_id } })
 										toast.handleError(response)
 									},
 								}))

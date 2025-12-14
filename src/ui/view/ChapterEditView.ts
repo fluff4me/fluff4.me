@@ -1,7 +1,8 @@
-import type { ChapterReference, Work as WorkData, WorkMetadata } from 'api.fluff4.me'
-import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
-import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
-import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
+import type { Work as WorkData, WorkMetadata } from 'api.fluff4.me'
+import EndpointChapters$authorVanity$workVanity$chapterUrl from 'endpoint/chapters/$author_vanity/$work_vanity/EndpointChapters$authorVanity$workVanity$chapterUrl'
+import EndpointChapters$authorVanity$workVanityList from 'endpoint/chapters/$author_vanity/$work_vanity/EndpointChapters$authorVanity$workVanityList'
+import EndpointWorks$authorVanity$workVanityGet from 'endpoint/works/$author_vanity/$work_vanity/EndpointWorks$authorVanity$workVanityGet'
+import type { NewChapterReference } from 'model/Chapters'
 import Chapters from 'model/Chapters'
 import PagedData from 'model/PagedData'
 import Session from 'model/Session'
@@ -16,7 +17,7 @@ import ViewTitle from 'ui/view/shared/ext/ViewTitle'
 import State from 'utility/State'
 import Type from 'utility/Type'
 
-interface ChapterEditViewParams extends Omit<ChapterReference, 'url'> {
+interface ChapterEditViewParams extends Omit<NewChapterReference, 'url'> {
 	url?: string
 }
 
@@ -25,11 +26,11 @@ const NEW_CHAPTER = Symbol('NEW_CHAPTER')
 export default ViewDefinition({
 	requiresLogin: true,
 	async load (params: ChapterEditViewParams) {
-		const initialChapterResponse = !params.url ? undefined : await EndpointChapterGet.query({ params: params as Required<ChapterEditViewParams> })
+		const initialChapterResponse = !params.url ? undefined : await EndpointChapters$authorVanity$workVanity$chapterUrl.query({ params: params as Required<ChapterEditViewParams> })
 		if (initialChapterResponse instanceof Error)
 			throw initialChapterResponse
 
-		const workResponse = await EndpointWorkGet.query({ params: Chapters.work(params) })
+		const workResponse = await EndpointWorks$authorVanity$workVanityGet.query({ params: Chapters.work(params) })
 		if (workResponse instanceof Error)
 			throw workResponse
 
@@ -56,7 +57,7 @@ export default ViewDefinition({
 		const chapterCount = State((Type.as('number', initialChapterResponse?.page_count) ?? work.chapter_count ?? 0) + 1)
 
 		const chapters = PagedData.fromEndpoint(
-			EndpointChapterGetPaged.prep({ params }),
+			EndpointChapters$authorVanity$workVanityList.prep({ params }),
 			page => page === chapterCount.value - 1 ? NEW_CHAPTER : null,
 		)
 		if (initialChapterResponse)
@@ -99,7 +100,7 @@ export default ViewDefinition({
 						chapterCount.value++
 				})
 
-				const form = ChapterEditForm(state, Chapters.work(params), work)
+				const form = ChapterEditForm(state, work)
 					.tweak(form => form.title.and(ViewTitle))
 					.subviewTransition(id)
 					.appendTo(slot)

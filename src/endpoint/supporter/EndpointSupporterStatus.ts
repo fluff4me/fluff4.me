@@ -1,3 +1,3 @@
 import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint('/supporter/status', 'get')
+export default Endpoint('/v2/supporter/status', 'get')

@@ -1,10 +1,10 @@
 import { type Chapter, type ChapterCreateBody, type WorkMetadata } from 'api.fluff4.me'
-import EndpointChapterCreate from 'endpoint/chapter/EndpointChapterCreate'
-import EndpointChapterUpdate from 'endpoint/chapter/EndpointChapterUpdate'
-import type { WorkParams } from 'endpoint/work/EndpointWorkGet'
+import EndpointChapters$authorVanity$workVanity$chapterUrlUpdate from 'endpoint/chapters/$author_vanity/$work_vanity/$chapter_url/EndpointChapters$authorVanity$workVanity$chapterUrlUpdate'
+import EndpointChapters$authorVanity$workVanityCreate from 'endpoint/chapters/$author_vanity/$work_vanity/EndpointChapters$authorVanity$workVanityCreate'
 import quilt from 'lang/en-nz'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
+import Works from 'model/Works'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
 import Form from 'ui/component/core/Form'
@@ -230,7 +230,7 @@ const getPatreon = (chapterIn?: ChapterData): Pick<VisibilityDataHost, 'patreonT
 }
 
 const ChapterEditForm = Object.assign(
-	Component.Builder((component, state: State.Mutable<ChapterData | undefined>, workParams: WorkParams, workData: WorkMetadata): ChapterEditForm => {
+	Component.Builder((component, state: State.Mutable<ChapterData | undefined>, workData: WorkMetadata): ChapterEditForm => {
 		const block = component.and(Block)
 		const form = block.and(Form, block.title)
 		form.viewTransition('chapter-edit-form')
@@ -282,8 +282,8 @@ const ChapterEditForm = Object.assign(
 			const response = await (() => {
 				switch (formType) {
 					case 'create':
-						return EndpointChapterCreate.query({
-							params: workParams,
+						return EndpointChapters$authorVanity$workVanityCreate.query({
+							params: Works.reference(workData),
 							body: {
 								...content.state.value,
 								work: { status: statusDropdown.selection.value },
@@ -299,11 +299,10 @@ const ChapterEditForm = Object.assign(
 						if (!authorVanity)
 							return new Error('Cannot update a work when not signed in')
 
-						return EndpointChapterUpdate.query({
+						return EndpointChapters$authorVanity$workVanity$chapterUrlUpdate.query({
 							params: {
-								author: workParams.author,
-								work: workParams.vanity,
-								url: chapter.url,
+								...Works.reference(workData),
+								chapter_url: chapter.url,
 							},
 							body: {
 								...content.state.value,

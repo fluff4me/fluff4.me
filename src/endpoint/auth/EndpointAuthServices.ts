@@ -1,3 +1,3 @@
 import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint('/auth/services', 'get')
+export default Endpoint('/v2/auth/services', 'get')

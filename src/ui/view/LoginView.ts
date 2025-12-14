@@ -1,4 +1,4 @@
-import EndpointTOTPVerify from 'endpoint/auth/EndpointTOTPVerify'
+import EndpointAuthTotpVerify from 'endpoint/auth/totp/EndpointAuthTotpVerify'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import OAuthServices from 'ui/component/auth/OAuthServices'
@@ -55,7 +55,7 @@ export default ViewDefinition({
 			.type('primary')
 			.text.use('view/account/totp/login/action/login')
 			.event.subscribe('click', async () => {
-				const response = await EndpointTOTPVerify.query({ body: { token: totpCodeInput.state.value } })
+				const response = await EndpointAuthTotpVerify.query({ body: { token: totpCodeInput.state.value } })
 				if (toast.handleError(response))
 					return
 

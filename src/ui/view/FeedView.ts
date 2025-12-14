@@ -1,5 +1,5 @@
-import EndpointCommentGetAllUnderWork from 'endpoint/comment/EndpointCommentGetAllUnderWork'
-import EndpointFeedGetFollowed from 'endpoint/feed/EndpointFeedGetFollowed'
+import EndpointCommentsWork from 'endpoint/comments/EndpointCommentsWork'
+import EndpointFeedGetFollowed from 'endpoint/feed/get/EndpointFeedGetFollowed'
 import Follows from 'model/Follows'
 import PagedData from 'model/PagedData'
 import type { CommentData } from 'ui/component/Comment'
@@ -65,7 +65,7 @@ export default ViewDefinition({
 			.text.use('view/feed/recommendations/title')
 			.addToWhen(tabletMode.truthy, tabinator)
 
-		const comments = PagedData.fromEndpoint(EndpointCommentGetAllUnderWork.prep(undefined, { following_only: true }))
+		const comments = PagedData.fromEndpoint(EndpointCommentsWork.prep(undefined, { following_only: true }))
 			.map((authorComments): CommentListPageData => ({
 				comments: authorComments.comments.map((comment): ContextualComment => ({
 					data: comment.comment as CommentData,

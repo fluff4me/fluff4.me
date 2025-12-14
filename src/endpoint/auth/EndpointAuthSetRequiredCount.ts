@@ -1,3 +1,3 @@
-import Endpoint from "endpoint/Endpoint"
+import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint('/auth/set-required-count', 'post')
+export default Endpoint('/v2/auth/set-required-count', 'post').noResponse()

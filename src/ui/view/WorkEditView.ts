@@ -1,6 +1,7 @@
 import type { Work } from 'api.fluff4.me'
-import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
+import EndpointWorks$authorVanity$workVanityGet from 'endpoint/works/$author_vanity/$work_vanity/EndpointWorks$authorVanity$workVanityGet'
 import Session from 'model/Session'
+import type { NewWorkReference } from 'model/Works'
 import Works from 'model/Works'
 import ActionRow from 'ui/component/core/ActionRow'
 import Button from 'ui/component/core/Button'
@@ -11,15 +12,10 @@ import ViewTransition from 'ui/view/shared/ext/ViewTransition'
 import WorkEditForm from 'ui/view/work/WorkEditForm'
 import State from 'utility/State'
 
-interface WorkEditViewParams {
-	author: string
-	vanity: string
-}
-
 export default ViewDefinition({
 	requiresLogin: true,
-	async load (params: WorkEditViewParams | undefined) {
-		const response = params && await EndpointWorkGet.query({ params })
+	async load (params: NewWorkReference | undefined) {
+		const response = params && await EndpointWorks$authorVanity$workVanityGet.query({ params })
 		if (response instanceof Error)
 			throw response
 
@@ -29,7 +25,7 @@ export default ViewDefinition({
 		const work = response?.data
 		return { work }
 	},
-	create (params: WorkEditViewParams | undefined, { work }) {
+	create (params: NewWorkReference | undefined, { work }) {
 		const id = 'work-edit'
 		const view = View(id)
 

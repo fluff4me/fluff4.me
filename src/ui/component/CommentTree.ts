@@ -1,5 +1,5 @@
 import type { AuthorMetadata } from 'api.fluff4.me'
-import EndpointCommentGetAllUnder from 'endpoint/comment/EndpointCommentGetAllUnder'
+import EndpointComments$commentIdDescendants from 'endpoint/comments/$comment_id/EndpointComments$commentIdDescendants'
 import type { EndpointReturn } from 'endpoint/Endpoint'
 import Session from 'model/Session'
 import Component from 'ui/Component'
@@ -64,7 +64,7 @@ const CommentTree = Component.Builder((rawComponent, threadId: UUID, threadAutho
 			type CommentQueryFunction = EndpointReturn<'/comments/{under}'>
 
 			const query = State<CommentQueryFunction | undefined>(undefined)
-			query.value = EndpointCommentGetAllUnder.prep({ params: { under: threadId } }).query
+			query.value = EndpointComments$commentIdDescendants.prep({ params: { comment_id: threadId } }).query
 
 			const rootComment = Comment({ comments, authors, threadAuthor }, comment, { isRootComment, noSiblings: true }, renderDefinition)
 				.appendTo(slot)

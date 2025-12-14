@@ -1,4 +1,3 @@
 import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint('/auth/delete', 'post')
-	.noResponse()
+export default Endpoint('/v2/auth/delete', 'post').noResponse()

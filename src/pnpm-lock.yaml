@@ -46,8 +46,8 @@ importers:
         version: 0.5.21
     devDependencies:
       api.fluff4.me:
-        specifier: ^1.0.1124
-        version: 1.0.1124
+        specifier: 1.0.1140
+        version: 1.0.1140
 
 packages:
 
@@ -72,8 +72,8 @@ packages:
     resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
     engines: {node: '>=8'}
 
-  api.fluff4.me@1.0.1124:
-    resolution: {integrity: sha512-fPOS4jdy+Ye+NWMYbNYqphP3cmCi+U6SSotTDQAyUZp9slSZUFKKaoAAr9/NmvIqCOUbcn/evloO+RuS3o0GEQ==}
+  api.fluff4.me@1.0.1140:
+    resolution: {integrity: sha512-8oRgFJNdz2elKMVrE/6/UyAL0k/I335EqnpxLjpHaM08z4Vvlj2Qjjxkd53RMXUbMG7cVv5AuMMrY9PbNGlf/g==}
 
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
@@ -365,7 +365,7 @@ snapshots:
     dependencies:
       color-convert: 2.0.1
 
-  api.fluff4.me@1.0.1124: {}
+  api.fluff4.me@1.0.1140: {}
 
   argparse@1.0.10:
     dependencies:

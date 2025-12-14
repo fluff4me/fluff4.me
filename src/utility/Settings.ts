@@ -1,4 +1,4 @@
-import EndpointAuthorUpdateSettings from 'endpoint/author/EndpointAuthorUpdateSettings'
+import EndpointAuthorsUpdateSettings from 'endpoint/authors/EndpointAuthorsUpdateSettings'
 import Session from 'model/Session'
 import type { Quilt } from 'ui/utility/StringApplicator'
 import Define from 'utility/Define'
@@ -131,7 +131,7 @@ namespace Settings {
 						if (author) {
 							author.settings = JSON.stringify(settings)
 							Session.Auth.account.emit()
-							void EndpointAuthorUpdateSettings.query({ body: { settings: author.settings } })
+							void EndpointAuthorsUpdateSettings.query({ body: { settings: author.settings } })
 							Session.setAuthor(author)
 						}
 						else {

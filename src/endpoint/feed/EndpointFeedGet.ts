@@ -1,3 +1,3 @@
 import Endpoint from 'endpoint/Endpoint'
 
-export default Endpoint('/feed/get', 'get')
+export default Endpoint('/v2/feed/get', 'get')

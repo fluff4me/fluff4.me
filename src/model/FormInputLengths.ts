@@ -1,5 +1,5 @@
 import type { ManifestFormInputLengths } from 'api.fluff4.me'
-import EndpointFormInputLengths from 'endpoint/manifest/EndpointFormInputLengths'
+import EndpointManifestFormLengths from 'endpoint/manifest/EndpointManifestFormLengths'
 import Manifest from 'model/Manifest'
 import Time from 'utility/Time'
 
@@ -9,7 +9,7 @@ export default Manifest<PartialFormInputLengths>({
 	cacheId: 'form-input-lengths',
 	valid: Time.minutes(5),
 	get () {
-		return EndpointFormInputLengths.query()
+		return EndpointManifestFormLengths.query()
 	},
 	orElse () {
 		const empy = {}

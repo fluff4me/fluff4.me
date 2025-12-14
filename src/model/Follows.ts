@@ -1,14 +1,23 @@
 import type { FollowsManifest, WorkReference } from 'api.fluff4.me'
-import EndpointFollowAdd from 'endpoint/follow/EndpointFollowAdd'
-import EndpointFollowAddWork from 'endpoint/follow/EndpointFollowAddWork'
-import EndpointFollowGetManifest from 'endpoint/follow/EndpointFollowGetManifest'
-import EndpointFollowIgnoreWorkComments from 'endpoint/follow/EndpointFollowIgnoreWorkComments'
-import EndpointFollowRemove from 'endpoint/follow/EndpointFollowRemove'
-import EndpointFollowRemoveWork from 'endpoint/follow/EndpointFollowRemoveWork'
-import EndpointIgnoreAdd from 'endpoint/follow/EndpointIgnoreAdd'
-import EndpointIgnoreAddWork from 'endpoint/follow/EndpointIgnoreAddWork'
-import EndpointIgnoreRemove from 'endpoint/follow/EndpointIgnoreRemove'
-import EndpointIgnoreRemoveWork from 'endpoint/follow/EndpointIgnoreRemoveWork'
+import EndpointFollowsAuthor$idFollow from 'endpoint/follows/author/$id/EndpointFollowsAuthor$idFollow'
+import EndpointFollowsAuthor$idIgnore from 'endpoint/follows/author/$id/EndpointFollowsAuthor$idIgnore'
+import EndpointFollowsAuthor$idUnfollow from 'endpoint/follows/author/$id/EndpointFollowsAuthor$idUnfollow'
+import EndpointFollowsAuthor$idUnignore from 'endpoint/follows/author/$id/EndpointFollowsAuthor$idUnignore'
+import EndpointFollowsAuthor$idWorkCommentsIgnore from 'endpoint/follows/author/$id/work-comments/EndpointFollowsAuthor$idWorkCommentsIgnore'
+import EndpointFollowsAuthor$idWorkCommentsUnignore from 'endpoint/follows/author/$id/work-comments/EndpointFollowsAuthor$idWorkCommentsUnignore'
+import EndpointFollowsAll from 'endpoint/follows/EndpointFollowsAll'
+import EndpointFollowsTagCategory$idFollow from 'endpoint/follows/tag-category/$id/EndpointFollowsTagCategory$idFollow'
+import EndpointFollowsTagCategory$idIgnore from 'endpoint/follows/tag-category/$id/EndpointFollowsTagCategory$idIgnore'
+import EndpointFollowsTagCategory$idUnfollow from 'endpoint/follows/tag-category/$id/EndpointFollowsTagCategory$idUnfollow'
+import EndpointFollowsTagCategory$idUnignore from 'endpoint/follows/tag-category/$id/EndpointFollowsTagCategory$idUnignore'
+import EndpointFollowsTag$idFollow from 'endpoint/follows/tag/$id/EndpointFollowsTag$idFollow'
+import EndpointFollowsTag$idIgnore from 'endpoint/follows/tag/$id/EndpointFollowsTag$idIgnore'
+import EndpointFollowsTag$idUnfollow from 'endpoint/follows/tag/$id/EndpointFollowsTag$idUnfollow'
+import EndpointFollowsTag$idUnignore from 'endpoint/follows/tag/$id/EndpointFollowsTag$idUnignore'
+import EndpointFollowsWork$authorVanity$workVanityFollow from 'endpoint/follows/work/$author_vanity/$work_vanity/EndpointFollowsWork$authorVanity$workVanityFollow'
+import EndpointFollowsWork$authorVanity$workVanityIgnore from 'endpoint/follows/work/$author_vanity/$work_vanity/EndpointFollowsWork$authorVanity$workVanityIgnore'
+import EndpointFollowsWork$authorVanity$workVanityUnfollow from 'endpoint/follows/work/$author_vanity/$work_vanity/EndpointFollowsWork$authorVanity$workVanityUnfollow'
+import EndpointFollowsWork$authorVanity$workVanityUnignore from 'endpoint/follows/work/$author_vanity/$work_vanity/EndpointFollowsWork$authorVanity$workVanityUnignore'
 import Manifest from 'model/Manifest'
 import Works from 'model/Works'
 import State from 'utility/State'
@@ -20,7 +29,7 @@ const manifest = Manifest<{ [KEY in keyof FollowsManifest]: Partial<FollowsManif
 	cacheId: 'follows',
 	requiresAuthor: true,
 	get () {
-		return EndpointFollowGetManifest.query()
+		return EndpointFollowsAll.query()
 	},
 	orElse () {
 		return {
@@ -50,14 +59,14 @@ const Util = {
 			+ (manifest.value?.following.author?.length ?? 0)
 			+ (manifest.value?.following.work?.length ?? 0)
 			+ (manifest.value?.following.tag?.length ?? 0)
-			+ (manifest.value?.following.category?.length ?? 0)
+			+ (manifest.value?.following['tag-category']?.length ?? 0)
 	},
 	getTotalIgnoring () {
 		return 0
 			+ (manifest.value?.ignoring.author?.length ?? 0)
 			+ (manifest.value?.ignoring.work?.length ?? 0)
 			+ (manifest.value?.ignoring.tag?.length ?? 0)
-			+ (manifest.value?.ignoring.category?.length ?? 0)
+			+ (manifest.value?.ignoring['tag-category']?.length ?? 0)
 	},
 
 	////////////////////////////////////
@@ -88,7 +97,7 @@ const Util = {
 			return // already following
 
 		changingState.value = true
-		const response = await EndpointFollowAdd.Author.query({ params: { id: vanity } })
+		const response = await EndpointFollowsAuthor$idFollow.query({ params: { id: vanity } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -110,7 +119,7 @@ const Util = {
 			return // not following
 
 		changingState.value = true
-		const response = await EndpointFollowRemove.Author.query({ params: { id: vanity } })
+		const response = await EndpointFollowsAuthor$idUnfollow.query({ params: { id: vanity } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -134,7 +143,7 @@ const Util = {
 			return // already following
 
 		changingState.value = true
-		const response = await EndpointIgnoreAdd.Author.query({ params: { id: vanity } })
+		const response = await EndpointFollowsAuthor$idIgnore.query({ params: { id: vanity } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -156,7 +165,7 @@ const Util = {
 			return // not ignoring
 
 		changingState.value = true
-		const response = await EndpointIgnoreRemove.Author.query({ params: { id: vanity } })
+		const response = await EndpointFollowsAuthor$idUnignore.query({ params: { id: vanity } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -180,7 +189,7 @@ const Util = {
 			return // already ignoring
 
 		changingState.value = true
-		const response = await EndpointFollowIgnoreWorkComments.query({ params: { vanity } })
+		const response = await EndpointFollowsAuthor$idWorkCommentsIgnore.query({ params: { id: vanity } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -201,7 +210,7 @@ const Util = {
 			return // not ignoring
 
 		changingState.value = true
-		const response = await EndpointFollowIgnoreWorkComments.query({ params: { vanity } })
+		const response = await EndpointFollowsAuthor$idWorkCommentsUnignore.query({ params: { id: vanity } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -239,7 +248,7 @@ const Util = {
 			return // already following
 
 		changingState.value = true
-		const response = await EndpointFollowAddWork.query({ params: { author: work.author, vanity: work.vanity } })
+		const response = await EndpointFollowsWork$authorVanity$workVanityFollow.query({ params: Works.reference(work) })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -261,7 +270,7 @@ const Util = {
 			return // not following
 
 		changingState.value = true
-		const response = await EndpointFollowRemoveWork.query({ params: { author: work.author, vanity: work.vanity } })
+		const response = await EndpointFollowsWork$authorVanity$workVanityUnfollow.query({ params: Works.reference(work) })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -285,7 +294,7 @@ const Util = {
 			return // already following
 
 		changingState.value = true
-		const response = await EndpointIgnoreAddWork.query({ params: { author: work.author, vanity: work.vanity } })
+		const response = await EndpointFollowsWork$authorVanity$workVanityIgnore.query({ params: Works.reference(work) })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -307,7 +316,7 @@ const Util = {
 			return // not ignoring
 
 		changingState.value = true
-		const response = await EndpointIgnoreRemoveWork.query({ params: { author: work.author, vanity: work.vanity } })
+		const response = await EndpointFollowsWork$authorVanity$workVanityUnignore.query({ params: Works.reference(work) })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -342,7 +351,7 @@ const Util = {
 			return // already following
 
 		changingState.value = true
-		const response = await EndpointFollowAdd.Tag.query({ params: { id: tag } })
+		const response = await EndpointFollowsTag$idFollow.query({ params: { id: tag } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -364,7 +373,7 @@ const Util = {
 			return // not following
 
 		changingState.value = true
-		const response = await EndpointFollowRemove.Tag.query({ params: { id: tag } })
+		const response = await EndpointFollowsTag$idUnfollow.query({ params: { id: tag } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -388,7 +397,7 @@ const Util = {
 			return // already following
 
 		changingState.value = true
-		const response = await EndpointIgnoreAdd.Tag.query({ params: { id: tag } })
+		const response = await EndpointFollowsTag$idIgnore.query({ params: { id: tag } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -410,7 +419,7 @@ const Util = {
 			return // not ignoring
 
 		changingState.value = true
-		const response = await EndpointIgnoreRemove.Tag.query({ params: { id: tag } })
+		const response = await EndpointFollowsTag$idUnignore.query({ params: { id: tag } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
@@ -424,10 +433,10 @@ const Util = {
 	////////////////////////////////////
 	//#region Categories
 	followingCategory (category: string) {
-		return manifest.value?.following.category?.some(follow => follow.tag_category === category)
+		return manifest.value?.following['tag-category']?.some(follow => follow.tag_category === category)
 	},
 	ignoringCategory (category: string) {
-		return manifest.value?.ignoring.tag?.some(ignore => ignore.tag_category === category)
+		return manifest.value?.ignoring['tag-category']?.some(ignore => ignore.tag_category === category)
 	},
 	async toggleFollowingCategory (category: string) {
 		if (Util.followingCategory(category))
@@ -445,13 +454,13 @@ const Util = {
 			return // already following
 
 		changingState.value = true
-		const response = await EndpointFollowAdd.Category.query({ params: { id: category } })
+		const response = await EndpointFollowsTagCategory$idFollow.query({ params: { id: category } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
 
-		manifest.value.ignoring.category?.filterInPlace(ignore => ignore.tag_category !== category)
-		manifest.value.following.category?.push({
+		manifest.value.ignoring['tag-category']?.filterInPlace(ignore => ignore.tag_category !== category)
+		manifest.value.following['tag-category']?.push({
 			tag_category: category,
 			updated: new Date().toISOString(),
 		})
@@ -467,12 +476,12 @@ const Util = {
 			return // not following
 
 		changingState.value = true
-		const response = await EndpointFollowRemove.Category.query({ params: { id: category } })
+		const response = await EndpointFollowsTagCategory$idUnfollow.query({ params: { id: category } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
 
-		manifest.value.following.category?.filterInPlace(follow => follow.tag_category !== category)
+		manifest.value.following['tag-category']?.filterInPlace(follow => follow.tag_category !== category)
 		manifest.emit()
 	},
 	async toggleIgnoringCategory (category: string) {
@@ -491,13 +500,13 @@ const Util = {
 			return // already following
 
 		changingState.value = true
-		const response = await EndpointIgnoreAdd.Category.query({ params: { id: category } })
+		const response = await EndpointFollowsTagCategory$idIgnore.query({ params: { id: category } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
 
-		manifest.value.following.category?.filterInPlace(ignore => ignore.tag_category !== category)
-		manifest.value.ignoring.category?.push({
+		manifest.value.following['tag-category']?.filterInPlace(ignore => ignore.tag_category !== category)
+		manifest.value.ignoring['tag-category']?.push({
 			tag_category: category,
 			updated: new Date().toISOString(),
 		})
@@ -513,12 +522,12 @@ const Util = {
 			return // not ignoring
 
 		changingState.value = true
-		const response = await EndpointIgnoreRemove.Category.query({ params: { id: category } })
+		const response = await EndpointFollowsTagCategory$idUnignore.query({ params: { id: category } })
 		changingState.value = false
 		if (toast.handleError(response))
 			return
 
-		manifest.value.ignoring.category?.filterInPlace(follow => follow.tag_category !== category)
+		manifest.value.ignoring['tag-category']?.filterInPlace(follow => follow.tag_category !== category)
 		manifest.emit()
 	},
 	//#endregion

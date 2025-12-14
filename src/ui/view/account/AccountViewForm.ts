@@ -1,5 +1,5 @@
-import EndpointAuthorCreate from 'endpoint/author/EndpointAuthorCreate'
-import EndpointAuthorUpdate from 'endpoint/author/EndpointAuthorUpdate'
+import EndpointAuthorsCreate from 'endpoint/authors/EndpointAuthorsCreate'
+import EndpointAuthorsUpdate from 'endpoint/authors/EndpointAuthorsUpdate'
 import quilt from 'lang/en-nz'
 import FormInputLengths from 'model/FormInputLengths'
 import Session from 'model/Session'
@@ -167,7 +167,7 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 		if (!age)
 			return
 
-		const response = await (type === 'create' ? EndpointAuthorCreate : EndpointAuthorUpdate).query({
+		const response = await (type === 'create' ? EndpointAuthorsCreate : EndpointAuthorsUpdate).query({
 			body: {
 				name: nameInput.value,
 				vanity: vanityInput.value,

@@ -1,9 +1,9 @@
 import type { AuthorCensorBody, Author as AuthorData, AuthorMetadata, ReportAuthorBody } from 'api.fluff4.me'
-import EndpointAuthorGet from 'endpoint/author/EndpointAuthorGet'
-import EndpointModerateAuthorCensor from 'endpoint/moderation/EndpointModerateAuthorCensor'
-import EndpointModerateAuthorDelete from 'endpoint/moderation/EndpointModerateAuthorDelete'
-import EndpointModerateAuthorGrantSupporter from 'endpoint/moderation/EndpointModerateAuthorGrantSupporter'
-import EndpointReportAuthor from 'endpoint/report/EndpointReportAuthor'
+import EndpointAuthors$authorVanity from 'endpoint/authors/EndpointAuthors$authorVanity'
+import EndpointModerationAuthor$authorVanityCensor from 'endpoint/moderation/author/$author_vanity/EndpointModerationAuthor$authorVanityCensor'
+import EndpointModerationAuthor$authorVanityDelete from 'endpoint/moderation/author/$author_vanity/EndpointModerationAuthor$authorVanityDelete'
+import EndpointModerationAuthor$authorVanityGrantSupporter from 'endpoint/moderation/author/$author_vanity/EndpointModerationAuthor$authorVanityGrantSupporter'
+import EndpointReportsAuthor$authorVanityAdd from 'endpoint/reports/author/$author_vanity/EndpointReportsAuthor$authorVanityAdd'
 import Follows from 'model/Follows'
 import Session from 'model/Session'
 import Component from 'ui/Component'
@@ -86,14 +86,14 @@ const AUTHOR_MODERATION = ModerationDefinition((author: AuthorMetadata & Partial
 						if (!confirmed)
 							return
 
-						const response = await EndpointModerateAuthorGrantSupporter.query({ params: { vanity: author.vanity }, body: { months: +months.value } })
+						const response = await EndpointModerationAuthor$authorVanityGrantSupporter.query({ params: { author_vanity: author.vanity }, body: { months: +months.value } })
 						toast.handleError(response)
 					})
 			},
 		},
 	],
 	async delete () {
-		const response = await EndpointModerateAuthorDelete.query({ params: { vanity: author.vanity }, body: {} })
+		const response = await EndpointModerationAuthor$authorVanityDelete.query({ params: { author_vanity: author.vanity }, body: {} })
 		toast.handleError(response)
 	},
 	censor: ModerationCensor<AuthorCensorBody>({
@@ -107,7 +107,7 @@ const AUTHOR_MODERATION = ModerationDefinition((author: AuthorMetadata & Partial
 			license: ModerationCensor.plaintext(author.license && `${author.license.name}: ${author.license.link}`),
 		},
 		async censor (censor) {
-			const response = await EndpointModerateAuthorCensor.query({ params: { vanity: author.vanity }, body: censor })
+			const response = await EndpointModerationAuthor$authorVanityCensor.query({ params: { author_vanity: author.vanity }, body: censor })
 			toast.handleError(response)
 		},
 	}),
@@ -257,7 +257,7 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 
 			loading.enabled.value = true
 			await Async.sleep(1000)
-			const response = await EndpointAuthorGet.query({ params: author.value })
+			const response = await EndpointAuthors$authorVanity.query({ params: { author_vanity: author.value.vanity } })
 			loading.enabled.value = false
 			if (response instanceof Error)
 				return
@@ -314,7 +314,7 @@ const Author = Component.Builder((component, authorIn: AuthorMetadata & Partial<
 				report: event => ReportDialog.prompt(event.host, AUTHOR_REPORT, {
 					reportedContentName: author.value.name,
 					async onReport (body) {
-						const response = await EndpointReportAuthor.query({ body, params: { vanity: author.value.vanity } })
+						const response = await EndpointReportsAuthor$authorVanityAdd.query({ body, params: { author_vanity: author.value.vanity } })
 						toast.handleError(response)
 					},
 				}),

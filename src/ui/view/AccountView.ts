@@ -1,5 +1,5 @@
 import EndpointAuthSetRequiredCount from 'endpoint/auth/EndpointAuthSetRequiredCount'
-import EndpointAuthorDelete from 'endpoint/author/EndpointAuthorDelete'
+import EndpointAuthorsDelete from 'endpoint/authors/EndpointAuthorsDelete'
 import Session from 'model/Session'
 import OAuthServices from 'ui/component/auth/OAuthServices'
 import ActionRow from 'ui/component/core/ActionRow'
@@ -183,7 +183,7 @@ export default ViewDefinition({
 									if (!result)
 										return
 
-									const response = await EndpointAuthorDelete.query()
+									const response = await EndpointAuthorsDelete.query()
 									if (toast.handleError(response))
 										return
 

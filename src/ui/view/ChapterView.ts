@@ -1,10 +1,11 @@
-import type { ChapterReference, Work as WorkData, WorkMetadata } from 'api.fluff4.me'
-import EndpointChapterGet from 'endpoint/chapter/EndpointChapterGet'
-import EndpointChapterGetPaged from 'endpoint/chapter/EndpointChapterGetPaged'
-import EndpointHistoryAddChapter from 'endpoint/history/EndpointHistoryAddChapter'
-import EndpointReactChapter from 'endpoint/reaction/EndpointReactChapter'
-import EndpointUnreactChapter from 'endpoint/reaction/EndpointUnreactChapter'
-import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
+import type { Work as WorkData, WorkMetadata } from 'api.fluff4.me'
+import EndpointChapters$authorVanity$workVanity$chapterUrl from 'endpoint/chapters/$author_vanity/$work_vanity/EndpointChapters$authorVanity$workVanity$chapterUrl'
+import EndpointChapters$authorVanity$workVanityList from 'endpoint/chapters/$author_vanity/$work_vanity/EndpointChapters$authorVanity$workVanityList'
+import EndpointHistoryChapter$authorVanity$workVanityChapter$chapterUrlAdd from 'endpoint/history/chapter/$author_vanity/$work_vanity/chapter/$chapter_url/EndpointHistoryChapter$authorVanity$workVanityChapter$chapterUrlAdd'
+import EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeAdd from 'endpoint/reactions/chapter/$author_vanity/$work_vanity/$chapter_url/$reaction_type/EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeAdd'
+import EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeRemove from 'endpoint/reactions/chapter/$author_vanity/$work_vanity/$chapter_url/$reaction_type/EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeRemove'
+import EndpointWorks$authorVanity$workVanityGet from 'endpoint/works/$author_vanity/$work_vanity/EndpointWorks$authorVanity$workVanityGet'
+import type { NewChapterReference } from 'model/Chapters'
 import Chapters from 'model/Chapters'
 import PagedData from 'model/PagedData'
 import Patreon from 'model/Patreon'
@@ -80,12 +81,12 @@ const settings = Settings.registerGroup('settings/chapter/name', {
 })
 
 export default ViewDefinition({
-	async load (params: ChapterReference) {
-		const response = await EndpointWorkGet.query({ params: Chapters.work(params) })
+	async load (params: NewChapterReference) {
+		const response = await EndpointWorks$authorVanity$workVanityGet.query({ params: Chapters.work(params) })
 		if (response instanceof Error)
 			throw response
 
-		const initialChapterResponse = await EndpointChapterGet.query({ params })
+		const initialChapterResponse = await EndpointChapters$authorVanity$workVanity$chapterUrl.query({ params })
 		if (initialChapterResponse instanceof Error) {
 			if (initialChapterResponse.type === 'age_restriction')
 				void navigate.toURL(`/work/${params.author}/${params.work}`)
@@ -95,7 +96,7 @@ export default ViewDefinition({
 
 		return { workData: response.data as WorkMetadata & Partial<WorkData>, initialChapterResponse }
 	},
-	create (params: ChapterReference, { workData, initialChapterResponse }) {
+	create (params: NewChapterReference, { workData, initialChapterResponse }) {
 		const view = PaginatedView('chapter')
 
 		const author = workData.synopsis?.mentions.find(author => author.vanity === workData.author)
@@ -137,7 +138,7 @@ export default ViewDefinition({
 		const sufficientPledge = chapterState.mapManual(chapter => !chapter.insufficient_pledge)
 		const shouldShowPatreon = State.Some(view, isOwn.truthy, sufficientPledge.falsy)
 
-		const chapters = PagedData.fromEndpoint(EndpointChapterGetPaged.prep({ params: { author: workData.author, work: workData.vanity } }))
+		const chapters = PagedData.fromEndpoint(EndpointChapters$authorVanity$workVanityList.prep({ params: Chapters.work(params) }))
 		chapters.set(initialChapterResponse.page, initialChapterResponse.data, !initialChapterResponse.has_more)
 		chapters.setPageCount(initialChapterResponse.page_count)
 
@@ -178,7 +179,7 @@ export default ViewDefinition({
 				paginator.setURL(`/work/${workData.author}/${workData.vanity}/chapter/${chapter.url}`)
 
 				if (Session.Auth.loggedIn.value)
-					void EndpointHistoryAddChapter.query({ params: chapter })
+					void EndpointHistoryChapter$authorVanity$workVanityChapter$chapterUrlAdd.query({ params })
 
 				if (chapter.statistics) Statistics()
 					.style('view-type-chapter-block-author-statistics')
@@ -363,7 +364,7 @@ export default ViewDefinition({
 							const params = { ...Chapters.reference(chapterState.value), type: 'supporter_love' } as const
 							if (reactedSupporter.value) {
 								reactingSupporter.value = true
-								const response = await EndpointUnreactChapter.query({ params })
+								const response = await EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeRemove.query({ params: { ...params, reaction_type: 'supporter_love' } })
 								reactingSupporter.value = false
 								if (toast.handleError(response))
 									return
@@ -374,7 +375,7 @@ export default ViewDefinition({
 							}
 							else {
 								reactingSupporter.value = true
-								const response = await EndpointReactChapter.query({ params })
+								const response = await EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeAdd.query({ params: { ...params, reaction_type: 'supporter_love' } })
 								reactingSupporter.value = false
 								if (toast.handleError(response))
 									return
@@ -405,7 +406,7 @@ export default ViewDefinition({
 							const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
 							if (reactedNormal.value) {
 								reactingNormal.value = true
-								const response = await EndpointUnreactChapter.query({ params })
+								const response = await EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeRemove.query({ params: { ...params, reaction_type: 'love' } })
 								reactingNormal.value = false
 								if (toast.handleError(response))
 									return
@@ -418,7 +419,7 @@ export default ViewDefinition({
 							}
 							else {
 								reactingNormal.value = true
-								const response = await EndpointReactChapter.query({ params })
+								const response = await EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeAdd.query({ params: { ...params, reaction_type: 'love' } })
 								reactingNormal.value = false
 								if (toast.handleError(response))
 									return
@@ -447,7 +448,7 @@ export default ViewDefinition({
 							const params = { ...Chapters.reference(chapterState.value), type: 'love' } as const
 							if (reactedGuest.value) {
 								reactingGuest.value = true
-								const response = await EndpointUnreactChapter.query({ params })
+								const response = await EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeRemove.query({ params: { ...params, reaction_type: 'love' } })
 								reactingGuest.value = false
 								if (toast.handleError(response))
 									return
@@ -460,7 +461,7 @@ export default ViewDefinition({
 							}
 							else {
 								reactingGuest.value = true
-								const response = await EndpointReactChapter.query({ params })
+								const response = await EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeAdd.query({ params: { ...params, reaction_type: 'love' } })
 								reactingGuest.value = false
 								if (toast.handleError(response))
 									return

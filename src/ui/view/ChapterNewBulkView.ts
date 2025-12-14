@@ -1,15 +1,16 @@
 import type { ChapterBulkQueueFinishChapterData, ChapterCreateBody, ChapterMetadata, ChapterReference, ChapterRelativePosition, Work as WorkData, WorkMetadata } from 'api.fluff4.me'
-import EndpointChapterCreateBulkCancel from 'endpoint/chapter/EndpointChapterCreateBulkCancel'
-import EndpointChapterCreateBulkFinish from 'endpoint/chapter/EndpointChapterCreateBulkFinish'
-import EndpointChapterCreateBulkQueue from 'endpoint/chapter/EndpointChapterCreateBulkQueue'
-import EndpointChapterGetAll from 'endpoint/chapter/EndpointChapterGetAll'
-import EndpointWorkGet from 'endpoint/work/EndpointWorkGet'
+import EndpointChapters$authorVanity$workVanityBulkCancel from 'endpoint/chapters/$author_vanity/$work_vanity/bulk/EndpointChapters$authorVanity$workVanityBulkCancel'
+import EndpointChapters$authorVanity$workVanityBulkFinish from 'endpoint/chapters/$author_vanity/$work_vanity/bulk/EndpointChapters$authorVanity$workVanityBulkFinish'
+import EndpointChapters$authorVanity$workVanityBulkQueue from 'endpoint/chapters/$author_vanity/$work_vanity/bulk/EndpointChapters$authorVanity$workVanityBulkQueue'
+import EndpointChapters$authorVanity$workVanity from 'endpoint/chapters/$author_vanity/EndpointChapters$authorVanity$workVanity'
+import EndpointWorks$authorVanity$workVanityGet from 'endpoint/works/$author_vanity/$work_vanity/EndpointWorks$authorVanity$workVanityGet'
 import type { Weave } from 'lang/en-nz'
 import quilt from 'lang/en-nz'
 import Chapters from 'model/Chapters'
 import PagedListData from 'model/PagedListData'
 import Patreon from 'model/Patreon'
 import Session from 'model/Session'
+import Works from 'model/Works'
 import Component from 'ui/Component'
 import Chapter from 'ui/component/Chapter'
 import ActionRow from 'ui/component/core/ActionRow'
@@ -55,7 +56,7 @@ export interface ChapterDetailsAPINumber {
 export default ViewDefinition({
 	requiresLogin: true,
 	async load (params: Params) {
-		const workResponse = await EndpointWorkGet.query({ params: Chapters.work(params) })
+		const workResponse = await EndpointWorks$authorVanity$workVanityGet.query({ params: Chapters.work(params) })
 		if (workResponse instanceof Error)
 			throw workResponse
 
@@ -166,7 +167,7 @@ export default ViewDefinition({
 						.viewTransition('work-view-chapters')
 						.style('view-type-work-chapter-list')
 						.set(
-							PagedListData.fromEndpoint(25, EndpointChapterGetAll.prep({ params: work })),
+							PagedListData.fromEndpoint(25, EndpointChapters$authorVanity$workVanity.prep({ params: Works.reference(work) })),
 							0,
 							(slot, chapters) => {
 								slot.style('chapter-list')
@@ -178,7 +179,7 @@ export default ViewDefinition({
 										.appendTo(slot)
 
 								for (const chapterData of chapters) {
-									Chapter(chapterData, work, author ?? { vanity: params.author })
+									Chapter(chapterData, work, author ?? { vanity: params.author ?? params.author_vanity! })
 										.style('view-type-work-chapter', 'view-type-work-chapter--has-moving-sibling')
 										.attributes.append('inert')
 										.appendTo(slot)
@@ -1059,7 +1060,7 @@ export default ViewDefinition({
 						return
 
 					setProgress(0, quilt => quilt['view/chapter-create-bulk/upload/loading/clearing']())
-					const cancelResponse = await EndpointChapterCreateBulkCancel.query({ params: work })
+					const cancelResponse = await EndpointChapters$authorVanity$workVanityBulkCancel.query({ params: Works.reference(work) })
 					if (toast.handleError(cancelResponse))
 						return resetUploadState()
 
@@ -1070,8 +1071,8 @@ export default ViewDefinition({
 						const chapter = currentState.chapters[i]
 
 						setProgress(i / (currentState.chapters.length + 2), quilt => quilt['view/chapter-create-bulk/upload/loading/queuing'](chapter.body.value.name || '', i, currentState.chapters.length))
-						const response = await EndpointChapterCreateBulkQueue.query({
-							params: work,
+						const response = await EndpointChapters$authorVanity$workVanityBulkQueue.query({
+							params: Works.reference(work),
 							body: {
 								name: chapter.body.value.name || '',
 								body: chapter.body.value.body,
@@ -1094,8 +1095,8 @@ export default ViewDefinition({
 					if (!confirmed)
 						return resetUploadState()
 
-					const finishResponse = await EndpointChapterCreateBulkFinish.query({
-						params: work,
+					const finishResponse = await EndpointChapters$authorVanity$workVanityBulkFinish.query({
+						params: Works.reference(work),
 						body: {
 							position: currentState.position && {
 								relative_to: currentState.position.relative_to,

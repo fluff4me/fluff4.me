@@ -1,6 +1,6 @@
 import type { AuthorMetadata, ChapterCensorBody, Chapter as ChapterData, ChapterMetadata, ReportChapterBody, WorkMetadata } from 'api.fluff4.me'
-import EndpointModerateChapterCensor from 'endpoint/moderation/EndpointModerateChapterCensor'
-import EndpointReportChapter from 'endpoint/report/EndpointReportChapter'
+import EndpointModerationChapter$authorVanity$workVanity$chapterUrlCensor from 'endpoint/moderation/chapter/$author_vanity/$work_vanity/$chapter_url/EndpointModerationChapter$authorVanity$workVanity$chapterUrlCensor'
+import EndpointReportsChapter$authorVanity$workVanity$chapterUrlAdd from 'endpoint/reports/chapter/$author_vanity/$work_vanity/$chapter_url/EndpointReportsChapter$authorVanity$workVanity$chapterUrlAdd'
 import type { AuthorReference } from 'model/Authors'
 import Chapters from 'model/Chapters'
 import Session from 'model/Session'
@@ -38,7 +38,7 @@ const CHAPTER_MODERATION = ModerationDefinition((chapter: ChapterData): Moderati
 			notes_after: ModerationCensor.markdown(chapter.notes_after),
 		},
 		async censor (censor) {
-			const response = await EndpointModerateChapterCensor.query({ params: Chapters.reference(chapter), body: censor })
+			const response = await EndpointModerationChapter$authorVanity$workVanity$chapterUrlCensor.query({ params: Chapters.reference(chapter), body: censor })
 			toast.handleError(response)
 		},
 	}),
@@ -152,7 +152,7 @@ const Chapter = Component.Builder((component, chapter: ChapterMetadata, work: Wo
 					.event.subscribe('click', event => ReportDialog.prompt(event.host, CHAPTER_REPORT, {
 						reportedContentName: State.value(chapter).name ?? (quilt => quilt['view/chapter/number/label'](State.value(chapter).url)),
 						async onReport (body) {
-							const response = await EndpointReportChapter.query({ body, params: Chapters.reference(State.value(chapter)) })
+							const response = await EndpointReportsChapter$authorVanity$workVanity$chapterUrlAdd.query({ body, params: Chapters.reference(State.value(chapter)) })
 							toast.handleError(response)
 						},
 					}))

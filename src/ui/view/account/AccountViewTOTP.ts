@@ -1,6 +1,6 @@
-import EndpointTOTPCreate from 'endpoint/auth/EndpointTOTPCreate'
-import EndpointTOTPDelete from 'endpoint/auth/EndpointTOTPDelete'
-import EndpointTOTPEnable from 'endpoint/auth/EndpointTOTPEnable'
+import EndpointAuthTotpCreate from 'endpoint/auth/totp/EndpointAuthTotpCreate'
+import EndpointAuthTotpDelete from 'endpoint/auth/totp/EndpointAuthTotpDelete'
+import EndpointAuthTotpEnable from 'endpoint/auth/totp/EndpointAuthTotpEnable'
 import Session from 'model/Session'
 import Component from 'ui/Component'
 import Block from 'ui/component/core/Block'
@@ -64,7 +64,7 @@ export default Component.Builder((component, session: State<Session | undefined>
 			if (state.value !== 'none')
 				return
 
-			const response = await EndpointTOTPCreate.query()
+			const response = await EndpointAuthTotpCreate.query()
 			if (toast.handleError(response))
 				return
 
@@ -132,7 +132,7 @@ export default Component.Builder((component, session: State<Session | undefined>
 			if (state.value !== 'starting')
 				return
 
-			const response = await EndpointTOTPDelete.query()
+			const response = await EndpointAuthTotpDelete.query()
 			if (toast.handleError(response))
 				return
 
@@ -175,7 +175,7 @@ export default Component.Builder((component, session: State<Session | undefined>
 			if (state.value !== 'enter')
 				return
 
-			const response = await EndpointTOTPDelete.query()
+			const response = await EndpointAuthTotpDelete.query()
 			if (toast.handleError(response))
 				return
 
@@ -207,7 +207,7 @@ export default Component.Builder((component, session: State<Session | undefined>
 			if (!dangerToken)
 				return
 
-			const response = await EndpointTOTPEnable.query({ body: { token: codeInput.state.value } })
+			const response = await EndpointAuthTotpEnable.query({ body: { token: codeInput.state.value } })
 			if (toast.handleError(response))
 				return
 
@@ -236,7 +236,7 @@ export default Component.Builder((component, session: State<Session | undefined>
 			if (!dangerToken)
 				return
 
-			const response = await EndpointTOTPDelete.query()
+			const response = await EndpointAuthTotpDelete.query()
 			if (toast.handleError(response))
 				return
 

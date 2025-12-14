@@ -1,5 +1,5 @@
+import EndpointAuthPatreonPatronDelete from 'endpoint/auth/patreon/patron/EndpointAuthPatreonPatronDelete'
 import Endpoint from 'endpoint/Endpoint'
-import EndpointPatreonPatronRemove from 'endpoint/patreon/EndpointPatreonPatronRemove'
 import Session from 'model/Session'
 import OAuthService from 'ui/component/auth/OAuthService'
 import OAuthServices from 'ui/component/auth/OAuthServices'
@@ -45,7 +45,7 @@ namespace PatronAuthDialog {
 				}
 
 				async function unlink () {
-					await EndpointPatreonPatronRemove.query()
+					await EndpointAuthPatreonPatronDelete.query()
 					await Session.refresh()
 				}
 			},
