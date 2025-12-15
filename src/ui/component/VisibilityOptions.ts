@@ -17,6 +17,7 @@ interface VisibilityOptions {
 
 export interface VisibilityDataHost {
 	visibility: Visibility
+	patreonEnabled: boolean
 	patreonTiers?: string[] | null
 }
 
@@ -25,7 +26,7 @@ function VisibilityOptions (table: LabelledTable, state: State<VisibilityDataHos
 		.style('visibility-options-option')
 		.text.use(`shared/form/visibility/${id.toLowerCase() as Lowercase<Visibility>}`)
 
-	const campaign = Session.Auth.account.map(table, author => author?.patreon_campaign)
+	const campaign = State.Map(table, [state, Session.Auth.account], (state, account) => state?.patreonEnabled ? account?.patreon_campaign : undefined)
 	const visibility = RadioRow()
 		.add('Public', VisibilityRadioInitialiser)
 		.add('Patreon', (radio, id) => radio

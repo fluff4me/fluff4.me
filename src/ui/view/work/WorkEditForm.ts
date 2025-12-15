@@ -18,6 +18,7 @@ import SupportersOnlyLabel from 'ui/component/SupportersOnlyLabel'
 import type { TagsState } from 'ui/component/TagsEditor'
 import TagsEditor from 'ui/component/TagsEditor'
 import { FilterVanity } from 'ui/component/VanityInput'
+import type { VisibilityDataHost } from 'ui/component/VisibilityOptions'
 import VisibilityOptions from 'ui/component/VisibilityOptions'
 import WorkStatusDropdown from 'ui/component/WorkStatusDropdown'
 import type { License } from 'ui/utility/License'
@@ -90,7 +91,11 @@ export default Component.Builder((component, state: State.Mutable<Work | undefin
 	table.label(label => label.text.use('view/work-edit/shared/form/tags/label'))
 		.content((content, label) => content.append(tagsEditor.setLabel(label)))
 
-	const { visibility, patreonTiers } = VisibilityOptions(table, state.map(component, work => ({ visibility: work?.visibility ?? 'Private', patreonTiers: work?.patreon?.tiers.map(tier => tier.tier_id) })))
+	const { visibility, patreonTiers } = VisibilityOptions(table, state.map(component, (work): VisibilityDataHost => ({
+		patreonEnabled: true,
+		visibility: work?.visibility ?? 'Private',
+		patreonTiers: work?.patreon?.tiers.map(tier => tier.tier_id),
+	})))
 	visibility.hint.use('view/work-edit/shared/form/visibility/hint')
 
 	const status = WorkStatusDropdown.Radio(state.map(component, work => work?.status ?? 'Ongoing'))

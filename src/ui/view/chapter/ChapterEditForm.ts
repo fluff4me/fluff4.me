@@ -126,7 +126,11 @@ const ChapterEditFormContent = Component.Builder((component, inputState: State<C
 	table.label(label => label.text.use('view/chapter-edit/shared/form/notes/label'))
 		.content((content, label) => content.append(notesAfterInput.setLabel(label)))
 
-	const { patreonTiers, visibility } = VisibilityOptions(table, inputState.map(table, (chapter): VisibilityDataHost => ({ visibility: chapter?.visibility ?? 'Private', ...getPatreon(chapter) })))
+	const { patreonTiers, visibility } = VisibilityOptions(table, inputState.map(table, (chapter): VisibilityDataHost => ({
+		patreonEnabled: true,
+		visibility: chapter?.visibility ?? 'Private',
+		...getPatreon(chapter),
+	})))
 
 	component.onRooted(() => {
 		notesBeforeInput.ready()

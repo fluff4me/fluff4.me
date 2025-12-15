@@ -17,6 +17,7 @@ import { TOAST_SUCCESS } from 'ui/component/core/toast/Toast'
 import LicenseFormFragment from 'ui/component/LicenseFormFragment'
 import SupportersOnlyLabel from 'ui/component/SupportersOnlyLabel'
 import VanityInput, { FilterVanity } from 'ui/component/VanityInput'
+import type { VisibilityDataHost } from 'ui/component/VisibilityOptions'
 import VisibilityOptions from 'ui/component/VisibilityOptions'
 import type { License } from 'ui/utility/License'
 import { LICENSES } from 'ui/utility/License'
@@ -110,7 +111,10 @@ export default Component.Builder('form', (component, type: AccountViewFormType) 
 	block.useGradient(cardGradientInput.value)
 
 	const { visibility } = VisibilityOptions(table,
-		Session.Auth.account.map(table, account => ({ visibility: account?.comments_privated ? 'Private' : 'Public' })),
+		Session.Auth.account.map(table, (account): VisibilityDataHost => ({
+			patreonEnabled: false,
+			visibility: account?.comments_privated ? 'Private' : 'Public',
+		})),
 		'view/account/comments/label',
 	)
 
