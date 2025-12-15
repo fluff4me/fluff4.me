@@ -44,7 +44,7 @@ export default Component.Builder((component, patreon: AuthService) => {
 				.use(campaign, (slot, campaign) => campaign && Button()
 					.style('view-type-account-patreon-campaign-oauth-row-relink-button')
 					.setIcon('rotate')
-					.event.subscribe('click', relink)
+					.onRooted(button => button.event.subscribe('click', relink))
 				),
 		)
 		.appendTo(block.content)
