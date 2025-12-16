@@ -89,7 +89,7 @@ export default ViewDefinition({
 		const initialChapterResponse = await EndpointChapters$authorVanity$workVanity$chapterUrl.query({ params })
 		if (initialChapterResponse instanceof Error) {
 			if (initialChapterResponse.type === 'age_restriction')
-				void navigate.toURL(`/work/${params.author}/${params.work}`)
+				void navigate.toURL(`/work/${params.author_vanity}/${params.work_vanity}`)
 
 			throw initialChapterResponse
 		}

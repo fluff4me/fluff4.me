@@ -17,8 +17,8 @@ import ViewTitle from 'ui/view/shared/ext/ViewTitle'
 import State from 'utility/State'
 import Type from 'utility/Type'
 
-interface ChapterEditViewParams extends Omit<NewChapterReference, 'url'> {
-	url?: string
+interface ChapterEditViewParams extends Omit<NewChapterReference, 'chapter_url'> {
+	chapter_url?: string
 }
 
 const NEW_CHAPTER = Symbol('NEW_CHAPTER')
@@ -26,7 +26,7 @@ const NEW_CHAPTER = Symbol('NEW_CHAPTER')
 export default ViewDefinition({
 	requiresLogin: true,
 	async load (params: ChapterEditViewParams) {
-		const initialChapterResponse = !params.url ? undefined : await EndpointChapters$authorVanity$workVanity$chapterUrl.query({ params: params as Required<ChapterEditViewParams> })
+		const initialChapterResponse = !params.chapter_url ? undefined : await EndpointChapters$authorVanity$workVanity$chapterUrl.query({ params: params as Required<ChapterEditViewParams> })
 		if (initialChapterResponse instanceof Error)
 			throw initialChapterResponse
 
@@ -93,8 +93,8 @@ export default ViewDefinition({
 						return
 
 					paginator.setURL(!chapter
-						? `/work/${params.author}/${params.work}/chapter/new`
-						: `/work/${params.author}/${params.work}/chapter/${chapter.url}/edit`)
+						? `/work/${work.author}/${work.vanity}/chapter/new`
+						: `/work/${work.author}/${work.vanity}/chapter/${chapter.url}/edit`)
 
 					if (chapter && page === chapterCount.value - 1)
 						chapterCount.value++
@@ -145,8 +145,8 @@ export default ViewDefinition({
 
 		paginator.data.use(view, chapter => view.breadcrumbs.setBackButton(
 			chapter === NEW_CHAPTER || !chapter
-				? `/work/${params.author}/${params.work}`
-				: `/work/${params.author}/${params.work}/chapter/${chapter.url}`,
+				? `/work/${work.author}/${work.vanity}`
+				: `/work/${work.author}/${work.vanity}/chapter/${chapter.url}`,
 			button => button.subText.set(chapter === NEW_CHAPTER
 				? work.name
 				: chapter?.name)
