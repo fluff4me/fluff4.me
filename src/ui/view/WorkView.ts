@@ -1,4 +1,4 @@
-import type { ChapterMetadata } from 'api.fluff4.me'
+import type { ChapterMetadata, WorkReference } from 'api.fluff4.me'
 import EndpointChapters$authorVanity$workVanity$chapterUrlReorder from 'endpoint/chapters/$author_vanity/$work_vanity/$chapter_url/EndpointChapters$authorVanity$workVanity$chapterUrlReorder'
 import EndpointChapters$authorVanity$workVanity from 'endpoint/chapters/$author_vanity/EndpointChapters$authorVanity$workVanity'
 import EndpointHistoryBookmarks$authorVanity$workVanityDeleteFurthestRead from 'endpoint/history/bookmarks/$author_vanity/$work_vanity/delete/EndpointHistoryBookmarks$authorVanity$workVanityDeleteFurthestRead'
@@ -9,7 +9,6 @@ import Chapters from 'model/Chapters'
 import PagedListData from 'model/PagedListData'
 import Session from 'model/Session'
 import Tags from 'model/Tags'
-import type { NewWorkReference } from 'model/Works'
 import Works from 'model/Works'
 import Component from 'ui/Component'
 import ActionBlock from 'ui/component/ActionBlock'
@@ -38,7 +37,7 @@ import State from 'utility/State'
 import type { UUID } from 'utility/string/Strings'
 
 export default ViewDefinition({
-	async load (params: NewWorkReference) {
+	async load (params: WorkReference) {
 		const response = await EndpointWorks$authorVanity$workVanityGet.query({ params })
 		if (response instanceof Error)
 			throw response
@@ -46,7 +45,7 @@ export default ViewDefinition({
 		const work = response.data
 		return { work }
 	},
-	create (params: NewWorkReference, { work: workDataIn }) {
+	create (params: WorkReference, { work: workDataIn }) {
 		const view = View('work')
 
 		const workData = State(workDataIn)
@@ -213,13 +212,13 @@ export default ViewDefinition({
 							const nextUrl = workData.value.bookmarks?.url_next
 							const nextFurthestUrl = workData.value.bookmarks?.url_next_furthest
 							const nextIsFurthest = nextUrl === nextFurthestUrl
-							if (chapterData.url === nextUrl)
+							if (chapterData.chapter_url === nextUrl)
 								Marker(EndpointHistoryBookmarks$authorVanity$workVanityDeleteLastRead)
 									.style(nextIsFurthest ? 'view-type-work-chapter-marker--next-furthest' : 'view-type-work-chapter-marker--next')
 									.text.use('view/work/chapters/marker/next-chapter/next')
 									.appendTo(slot)
 
-							if (chapterData.url === nextFurthestUrl && nextUrl !== nextFurthestUrl)
+							if (chapterData.chapter_url === nextFurthestUrl && nextUrl !== nextFurthestUrl)
 								Marker(EndpointHistoryBookmarks$authorVanity$workVanityDeleteFurthestRead)
 									.style('view-type-work-chapter-marker--next-furthest')
 									.text.use('view/work/chapters/marker/next-chapter/furthest')
@@ -257,7 +256,7 @@ export default ViewDefinition({
 										if (!movingChapterData)
 											return
 
-										if (movingChapterData.url === chapter.url) {
+										if (movingChapterData.chapter_url === chapter.chapter_url) {
 											// no-op
 											movingChapter.value = undefined
 											return
@@ -266,7 +265,7 @@ export default ViewDefinition({
 										const response = await EndpointChapters$authorVanity$workVanity$chapterUrlReorder.query({
 											params: Chapters.reference(movingChapterData),
 											body: {
-												relative_to: chapter.url,
+												relative_to: chapter.chapter_url,
 												position: direction,
 											},
 										})

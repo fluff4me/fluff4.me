@@ -14,24 +14,19 @@ export const WORK_STATUS_ICONS = {
 	Hiatus: 'circle-pause',
 } satisfies Record<WorkMetadata['status'], ButtonIcon>
 
-export interface NewWorkReference extends WorkReference {
-	author_vanity: string
-	work_vanity: string
-}
-
 namespace Works {
 	export function resolve (reference: WorkReference | null | undefined, works: WorkMetadata[]): WorkMetadata | undefined {
-		return !reference ? undefined : works.find(work => work.author === reference.author && work.vanity === reference.vanity)
+		return !reference ? undefined : works.find(work => work.author_vanity === reference.author_vanity && work.work_vanity === reference.work_vanity)
 	}
 
 	export function equals (a?: WorkReference | null, b?: WorkReference | null) {
-		return !!a && !!b && a.author === b.author && a.vanity === b.vanity
+		return !!a && !!b && a.author_vanity === b.author_vanity && a.work_vanity === b.work_vanity
 	}
 
-	export function reference (work: WorkReference): NewWorkReference
-	export function reference (work?: WorkReference | null): NewWorkReference | null
-	export function reference (work?: WorkReference | null): NewWorkReference | null {
-		return work ? { author_vanity: work.author ?? work.author_vanity!, work_vanity: work.vanity ?? work.work_vanity! } : null
+	export function reference (work: WorkReference): WorkReference
+	export function reference (work?: WorkReference | null): WorkReference | null
+	export function reference (work?: WorkReference | null): WorkReference | null {
+		return work ? { author_vanity: work.author_vanity, work_vanity: work.work_vanity } : null
 	}
 }
 
@@ -53,8 +48,8 @@ export default Object.assign(
 			if (toast.handleError(response))
 				return false
 
-			if (navigate.isURL(`/work/${work.author}/${work.vanity}/**`))
-				void navigate.toURL(`/author/${work.author}`)
+			if (navigate.isURL(`/work/${work.author_vanity}/${work.work_vanity}/**`))
+				void navigate.toURL(`/author/${work.author_vanity}`)
 
 			return true
 		},

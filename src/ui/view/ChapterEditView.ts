@@ -1,8 +1,7 @@
-import type { Work as WorkData, WorkMetadata } from 'api.fluff4.me'
+import type { ChapterReference, Work as WorkData, WorkMetadata } from 'api.fluff4.me'
 import EndpointChapters$authorVanity$workVanity$chapterUrl from 'endpoint/chapters/$author_vanity/$work_vanity/EndpointChapters$authorVanity$workVanity$chapterUrl'
 import EndpointChapters$authorVanity$workVanityList from 'endpoint/chapters/$author_vanity/$work_vanity/EndpointChapters$authorVanity$workVanityList'
 import EndpointWorks$authorVanity$workVanityGet from 'endpoint/works/$author_vanity/$work_vanity/EndpointWorks$authorVanity$workVanityGet'
-import type { NewChapterReference } from 'model/Chapters'
 import Chapters from 'model/Chapters'
 import PagedData from 'model/PagedData'
 import Session from 'model/Session'
@@ -17,7 +16,7 @@ import ViewTitle from 'ui/view/shared/ext/ViewTitle'
 import State from 'utility/State'
 import Type from 'utility/Type'
 
-interface ChapterEditViewParams extends Omit<NewChapterReference, 'chapter_url'> {
+interface ChapterEditViewParams extends Omit<ChapterReference, 'chapter_url'> {
 	chapter_url?: string
 }
 
@@ -35,7 +34,7 @@ export default ViewDefinition({
 			throw workResponse
 
 		if (workResponse.data.author !== Session.Auth.author.value?.vanity)
-			void navigate.toURL(`/work/${workResponse.data.author}/${workResponse.data.vanity}${params.url ? `/chapter/${params.url}` : ''}`)
+			void navigate.toURL(`/work/${workResponse.data.author}/${workResponse.data.vanity}${params.chapter_url ? `/chapter/${params.chapter_url}` : ''}`)
 
 		return { initialChapterResponse, work: workResponse.data as WorkMetadata & Partial<WorkData> }
 	},
@@ -43,11 +42,11 @@ export default ViewDefinition({
 		const id = 'chapter-edit'
 		const view = PaginatedView(id)
 
-		const author = work.synopsis?.mentions.find(author => author.vanity === params.author)
+		const author = work.synopsis?.mentions.find(author => author.vanity === params.author_vanity)
 		delete work.synopsis
 		delete work.custom_tags
 
-		Link(`/work/${author?.vanity}/${work.vanity}`)
+		Link(`/work/${author?.vanity}/${work.work_vanity}`)
 			.and(Work, work, author)
 			.viewTransition('chapter-view-work')
 			.style('view-type-chapter-work')
@@ -93,8 +92,8 @@ export default ViewDefinition({
 						return
 
 					paginator.setURL(!chapter
-						? `/work/${work.author}/${work.vanity}/chapter/new`
-						: `/work/${work.author}/${work.vanity}/chapter/${chapter.url}/edit`)
+						? `/work/${work.author_vanity}/${work.work_vanity}/chapter/new`
+						: `/work/${work.author_vanity}/${work.work_vanity}/chapter/${chapter.url}/edit`)
 
 					if (chapter && page === chapterCount.value - 1)
 						chapterCount.value++
@@ -145,8 +144,8 @@ export default ViewDefinition({
 
 		paginator.data.use(view, chapter => view.breadcrumbs.setBackButton(
 			chapter === NEW_CHAPTER || !chapter
-				? `/work/${work.author}/${work.vanity}`
-				: `/work/${work.author}/${work.vanity}/chapter/${chapter.url}`,
+				? `/work/${work.author_vanity}/${work.work_vanity}`
+				: `/work/${work.author_vanity}/${work.work_vanity}/chapter/${chapter.url}`,
 			button => button.subText.set(chapter === NEW_CHAPTER
 				? work.name
 				: chapter?.name)

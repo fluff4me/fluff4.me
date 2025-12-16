@@ -45,7 +45,7 @@ import State from 'utility/State'
 import Strings from 'utility/string/Strings'
 import Task from 'utility/Task'
 
-type Params = Omit<ChapterReference, 'url'>
+type Params = Omit<ChapterReference, 'chapter_url'>
 
 export interface ChapterDetailsAPINumber {
 	url: string
@@ -60,7 +60,7 @@ export default ViewDefinition({
 		if (workResponse instanceof Error)
 			throw workResponse
 
-		const author = workResponse.data.synopsis?.mentions.find(author => author.vanity === params.author)
+		const author = workResponse.data.synopsis?.mentions.find(author => author.vanity === params.author_vanity)
 		return { work: workResponse.data as WorkMetadata & Partial<WorkData>, author }
 	},
 	create (params: Params, { work, author }) {
@@ -70,7 +70,7 @@ export default ViewDefinition({
 		delete work.synopsis
 		delete work.custom_tags
 
-		Link(`/work/${author?.vanity}/${work.vanity}`)
+		Link(`/work/${author?.vanity}/${work.work_vanity}`)
 			.and(Work, work, author)
 			.viewTransition('chapter-view-work')
 			.style('view-type-chapter-work')
@@ -179,7 +179,7 @@ export default ViewDefinition({
 										.appendTo(slot)
 
 								for (const chapterData of chapters) {
-									Chapter(chapterData, work, author ?? { vanity: params.author ?? params.author_vanity! })
+									Chapter(chapterData, work, author ?? { vanity: params.author_vanity })
 										.style('view-type-work-chapter', 'view-type-work-chapter--has-moving-sibling')
 										.attributes.append('inert')
 										.appendTo(slot)
@@ -189,9 +189,9 @@ export default ViewDefinition({
 
 								function MoveSlot (direction: 'before' | 'after', chapter: ChapterMetadata) {
 									const position: InsertPosition = {
-										relative_to: chapter.url,
+										relative_to: chapter.chapter_url,
 										position: direction,
-										title: chapter.name ?? (quilt => quilt['view/chapter/number/label'](chapter.url)),
+										title: chapter.name ?? (quilt => quilt['view/chapter/number/label'](chapter.chapter_url)),
 									}
 									const isChosen = chosenPosition.map(slot, chosen => !!chosen && chosen.relative_to === position.relative_to && chosen.position === position.position)
 									return Component()
@@ -1146,7 +1146,7 @@ export default ViewDefinition({
 									.type('primary')
 									.text.use(quilt => quilt['view/chapter-create-bulk/upload/action/return'](work.name))
 									.event.subscribe('click', () =>
-										navigate.toURL(`/work/${work.author}/${work.vanity}`)
+										navigate.toURL(`/work/${work.author_vanity}/${work.work_vanity}`)
 									),
 							))
 					)

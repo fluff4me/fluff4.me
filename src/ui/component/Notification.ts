@@ -76,7 +76,7 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 		const work = Works.resolve(data.work, Notifications.works.value)
 		const WORK = !work ? undefined : WorkLink(work)
 		const chapter = Chapters.resolve(data.chapter, Notifications.chapters.value)
-		const CHAPTER = !chapter ? undefined : Link(`/work/${chapter.author}/${chapter.work}/chapter/${chapter.url}`).text.set(Chapters.getName(chapter))
+		const CHAPTER = !chapter ? undefined : Link(`/work/${chapter.author_vanity}/${chapter.work_vanity}/chapter/${chapter.chapter_url}`).text.set(Chapters.getName(chapter))
 
 		const COMMENT = !!data.comment
 
@@ -119,7 +119,7 @@ const Notification = Component.Builder('a', (component, data: NotificationData):
 				.appendTo(notification)
 
 			if (chapter)
-				notification.and(Link, `/work/${chapter.author}/${chapter.work}/chapter/${chapter.url}`)
+				notification.and(Link, `/work/${chapter.author_vanity}/${chapter.work_vanity}/chapter/${chapter.chapter_url}`)
 					.event.subscribe('Navigate', toggleRead)
 		}
 

@@ -44,13 +44,13 @@ export default ViewDefinition({
 					let currentChapterBlock: Block | undefined
 					for (const historyItem of history) {
 						const work = Works.resolve(historyItem.work, data.works.value)
-						const author = Authors.resolve(work?.author, data.authors.value)
+						const author = Authors.resolve(work?.author_vanity, data.authors.value)
 
 						if (!work || !author)
 							continue
 
 						if (!historyItem.chapter) {
-							Link(`/work/${author.vanity}/${work.vanity}`)
+							Link(`/work/${author.vanity}/${work.work_vanity}`)
 								.and(Work, { ...work, time_last_update: historyItem.view_time }, author)
 								.style('history-work')
 								.appendTo(slot)

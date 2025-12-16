@@ -107,7 +107,7 @@ const WORK_MODERATION = ModerationDefinition((work: WorkMetadata & Partial<WorkD
 	censor: ModerationCensor<WorkCensorBody>({
 		properties: {
 			name: ModerationCensor.plaintext(work.name),
-			vanity: ModerationCensor.plaintext(work.vanity),
+			vanity: ModerationCensor.plaintext(work.work_vanity),
 			description: ModerationCensor.plaintext(work.description),
 			synopsis: ModerationCensor.markdown(work.synopsis?.body),
 			license: ModerationCensor.plaintext(work.license && `${work.license.name}: ${work.license.link}`),
@@ -256,7 +256,7 @@ const Work = Component.Builder((component, workDataIn: State.Or<WorkMetadata & P
 
 	const block = component.and(Block)
 	const cardColours = State.Map(component, [work, Session.Auth.author], (work, author) =>
-		work.author !== Session.Auth.author.value?.vanity || Session.Auth.author.value.supporter?.tier
+		work.author_vanity !== Session.Auth.author.value?.vanity || Session.Auth.author.value.supporter?.tier
 			? work.card_colours
 			: undefined
 	)
@@ -348,8 +348,8 @@ const Work = Component.Builder((component, workDataIn: State.Or<WorkMetadata & P
 				.appendTo(slot)
 
 			const link: RoutePath = !work.bookmarks.url_next && !work.bookmarks.read_completed && work.bookmarks.url_read_last
-				? `/work/${work.author}/${work.vanity}`
-				: `/work/${work.author}/${work.vanity}/chapter/${(!work.bookmarks.read_completed && work.bookmarks.url_next) || work.bookmarks.url_first}`
+				? `/work/${work.author_vanity}/${work.work_vanity}`
+				: `/work/${work.author_vanity}/${work.work_vanity}/chapter/${(!work.bookmarks.read_completed && work.bookmarks.url_next) || work.bookmarks.url_first}`
 			bookmarkAction.value = Link(link)
 				.and(WorkActionsButton)
 				.ariaLabel.use(quilt => quilt[work.bookmarks?.read_completed
@@ -478,7 +478,7 @@ const Work = Component.Builder((component, workDataIn: State.Or<WorkMetadata & P
 
 	block.footer.and(WorkFooter, work)
 
-	RSSButton(work.map(component, work => `${Env.API_ORIGIN}work/${work.author}/${work.vanity}/rss.xml`))
+	RSSButton(work.map(component, work => `${Env.API_ORIGIN}work/${work.author_vanity}/${work.work_vanity}/rss.xml`))
 		.appendTo(block.footer.right)
 
 	const statistics = work.map(component, work => work.statistics)
@@ -500,19 +500,19 @@ const Work = Component.Builder((component, workDataIn: State.Or<WorkMetadata & P
 		work, statistics: statisticsWrapper,
 		bookmarkActions: actions, bookmarkStatus, bookmarkAction,
 		getActions (owner, actions) {
-			const isOwnWork = State.Map(owner, [work, Session.Auth.author], (work, author) => author?.vanity === work.author)
+			const isOwnWork = State.Map(owner, [work, Session.Auth.author], (work, author) => author?.vanity === work.author_vanity)
 			actions.addWhen(isOwnWork,
 				(Button()
 					.type('flush')
 					.setIcon('plus')
 					.text.use('work/action/label/new-chapter')
-					.event.subscribe('click', () => navigate.toURL(`/work/${work.value.author}/${work.value.vanity}/chapter/new`))
+					.event.subscribe('click', () => navigate.toURL(`/work/${work.value.author_vanity}/${work.value.work_vanity}/chapter/new`))
 				),
 				(Button()
 					.type('flush')
 					.setIcon('plus')
 					.text.use('view/work-edit/update/action/bulk-chapters')
-					.event.subscribe('click', () => navigate.toURL(`/work/${work.value.author}/${work.value.vanity}/chapter/new/bulk`))
+					.event.subscribe('click', () => navigate.toURL(`/work/${work.value.author_vanity}/${work.value.work_vanity}/chapter/new/bulk`))
 				),
 			)
 
@@ -521,7 +521,7 @@ const Work = Component.Builder((component, workDataIn: State.Or<WorkMetadata & P
 					.type('flush')
 					.setIcon('pencil')
 					.text.use('work/action/label/edit')
-					.event.subscribe('click', () => navigate.toURL(`/work/${work.value.author}/${work.value.vanity}/edit`))
+					.event.subscribe('click', () => navigate.toURL(`/work/${work.value.author_vanity}/${work.value.work_vanity}/edit`))
 				),
 				(Button()
 					.type('flush')
@@ -531,7 +531,7 @@ const Work = Component.Builder((component, workDataIn: State.Or<WorkMetadata & P
 				),
 			)
 
-			const isOthersWork = State.Map(owner, [work, Session.Auth.author], (work, author) => !!author && author.vanity !== work.author)
+			const isOthersWork = State.Map(owner, [work, Session.Auth.author], (work, author) => !!author && author.vanity !== work.author_vanity)
 			actions.addFollowing(owner, {
 				isApplicable: isOthersWork,
 				isFollowing: Follows.map(owner, () => Follows.followingWork(work.value)),

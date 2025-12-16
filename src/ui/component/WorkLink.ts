@@ -5,7 +5,7 @@ import Link from 'ui/component/core/Link'
 import WorkPopover from 'ui/component/popover/WorkPopover'
 
 export default Component.Builder('a', (component, work: WorkMetadata, author?: AuthorMetadata): Link => {
-	return component.and(Link, `/work/${work.author}/${work.vanity}`)
+	return component.and(Link, `/work/${work.author_vanity}/${work.work_vanity}`)
 		.style('author-link')
 		.text.set(work.name)
 		.setPopover('hover/longpress', popover => popover.and(WorkPopover, work, author))

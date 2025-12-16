@@ -31,7 +31,7 @@ const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ign
 		(a, b) => true
 			&& !!a === !!b
 			&& a.length === b.length
-			&& a.every(follow => b.some(follow2 => follow.work?.author === follow2.work?.author && follow.work?.vanity === follow2.work?.vanity))
+			&& a.every(follow => b.some(follow2 => follow.work?.author_vanity === follow2.work?.author_vanity && follow.work?.work_vanity === follow2.work?.work_vanity))
 	)
 
 	let page = 0
@@ -52,7 +52,7 @@ const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ign
 					authors.value.distinctInPlace(author => author.vanity)
 					authors.emit()
 
-					return response.data.works.sort((a, b) => slice.findIndex(follow => follow.work?.author === a.author && follow.work?.vanity === a.vanity) - slice.findIndex(follow => follow.work?.author === b.author && follow.work?.vanity === b.vanity))
+					return response.data.works.sort((a, b) => slice.findIndex(follow => follow.work?.author_vanity === a.author_vanity && follow.work?.work_vanity === a.work_vanity) - slice.findIndex(follow => follow.work?.author_vanity === b.author_vanity && follow.work?.work_vanity === b.work_vanity))
 				},
 			})
 
@@ -63,8 +63,8 @@ const FollowingWorksTab = Component.Builder((component, type: 'following' | 'ign
 				.viewTransition(false)
 				.set(works, 0, (slot, works) => {
 					for (const work of works) {
-						const workComponent = Link(`/work/${work.author}/${work.vanity}`)
-							.and(Work, work, authors.value.find(author => author.vanity === work.author), true)
+						const workComponent = Link(`/work/${work.author_vanity}/${work.work_vanity}`)
+							.and(Work, work, authors.value.find(author => author.vanity === work.author_vanity), true)
 							.viewTransition(false)
 							.appendTo(slot)
 

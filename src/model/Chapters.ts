@@ -1,43 +1,36 @@
-import type { ChapterMetadata, ChapterReference } from 'api.fluff4.me'
+import type { ChapterMetadata, ChapterReference, WorkReference } from 'api.fluff4.me'
 import EndpointChapters$authorVanity$workVanity$chapterUrlDelete from 'endpoint/chapters/$author_vanity/$work_vanity/$chapter_url/EndpointChapters$authorVanity$workVanity$chapterUrlDelete'
-import type { NewWorkReference } from 'model/Works'
 import type Component from 'ui/Component'
 import ConfirmDialog from 'ui/component/core/ConfirmDialog'
 import type { Quilt } from 'ui/utility/StringApplicator'
 import Maths from 'utility/maths/Maths'
 
-export interface NewChapterReference extends ChapterReference {
-	author_vanity: string
-	work_vanity: string
-	chapter_url: string
-}
-
 namespace Chapters {
 	export function resolve (reference: ChapterReference | null | undefined, chapters: ChapterMetadata[]): ChapterMetadata | undefined {
-		return !reference ? undefined : chapters.find(chapter => chapter.author === reference.author && chapter.work === reference.work && chapter.url === reference.url)
+		return !reference ? undefined : chapters.find(chapter => chapter.author_vanity === reference.author_vanity && chapter.work_vanity === reference.work_vanity && chapter.chapter_url === reference.chapter_url)
 	}
 
-	export function work (reference: Omit<ChapterReference, 'url'>): NewWorkReference
-	export function work (reference: Omit<ChapterReference, 'url'> | null | undefined): NewWorkReference | undefined
-	export function work (reference: Omit<ChapterReference, 'url'> | null | undefined): NewWorkReference | undefined {
-		return !reference ? undefined : { author_vanity: reference.author ?? reference.author_vanity!, work_vanity: reference.work ?? reference.work_vanity! }
+	export function work (reference: Omit<ChapterReference, 'chapter_url'>): WorkReference
+	export function work (reference: Omit<ChapterReference, 'chapter_url'> | null | undefined): WorkReference | undefined
+	export function work (reference: Omit<ChapterReference, 'chapter_url'> | null | undefined): WorkReference | undefined {
+		return !reference ? undefined : { author_vanity: reference.author_vanity, work_vanity: reference.work_vanity }
 	}
 
-	export function reference (reference: ChapterReference): NewChapterReference
-	export function reference (reference: ChapterReference | null | undefined): NewChapterReference | undefined
-	export function reference (reference: ChapterReference | null | undefined): NewChapterReference | undefined {
-		return !reference ? undefined : { author_vanity: reference.author ?? reference.author_vanity!, work_vanity: reference.work ?? reference.work_vanity!, chapter_url: reference.url ?? reference.chapter_url! }
+	export function reference (reference: ChapterReference): ChapterReference
+	export function reference (reference: ChapterReference | null | undefined): ChapterReference | undefined
+	export function reference (reference: ChapterReference | null | undefined): ChapterReference | undefined {
+		return !reference ? undefined : { author_vanity: reference.author_vanity, work_vanity: reference.work_vanity, chapter_url: reference.chapter_url }
 	}
 
 	export function getName (chapter?: ChapterMetadata): string | Quilt.Handler | undefined {
 		if (!chapter)
 			return undefined
 
-		const chapterNumber = Maths.parseIntOrUndefined(chapter.url)
+		const chapterNumber = Maths.parseIntOrUndefined(chapter.chapter_url)
 		return _
 			|| chapter.name
 			|| (!chapterNumber ? undefined : quilt => quilt['view/chapter/number/label'](chapterNumber))
-			|| (chapter.url.includes('.') ? quilt => quilt['view/chapter/number/interlude/label'](chapter.url) : undefined)
+			|| (chapter.chapter_url.includes('.') ? quilt => quilt['view/chapter/number/interlude/label'](chapter.chapter_url) : undefined)
 	}
 }
 
@@ -59,8 +52,8 @@ export default Object.assign(
 			if (toast.handleError(response))
 				return false
 
-			if (navigate.isURL(`/work/${chapter.author}/${chapter.work}/chapter/${chapter.url}/**`))
-				void navigate.toURL(`/work/${chapter.author}/${chapter.work}`)
+			if (navigate.isURL(`/work/${chapter.author_vanity}/${chapter.work_vanity}/chapter/${chapter.chapter_url}/**`))
+				void navigate.toURL(`/work/${chapter.author_vanity}/${chapter.work_vanity}`)
 
 			return true
 		},

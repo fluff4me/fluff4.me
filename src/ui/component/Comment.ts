@@ -143,12 +143,12 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 
 				const ChapterContext = () => meta.context?.root_object.type === 'chapter' ? meta.context.root_object : undefined
 				const WorkContext = () => meta.context?.root_object.type === 'work' ? meta.context.root_object : undefined
-				const authorVanity = ChapterContext()?.chapter.author ?? WorkContext()?.work.author
-				const workVanity = ChapterContext()?.chapter.work ?? WorkContext()?.work.vanity
-				const chapterUrl = ChapterContext()?.chapter.url
+				const authorVanity = ChapterContext()?.chapter.author_vanity ?? WorkContext()?.work.author_vanity
+				const workVanity = ChapterContext()?.chapter.work_vanity ?? WorkContext()?.work.work_vanity
+				const chapterUrl = ChapterContext()?.chapter.chapter_url
 				const author = !authorVanity ? undefined : State.value(meta.context.authors)?.find(a => a.vanity === authorVanity)
-				const work = !workVanity ? undefined : State.value(meta.context.works)?.find(w => w.author === authorVanity && w.vanity === workVanity)
-				const chapter = !chapterUrl ? undefined : State.value(meta.context.chapters)?.find(c => c.author === authorVanity && c.work === workVanity && c.url === chapterUrl)
+				const work = !workVanity ? undefined : State.value(meta.context.works)?.find(w => w.author_vanity === authorVanity && w.work_vanity === workVanity)
+				const chapter = !chapterUrl ? undefined : State.value(meta.context.chapters)?.find(c => c.author_vanity === authorVanity && c.work_vanity === workVanity && c.chapter_url === chapterUrl)
 
 				isOnPrivateObject = meta.context.root_object.type === 'work_private' || meta.context.root_object.type === 'chapter_private'
 				isOnPatronOnlyObject = chapter?.visibility === 'Patreon'
@@ -163,7 +163,7 @@ const Comment = Component.Builder((component, source: CommentDataSource, comment
 							author ? AuthorLink(author) : '',
 						],
 						chapter: () => [
-							(Link(`/work/${work?.author}/${work?.vanity}/chapter/${chapterUrl}`)
+							(Link(`/work/${work?.author_vanity}/${work?.work_vanity}/chapter/${chapterUrl}`)
 								.style('comment-header-context-chapter')
 								.style.toggle(isOnPatronOnlyObject, 'comment-header-context-chapter--patreon', 'patreon-icon-before')
 								.append(Component().text.set(Chapters.getName(chapter)))

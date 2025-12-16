@@ -58,12 +58,12 @@ interface Chapter extends Component, ChapterExtensions
 { }
 
 const Chapter = Component.Builder((component, chapter: ChapterMetadata, work: WorkMetadata, author: AuthorReference & Partial<AuthorMetadata>): Chapter => {
-	component = Link(`/work/${author.vanity}/${work.vanity}/chapter/${chapter.url}`)
+	component = Link(`/work/${author.vanity}/${work.work_vanity}/chapter/${chapter.chapter_url}`)
 		.style('chapter')
 		.style.toggle(chapter.visibility === 'Private', 'chapter--private')
 		.style.toggle(chapter.visibility === 'Patreon', 'chapter--patreon', 'patreon-icon-after')
 
-	const chapterNumber = Maths.parseIntOrUndefined(chapter.url)
+	const chapterNumber = Maths.parseIntOrUndefined(chapter.chapter_url)
 	const number = Component()
 		.style('chapter-number')
 		.text.set(chapterNumber ? `${chapterNumber.toLocaleString(navigator.language)}` : '')
@@ -118,7 +118,7 @@ const Chapter = Component.Builder((component, chapter: ChapterMetadata, work: Wo
 				return component
 			},
 			getActions (owner, actions) {
-				const isOwnChapter = Session.Auth.loggedInAs(owner, chapter.author)
+				const isOwnChapter = Session.Auth.loggedInAs(owner, chapter.author_vanity)
 				const shouldShowReorder = State.Every(owner, isOwnChapter, reorderActionHandler.truthy)
 				actions.addWhen(shouldShowReorder, Button()
 					.type('flush')
@@ -132,7 +132,7 @@ const Chapter = Component.Builder((component, chapter: ChapterMetadata, work: Wo
 						.type('flush')
 						.setIcon('pencil')
 						.text.use('chapter/action/label/edit')
-						.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.vanity}/chapter/${State.value(chapter).url}/edit`))
+						.event.subscribe('click', () => navigate.toURL(`/work/${author.vanity}/${work.work_vanity}/chapter/${State.value(chapter).chapter_url}/edit`))
 					),
 					(Button()
 						.type('flush')
@@ -150,7 +150,7 @@ const Chapter = Component.Builder((component, chapter: ChapterMetadata, work: Wo
 					.setIcon('flag')
 					.text.use('chapter/action/label/report')
 					.event.subscribe('click', event => ReportDialog.prompt(event.host, CHAPTER_REPORT, {
-						reportedContentName: State.value(chapter).name ?? (quilt => quilt['view/chapter/number/label'](State.value(chapter).url)),
+						reportedContentName: State.value(chapter).name ?? (quilt => quilt['view/chapter/number/label'](State.value(chapter).chapter_url)),
 						async onReport (body) {
 							const response = await EndpointReportsChapter$authorVanity$workVanity$chapterUrlAdd.query({ body, params: Chapters.reference(State.value(chapter)) })
 							toast.handleError(response)

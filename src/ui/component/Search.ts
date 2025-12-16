@@ -170,8 +170,8 @@ export default Component.Builder(component => {
 						return NoResults()
 
 					for (const work of searchResults?.works ?? []) {
-						const author = searchResults.authorData.find(a => a.vanity === work.author)
-						SearchResult(`/work/${work.author}/${work.vanity}`)
+						const author = searchResults.authorData.find(a => a.vanity === work.author_vanity)
+						SearchResult(`/work/${work.author_vanity}/${work.work_vanity}`)
 							.titleText.set(work.name)
 							.tweak(result => author && result.subtitle.append(AuthorLink(author)))
 							.descriptionText.set(work.description)

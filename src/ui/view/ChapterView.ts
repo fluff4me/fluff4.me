@@ -1,11 +1,10 @@
-import type { Work as WorkData, WorkMetadata } from 'api.fluff4.me'
+import type { ChapterReference, Work as WorkData, WorkMetadata } from 'api.fluff4.me'
 import EndpointChapters$authorVanity$workVanity$chapterUrl from 'endpoint/chapters/$author_vanity/$work_vanity/EndpointChapters$authorVanity$workVanity$chapterUrl'
 import EndpointChapters$authorVanity$workVanityList from 'endpoint/chapters/$author_vanity/$work_vanity/EndpointChapters$authorVanity$workVanityList'
 import EndpointHistoryChapter$authorVanity$workVanityChapter$chapterUrlAdd from 'endpoint/history/chapter/$author_vanity/$work_vanity/chapter/$chapter_url/EndpointHistoryChapter$authorVanity$workVanityChapter$chapterUrlAdd'
 import EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeAdd from 'endpoint/reactions/chapter/$author_vanity/$work_vanity/$chapter_url/$reaction_type/EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeAdd'
 import EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeRemove from 'endpoint/reactions/chapter/$author_vanity/$work_vanity/$chapter_url/$reaction_type/EndpointReactionsChapter$authorVanity$workVanity$chapterUrl$reactionTypeRemove'
 import EndpointWorks$authorVanity$workVanityGet from 'endpoint/works/$author_vanity/$work_vanity/EndpointWorks$authorVanity$workVanityGet'
-import type { NewChapterReference } from 'model/Chapters'
 import Chapters from 'model/Chapters'
 import PagedData from 'model/PagedData'
 import Patreon from 'model/Patreon'
@@ -81,7 +80,7 @@ const settings = Settings.registerGroup('settings/chapter/name', {
 })
 
 export default ViewDefinition({
-	async load (params: NewChapterReference) {
+	async load (params: ChapterReference) {
 		const response = await EndpointWorks$authorVanity$workVanityGet.query({ params: Chapters.work(params) })
 		if (response instanceof Error)
 			throw response
@@ -96,15 +95,15 @@ export default ViewDefinition({
 
 		return { workData: response.data as WorkMetadata & Partial<WorkData>, initialChapterResponse }
 	},
-	create (params: NewChapterReference, { workData, initialChapterResponse }) {
+	create (params: ChapterReference, { workData, initialChapterResponse }) {
 		const view = PaginatedView('chapter')
 
-		const author = workData.synopsis?.mentions.find(author => author.vanity === workData.author)
+		const author = workData.synopsis?.mentions.find(author => author.vanity === workData.author_vanity)
 		delete workData.synopsis
 		delete workData.custom_tags
 
 		view.breadcrumbs.setBackButton(
-			`/work/${workData.author}/${workData.vanity}`,
+			`/work/${workData.author_vanity}/${workData.work_vanity}`,
 			button => button.subText.set(workData.name),
 		)
 
@@ -134,7 +133,7 @@ export default ViewDefinition({
 			.appendTo(view.content)
 
 		const chapterState = State(initialChapterResponse.data)
-		const isOwn = Session.Auth.loggedInAs(view, workData.author)
+		const isOwn = Session.Auth.loggedInAs(view, workData.author_vanity)
 		const sufficientPledge = chapterState.mapManual(chapter => !chapter.insufficient_pledge)
 		const shouldShowPatreon = State.Some(view, isOwn.truthy, sufficientPledge.falsy)
 
@@ -176,7 +175,7 @@ export default ViewDefinition({
 			})
 			.appendTo(view.content)
 			.set(chapters, initialChapterResponse.page, (slot, chapter, page, chapters, paginator) => {
-				paginator.setURL(`/work/${workData.author}/${workData.vanity}/chapter/${chapter.url}`)
+				paginator.setURL(`/work/${workData.author_vanity}/${workData.work_vanity}/chapter/${chapter.url}`)
 
 				if (Session.Auth.loggedIn.value)
 					void EndpointHistoryChapter$authorVanity$workVanityChapter$chapterUrlAdd.query({ params: { ...params, chapter_url: chapter.url } })
@@ -284,7 +283,7 @@ export default ViewDefinition({
 		paginator.content.style('view-type-chapter-block-content')
 
 		Slot().appendTo(paginator.primaryActions).use(chapterState, (slot, chapter) => {
-			const chapterComponent = Chapter(chapter, workData, author ?? { vanity: workData.author })
+			const chapterComponent = Chapter(chapter, workData, author ?? { vanity: workData.author_vanity })
 				.setOwner(slot)
 
 			ActionBlock()
@@ -484,7 +483,7 @@ export default ViewDefinition({
 		for (const actions of [paginator.footer, paginator.headerActions]) {
 			actions.style('view-type-chapter-block-paginator-actions')
 
-			Link(`/work/${workData.author}/${workData.vanity}`)
+			Link(`/work/${workData.author_vanity}/${workData.work_vanity}`)
 				.and(Button)
 				.type('flush')
 				.text.use('chapter/action/index')

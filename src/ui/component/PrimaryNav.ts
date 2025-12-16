@@ -104,7 +104,7 @@ export default Component.Builder(nav => {
 			&& Group('top', 'sidebar/section/create')
 				.tweak(group => {
 					for (const work of author.works ?? [])
-						group.add(`/work/${work.author}/${work.vanity}`, Quilt.fake(work.name), button => button.setIcon('book'))
+						group.add(`/work/${work.author_vanity}/${work.work_vanity}`, Quilt.fake(work.name), button => button.setIcon('book'))
 				})
 				.add('/work/new', 'sidebar/link/create-work', button => button.setIcon('plus'))
 		)

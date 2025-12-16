@@ -64,13 +64,13 @@ const WorkFeed = Component.Builder((component): WorkFeed => {
 				pageHandler?.(page)
 
 				for (const workData of works) {
-					const author = authors.value.find(author => author.vanity === workData.author)
-					const workCard = Link(author && `/work/${author.vanity}/${workData.vanity}`)
+					const author = authors.value.find(author => author.vanity === workData.author_vanity)
+					const workCard = Link(author && `/work/${author.vanity}/${workData.work_vanity}`)
 						.and(Work, workData, author, true)
 						.viewTransition(false)
 						.appendTo(slot)
 
-					Slot().appendTo(slot).if(Session.Auth.loggedInAs(slot, workData.author), slot => ActionBlock()
+					Slot().appendTo(slot).if(Session.Auth.loggedInAs(slot, workData.author_vanity), slot => ActionBlock()
 						.attachAbove()
 						.addActions(workCard)
 					)
