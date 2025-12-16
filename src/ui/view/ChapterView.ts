@@ -179,7 +179,7 @@ export default ViewDefinition({
 				paginator.setURL(`/work/${workData.author}/${workData.vanity}/chapter/${chapter.url}`)
 
 				if (Session.Auth.loggedIn.value)
-					void EndpointHistoryChapter$authorVanity$workVanityChapter$chapterUrlAdd.query({ params })
+					void EndpointHistoryChapter$authorVanity$workVanityChapter$chapterUrlAdd.query({ params: { ...params, chapter_url: chapter.url } })
 
 				if (chapter.statistics) Statistics()
 					.style('view-type-chapter-block-author-statistics')
