@@ -1,5 +1,6 @@
 import type { Quilt } from 'lang/en-nz'
 import quilt from 'lang/en-nz'
+import Component from 'ui/Component'
 import Heading from 'ui/component/core/Heading'
 import Paragraph from 'ui/component/core/Paragraph'
 import Placeholder from 'ui/component/core/Placeholder'
@@ -21,6 +22,12 @@ export default ViewDefinition({
 		Heading()
 			.text.use(quilt => quilt['view/error/title']({ CODE: params.code }))
 			.appendTo(view.content)
+
+		Component('meta')
+			.setOwner(view)
+			.attributes.set('name', 'robots')
+			.attributes.set('content', 'noindex')
+			.appendTo(document.head)
 
 		const key = `view/error/description-${params.code}` as const
 		if (key in quilt)
