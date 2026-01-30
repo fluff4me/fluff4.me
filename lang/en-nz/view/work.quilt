@@ -4,8 +4,12 @@
 title: Recommendations
 content/empty: No recommendations yet...
 content/end: No more recommendations
-action/add/label: Recommend this work:
+action/added/label: You recommend this work!
+action/add/label: Click to recommend this work!
 action/no-add/label: Read more of this work to leave a recommendation!
+editor/placeholder: Want to add more detail?
+reactions/plus: +{0} additional recommendations!
+other-recommendations-title: Other recommendations:
 
 ### chapters
 title=shared/term/chapters

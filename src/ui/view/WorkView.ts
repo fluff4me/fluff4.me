@@ -4,6 +4,8 @@ import EndpointChapters$authorVanity$workVanity from 'endpoint/chapters/$author_
 import EndpointHistoryBookmarks$authorVanity$workVanityDeleteFurthestRead from 'endpoint/history/bookmarks/$author_vanity/$work_vanity/delete/EndpointHistoryBookmarks$authorVanity$workVanityDeleteFurthestRead'
 import EndpointHistoryBookmarks$authorVanity$workVanityDeleteLastRead from 'endpoint/history/bookmarks/$author_vanity/$work_vanity/delete/EndpointHistoryBookmarks$authorVanity$workVanityDeleteLastRead'
 import EndpointHistoryWork$authorVanity$workVanityAdd from 'endpoint/history/work/$author_vanity/$work_vanity/EndpointHistoryWork$authorVanity$workVanityAdd'
+import EndpointReactionsWork$authorVanity$workVanityAdd from 'endpoint/reactions/work/$author_vanity/$work_vanity/EndpointReactionsWork$authorVanity$workVanityAdd'
+import EndpointReactionsWork$authorVanity$workVanityDelete from 'endpoint/reactions/work/$author_vanity/$work_vanity/EndpointReactionsWork$authorVanity$workVanityDelete'
 import EndpointWorks$authorVanity$workVanityGet from 'endpoint/works/$author_vanity/$work_vanity/EndpointWorks$authorVanity$workVanityGet'
 import Chapters from 'model/Chapters'
 import PagedListData from 'model/PagedListData'
@@ -12,6 +14,7 @@ import Tags from 'model/Tags'
 import Works from 'model/Works'
 import Component from 'ui/Component'
 import ActionBlock from 'ui/component/ActionBlock'
+import AuthorLink from 'ui/component/AuthorLink'
 import Chapter from 'ui/component/Chapter'
 import type { CommentData } from 'ui/component/Comment'
 import Comment from 'ui/component/Comment'
@@ -20,11 +23,14 @@ import CommentTree from 'ui/component/CommentTree'
 import Block from 'ui/component/core/Block'
 import Button from 'ui/component/core/Button'
 import GradientText from 'ui/component/core/ext/GradientText'
+import Heading from 'ui/component/core/Heading'
+import Icon from 'ui/component/core/Icon'
 import Link from 'ui/component/core/Link'
 import Paginator from 'ui/component/core/Paginator'
 import Placeholder from 'ui/component/core/Placeholder'
 import Slot from 'ui/component/core/Slot'
 import Tabinator, { Tab } from 'ui/component/core/Tabinator'
+import Reaction from 'ui/component/Reaction'
 import Work from 'ui/component/Work'
 import DynamicDestination from 'ui/utility/DynamicDestination'
 import Viewport from 'ui/utility/Viewport'
@@ -316,15 +322,53 @@ export default ViewDefinition({
 				.setAestheticLevel(4)
 				.text.use('view/work/comments/title')
 			)
-			.tweak(block => block.content.append(Slot().use([commentState, workData, ageRestricted], (slot, thread, work, ageRestricted) => {
+			.tweak(block => block.content.append(Slot().use([commentState, workData, ageRestricted, Session.Auth.author], (slot, thread, work, ageRestricted, self) => {
 				if (!thread || ageRestricted)
 					return
+
+				const MAX_RECOMMENDATIONS_DISPLAY = 8
+				// work.recommendation_reactions_count = 35
+				const ReactionRecommendations = () => Component()
+					.style('view-type-work-comment-block-reactions')
+					.append(...work.recommendation_reactions
+						.slice(0, MAX_RECOMMENDATIONS_DISPLAY)
+						.map(reaction => {
+							if (reaction.author === self?.vanity)
+								return undefined
+
+							const author = workData.value.synopsis.mentions.find(mention => mention.vanity === reaction.author)
+							if (!author)
+								return undefined
+
+							return reaction.author === self?.vanity ? undefined
+								: Component()
+									.style('view-type-work-comment-block-reactions-instance')
+									.append(reaction.reaction_type === 'supporter_love'
+										? Icon('supporter-heart')
+											.style('view-type-chapter-block-supporter-reaction')
+											.and(GradientText, 'heart-gradient', '115deg')
+											.useGradient(author.supporter?.username_colours)
+										: Icon('heart')
+									)
+									.append(AuthorLink(author)
+										.style('view-type-work-comment-block-reactions-author-link')
+									)
+						})
+					)
+					.append(work.recommendation_reactions_count > MAX_RECOMMENDATIONS_DISPLAY && Component()
+						.style('view-type-work-comment-block-reactions-plus')
+						.text.use(quilt => quilt['view/work/comments/reactions/plus'](work.recommendation_reactions_count - MAX_RECOMMENDATIONS_DISPLAY))
+					)
+
+				if (!self)
+					ReactionRecommendations()
+						.appendTo(slot)
 
 				const isOwnWork = Session.Auth.loggedInAs(slot, thread.threadAuthor)
 				const commentsRenderDefinition: CommentTreeRenderDefinition = {
 					simpleTimestamps: true,
 					onCommentsUpdate (comments) {
-						const ownRecommendation = comments.find(comment => comment.author === Session.Auth.author.value?.vanity && !comment.edit)
+						const ownRecommendation = comments.find(comment => comment.author === self?.vanity && !comment.edit)
 						if (!work.recommendation && ownRecommendation) {
 							work.recommendation = ownRecommendation
 							workData.emit()
@@ -332,7 +376,7 @@ export default ViewDefinition({
 					},
 					shouldSkipComment (data) {
 						return true
-							&& data.author === Session.Auth.author.value?.vanity
+							&& data.author === self?.vanity
 							&& !data.edit
 					},
 					onRenderComment (comment, data) {
@@ -346,6 +390,7 @@ export default ViewDefinition({
 
 						comment.editor
 							.setMinimal(tabletMode.falsy)
+							.placeholder.use('view/work/comments/editor/placeholder')
 							.hint.use()
 
 						if (data.comment_id)
@@ -354,32 +399,84 @@ export default ViewDefinition({
 
 						// this is the new comment editor (only possible on root)
 						// dynamically replace the editor with hints or the existing recommendation if applicable
-						const existingRecommendation = work.recommendation as CommentData | undefined
-						const canRecommend = !existingRecommendation && !work.bookmarks?.can_recommend ? State(false)
+						const existingRecommendationComment = work.recommendation as CommentData | undefined
+						const canRecommend = !existingRecommendationComment && !work.bookmarks?.can_recommend ? State(false)
 							: isOwnWork.falsy
-						const noExistingRecommendation = State(!existingRecommendation)
-						const showCommentEditor = State.Every(comment, canRecommend, noExistingRecommendation)
-						const showCommentHint = State.Every(comment, canRecommend.falsy, isOwnWork.falsy, noExistingRecommendation)
+						const noExistingRecommendationComment = State(!existingRecommendationComment)
 
-						comment.author?.text.use('view/work/comments/action/add/label')
-							.style('view-type-work-comment-editor-author-hint')
+						const reacting = State(false)
+						const reacted = State(!!work.recommendation_reacted)
+
+						const showCommentEditor = State.Every(comment, canRecommend, noExistingRecommendationComment, reacted)
+						const showCommentHint = State.Every(comment, canRecommend.falsy, isOwnWork.falsy, noExistingRecommendationComment, reacted.falsy)
+
+						comment.author?.remove()
 						comment.onRooted(() => {
 							const parent = comment.parent!
+
+							ReactionRecommendations()
+								.prependTo(parent)
+
+							const hasRecommended = State.Some(comment, reacted, noExistingRecommendationComment.falsy)
+							const workHasOtherRecommendationReactions = hasRecommended.map(comment, hasRecommended => work.recommendation_reactions_count > +hasRecommended)
+							Heading()
+								.setAestheticLevel(6)
+								.text.use('view/work/comments/other-recommendations-title')
+								.prependToWhen(workHasOtherRecommendationReactions, parent)
 
 							// show comment editor only when able to recommend & no existing recommendation
 							comment.prependToWhen(showCommentEditor, parent)
 
+							Component()
+								.style('view-type-work-comment-hint', 'view-type-work-comment-hint--borderless')
+								.append((self?.supporter?.tier
+									? Reaction('supporter_love', 0, reacted, reacting)
+										.and(GradientText, 'heart-gradient', '115deg')
+										.useGradient(Session.Auth.author.map(slot, author => author?.supporter?.username_colours))
+									: Reaction('love', 0, reacted, reacting)
+								)
+									.style('view-type-work-comment-hint-reaction-button')
+									.event.subscribe('click', async () => {
+										if (reacting.value)
+											return
+
+										reacting.value = true
+										const endpoint = reacted.value
+											? EndpointReactionsWork$authorVanity$workVanityDelete
+											: EndpointReactionsWork$authorVanity$workVanityAdd
+
+										const response = await endpoint.query({ params: Works.reference(work) })
+										if (toast.handleError(response)) {
+											reacting.value = false
+											return
+										}
+
+										reacted.value = !reacted.value
+										reacting.value = false
+									})
+								)
+								.append(Link(undefined)
+									.and(GradientText)
+									.useGradient(self?.supporter?.username_colours)
+									.style('author-link')
+									.text.bind(reacted.map(comment, reacted => quilt => quilt[reacted
+										? 'view/work/comments/action/added/label'
+										: 'view/work/comments/action/add/label'
+									]()))
+								)
+								.prependToWhen(State.Every(comment, showCommentHint.falsy, noExistingRecommendationComment), parent)
+
 							// show hint when unable to recommend & no existing recommendation
 							Link(undefined)
 								.and(GradientText)
-								.useGradient(Session.Auth.author.value?.supporter?.username_colours)
+								.useGradient(self?.supporter?.username_colours)
 								.style('view-type-work-comment-hint', 'author-link')
 								.text.use('view/work/comments/action/no-add/label')
 								.prependToWhen(showCommentHint, parent)
 
 							// otherwise show existing recommendation
-							if (existingRecommendation) {
-								const existingRecommendationState = State([existingRecommendation])
+							if (existingRecommendationComment) {
+								const existingRecommendationState = State([existingRecommendationComment])
 								existingRecommendationState.subscribeManual(([existingRecommendation]) => {
 									if (!existingRecommendation) {
 										work.recommendation = undefined
@@ -387,8 +484,8 @@ export default ViewDefinition({
 									}
 								})
 								Comment(
-									{ threadAuthor: thread.threadAuthor, comments: existingRecommendationState, authors: State(existingRecommendation.body?.mentions ?? []) },
-									existingRecommendation,
+									{ threadAuthor: thread.threadAuthor, comments: existingRecommendationState, authors: State(existingRecommendationComment.body?.mentions ?? []) },
+									existingRecommendationComment,
 									undefined,
 									commentsRenderDefinition,
 								)
@@ -397,11 +494,17 @@ export default ViewDefinition({
 						})
 					},
 					onNoComments (slot) {
-						Placeholder()
-							.style('view-type-work-comment-placeholder', 'view-type-work-comment-placeholder--empty')
-							.style.bind(isOwnWork, 'view-type-work-comment-placeholder--empty--is-own-work')
-							.text.use('view/work/comments/content/empty')
-							.appendTo(slot)
+						if (!work.recommendation_reactions.length)
+							Placeholder()
+								.style('view-type-work-comment-placeholder', 'view-type-work-comment-placeholder--empty')
+								.style.bind(isOwnWork, 'view-type-work-comment-placeholder--empty--is-own-work')
+								.text.use('view/work/comments/content/empty')
+								.appendTo(slot)
+						else
+							Placeholder()
+								.style('view-type-work-comment-placeholder', 'view-type-work-comment-placeholder--empty', 'view-type-work-comment-placeholder--end')
+								.text.use('view/work/comments/content/end')
+								.appendTo(slot)
 					},
 					onCommentsEnd (slot) {
 						Placeholder()

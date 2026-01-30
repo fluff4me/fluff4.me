@@ -225,6 +225,14 @@
 		#not-flush:
 			overscroll-behavior: contain
 
+		&--empty:
+			@before:
+				content: $text-editor-placeholder
+				%absolute
+				%top-3
+				%italic
+				%colour-6
+
 		@after:
 			%hidden
 

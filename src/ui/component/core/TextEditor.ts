@@ -764,15 +764,15 @@ const markdownParser = new MarkdownParser(schema, markdown, Objects.filterNullis
 	},
 
 	...Object.entries(markdownHTMLNodeRegistry)
-		.toObject(([tokenType, spec]) => [tokenType, ({
+		.toObject(([tokenType, spec]) => [tokenType, {
 			block: tokenType,
 			getAttrs: token => (token as FluffToken).nodeAttrs ?? Object.fromEntries(token.attrs ?? []),
-		} satisfies ParseSpec)]),
+		} satisfies ParseSpec]),
 	...Object.entries(markdownHTMLMarkRegistry)
-		.toObject(([tokenType, spec]) => [tokenType, ({
+		.toObject(([tokenType, spec]) => [tokenType, {
 			mark: tokenType,
 			getAttrs: token => (token as FluffToken).nodeAttrs ?? Object.fromEntries(token.attrs ?? []),
-		} satisfies ParseSpec)]),
+		} satisfies ParseSpec]),
 } satisfies Record<string, ParseSpec | undefined>))
 
 const markdownSerializer = new MarkdownSerializer(
@@ -950,6 +950,7 @@ interface TextEditorExtensions {
 	readonly default: StringApplicator.Optional<this>
 	readonly content: State<string>
 	readonly touched: State<boolean>
+	readonly placeholder: StringApplicator.Optional<this>
 	document?: Input
 	mirror?: EditorView
 	useMarkdown (): string
@@ -1407,6 +1408,12 @@ const TextEditor = Object.assign(Component.Builder((component): TextEditor => {
 			default: StringApplicator(editor, value => loadFromMarkdown(value)),
 			toolbar,
 			editor: actualEditor,
+			placeholder: StringApplicator(editor, value => {
+				editor.document
+					?.style.bind(content.map(editor, content => !content.trim()), 'text-editor-document--empty')
+					.style.setVariable('text-editor-placeholder', value && `"${value.replace(/"/g, '\\"')}"`)
+				return editor
+			}),
 			setRequired (required = true) {
 				editor.style.toggle(required, 'text-editor--required')
 				editor.required.asMutable?.setValue(required)

@@ -33,6 +33,32 @@
 				#after: .block-header, .paginator-header
 				; %padding-inline-3
 
+			&-reactions:
+				%grid
+				grid-template-columns: 1fr 1fr
+				%gap-2
+				%padding-bottom-3
+
+				:empty:
+					%hidden
+
+				&-instance:
+					%flex
+					%gap-1
+					%align-items-centre
+					%overflow-hidden
+
+				&-author-link:
+					; text-overflow: ellipsis
+					%overflow-hidden
+					%clamp-1
+
+				&-plus:
+					%column-1-2
+					%italic
+					%bold
+					%text-align-right
+
 		&-hint:
 			#after: .link
 			%block
@@ -40,6 +66,17 @@
 			%border-bottom-1
 			%border-colour-5
 			%no-pointer-events
+			%flex
+			%gap-2
+			%align-items-centre
+
+			&--borderless:
+				#after: .view-type-work-comment-hint
+				%border-none
+				%padding-0
+
+			&-reaction-button:
+				%pointer-events-all
 
 		&-editor-author-hint:
 			#after: .link

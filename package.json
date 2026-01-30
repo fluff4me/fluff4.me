@@ -19,7 +19,7 @@
 		"@types/serve-static": "1.15.7",
 		"@types/ws": "8.5.13",
 		"ansicolor": "1.1.100",
-		"chiri": "github:fluff4me/chiri#d381ef046f789e561983f077e0242bce150b09da",
+		"chiri": "github:fluff4me/chiri#6f49a9bcaa77e450cc599a61f44e83079bd303f3",
 		"chokidar": "3.5.3",
 		"cssnano": "7.0.6",
 		"del": "6.1.1",
@@ -28,7 +28,7 @@
 		"escape-html": "1.0.3",
 		"fs-extra": "10.1.0",
 		"https-localhost": "4.7.1",
-		"lint": "github:fluff4me/lint#c0ccd500c35a06157376a78ac911147be44c27cd",
+		"lint": "github:fluff4me/lint#936252f6c9ecfcf0ddcd48ef2104314af5841686",
 		"parseurl": "1.3.3",
 		"postcss": "8.5.3",
 		"serve-static": "1.16.2",
@@ -40,5 +40,11 @@
 		"typescript-eslint": "8.26.0",
 		"weaving": "github:chirivulpes/weaving#fc532b3e2025f424747e382caf66ad1661932c9a",
 		"ws": "8.18.0"
+	},
+	"pnpm": {
+		"overrides": {
+			"express": "-",
+			"ts-node>diff": "8.0.3"
+		}
 	}
 }

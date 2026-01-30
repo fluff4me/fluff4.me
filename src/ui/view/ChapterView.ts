@@ -382,7 +382,7 @@ export default ViewDefinition({
 								const supporterReactions = chapterState.value.supporter_reactions ??= []
 								supporterReactions.push({
 									author: Session.Auth.author.value!.vanity,
-									reaction_type: 'heart',
+									reaction_type: 'supporter_love',
 								})
 
 								chapterState.emit()
