@@ -21,10 +21,12 @@
 			"prosemirror-menu": "1.2.4",
 			"prosemirror-model": "1.23.0",
 			"prosemirror-schema-list": "1.4.1",
-			"prosemirror-transform": "1.10.2"
+			"prosemirror-transform": "1.10.2",
+			"markdown-it": "14.1.1",
+			"underscore": "1.13.8"
 		}
 	},
 	"devDependencies": {
-		"api.fluff4.me": "1.0.1157"
+		"api.fluff4.me": "1.0.1159"
 	}
 }

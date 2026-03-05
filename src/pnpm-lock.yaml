@@ -15,6 +15,8 @@ overrides:
   prosemirror-model: 1.23.0
   prosemirror-schema-list: 1.4.1
   prosemirror-transform: 1.10.2
+  markdown-it: 14.1.1
+  underscore: 1.13.8
 
 importers:
 
@@ -46,8 +48,8 @@ importers:
         version: 0.5.21
     devDependencies:
       api.fluff4.me:
-        specifier: 1.0.1157
-        version: 1.0.1157
+        specifier: 1.0.1159
+        version: 1.0.1159
 
 packages:
 
@@ -72,8 +74,8 @@ packages:
     resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
     engines: {node: '>=8'}
 
-  api.fluff4.me@1.0.1157:
-    resolution: {integrity: sha512-j+u1mzVvMYfjjp29uPD3W97f2eBx42GHplFH8qA+zoKVHT40X00XU1GUy/cvMcDKb7lYyr/xLkEg99qCsfwG0w==}
+  api.fluff4.me@1.0.1159:
+    resolution: {integrity: sha512-/AJwRMT1Rm2IHilYADKiGE53/nsQVWjZchrgEfQi1O7K7sAsyjUw2gq52lCO/ovUywle/BXodwUPwY7leBoMKA==}
 
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
@@ -175,8 +177,8 @@ packages:
     engines: {node: '>=12.0.0'}
     hasBin: true
 
-  markdown-it@14.1.0:
-    resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
+  markdown-it@14.1.1:
+    resolution: {integrity: sha512-BuU2qnTti9YKgK5N+IeMubp14ZUKUUw7yeJbkjtosvHiP0AZ5c8IAgEMk79D0eC8F23r4Ac/q8cAIFdm2FtyoA==}
     hasBin: true
 
   mdurl@2.0.0:
@@ -315,8 +317,8 @@ packages:
   uc.micro@2.1.0:
     resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
-  underscore@1.13.7:
-    resolution: {integrity: sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==}
+  underscore@1.13.8:
+    resolution: {integrity: sha512-DXtD3ZtEQzc7M8m4cXotyHR+FAS18C64asBYY5vqZexfYryNNnDc02W4hKg3rdQuqOYas1jkseX0+nZXjTXnvQ==}
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -365,7 +367,7 @@ snapshots:
     dependencies:
       color-convert: 2.0.1
 
-  api.fluff4.me@1.0.1157: {}
+  api.fluff4.me@1.0.1159: {}
 
   argparse@1.0.10:
     dependencies:
@@ -405,7 +407,7 @@ snapshots:
 
   duck@0.1.12:
     dependencies:
-      underscore: 1.13.7
+      underscore: 1.13.8
 
   emoji-regex@8.0.0: {}
 
@@ -451,7 +453,7 @@ snapshots:
     dependencies:
       duck: 0.1.12
       option: 0.2.4
-      underscore: 1.13.7
+      underscore: 1.13.8
 
   mammoth@1.11.0:
     dependencies:
@@ -463,10 +465,10 @@ snapshots:
       jszip: 3.10.1
       lop: 0.4.2
       path-is-absolute: 1.0.1
-      underscore: 1.13.7
+      underscore: 1.13.8
       xmlbuilder: 10.1.1
 
-  markdown-it@14.1.0:
+  markdown-it@14.1.1:
     dependencies:
       argparse: 2.0.1
       entities: 4.5.0
@@ -552,7 +554,7 @@ snapshots:
   prosemirror-markdown@1.13.1:
     dependencies:
       '@types/markdown-it': 14.1.2
-      markdown-it: 14.1.0
+      markdown-it: 14.1.1
       prosemirror-model: 1.23.0
 
   prosemirror-menu@1.2.4:
@@ -644,7 +646,7 @@ snapshots:
 
   uc.micro@2.1.0: {}
 
-  underscore@1.13.7: {}
+  underscore@1.13.8: {}
 
   util-deprecate@1.0.2: {}
 

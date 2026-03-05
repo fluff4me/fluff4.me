@@ -1,2 +1,6 @@
 excludeLinksFromLockfile: true
 sharedWorkspaceLockfile: false
+
+minimumReleaseAgeExclude:
+  - svgo
+  - sax
