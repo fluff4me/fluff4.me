@@ -9,3 +9,4 @@ overrides:
   express: "-"
   "ts-node>diff": "8.0.3"
   svgo: "4.0.1"
+  flatted@<=3.4.1: '^3.4.2'

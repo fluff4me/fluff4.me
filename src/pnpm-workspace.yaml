@@ -17,5 +17,6 @@ overrides:
   prosemirror-model: "1.23.0"
   prosemirror-schema-list: "1.4.1"
   prosemirror-transform: "1.10.2"
-  markdown-it: "14.1.1"
+  markdown-it: "14.2.0"
   underscore: "1.13.8"
+  "@xmldom/xmldom": "0.8.13"
