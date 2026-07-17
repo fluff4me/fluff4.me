@@ -4,3 +4,8 @@ sharedWorkspaceLockfile: false
 minimumReleaseAgeExclude:
   - svgo
   - sax
+
+overrides:
+  express: "-"
+  "ts-node>diff": "8.0.3"
+  svgo: "4.0.1"

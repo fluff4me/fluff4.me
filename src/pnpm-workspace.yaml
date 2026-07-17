@@ -5,3 +5,17 @@ minimumReleaseAgeExclude:
 
 sharedWorkspaceLockfile: false
 shamefullyHoist: true
+
+overrides:
+  prosemirror-commands: "1.6.1"
+  prosemirror-dropcursor: "1.8.1"
+  prosemirror-gapcursor: "1.3.2"
+  prosemirror-history: "1.4.1"
+  prosemirror-inputrules: "1.4.0"
+  prosemirror-keymap: "1.2.2"
+  prosemirror-menu: "1.2.4"
+  prosemirror-model: "1.23.0"
+  prosemirror-schema-list: "1.4.1"
+  prosemirror-transform: "1.10.2"
+  markdown-it: "14.1.1"
+  underscore: "1.13.8"
